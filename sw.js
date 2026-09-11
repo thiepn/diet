@@ -1,4 +1,4 @@
-const CACHE = 'diet-copilot-dashboard-v4.0-p4';
+const CACHE = 'diet-copilot-dashboard-v4.0-p4.1';
 const CORE = [
   './',
   './index.html',
