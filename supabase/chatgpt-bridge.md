@@ -1,250 +1,192 @@
-# Diet Copilot V0.5 — ChatGPT bridge contract
+# Diet Copilot — Live ChatGPT bridge
 
-## Purpose
+## Product boundary
 
-ChatGPT is the interpretation layer. Supabase is the durable source of truth. The browser app is a dashboard/manual fallback.
-
-A ChatGPT integration should **read before it writes**, use the authenticated user's normal JWT/RLS context, and never use a service-role key for routine user actions. Before normal use, call `diet_copilot_healthcheck()` and require `schema_version >= 5`.
-
-## Required workflow
-
-### 1. Read current context
-
-Call:
+Diet Copilot is intentionally split into three layers:
 
 ```text
-get_diet_context(p_end_date, p_days)
+User → ChatGPT → Supabase → read-only dashboard
 ```
 
-Typical values:
+The browser is not a calorie-entry application. Nutrition and weight records are written by ChatGPT through the connected Supabase management integration. The browser receives SELECT-only access to the user's own rows through RLS.
+
+## Live project
+
+- Supabase project: `Diet Copilot`
+- Project ref: `mrrqsqawwxwebsdmrnre`
+- Region: `eu-central-1`
+- Canonical dashboard: `https://thiepn.dev/diet/`
+- Browser API key: publishable key only; never expose a secret/service-role key
+
+## Security model
+
+Public tables are protected by RLS. Authenticated browser sessions can SELECT only rows owned by `auth.uid()`.
+
+Browser sessions cannot INSERT, UPDATE, or DELETE nutrition records and cannot execute the write bridge.
+
+ChatGPT write helpers live in the non-exposed `private` schema. They are not granted to `anon` or `authenticated`; they are intended to be called only through the trusted Supabase management/database connection available to ChatGPT.
+
+The current setup is intentionally single-owner. `private.resolve_owner()` requires exactly one Supabase Auth user and refuses to proceed if more than one exists.
+
+## Core ChatGPT functions
+
+### Read context
+
+```sql
+select private.get_context(p_end_date, p_days);
+```
+
+Use this before answering questions about today's remaining calories, recent adherence, protein intake, or weight history.
+
+### Search meal history
+
+```sql
+select private.search_history(p_query, p_days, p_limit);
+```
+
+Search before an ambiguous correction such as “that Döner was actually 900 kcal” or “same curry as Tuesday.” Do not guess between multiple plausible meals.
+
+### Log a meal
+
+```sql
+select private.log_meal(
+  p_log_date,
+  p_meal_type,
+  p_title,
+  p_items,
+  p_confidence,
+  p_source,
+  p_original_input,
+  p_notes,
+  p_request_id
+);
+```
+
+Each item should contain structured fields where available:
 
 ```json
 {
-  "p_end_date": "2026-09-11",
-  "p_days": 14
+  "name": "Cooked rice",
+  "quantity": "~220 g",
+  "calories": 285,
+  "protein": 6,
+  "calories_low": 250,
+  "calories_high": 325,
+  "confidence": "medium",
+  "source": "photo_estimate"
 }
 ```
 
-The result includes:
+`p_request_id` must be stable across retries of the same logical user instruction. The bridge is idempotent and returns the original result rather than creating a duplicate.
 
-- current targets
-- today's totals
-- recent day summaries
-- recent weights
-- today's meals/items
-- frequent saved foods/meals
-- recent AI actions
+### Correct a meal
 
-### 2. Search when a correction is ambiguous
+First read/search the meal and keep its latest `updated_at`, then call:
 
-Before statements such as:
-
-> "Actually that Döner was 900 calories."
-
-or:
-
-> "Same curry as last Tuesday."
-
-use:
-
-```text
-search_diet_history(p_query, p_days, p_limit)
-```
-
-Do not guess which historical meal the user means if multiple plausible records exist.
-
-## Create meal
-
-RPC:
-
-```text
-log_meal_from_ai(...)
-```
-
-Example payload:
-
-```json
-{
-  "p_log_date": "2026-09-11",
-  "p_meal_type": "Lunch",
-  "p_title": "Chicken curry with rice",
-  "p_items": [
-    {
-      "name": "Chicken curry",
-      "quantity": "~350 g",
-      "calories": 520,
-      "protein": 39,
-      "calories_low": 440,
-      "calories_high": 620,
-      "confidence": "medium",
-      "source": "photo_estimate"
-    },
-    {
-      "name": "Cooked rice",
-      "quantity": "~220 g",
-      "calories": 285,
-      "protein": 6,
-      "calories_low": 250,
-      "calories_high": 325,
-      "confidence": "medium",
-      "source": "photo_estimate"
-    }
-  ],
-  "p_confidence": "medium",
-  "p_source": "photo_estimate",
-  "p_original_input": "[meal photo] Lunch",
-  "p_notes": "Portions estimated visually; oil amount uncertain.",
-  "p_request_id": "chat-20260911-message-184-meal-1"
-}
-```
-
-### Idempotency rule
-
-`p_request_id` should be unique for one logical user instruction and stable across retries.
-
-If a network retry resubmits the same request ID, the database returns the original entity instead of creating another meal.
-
-## Correct meal
-
-First read/search the meal and preserve its `updated_at` value.
-
-Then call:
-
-```text
-update_meal_from_ai(
+```sql
+select private.update_meal(
   p_meal_id,
   p_patch,
   p_items,
   p_expected_updated_at,
   p_request_id
-)
+);
 ```
 
-Example: user says, "Actually I only ate half the rice."
+For item corrections, send the complete corrected item array. `p_expected_updated_at` provides stale-write protection.
 
-Send the complete corrected item array, not an ambiguous arithmetic instruction:
+To move a meal to another date, include:
 
 ```json
-{
-  "p_meal_id": "...",
-  "p_patch": {
-    "source": "ai_adjusted",
-    "notes": "Rice corrected after user clarification."
-  },
-  "p_items": [
-    {
-      "name": "Chicken curry",
-      "quantity": "~350 g",
-      "calories": 520,
-      "protein": 39,
-      "calories_low": 440,
-      "calories_high": 620,
-      "confidence": "medium",
-      "source": "photo_estimate"
-    },
-    {
-      "name": "Cooked rice",
-      "quantity": "~110 g",
-      "calories": 143,
-      "protein": 3,
-      "calories_low": 125,
-      "calories_high": 165,
-      "confidence": "medium",
-      "source": "ai_adjusted"
-    }
-  ],
-  "p_expected_updated_at": "2026-09-11T12:31:18.123Z",
-  "p_request_id": "chat-20260911-message-191-correction-1"
-}
+{ "log_date": "2026-09-10" }
 ```
 
-If the meal changed after it was read, the RPC raises a conflict instead of overwriting it.
+inside `p_patch`.
 
-### Moving a meal to another date
+### Delete a meal
 
-Set:
-
-```json
-{
-  "p_patch": { "log_date": "2026-09-10" }
-}
+```sql
+select private.delete_meal(
+  p_meal_id,
+  p_expected_updated_at,
+  p_request_id
+);
 ```
 
-V0.4 creates/reuses the correct `daily_logs` row and moves the meal to it.
+Never delete a historical meal based only on a guessed title.
 
-## Delete meal
+### Log or correct weight
 
-Call:
-
-```text
-delete_meal_from_ai(p_meal_id, p_expected_updated_at, p_request_id)
+```sql
+select private.log_weight(
+  p_entry_date,
+  p_weight,
+  p_notes,
+  p_request_id
+);
 ```
 
-Use the timestamp from the most recent read. Do not delete based only on a guessed title.
+Weight is unique per user/date, so a later value for the same date updates that day's entry and records the previous value in the audit ledger.
 
-## Log weight
+### Undo a ChatGPT action
 
-```text
-log_weight_from_ai(p_entry_date, p_weight, p_notes, p_request_id)
+Every ChatGPT write creates an `ai_actions` entry. To undo a supported action:
+
+```sql
+select private.undo_action(p_action_id);
 ```
 
-The `(user, date)` weight entry is upserted, and the action is written to the AI audit ledger.
+Supported cases:
 
-## Undo
-
-Each AI action is stored in `ai_actions`.
-
-To revert one:
-
-```text
-undo_ai_action(p_action_id)
-```
-
-Supported V0.4 undo cases:
-
-- meal create → removes the created meal
-- meal update → restores prior meal + items
-- meal delete → restores prior meal + items
-- weight create → removes it
-- weight update → restores prior value
-
-An action can only be undone once.
+- meal create
+- meal update
+- meal delete
+- weight create
+- weight update
 
 ## Confirmation policy
 
-The conversational assistant should not ask for confirmation for ordinary low-risk logging when the user's intent is clear.
+Do not ask for confirmation for ordinary low-risk logging when intent is clear.
 
-Clarify before writing when uncertainty changes the estimate materially, for example:
+Clarify only when ambiguity could materially change the record, for example:
 
-- unknown large sauce/oil quantity
-- unclear whether the user ate the whole photographed portion
-- multiple similarly named historical meals during a correction
+- it is unclear whether the full photographed portion was eaten
+- a large amount of oil/sauce cannot be reasonably estimated
+- multiple historical meals could match a correction
 
-Do not ask merely because a calorie value is approximate. Save an uncertainty range instead.
+Approximation alone is not a reason to interrupt. Store a confidence level and low/high calorie range instead.
 
-## Photo estimation policy
+## Photo policy
 
-For a photo, return:
+For meal photos, estimate item-by-item where possible and store:
 
-- item name
+- food name
 - estimated quantity
-- central calories
-- protein
-- low/high calorie range when uncertain
+- central calorie estimate
+- protein estimate
+- calorie low/high range when useful
 - confidence
-- assumptions
-
-Do not present a visually estimated meal as exact.
+- source/assumptions
 
 See `photo-estimate-contract.md`.
 
-## Recommended ChatGPT response after a write
+## Response after a write
 
-Keep it compact:
+Keep confirmations compact. Example:
 
 ```text
 Logged lunch: ~805 kcal, ~45 g protein (medium confidence; likely 690–945 kcal).
 Today: 1,520 / 2,300 kcal · 780 kcal remaining.
 ```
 
-The database is authoritative; do not rely on chat memory for earlier totals.
+Always derive totals from Supabase rather than conversational memory.
+
+## Verification status
+
+The live bridge was tested on 2026-09-11 using rollback transactions. The verified cycle was:
+
+```text
+create → idempotent retry → search → update → delete → undo delete → undo update
+```
+
+Meal and weight tests left zero test rows or audit records after rollback.
