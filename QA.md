@@ -1,78 +1,133 @@
-# Diet Copilot V4 — Final QA
+# Diet Copilot V5 — QA
 
-## Source / release wiring
+## Product boundary
 
-- [x] P1–P6 assets are wired in deterministic load order
-- [x] V4 is light-mode only
-- [x] no manual meal/weight CRUD controls were reintroduced
-- [x] service worker is same-origin only except for the exact version-pinned Supabase SDK
-- [x] Supabase REST/Auth/Realtime responses remain excluded from service-worker caching
-- [x] service-worker cache generation is `diet-copilot-dashboard-v4.0-p6.1`
-- [x] PWA orientation supports portrait and landscape
-- [x] mobile, tablet and desktop layout breakpoints are present
+- [x] website remains read-only
+- [x] no manual meal/weight/target editor introduced
+- [x] ChatGPT remains the logging/control layer
+- [x] browser grants remain SELECT-only
+- [x] owner-scoped RLS covers all dashboard-visible tables
 
-## UI / UX hardening
+## V5 schema / feature checks
 
-- [x] Today hierarchy: calories → protein → weight → meals
-- [x] expandable meal detail cards
-- [x] compact History layout
-- [x] separate Weight / Calories / Protein trend views
-- [x] factual Insights view
-- [x] desktop fixed sidebar
-- [x] desktop 7-day snapshot
-- [x] signed-out / loading / empty / error states
-- [x] offline / syncing / error notices
-- [x] account/login UX hides Supabase infrastructure details
-- [x] long meal names wrap safely
-- [x] chart labels no longer overlap
-- [x] long all-time chart bars shrink instead of overlapping
-- [x] chart values are inspectable by mouse, touch and keyboard
-- [x] current-day weight copy no longer assumes every weigh-in happened in the morning
+- [x] database healthcheck schema version is 6
+- [x] profile supports fiber, goal pace, adaptive-target and reminder preferences
+- [x] meals/items support carbs, fat and fiber
+- [x] meal photo URL/alt metadata supported
+- [x] food memory supports brand/barcode/aliases/macros/use count
+- [x] reusable meal memory supported
+- [x] goal phases supported
+- [x] weekly reviews supported
+- [x] adaptive target recommendations supported
 
-## Accessibility
+## Day completeness
 
-- [x] skip-to-content link
-- [x] keyboard focus styles
-- [x] reduced-motion handling
-- [x] account form labels and inline validation
-- [x] accessible password visibility control
-- [x] live status/error regions
-- [x] chart points/bars expose accessible labels
-- [x] semantic text colors hardened for contrast while keeping vibrant fill colors
+- [x] ChatGPT can set Open / Complete / Partial
+- [x] only Complete days feed adherence averages
+- [x] later meal automatically reopens a completed day
+- [x] meal correction automatically reopens a completed day
+- [x] meal deletion automatically reopens a completed day
+- [x] local-day handling no longer depends solely on UTC midnight
 
-## Production data verification — 2026-09-12 audit
+## Repeat-food / meal memory
 
-Verified directly against the Diet Copilot Supabase project:
+- [x] exact nutrition-label foods auto-save to memory
+- [x] exact food aliases can be searched
+- [x] `protein yogurt` matches the existing Milbona yogurt memory
+- [x] saved food can be logged directly without re-estimation
+- [x] historical meals can be promoted into reusable meal memory
+- [x] saved meal can be logged directly
+- [x] existing salad/yogurt exact-label items backfilled and linked to memory
 
-- [x] 1 profile
-- [x] 1 daily log
-- [x] 2 meals
-- [x] 1 weight entry
-- [x] recorded day total: **1,259 kcal**
-- [x] recorded protein total: **61.2 g**
-- [x] calorie target: **2,300 kcal**
-- [x] protein target: **160 g**
-- [x] expected remaining calories for that recorded day: **1,041 kcal**
-- [x] recorded weight: **84.0 kg**
+## Macro behavior
 
-## Browser/database security verification
+- [x] calories and protein remain primary
+- [x] fiber added as third first-class metric
+- [x] carbs/fat are optional and hidden by default
+- [x] missing macro fields remain unknown rather than zero-filled
+- [x] fiber daily averages require complete fiber coverage
+- [x] known existing label macros backfilled
 
-- [x] authenticated role has SELECT-only table grants on `profiles`, `daily_logs`, `meals`, `meal_items`, `weight_entries`
-- [x] each dashboard table has owner-scoped authenticated SELECT RLS
-- [x] no authenticated nutrition-table INSERT / UPDATE / DELETE grants
-- [x] authenticated executable public routines are read-only/support routines; privileged write bridge remains outside normal browser access
-- [x] Supabase security advisor has no database/RLS warning; only the known leaked-password-protection warning remains
-- [x] performance advisor reports only informational unused-index notices on this very small/new dataset
+## Goal / adaptive target behavior
 
-## Live device/browser matrix
+- [x] goal weight can be stored
+- [x] desired weekly loss/gain rate can be stored
+- [x] Cut / Maintain / Gain / Custom phases supported
+- [x] adaptive recommendation requires desired rate
+- [x] default requires 14 complete days
+- [x] requires >=4 weigh-ins spanning >=7 days
+- [x] uses regression-based weight trend
+- [x] maintenance estimate incorporates observed intake + weight trend
+- [x] adjustment capped to ±250 kcal at a time
+- [x] recommendation rounded to 25 kcal
+- [x] recommendation does not auto-apply
+- [x] explicit accept/dismiss functions exist
 
-These remain useful release smoke tests on physical browsers because this repository has no connected automated browser runner in the current session:
+## Weekly review / reminders
+
+- [x] weekly review generation works in rollback test
+- [x] dashboard exposes live 7-day review summary
+- [x] weigh-in/day-close/weekly-review reminder preferences stored
+- [x] reminder timezone stored
+- [x] actual notification automations remain opt-in and require a user-selected cadence/time
+
+## Dashboard
+
+- [x] V5 CSS/JS wired after V4 hardening layers
+- [x] Today shows fiber without turning into a macro spreadsheet
+- [x] current day displays Open / Complete / Partial status
+- [x] optional goal strip only appears when configured
+- [x] carbs/fat strip only appears when enabled
+- [x] meal details show available macros
+- [x] safe HTTP(S) photo thumbnail supported
+- [x] Trends supports Weight / Calories / Protein / Fiber
+- [x] Insights includes Goal / 7-day Review / Calibration / Food Memory
+- [x] account sheet shows read-only diet settings
+- [x] mobile/tablet/desktop responsive layers preserved
+
+## Realtime / offline
+
+- [x] V5 service-worker cache generation is `diet-copilot-dashboard-v5.0`
+- [x] Supabase API/Auth/Realtime responses are not service-worker cached
+- [x] exact pinned Supabase SDK may be cached for cold offline restore
+- [x] `supabase_realtime` publication includes core + V5 dashboard-visible tables
+- [x] frontend subscribes to core + V5 tables
+
+## Regression tests performed
+
+Rollback transaction verified calls to:
+
+- [x] search food memory
+- [x] direct saved-food logging
+- [x] day complete
+- [x] day reopen
+- [x] profile preference update
+- [x] start goal phase
+- [x] generate weekly review
+- [x] generate adaptive target recommendation
+
+The rollback left no V5 test meals/phases/preferences/recommendations behind.
+
+## Production data sanity
+
+At V5 rollout:
+
+- [x] existing meal/weight history preserved
+- [x] 2026-09-11 remains 1,259 kcal / 61.2 g protein
+- [x] 2026-09-12 yogurt remains 142 kcal / 20 g protein
+- [x] calorie target remains 2,300 kcal
+- [x] protein target remains 160 g
+- [x] fiber target defaults to 30 g
+- [x] no calorie target was silently recalibrated
+- [x] goal weight / desired pace remain unset until user chooses them
+
+## Physical browser smoke checks
+
+A connected automated browser runner was not authenticated in this session. These remain useful real-device checks rather than known failures:
 
 - [ ] Android Chrome / installed PWA
 - [ ] Samsung Internet
 - [ ] desktop Chromium
 - [ ] desktop Firefox
 - [ ] tablet / landscape PWA
-- [ ] first online load → refresh → offline reload
-
-The source, database, security, responsive rules and release wiring have been audited; the unchecked items above are physical/runtime smoke checks rather than known defects.
+- [ ] first online V5 load → refresh → offline reload
