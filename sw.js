@@ -1,15 +1,15 @@
-const CACHE = 'diet-copilot-dashboard-v3.1.1';
+const CACHE = 'diet-copilot-dashboard-v3.2.0';
 const CORE = [
   './',
   './index.html',
-  './dashboard-01.css?v=3.1.1',
-  './dashboard-02.css?v=3.1.1',
-  './dashboard-03.css?v=3.1.1',
-  './dashboard-config.js?v=3.1.1',
-  './dashboard-01.js?v=3.1.1',
-  './dashboard-02.js?v=3.1.1',
-  './dashboard-03.js?v=3.1.1',
-  './dashboard-04.js?v=3.1.1',
+  './dashboard-01.css?v=3.2.0',
+  './dashboard-02.css?v=3.2.0',
+  './dashboard-03.css?v=3.2.0',
+  './dashboard-01.js?v=3.2.0',
+  './dashboard-02.js?v=3.2.0',
+  './dashboard-03.js?v=3.2.0',
+  './dashboard-auth.js?v=3.2.0',
+  './dashboard-04.js?v=3.2.0',
   './manifest.webmanifest',
   './icon.svg',
   './icon-192.png',
@@ -41,9 +41,6 @@ self.addEventListener('fetch', event => {
   if (request.method !== 'GET') return;
 
   const url = new URL(request.url);
-
-  // Only same-origin app files are eligible for caching. Authenticated
-  // Supabase/API/CDN requests must always reach the network.
   if (url.origin !== self.location.origin) return;
 
   if (request.mode === 'navigate') {
