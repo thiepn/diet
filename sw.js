@@ -1,5 +1,5 @@
-const CACHE = 'diet-copilot-dashboard-v2';
-const CORE = ['./','./index.html','./dashboard-01.css','./dashboard-02.css','./dashboard-03.css','./dashboard-01.js','./dashboard-02.js','./dashboard-03.js','./dashboard-04.js','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
+const CACHE = 'diet-copilot-dashboard-v3';
+const CORE = ['./','./index.html','./dashboard-config.js','./dashboard-01.css','./dashboard-02.css','./dashboard-03.css','./dashboard-01.js','./dashboard-02.js','./dashboard-03.js','./dashboard-04.js','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
 self.addEventListener('install', event => event.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting())));
 self.addEventListener('activate', event => event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE && k.startsWith('diet-copilot')).map(k => caches.delete(k)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', event => {
