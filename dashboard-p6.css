@@ -1,0 +1,43 @@
+:root{--accent-text:#C63C2D;--protein-text:#2F63D7;--weight-text:#7440D4;--success-text:#1B7A4B;--warn-text:#8A5A00;--danger-text:#B63D3D}
+
+/* Preserve the vibrant palette for fills/charts while using darker semantic
+   variants wherever color carries small text or interactive meaning. */
+.nav-item.active,.desktop-nav .nav-item.active{color:var(--accent-text)}
+.remaining,.p3-history-metric.calories strong,.p3-trend-panel.calories .p3-trend-primary>strong,.p4-week-stat.calories strong{color:var(--accent-text)}
+.metric:first-child strong,.protein .metric-v2-value,.meal-protein-v2,.protein-text,.p3-history-metric.protein strong,.p3-trend-panel.protein .p3-trend-primary>strong,.p4-week-stat.protein strong{color:var(--protein-text)}
+.weight .metric-v2-value,.p3-history-metric.weight strong,.p3-trend-panel.weight .p3-trend-primary>strong,.p4-week-stat.weight strong{color:var(--weight-text)}
+.meal-source-v2.exact,.p3-day-status.complete,.p4-week-stat.complete strong,.p5-account-status strong.good,.status-dot.online{color:var(--success-text)}
+.meal-source-v2.estimated,.meal-estimate-range,.p3-day-status.partial{color:var(--warn-text)}
+.status-dot.error,.btn.danger,.today-state.today-error,.p5-inline-alert,.p5-form-error{color:var(--danger-text)}
+
+.btn.primary,.p3-range-btn.active{background:var(--accent-text);border-color:var(--accent-text);color:#fff}
+.btn.primary:hover{background:#B93628;border-color:#B93628}
+.p3-range-btn.active{box-shadow:0 7px 18px rgba(198,60,45,.20)}
+
+/* The hero remains saturated but all stops now maintain strong white-text
+   contrast, including the smaller labels. */
+.calorie-hero-v2{background:linear-gradient(135deg,#C94332 0%,#D1432F 52%,#BD4F2E 100%);box-shadow:0 14px 32px rgba(185,54,40,.22)}
+.calorie-hero-v2.over{background:linear-gradient(135deg,#B63D3D,#C44935)}
+.calorie-hero-kicker,.calorie-target-copy,.calorie-percent{color:#fff}
+.calorie-hero-kicker .date-chip{background:rgba(255,255,255,.94);color:#A93427}
+
+/* Meal category text gets an accessible text tone without dulling its bar/dot. */
+.meal-v2.breakfast .meal-type-v2,.p3-history-meal.breakfast .p3-history-meal-kicker{color:var(--warn-text)}
+.meal-v2.lunch .meal-type-v2,.p3-history-meal.lunch .p3-history-meal-kicker{color:var(--accent-text)}
+.meal-v2.dinner .meal-type-v2,.p3-history-meal.dinner .p3-history-meal-kicker{color:var(--weight-text)}
+.meal-v2.snack .meal-type-v2,.p3-history-meal.snack .p3-history-meal-kicker{color:#0D766F}
+.meal-v2.drink .meal-type-v2,.p3-history-meal.drink .p3-history-meal-kicker{color:var(--protein-text)}
+
+/* SVG bars/points can now be explored with mouse, touch and keyboard. */
+.p6-chart-hit{cursor:pointer;outline:none}
+.p6-chart-hit:focus{filter:drop-shadow(0 0 4px rgba(23,23,26,.28))}
+.p6-chart-tooltip{position:fixed;z-index:95;max-width:220px;padding:8px 10px;border-radius:10px;background:#202124;color:#fff;box-shadow:0 8px 24px rgba(23,23,26,.22);font-size:11px;font-weight:650;line-height:1.35;pointer-events:none}
+.p6-chart-tooltip[hidden]{display:none}
+
+/* Prevent long all-time chart ranges from visually merging into a solid block. */
+.p3-bar{shape-rendering:geometricPrecision}
+
+/* Final focus treatment: visible on the vibrant primary actions as well. */
+.btn.primary:focus-visible,.p3-range-btn.active:focus-visible{outline:3px solid rgba(198,60,45,.30);outline-offset:3px}
+
+@media(prefers-reduced-motion:reduce){.p6-chart-tooltip{transition:none!important}}
