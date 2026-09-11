@@ -1,4 +1,5 @@
-const CACHE = 'diet-copilot-dashboard-v4.0-p6';
+const CACHE = 'diet-copilot-dashboard-v4.0-p6.1';
+const SUPABASE_SDK = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0';
 const CORE = [
   './',
   './index.html',
@@ -52,8 +53,27 @@ self.addEventListener('fetch', event => {
   if (request.method !== 'GET') return;
 
   const url = new URL(request.url);
-  // Never cache Supabase/API/CDN traffic. Only static files from this app's
-  // own origin are eligible for the offline shell.
+
+  // The only cross-origin resource we cache is the immutable, version-pinned
+  // Supabase client SDK. This enables a previously-used device to restore its
+  // local auth session and read-only snapshot during a cold offline launch.
+  // Supabase REST/Auth/Realtime requests are never cached here.
+  if (url.href === SUPABASE_SDK) {
+    event.respondWith(
+      caches.match(request).then(cached => {
+        if (cached) return cached;
+        return fetch(request).then(response => {
+          if (response && response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE).then(cache => cache.put(request, copy));
+          }
+          return response;
+        });
+      })
+    );
+    return;
+  }
+
   if (url.origin !== self.location.origin) return;
 
   if (request.mode === 'navigate') {
