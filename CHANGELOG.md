@@ -1,5 +1,72 @@
 # Changelog
 
+## V5 — Diet Intelligence — 2026-09-12
+
+Expanded Diet Copilot from a read-only calorie dashboard into a ChatGPT-controlled diet intelligence system while preserving the no-manual-logging product rule.
+
+### Completion and analytics integrity
+
+- added explicit Complete / Open / Partial day workflow
+- completed days are the only days used for intake averages
+- later meals, corrections or deletions automatically reopen completed days
+- day state is timezone-aware for the owner rather than depending on UTC midnight
+
+### Food and meal memory
+
+- exact nutrition-label/weighed foods are remembered automatically
+- added alias-aware food-memory search and direct repeat logging
+- added reusable multi-item meal memory and promotion from meal history
+- linked existing exact-label salad/yogurt records into memory
+
+### Nutrition expansion
+
+- added fiber as a first-class tracked metric
+- added optional carbs/fat storage and display
+- backfilled known label macros for existing exact-label meals
+- added fiber Today card and Fiber Trends
+- incomplete macro coverage is represented as partial, not silently zero-filled
+
+### Goals and phases
+
+- added goal weight and desired weekly weight-change fields
+- added Cut / Maintain / Gain / Custom phases
+- phases can carry calorie, protein and fiber targets
+
+### Adaptive targets
+
+- added weight-trend/intake-based calorie recommendations
+- default requirement: 14 complete days + 4 weigh-ins spanning 7+ days
+- regression-based weight trend
+- target changes capped to ±250 kcal per adjustment and rounded to 25 kcal
+- recommendations require explicit user approval before applying
+
+### Reviews and reminders
+
+- added persisted weekly review support
+- added weigh-in, day-close and weekly-review reminder preferences
+- actual ChatGPT notifications remain opt-in and are scheduled separately
+
+### Meal photos
+
+- added durable meal photo URL/alt metadata
+- added optional dashboard thumbnails when a safe durable HTTP(S) image exists
+- no manual upload UI was introduced
+
+### Dashboard
+
+- Today now surfaces fiber, day completeness and optional goal/macros context
+- Trends now supports Weight / Calories / Protein / Fiber
+- Insights now includes goal phase, 7-day review, calibration status and food memory
+- account view shows read-only diet settings managed through ChatGPT
+
+### Realtime and security
+
+- enabled Supabase Realtime publication for all dashboard-visible tables
+- retained owner-scoped RLS
+- retained SELECT-only authenticated browser grants
+- privileged writes remain private to the ChatGPT bridge
+- database healthcheck schema version is now 6
+
 ## V4 — Vibrant Light — 2026-09-12
 
 Complete visual/UX redesign of the read-only Diet Copilot dashboard.
@@ -54,39 +121,6 @@ Complete visual/UX redesign of the read-only Diet Copilot dashboard.
 
 ## Read-only Dashboard Rebuild — 2026-09-11
 
-Major product correction aligning Diet Copilot with its original goal.
-
-### Removed from the website
-
-- manual meal creation/editing
-- manual calorie/protein entry
-- manual weight logging
-- saved-food management
-- saved-meal management
-- one-tap food logging
-- day-status editing
-- nutrition CRUD controls
-- manual target editing
-
-### New product boundary
-
-- ChatGPT is the logger/editor
-- Supabase is the source of truth
-- website is a read-only viewer
-
-### Dashboard
-
-- Today summary
-- history ranges
-- weight and calorie trend charts
-- protein consistency
-- logging completeness
-- exact vs estimated data-quality breakdown
-- Realtime refresh when ChatGPT/database changes arrive
-- offline cached viewing
-
-### Compatibility
-
-- database remains schema v5
-- existing ChatGPT RPC bridge is retained
-- existing authenticated user data is retained
+- removed manual nutrition CRUD from the website
+- established ChatGPT → Supabase → read-only dashboard architecture
+- retained authenticated RLS-protected history, trends, offline snapshot and correction bridge
