@@ -1,42 +1,43 @@
 # Changelog
 
-## V1.0 — 2026-09-11
+## Read-only Dashboard Rebuild — 2026-09-11
 
-First stable Diet Copilot client release.
+Major product correction aligning Diet Copilot with its original goal.
 
-### Stabilized
+### Removed from the website
 
-- switched client persistence to version-independent storage keys
-- migrates V0.1–V0.5 local state and legacy cloud configuration
-- added first-run calorie/protein target confirmation
-- added pre-destructive safety snapshots and recovery flow
-- moved release/debug tooling under collapsed Advanced settings
-- disposed old Supabase auth listeners/clients when reconfigured
-- prevented zero-item/blank meals and saved meals
-- preserved aggregate confidence for reusable estimated meals
-- corrected weight-trend comparison to require complete seven-entry windows
-- fixed bulk cloud-upload protein serialization
-- improved clipboard/export compatibility and accessibility semantics
-- improved mobile spacing around the sticky Add Meal control
-- surfaced cloud errors/conflicts more clearly
+- manual meal creation/editing
+- manual calorie/protein entry
+- manual weight logging
+- saved-food management
+- saved-meal management
+- one-tap food logging
+- day-status editing
+- nutrition CRUD controls
+- manual target editing
 
-### Retained
+### New product boundary
 
-- database schema version 5; no V0.5 → V1.0 SQL migration required
-- calorie/protein/weight tracking
-- saved foods and reusable meals
-- local-first offline operation
-- Supabase sync + conflict protection
-- AI RPC/audit/undo contract
-- PWA support
+- ChatGPT is the logger/editor
+- Supabase is the source of truth
+- website is a read-only viewer
 
-### Verification
+### Dashboard
 
-- static release validator
-- browser-DOM fresh-install regression
-- V0.5 storage migration regression
-- saved-meal uncertainty regression
-- weight-trend regression
-- backup/reset regression
+- Today summary
+- 3/7/14/30/90/all history ranges
+- weight and calorie trend charts
+- seven-entry moving weight average
+- regression-based weekly weight pace
+- protein consistency
+- logging completeness
+- exact vs estimated data-quality breakdown
+- automatic Realtime refresh when ChatGPT/database changes arrive
+- offline cached viewing
 
-Real Supabase multi-device and physical-device checks remain listed in `QA.md`.
+### Compatibility
+
+- database remains schema v5
+- existing ChatGPT RPC bridge is retained
+- existing Supabase connection configuration is reused
+- previous V1 local state migrates into a read-only snapshot

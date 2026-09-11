@@ -1,31 +1,16 @@
 {
   "name": "Diet Copilot",
   "short_name": "Diet Copilot",
-  "description": "Local-first calorie, protein and weight tracking with a ChatGPT-ready Supabase bridge.",
+  "description": "Read-only nutrition and body-weight dashboard written by ChatGPT.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0f1210",
-  "theme_color": "#0f1210",
+  "background_color": "#0b0e0c",
+  "theme_color": "#0b0e0c",
   "orientation": "portrait-primary",
   "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    }
+    {"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"},
+    {"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}
   ]
 }

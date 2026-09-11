@@ -1,48 +1,82 @@
-# Diet Copilot — V1.0
+# Diet Copilot — Read-only Dashboard
 
-Diet Copilot is a mobile-first calorie, protein, and body-weight tracker built around a simple architecture:
+Diet Copilot is a **ChatGPT-controlled nutrition log** with a read-only web dashboard.
+
+The product boundary is intentional:
 
 ```text
-ChatGPT = interpretation and conversation
-Supabase = durable shared data
-GitHub Pages app = dashboard + manual fallback
+You → ChatGPT → Supabase → Dashboard
 ```
 
-V1.0 is the first stable local-first client release. The focus is trustworthy daily use rather than additional feature breadth.
+- **ChatGPT** interprets meals/photos, estimates calories and protein, logs weight, and performs corrections.
+- **Supabase** is the durable source of truth.
+- **This website** only displays the resulting history and trends.
 
-## Core features
+The website is **not** a manual calorie tracker and intentionally contains no meal-entry, macro-entry, saved-food, or weight-entry UI.
 
-- calorie + protein targets with historical per-day snapshots
-- item-level meals with confidence/source metadata and uncertainty ranges
-- saved foods and reusable meals
-- one-tap Usuals / Yesterday / Recent logging
-- body-weight tracking and seven-entry trend analysis
-- Open / Complete / Partial day status
-- history search and progressive loading
-- local-first/offline operation
-- JSON backup/import and recovery snapshots
-- optional Supabase authentication and multi-device sync
-- offline queueing + optimistic conflict detection
-- AI mutation audit + undo
-- ChatGPT-ready Supabase RPC contract
-- installable PWA shell
+## Dashboard views
 
-## V1.0 stabilization
+### Today
+- calories consumed / target / remaining
+- protein consumed / target
+- latest body weight
+- meals and their item breakdowns
+- exact vs estimated provenance
+- uncertainty range when available
 
-V1.0 keeps the V0.5 database schema (`schema_version = 5`) and hardens the client around it:
+### History
+- 3 / 7 / 14 / 30 / 90 day and all-time ranges
+- daily calories, protein, weight and status
+- meal-by-meal history
 
-- version-independent browser storage keys
-- automatic V0.1–V0.5 local-state migration
-- first-run target confirmation instead of treating defaults as personal targets
-- safety snapshots before destructive local replacements/import/reset
-- recovery and diagnostic controls moved under **Settings → Advanced**
-- explicit Supabase auth-listener/client cleanup when reconfigured
-- blank/zero-item meals and saved meals cannot be saved
-- saved-meal quick logging preserves the least-certain item confidence
-- weight-trend comparison uses complete seven-entry rolling windows
-- clearer cloud errors/conflicts and improved accessibility
+### Trends
+- current weight and range change
+- regression-based weekly weight pace
+- average calories and protein on complete days
+- weight chart with seven-entry moving average
+- daily calorie chart against recorded targets
 
-## Run locally
+### Insights
+- weight direction
+- 7- and 30-day calorie averages
+- protein-target consistency
+- logging completeness
+- exact vs estimated meal counts
+- average target deviation
+
+## Read-only guarantee
+
+The browser client does not call Supabase insert/update/delete APIs and does not invoke write RPCs. Its only persistent writes are local browser connection/cache settings.
+
+Nutrition records are read from these existing schema-v5 tables:
+
+- `profiles`
+- `daily_logs`
+- `meals`
+- `meal_items`
+- `weight_entries`
+
+The existing authenticated ChatGPT RPC layer remains in Supabase for external logging/correction workflows.
+
+## Private connection
+
+Because diet data is private and protected by RLS, the dashboard still needs a Supabase project URL, publishable/anon key, and an authenticated user session. These controls are infrastructure setup only; they do not edit nutrition data.
+
+The dashboard reuses the existing `diet-copilot-cloud-config` key, so an already configured V1 client can reconnect without changing the database schema.
+
+## Offline behavior
+
+After a successful cloud refresh, the dashboard stores a read-only browser snapshot. If the device is offline, that snapshot remains viewable until the next refresh.
+
+Existing V1 local state is migrated once into this read-only cache so previous data is not hidden during the frontend transition.
+
+## Supabase
+
+No database migration is required from the previous schema-v5 release.
+
+The existing files in `supabase/` remain authoritative for the ChatGPT data bridge and database setup.
+
+## Development
 
 There is no build step.
 
@@ -50,101 +84,10 @@ There is no build step.
 python -m http.server 8080
 ```
 
-Open `http://localhost:8080`.
+Then open `http://localhost:8080`.
 
-Opening `index.html` directly supports local tracking, but service-worker/PWA behavior requires HTTP(S).
+## Product rule
 
-## GitHub Pages
+> The user should never need to manually log food on the website.
 
-Deploy the repository root directly:
-
-1. Open **Settings → Pages**.
-2. Choose **Deploy from a branch**.
-3. Select `main` and `/ (root)`.
-4. Save.
-
-Expected URL:
-
-```text
-https://thiepn.github.io/diet/
-```
-
-## Supabase
-
-Cloud mode is optional. Local tracking works without Supabase.
-
-### Fresh project
-
-The canonical V0.5/V1.0 database schema is stored as `supabase/schema.sql.gz` in this repository. Decompress it and run the SQL in Supabase:
-
-```bash
-gzip -dc supabase/schema.sql.gz > supabase/schema.sql
-```
-
-### Existing V0.5 database
-
-No V1.0 database migration is required. V1.0 intentionally retains database schema version 5.
-
-### V0.4 database
-
-Run:
-
-```text
-supabase/upgrade-v0.4-to-v0.5.sql
-```
-
-After setup, configure **Settings → Cloud sync** with the project URL and a browser-safe publishable/anon key, sign in, then run **Settings → Advanced → Health check**.
-
-Never put a Supabase secret/service-role key in this static frontend.
-
-## ChatGPT integration boundary
-
-Publishing the GitHub Pages app does not itself give a normal ChatGPT conversation permission to edit it. The intended architecture is:
-
-```text
-ChatGPT / authenticated connector
-              │
-              ▼
-       Supabase RPC + RLS
-              │
-       shared diet records
-              │
-              ▼
-       GitHub Pages app
-```
-
-See:
-
-- `supabase/chatgpt-bridge.md`
-- `supabase/photo-estimate-contract.md`
-
-The browser app contains no OpenAI API key.
-
-## Validation
-
-Run:
-
-```bash
-python tools/validate_release.py
-```
-
-The V1.0 development pass also includes browser-DOM regression coverage for fresh first run, target confirmation, meal validation, V0.5 storage migration, saved-meal uncertainty, weight trends, safety backup/reset, and local integrity checks.
-
-Real Supabase multi-device and physical-device scenarios are listed in `QA.md` and must be completed against a dedicated Diet Copilot project before cloud sync is treated as production-critical.
-
-## Repository layout
-
-```text
-index.html
-app-v1-01.js … app-v1-12.js
-styles-v1-01.css
-styles-v1-02.css
-sw.js
-manifest.webmanifest
-icon.svg / icon-192.png / icon-512.png
-README.md
-CHANGELOG.md
-QA.md
-supabase/
-tools/
-```
+If a future feature violates that rule, it belongs in the ChatGPT interaction layer instead of the dashboard.
