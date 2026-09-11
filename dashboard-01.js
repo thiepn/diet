@@ -1,9 +1,13 @@
 'use strict';
 
-const RELEASE = '2.0';
+const RELEASE = '3.2';
 const CACHE_KEY = 'diet-copilot-dashboard-cache-v2';
 const CLOUD_CONFIG_KEY = 'diet-copilot-cloud-config';
 const LEGACY_STATE_KEY = 'diet-copilot-state';
+const DIET_SUPABASE = Object.freeze({
+  url: 'https://mrrqsqawwxwebsdmrnre.supabase.co',
+  key: 'sb_publishable_1skle8AStSXmao9Vx0DOGA_U6mPJfsu'
+});
 const app = document.getElementById('app');
 const connectionDialog = document.getElementById('connectionDialog');
 const connectionContent = document.getElementById('connectionContent');
@@ -78,12 +82,17 @@ function saveDashboardCache() {
   catch (e) { console.warn('Dashboard cache save failed', e); }
 }
 
+// Diet Copilot is a single fixed product. The project URL/key are public client
+// configuration, not user settings. Never ask users to paste them on a device.
 function loadCloudConfig() {
-  try { return { url:'', key:'', ...JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY) || '{}') }; }
-  catch { return { url:'', key:'' }; }
+  try { localStorage.setItem(CLOUD_CONFIG_KEY, JSON.stringify(DIET_SUPABASE)); } catch {}
+  return { ...DIET_SUPABASE };
 }
-function saveCloudConfig() { localStorage.setItem(CLOUD_CONFIG_KEY, JSON.stringify({ url:cloudConfig.url || '', key:cloudConfig.key || '' })); }
-function configured() { return Boolean(cloudConfig.url && cloudConfig.key); }
+function saveCloudConfig() {
+  cloudConfig = { ...DIET_SUPABASE };
+  try { localStorage.setItem(CLOUD_CONFIG_KEY, JSON.stringify(DIET_SUPABASE)); } catch {}
+}
+function configured() { return true; }
 
 function mealsFor(date) { return dashboard.meals.filter(m=>m.date===date).sort((a,b)=>String(a.eatenAt||a.updatedAt||'').localeCompare(String(b.eatenAt||b.updatedAt||''))); }
 function totalsFor(date) { return sumMeals(mealsFor(date)); }
