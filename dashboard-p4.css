@@ -1,0 +1,150 @@
+.desktop-sidebar,.p4-desktop-today-head,.p4-week-card{display:none}
+
+@media (min-width:720px) and (max-width:959px){
+  .shell{max-width:920px}
+  .content{padding:16px 24px 112px}
+  .topbar{padding-left:24px;padding-right:24px}
+  .today-v2{grid-template-columns:repeat(6,minmax(0,1fr));gap:16px}
+  .calorie-hero-v2{grid-column:1/span 4;min-height:276px;padding:28px 26px}
+  .today-metrics{grid-column:5/-1;grid-template-columns:1fr;gap:12px}
+  .today-metric{min-height:132px}
+  .today-meals-section{grid-column:1/-1}
+  .p3-page-head h2{font-size:28px}
+  .p3-trend-summary{grid-template-columns:minmax(0,1.25fr) minmax(0,.75fr)}
+  .p3-chart{height:300px}
+  .p3-history-day>summary{padding-left:18px;padding-right:48px}
+}
+
+@media (min-width:960px){
+  :root{--desktop-sidebar:240px}
+  html,body{background:var(--canvas)}
+  body{min-width:960px}
+  .app-frame{min-height:100vh}
+  .desktop-sidebar{position:fixed;inset:0 auto 0 0;z-index:45;width:var(--desktop-sidebar);display:flex;flex-direction:column;padding:24px 17px 20px;background:var(--surface);border-right:1px solid var(--line)}
+  .desktop-brand{display:flex;align-items:center;gap:11px;padding:2px 8px 26px}
+  .desktop-brand-mark{width:40px;height:40px;flex:0 0 auto;border-radius:13px;box-shadow:0 6px 18px rgba(255,107,85,.16)}
+  .desktop-brand-copy{min-width:0}
+  .desktop-brand-copy strong{display:block;font-size:17px;line-height:1.1;letter-spacing:-.025em;color:var(--text)}
+  .desktop-brand-copy span{display:block;margin-top:4px;font-size:10px;font-weight:600;color:var(--faint)}
+  .desktop-nav{display:grid;gap:5px}
+  .desktop-nav .nav-item{width:100%;min-height:46px;display:flex;align-items:center;justify-content:flex-start;gap:12px;padding:0 12px;border:0;border-radius:12px;background:transparent;color:var(--muted);cursor:pointer}
+  .desktop-nav .nav-icon{width:22px;height:22px;display:grid;place-items:center;border-radius:0;background:transparent!important}
+  .desktop-nav .nav-icon svg{width:20px;height:20px}
+  .desktop-nav .nav-item small{font-size:14px;font-weight:650}
+  .desktop-nav .nav-item:hover{background:var(--surface-soft);color:var(--text)}
+  .desktop-nav .nav-item.active{background:var(--accent-soft);color:var(--accent-strong)}
+  .desktop-account{width:100%;min-height:60px;margin-top:auto;display:flex;align-items:center;gap:11px;padding:9px 10px;border:0;border-radius:14px;background:transparent;color:var(--text);text-align:left;cursor:pointer;transition:background .18s ease}
+  .desktop-account:hover{background:var(--surface-soft)}
+  .desktop-account-icon{width:38px;height:38px;flex:0 0 auto;display:grid;place-items:center;border-radius:12px;background:var(--surface-soft);color:var(--muted)}
+  .desktop-account-icon svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+  .desktop-account-copy{min-width:0;display:block}
+  .desktop-account-copy strong{display:block;font-size:13px;font-weight:700}
+  .desktop-account-copy span{display:block;max-width:145px;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:var(--muted)}
+  .desktop-account-chevron{width:16px;height:16px;margin-left:auto;fill:none;stroke:var(--faint);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+  .shell{max-width:none;min-height:100vh;margin:0 0 0 var(--desktop-sidebar);padding-bottom:0}
+  .topbar,.bottom-nav{display:none!important}
+  .content{width:100%;max-width:1320px;margin:0 auto;padding:36px 40px 52px}
+  .toast{left:calc(50% + var(--desktop-sidebar)/2);bottom:28px}
+  .modal-card{width:min(520px,calc(100% - 48px))}
+
+  .today-v2{grid-template-columns:repeat(12,minmax(0,1fr));gap:20px;align-items:start}
+  .p4-desktop-today-head{grid-column:1/-1;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding:1px 2px 4px}
+  .p4-desktop-today-head h2{font-size:32px;line-height:1;letter-spacing:-.045em;font-weight:790;color:var(--text)}
+  .p4-desktop-today-head p{margin-top:7px;font-size:13px;color:var(--muted)}
+  .p4-desktop-date{padding:8px 11px;border-radius:11px;background:var(--surface);box-shadow:var(--shadow-sm);font-size:12px;font-weight:680;color:var(--muted)}
+  .calorie-hero-v2{grid-column:1/span 8;min-height:266px;padding:31px 30px 28px;border-radius:27px}
+  .calorie-value-row{margin-top:27px}
+  .calorie-value-row strong{font-size:66px}
+  .calorie-target-copy{font-size:14px}
+  .calorie-progress{margin-top:26px;height:10px}
+  .calorie-footer{margin-top:15px}
+  .today-metrics{grid-column:9/-1;grid-template-columns:1fr;gap:14px}
+  .today-metric{min-height:126px;padding:18px 19px;border-radius:20px}
+  .metric-v2-value{font-size:28px}
+  .today-meals-section{grid-column:1/span 8;margin-top:0}
+  .today-meals-head{margin-bottom:12px}
+  .today-meals-head h2{font-size:22px}
+  .meal-list-v2{gap:11px}
+  .meal-v2 summary{padding:17px 18px 16px}
+  .meal-name-v2{font-size:15px}
+  .p4-week-card{grid-column:9/-1;display:block;padding:18px;border-radius:20px;background:var(--surface);box-shadow:var(--shadow-sm)}
+  .p4-week-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:15px}
+  .p4-week-card-head strong{font-size:16px;letter-spacing:-.02em}
+  .p4-week-card-head span{display:block;margin-top:3px;font-size:10px;color:var(--muted)}
+  .p4-week-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .p4-week-stat{padding:12px;border-radius:14px;background:var(--surface-soft)}
+  .p4-week-stat.calories{background:var(--accent-soft)}
+  .p4-week-stat.protein{background:var(--surface-blue)}
+  .p4-week-stat.weight{background:var(--surface-violet)}
+  .p4-week-stat.complete{background:var(--surface-green)}
+  .p4-week-stat span{display:block;font-size:10px;font-weight:650;color:var(--muted)}
+  .p4-week-stat strong{display:block;margin-top:6px;font-size:18px;line-height:1.05;letter-spacing:-.03em;color:var(--text)}
+  .p4-week-stat.calories strong{color:var(--accent-strong)}
+  .p4-week-stat.protein strong{color:var(--protein)}
+  .p4-week-stat.weight strong{color:var(--weight)}
+  .p4-week-stat.complete strong{color:var(--success)}
+  .p4-week-note{margin-top:12px;font-size:11px;line-height:1.45;color:var(--muted)}
+
+  .p3-view{gap:22px}
+  .p3-page-head{padding-top:1px}
+  .p3-page-head h2{font-size:32px}
+  .p3-page-head p{max-width:650px;font-size:13px}
+  .p3-range-bar{overflow:visible;flex-wrap:wrap}
+  .p3-range-btn{height:38px;min-width:48px}
+
+  .p3-history-list{gap:9px}
+  .p3-history-day{border-radius:17px}
+  .p3-history-day>summary{position:relative;grid-template-columns:minmax(150px,.65fr) minmax(480px,2fr);align-items:center;gap:18px;padding:13px 48px 13px 16px}
+  .p3-history-date-block{flex-direction:column;align-items:flex-start;gap:4px}
+  .p3-history-date-block>strong{font-size:14px}
+  .p3-day-status{padding:3px 7px;font-size:9px}
+  .p3-history-metrics{max-width:none;grid-template-columns:repeat(3,minmax(125px,1fr));gap:8px}
+  .p3-history-metric{padding:8px 11px;border-radius:12px}
+  .p3-history-metric strong{font-size:17px}
+  .p3-history-metric span{font-size:9px}
+  .p3-history-progress{position:absolute;left:0;right:0;bottom:0;height:3px;border-radius:0}
+  .p3-history-chevron{top:50%;right:17px;transform:translateY(-50%)}
+  .p3-history-day[open] .p3-history-chevron{transform:translateY(-50%) rotate(180deg)}
+  .p3-history-body{padding:6px 18px 13px}
+  .p3-history-meal{padding:11px 0}
+  .p3-history-meal-main>strong{font-size:13px}
+
+  .p3-trends-view{grid-template-columns:minmax(0,1fr) auto;column-gap:20px;align-items:start}
+  .p3-trends-view .p3-page-head{grid-column:1/-1}
+  .p3-trends-view .p3-segmented{grid-column:1;width:min(430px,100%)}
+  .p3-trends-view .p3-range-bar{grid-column:2;justify-content:flex-end;padding-top:4px}
+  .p3-trends-view .p3-trend-panel{grid-column:1/-1}
+  .p3-segmented{border-radius:14px}
+  .p3-segmented button{height:41px;font-size:13px}
+  .p3-trend-summary{grid-template-columns:minmax(0,1.35fr) minmax(360px,.65fr);gap:15px}
+  .p3-trend-primary,.p3-trend-secondary{padding:20px;border-radius:20px}
+  .p3-trend-primary>strong{font-size:36px}
+  .p3-trend-secondary strong{font-size:19px}
+  .p3-chart-wrap{padding:20px 18px 12px;border-radius:20px}
+  .p3-chart{height:350px}
+  .p3-chart-empty{min-height:300px}
+  .p3-axis-label,.p3-axis-date{font-size:10px}
+
+  .p3-insights-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .p3-insight{min-height:160px;padding:18px;border-radius:20px}
+  .p3-insight.quality{grid-column:auto}
+  .p3-insight strong{font-size:24px}
+  .p3-insight p{font-size:12px}
+}
+
+@media (min-width:1280px){
+  :root{--desktop-sidebar:248px}
+  .desktop-sidebar{padding-left:19px;padding-right:19px}
+  .content{max-width:1360px;padding:40px 48px 56px}
+  .calorie-hero-v2{grid-column:1/span 8}
+  .today-metrics{grid-column:9/-1}
+  .today-meals-section{grid-column:1/span 8}
+  .p4-week-card{grid-column:9/-1}
+}
+
+@media (min-width:1600px){
+  .content{max-width:1400px;padding-left:56px;padding-right:56px}
+  .calorie-hero-v2{grid-column:1/span 8}
+  .today-meals-section{grid-column:1/span 8}
+}
