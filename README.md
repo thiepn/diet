@@ -12,28 +12,76 @@ You → ChatGPT → Supabase → Dashboard
 
 The website intentionally contains no manual meal-entry, macro-entry, saved-food, or weight-entry workflow.
 
-## Current redesign: V4 — Vibrant Light
+## V4 — Vibrant Light
 
-The V4 frontend redesign is being implemented in focused phases while preserving the existing data model and ChatGPT logging workflow.
+V4 is the completed responsive redesign of Diet Copilot.
 
-### P1 — Visual Foundation
-
-Implemented:
+### Design
 
 - single light-mode product identity
 - warm neutral canvas and white surfaces
-- coral calorie/brand color
-- blue protein color
-- violet weight color
+- coral calories / brand identity
+- blue protein
+- violet weight
 - green success and amber estimate semantics
-- larger consumer-app typography
-- lighter shadows and reduced border usage
-- proper SVG navigation/action icons
-- removal of the `READ ONLY` badge from normal UI
-- refreshed account/modal styling
-- refreshed PWA theme metadata and app icon
+- consumer-app typography and iconography
+- accessible semantic text colors
+- mobile, tablet, compact-desktop and wide-desktop layouts
 
-P1 intentionally does **not** restructure the Today, History, Trends, or desktop layouts. Those are later phases.
+### Today
+
+- prominent calorie summary with consumed / target / remaining
+- protein progress
+- latest body weight
+- expandable meal cards
+- exact vs estimated provenance
+- uncertainty range when available
+- desktop 7-day snapshot
+
+### History
+
+- 3 / 7 / 14 / 30 / 90 day and all-time ranges
+- compact daily calorie, protein and weight summaries
+- meal-level expansion
+- completion state and target progress
+
+### Trends
+
+- separate Weight / Calories / Protein views
+- 7D / 30D / 90D / 6M / All ranges
+- regression-based weekly weight pace
+- seven-entry moving weight trend
+- calorie and protein bars against recorded targets
+- long-range bar-density handling
+- mouse, touch and keyboard chart details
+
+### Insights
+
+- weight direction
+- calorie averages
+- protein-target consistency
+- logging completeness
+- exact vs estimated meal counts
+
+### Responsive UX
+
+- mobile bottom navigation
+- tablet multi-column layout
+- desktop fixed sidebar
+- desktop-specific Today, History, Trends and Insights density
+- account/login experience shared across devices
+
+### Resilience and accessibility
+
+- friendly sign-in/network/session errors
+- loading, empty, syncing and offline states
+- cached read-only snapshot after successful sync
+- version-pinned Supabase SDK cached separately for cold offline restore
+- Supabase API/Auth/Realtime responses are never service-worker cached
+- skip-to-content support
+- visible keyboard focus
+- reduced-motion support
+- touch-sized controls
 
 ## Product rule
 
@@ -41,43 +89,13 @@ P1 intentionally does **not** restructure the Today, History, Trends, or desktop
 
 If a future feature violates that rule, it belongs in the ChatGPT interaction layer instead of the dashboard.
 
-## Dashboard views
-
-### Today
-- calories consumed / target / remaining
-- protein consumed / target
-- latest body weight
-- meals and item breakdowns
-- exact vs estimated provenance
-- uncertainty range when available
-
-### History
-- 3 / 7 / 14 / 30 / 90 day and all-time ranges
-- daily calories, protein, weight and status
-- meal-by-meal history
-
-### Trends
-- current weight and range change
-- regression-based weekly weight pace
-- average calories and protein on complete days
-- weight chart with seven-entry moving average
-- daily calorie chart against recorded targets
-
-### Insights
-- weight direction
-- calorie averages
-- protein-target consistency
-- logging completeness
-- exact vs estimated meal counts
-- average target deviation
-
 ## Read-only guarantee
 
-The browser client does not call Supabase insert/update/delete APIs and does not invoke write RPCs. Nutrition records are written through the private ChatGPT workflow and read through authenticated RLS-protected queries.
+The authenticated browser role has **SELECT-only** access to the dashboard tables, protected by owner-scoped RLS. The browser does not call nutrition insert/update/delete APIs or privileged write RPCs.
 
 ## Offline behavior
 
-After a successful cloud refresh, the dashboard stores a read-only browser snapshot. If the device is offline, that snapshot remains viewable until the next refresh.
+After at least one successful online use, the app caches its static shell, version-pinned Supabase client SDK, and latest read-only dashboard snapshot. A restored local auth session can therefore reopen the saved dashboard offline. Database/API responses themselves are never cached by the service worker.
 
 ## Development
 
