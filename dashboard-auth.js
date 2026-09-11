@@ -1,7 +1,7 @@
 'use strict';
 
-// Override the legacy infrastructure/setup dialog. Diet Copilot has one fixed
-// Supabase project, so a user should only ever authenticate their own account.
+// Diet Copilot has one fixed Supabase project. Users only authenticate their
+// account; infrastructure configuration is intentionally hidden.
 renderConnection = function renderDietConnection() {
   const email = cloud.user?.email || '';
 
@@ -22,6 +22,7 @@ renderConnection = function renderDietConnection() {
       cloud.user = null;
       cloud.status = 'configured';
       dashboard = emptyDashboard();
+      try { localStorage.removeItem(CACHE_KEY); } catch {}
       renderConnection();
       render();
     });
