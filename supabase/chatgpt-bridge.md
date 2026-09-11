@@ -1,52 +1,49 @@
-# Diet Copilot — Live ChatGPT bridge
+# Diet Copilot — ChatGPT bridge
 
 ## Product boundary
-
-Diet Copilot is intentionally split into three layers:
 
 ```text
 User → ChatGPT → Supabase → read-only dashboard
 ```
 
-The browser is not a calorie-entry application. Nutrition and weight records are written by ChatGPT through the connected Supabase management integration. The browser receives SELECT-only access to the user's own rows through RLS.
+The browser is deliberately a viewer. Meal logging, corrections, weight, day completion, goals, reusable foods/meals, reviews, reminders and calorie-target decisions are managed conversationally through ChatGPT.
+
+The browser receives SELECT-only access to owner-scoped rows through RLS. Privileged helpers live in the non-exposed `private` schema.
 
 ## Live project
 
 - Supabase project: `Diet Copilot`
 - Project ref: `mrrqsqawwxwebsdmrnre`
 - Region: `eu-central-1`
+- Database schema generation: **6**
 - Canonical dashboard: `https://thiepn.dev/diet/`
-- Browser API key: publishable key only; never expose a secret/service-role key
 
-## Security model
+## Core rule
 
-Public tables are protected by RLS. Authenticated browser sessions can SELECT only rows owned by `auth.uid()`.
+Before answering questions such as “how much can I still eat?”, “how did I do this week?”, or “same yogurt as last time”, read the database rather than relying on conversational memory.
 
-Browser sessions cannot INSERT, UPDATE, or DELETE nutrition records and cannot execute the write bridge.
-
-ChatGPT write helpers live in the non-exposed `private` schema. They are not granted to `anon` or `authenticated`; they are intended to be called only through the trusted Supabase management/database connection available to ChatGPT.
-
-The current setup is intentionally single-owner. `private.resolve_owner()` requires exactly one Supabase Auth user and refuses to proceed if more than one exists.
-
-## Core ChatGPT functions
-
-### Read context
+## Context
 
 ```sql
 select private.get_context(p_end_date, p_days);
 ```
 
-Use this before answering questions about today's remaining calories, recent adherence, protein intake, or weight history.
+Context now includes:
 
-### Search meal history
+- calorie / protein / fiber targets
+- goal weight and desired weekly weight change
+- adaptive-target settings
+- reminder/display preferences
+- active goal phase
+- recent day totals and completion states
+- recent weight
+- today's meals and item macros
+- food memory
+- meal memory
+- latest weekly review
+- latest adaptive-target recommendation
 
-```sql
-select private.search_history(p_query, p_days, p_limit);
-```
-
-Search before an ambiguous correction such as “that Döner was actually 900 kcal” or “same curry as Tuesday.” Do not guess between multiple plausible meals.
-
-### Log a meal
+## Logging meals
 
 ```sql
 select private.log_meal(
@@ -62,26 +59,85 @@ select private.log_meal(
 );
 ```
 
-Each item should contain structured fields where available:
+Each item can contain:
 
 ```json
 {
-  "name": "Cooked rice",
-  "quantity": "~220 g",
-  "calories": 285,
-  "protein": 6,
-  "calories_low": 250,
-  "calories_high": 325,
-  "confidence": "medium",
-  "source": "photo_estimate"
+  "name": "Milbona High Protein Joghurt Erdbeere",
+  "quantity": "200 g cup",
+  "calories": 142,
+  "protein": 20,
+  "carbs": 13.4,
+  "fat": 0.6,
+  "fiber": 0.2,
+  "brand": "Milbona",
+  "barcode": null,
+  "confidence": "high",
+  "source": "nutrition_label"
 }
 ```
 
-`p_request_id` must be stable across retries of the same logical user instruction. The bridge is idempotent and returns the original result rather than creating a duplicate.
+Use macros only when actually known or reasonably estimated. Do not invent carbs/fat/fiber merely because the columns exist.
 
-### Correct a meal
+Exact sources (`nutrition_label`, `weighed`, `manual_exact`) are automatically promoted into reusable food memory.
 
-First read/search the meal and keep its latest `updated_at`, then call:
+`p_request_id` should be stable across retries of one logical instruction.
+
+### Photo meals
+
+Photo-estimated meals should continue to store item estimates, calorie ranges, confidence and assumptions. The schema also supports `photo_url` / `photo_alt` metadata when a durable image URL exists. A transient ChatGPT upload should not be converted into a fake URL.
+
+## Repeat-food memory
+
+Search exact/reusable foods first when the user says things like:
+
+- “same yogurt as yesterday”
+- “my usual protein yogurt”
+- “same Lidl salad”
+
+```sql
+select private.search_food_memory(p_query, p_limit);
+```
+
+If one result is clearly intended, reuse it directly:
+
+```sql
+select private.log_saved_food(
+  p_saved_food_id,
+  p_log_date,
+  p_meal_type,
+  p_request_id
+);
+```
+
+If multiple plausible memories match, clarify rather than choosing arbitrarily.
+
+Exact label data in memory should outrank a new AI estimate.
+
+### Explicitly remember/update a food
+
+```sql
+select private.remember_food(...);
+```
+
+Use aliases for natural phrases the user is likely to reuse.
+
+## Repeat-meal memory
+
+Reusable multi-item meals are supported separately from individual foods.
+
+```sql
+select private.remember_meal(...);
+select private.remember_meal_from_history(p_meal_id, p_name, p_aliases, p_request_id);
+select private.search_meal_memory(p_query, p_limit);
+select private.log_saved_meal(p_saved_meal_id, p_log_date, p_meal_type, p_request_id);
+```
+
+This is useful for recurring home meals or restaurant orders. Do not silently assume two vaguely similar meals are identical.
+
+## Corrections
+
+Search/read the meal first and keep its latest `updated_at`.
 
 ```sql
 select private.update_meal(
@@ -93,17 +149,11 @@ select private.update_meal(
 );
 ```
 
-For item corrections, send the complete corrected item array. `p_expected_updated_at` provides stale-write protection.
+For item corrections, send the complete corrected item list. Macro and food-memory links are supported.
 
-To move a meal to another date, include:
+To move a meal, include `log_date` in `p_patch`.
 
-```json
-{ "log_date": "2026-09-10" }
-```
-
-inside `p_patch`.
-
-### Delete a meal
+## Delete
 
 ```sql
 select private.delete_meal(
@@ -113,9 +163,9 @@ select private.delete_meal(
 );
 ```
 
-Never delete a historical meal based only on a guessed title.
+Deleting from a completed day automatically reopens that day so analytics cannot treat the edited record as finalized.
 
-### Log or correct weight
+## Weight
 
 ```sql
 select private.log_weight(
@@ -126,67 +176,145 @@ select private.log_weight(
 );
 ```
 
-Weight is unique per user/date, so a later value for the same date updates that day's entry and records the previous value in the audit ledger.
+One weight exists per owner/date. A later value for the same date updates it and records the previous state in the action ledger.
 
-### Undo a ChatGPT action
+## Day completion
 
-Every ChatGPT write creates an `ai_actions` entry. To undo a supported action:
+When the user says “that's everything today”, “done eating”, or equivalent:
+
+```sql
+select private.set_day_status(p_log_date, 'complete', p_request_id);
+```
+
+To reopen explicitly:
+
+```sql
+select private.set_day_status(p_log_date, 'open', p_request_id);
+```
+
+Any later meal, meaningful correction or deletion on a completed day also reopens it automatically.
+
+Only `complete` days belong in calorie/protein adherence averages.
+
+## Goals and phases
+
+Profile-level preferences/goals:
+
+```sql
+select private.update_profile_preferences(p_patch, p_request_id);
+```
+
+Supported settings include:
+
+- goal weight
+- desired weekly weight change (negative = loss, positive = gain)
+- fiber target
+- adaptive-target enable/minimum data
+- optional carbs/fat display
+- meal-photo display
+- reminder preferences/timezone
+
+Structured phases:
+
+```sql
+select private.start_goal_phase(...);
+select private.end_goal_phase(...);
+```
+
+Phase types: `cut`, `maintain`, `gain`, `custom`.
+
+Do not invent a goal weight or desired rate. Ask the user when those values are needed.
+
+## Weekly review
+
+```sql
+select private.generate_weekly_review(p_week_end);
+```
+
+The review includes complete-day intake averages, protein consistency, fiber where coverage is complete, weigh-ins and weight change.
+
+Incomplete days must not masquerade as low-calorie success.
+
+## Adaptive calorie calibration
+
+Generate a proposal:
+
+```sql
+select private.generate_target_recommendation(p_end_date, p_lookback_days);
+```
+
+Guardrails:
+
+- adaptive calibration must be enabled
+- desired weekly weight change must be set
+- default minimum is 14 complete days
+- at least 4 weigh-ins spanning at least 7 days
+- uses weight-regression slope
+- estimates maintenance from recorded intake and observed weight change
+- proposed change is capped at ±250 kcal per adjustment
+- rounded to 25 kcal
+- absolute target clamp 1200–5000 kcal
+
+**Never silently apply a recommendation.** Explain it and ask the user.
+
+After explicit approval:
+
+```sql
+select private.accept_target_recommendation(p_recommendation_id, p_request_id);
+```
+
+If rejected:
+
+```sql
+select private.dismiss_target_recommendation(p_recommendation_id, p_request_id);
+```
+
+## Reminders
+
+Database preferences are managed with:
+
+```sql
+select private.set_reminder_preferences(p_patch, p_request_id);
+```
+
+Actual ChatGPT reminder/automation delivery is separate from database preferences and should only be scheduled when the user supplies or accepts a concrete cadence/time.
+
+Useful optional reminders:
+
+- morning weigh-in
+- end-of-day closeout
+- weekly review
+
+## Undo
 
 ```sql
 select private.undo_action(p_action_id);
 ```
 
-Supported cases:
-
-- meal create
-- meal update
-- meal delete
-- weight create
-- weight update
+Supported action history includes meal create/update/delete, weight create/update and day-status changes. Goal/recommendation decisions should normally be changed explicitly rather than treated as a generic undo shortcut.
 
 ## Confirmation policy
 
-Do not ask for confirmation for ordinary low-risk logging when intent is clear.
+Do not ask for confirmation for clear, low-risk meal/weight logging.
 
-Clarify only when ambiguity could materially change the record, for example:
+Clarify only when ambiguity could materially change the record, such as:
 
-- it is unclear whether the full photographed portion was eaten
-- a large amount of oil/sauce cannot be reasonably estimated
-- multiple historical meals could match a correction
+- unclear portion actually eaten
+- a major unknown oil/sauce amount
+- multiple historical/memory records plausibly match
+- goal/rate/target decisions that should not be guessed
 
-Approximation alone is not a reason to interrupt. Store a confidence level and low/high calorie range instead.
+## Response after writes
 
-## Photo policy
+Keep logging confirmation compact and then query current context again.
 
-For meal photos, estimate item-by-item where possible and store:
-
-- food name
-- estimated quantity
-- central calorie estimate
-- protein estimate
-- calorie low/high range when useful
-- confidence
-- source/assumptions
-
-See `photo-estimate-contract.md`.
-
-## Response after a write
-
-Keep confirmations compact. Example:
+Example:
 
 ```text
-Logged lunch: ~805 kcal, ~45 g protein (medium confidence; likely 690–945 kcal).
-Today: 1,520 / 2,300 kcal · 780 kcal remaining.
+Logged snack: 142 kcal · 20 g protein · 0.2 g fiber (nutrition label).
+Today: 142 / 2,300 kcal · 2,158 kcal remaining.
 ```
 
-Always derive totals from Supabase rather than conversational memory.
+## Security
 
-## Verification status
-
-The live bridge was tested on 2026-09-11 using rollback transactions. The verified cycle was:
-
-```text
-create → idempotent retry → search → update → delete → undo delete → undo update
-```
-
-Meal and weight tests left zero test rows or audit records after rollback.
+Authenticated browser sessions are SELECT-only. The private write bridge is not granted to browser roles. Realtime publication is enabled for dashboard tables, but RLS still restricts which rows an authenticated client can receive.
