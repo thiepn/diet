@@ -1,12 +1,12 @@
 {
   "name": "Diet Copilot",
   "short_name": "Diet Copilot",
-  "description": "Read-only nutrition and body-weight dashboard written by ChatGPT.",
+  "description": "Your personal nutrition, meal and body-weight history, logged through ChatGPT.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0b0e0c",
-  "theme_color": "#0b0e0c",
+  "background_color": "#F7F8FA",
+  "theme_color": "#F7F8FA",
   "orientation": "portrait-primary",
   "icons": [
     {"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
