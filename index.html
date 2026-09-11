@@ -1,7 +1,183 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" /><meta name="theme-color" content="#0f1210" /><meta name="mobile-web-app-capable" content="yes" /><meta name="apple-mobile-web-app-capable" content="yes" /><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" /><link rel="manifest" href="manifest.webmanifest" /><link rel="icon" href="icon.svg" type="image/svg+xml" /><meta name="description" content="Diet Copilot — a lightweight calorie, protein and body-weight tracker with reusable foods, meals and optional Supabase sync." /><title>Diet Copilot</title><link rel="stylesheet" href="styles-01.css" /><link rel="stylesheet" href="styles-02.css" /><link rel="stylesheet" href="styles-03.css" /><link rel="stylesheet" href="styles-04.css" /></head><body><div class="app-shell"><header class="topbar"><div><p class="eyebrow" id="todayLabel">Today</p><h1>Diet Copilot <span class="version-badge">V0.5</span></h1></div><div class="top-actions"><button class="sync-pill" id="syncPill" type="button" title="Open cloud settings"><span class="sync-dot local"></span><span>Local</span></button><button class="icon-btn" id="weightQuickBtn" aria-label="Log weight" title="Log weight">⚖</button></div></header><main id="app" class="content" aria-live="polite"></main><nav class="bottom-nav" aria-label="Primary navigation"><button data-view="today" class="nav-item active" aria-current="page"><span>●</span><small>Today</small></button><button data-view="history" class="nav-item"><span>◷</span><small>History</small></button><button data-view="trends" class="nav-item"><span>↗</span><small>Trends</small></button><button data-view="settings" class="nav-item"><span>⚙</span><small>Settings</small></button></nav></div><dialog id="mealDialog" class="modal"><form method="dialog" id="mealForm" class="modal-card wide-card"><div class="modal-header"><div><p class="eyebrow">Meal entry</p><h2 id="mealDialogTitle">Add meal</h2></div><button class="icon-btn close-btn" value="cancel" type="button" data-close="mealDialog" aria-label="Close">×</button></div><input type="hidden" id="mealId" /><div class="field-grid"><label>Date
-          <input id="mealDate" type="date" required /></label><label>Meal
-          <select id="mealType" required><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option><option>Other</option></select></label></div><label>Meal name
-        <input id="mealTitle" type="text" placeholder="Chicken rice bowl" required maxlength="120" /></label><section class="item-builder"><div class="item-builder-head"><div><strong>Food items</strong><small>Edit the components; totals update automatically.</small></div><button type="button" class="btn ghost small-btn" id="addMealItemBtn">+ Item</button></div><div id="mealItemsEditor" class="item-editor"></div><div class="computed-total"><span>Meal total</span><strong><span id="mealCaloriesTotal">0</span> kcal · <span id="mealProteinTotal">0</span> g protein</strong></div></section><div class="field-grid"><label>Confidence
-          <select id="mealConfidence"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select></label><label>Source
-          <select id="mealSource"><option value="manual_exact">Manual / exact</option><option value="nutrition_label">Nutrition label</option><option value="weighed">Weighed</option><option value="saved_food">Saved food</option><option value="text_estimate" selected>Text estimate</option><option value="photo_estimate">Photo estimate</option><option value="restaurant_estimate">Restaurant estimate</option><option value="ai_adjusted">AI adjusted</option></select></label></div><label>Original description <span class="optional">optional</span><textarea id="mealOriginalInput" rows="2" placeholder="What you originally told ChatGPT or typed"></textarea></label><label>Notes / assumptions
-        <textarea id="mealNotes" rows="2" placeholder="e.g. generous sauce, portion estimated from photo"></textarea></label><label class="check-row"><input id="saveAsTemplate" type="checkbox" /><span>Save this meal as a reusable usual</span></label><div class="modal-actions"><button type="button" class="btn ghost danger hidden" id="deleteMealBtn">Delete</button><span class="spacer"></span><button type="button" class="btn ghost" data-close="mealDialog">Cancel</button><button type="submit" class="btn primary">Save meal</button></div></form></dialog><dialog id="quickLogDialog" class="modal"><div class="modal-card compact quick-card"><div class="modal-header"><div><p class="eyebrow">One-tap logging</p><h2>Quick log</h2></div><button class="icon-btn close-btn" type="button" data-close="quickLogDialog" aria-label="Close">×</button></div><div class="segmented" id="quickTabs"><button type="button" data-quick="usuals" class="active">Usuals</button><button type="button" data-quick="yesterday">Yesterday</button><button type="button" data-quick="recent">Recent</button></div><div id="quickLogContent" class="quick-list"></div></div></dialog><dialog id="savedFoodDialog" class="modal"><form method="dialog" id="savedFoodForm" class="modal-card compact"><div class="modal-header"><div><p class="eyebrow">Reusable food</p><h2 id="savedFoodDialogTitle">New saved food</h2></div><button class="icon-btn close-btn" type="button" data-close="savedFoodDialog" aria-label="Close">×</button></div><input id="savedFoodId" type="hidden" /><label>Name<input id="savedFoodName" type="text" placeholder="Skyr 300 g" required maxlength="120" /></label><label>Default quantity <span class="optional">optional</span><input id="savedFoodQuantity" type="text" placeholder="300 g" maxlength="80" /></label><div class="field-grid"><label>Calories<input id="savedFoodCalories" type="number" min="0" step="1" required /></label><label>Protein (g)<input id="savedFoodProtein" type="number" min="0" step="0.1" /></label></div><div class="field-grid"><label>Confidence<select id="savedFoodConfidence"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></label><label>Source<select id="savedFoodSource"><option value="manual_exact">Manual / exact</option><option value="nutrition_label">Nutrition label</option><option value="weighed">Weighed</option><option value="text_estimate">Text estimate</option><option value="restaurant_estimate">Restaurant estimate</option></select></label></div><label class="check-row"><input id="savedFoodFavorite" type="checkbox" /><span>Favorite / show first</span></label><div class="modal-actions"><button type="button" class="btn ghost danger hidden" id="deleteSavedFoodBtn">Delete</button><span class="spacer"></span><button type="button" class="btn ghost" data-close="savedFoodDialog">Cancel</button><button type="submit" class="btn primary">Save</button></div></form></dialog><dialog id="savedMealDialog" class="modal"><form method="dialog" id="savedMealForm" class="modal-card wide-card"><div class="modal-header"><div><p class="eyebrow">Reusable meal</p><h2 id="savedMealDialogTitle">New saved meal</h2></div><button class="icon-btn close-btn" type="button" data-close="savedMealDialog" aria-label="Close">×</button></div><input id="savedMealId" type="hidden" /><div class="field-grid"><label>Name<input id="savedMealName" type="text" placeholder="Usual breakfast" required maxlength="120" /></label><label>Default meal<select id="savedMealType"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option><option>Other</option></select></label></div><section class="item-builder"><div class="item-builder-head"><div><strong>Template items</strong><small>These are copied into each new meal.</small></div><button type="button" class="btn ghost small-btn" id="addSavedMealItemBtn">+ Item</button></div><div id="savedMealItemsEditor" class="item-editor"></div><div class="computed-total"><span>Template total</span><strong><span id="savedMealCaloriesTotal">0</span> kcal · <span id="savedMealProteinTotal">0</span> g protein</strong></div></section><label class="check-row"><input id="savedMealFavorite" type="checkbox" /><span>Favorite / show first</span></label><div class="modal-actions"><button type="button" class="btn ghost danger hidden" id="deleteSavedMealBtn">Delete</button><span class="spacer"></span><button type="button" class="btn ghost" data-close="savedMealDialog">Cancel</button><button type="submit" class="btn primary">Save</button></div></form></dialog><dialog id="weightDialog" class="modal"><form method="dialog" id="weightForm" class="modal-card compact"><div class="modal-header"><div><p class="eyebrow">Body weight</p><h2>Log weight</h2></div><button class="icon-btn close-btn" value="cancel" type="button" data-close="weightDialog" aria-label="Close">×</button></div><label>Weight (kg)<input id="weightValue" type="number" min="20" max="400" step="0.1" inputmode="decimal" placeholder="79.0" required /></label><label>Date<input id="weightDate" type="date" required /></label><label>Notes<input id="weightNotes" type="text" placeholder="Morning, after bathroom" maxlength="120" /></label><div class="modal-actions"><span class="spacer"></span><button type="button" class="btn ghost" data-close="weightDialog">Cancel</button><button type="submit" class="btn primary">Save</button></div></form></dialog><div id="toast" class="toast" role="status" aria-live="polite"></div><!-- Pinned browser SDK. If it cannot load, local-only mode still works. --><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script><script src="app-01.js"></script><script src="app-02.js"></script><script src="app-03.js"></script><script src="app-04.js"></script><script src="app-05.js"></script><script src="app-06.js"></script><script src="app-07.js"></script><script src="app-08.js"></script><script src="app-09.js"></script><script src="app-10.js"></script><script src="app-11.js"></script><script src="app-12.js"></script><script src="app-13.js"></script><script src="app-14.js"></script><script src="app-15.js"></script><script src="app-16.js"></script><script src="app-17.js"></script><script src="app-18.js"></script><script src="app-19.js"></script><script src="app-20.js"></script><script src="app-21.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f1210" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <meta name="description" content="Diet Copilot — local-first calorie, protein and body-weight tracking with reusable meals, safe cloud sync and a ChatGPT-ready data bridge." />
+  <title>Diet Copilot</title>
+  <link rel="stylesheet" href="styles-v1-01.css" />
+  <link rel="stylesheet" href="styles-v1-02.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow" id="todayLabel">Today</p>
+        <h1>Diet Copilot <span class="version-badge">V1.0</span></h1>
+      </div>
+      <div class="top-actions">
+        <button class="sync-pill" id="syncPill" type="button" title="Open cloud settings"><span class="sync-dot local"></span><span>Local</span></button>
+        <button class="icon-btn" id="weightQuickBtn" aria-label="Log weight" title="Log weight">⚖</button>
+      </div>
+    </header>
+
+    <main id="app" class="content"></main>
+
+    <nav class="bottom-nav" aria-label="Primary navigation">
+      <button data-view="today" class="nav-item active" aria-current="page"><span>●</span><small>Today</small></button>
+      <button data-view="history" class="nav-item"><span>◷</span><small>History</small></button>
+      <button data-view="trends" class="nav-item"><span>↗</span><small>Trends</small></button>
+      <button data-view="settings" class="nav-item"><span>⚙</span><small>Settings</small></button>
+    </nav>
+  </div>
+
+  <dialog id="mealDialog" class="modal">
+    <form method="dialog" id="mealForm" class="modal-card wide-card">
+      <div class="modal-header">
+        <div><p class="eyebrow">Meal entry</p><h2 id="mealDialogTitle">Add meal</h2></div>
+        <button class="icon-btn close-btn" value="cancel" type="button" data-close="mealDialog" aria-label="Close">×</button>
+      </div>
+      <input type="hidden" id="mealId" />
+      <div class="field-grid">
+        <label>Date
+          <input id="mealDate" type="date" required />
+        </label>
+        <label>Meal
+          <select id="mealType" required>
+            <option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option><option>Other</option>
+          </select>
+        </label>
+      </div>
+      <label>Meal name
+        <input id="mealTitle" type="text" placeholder="Chicken rice bowl" required maxlength="120" />
+      </label>
+
+      <section class="item-builder">
+        <div class="item-builder-head">
+          <div><strong>Food items</strong><small>Edit the components; totals update automatically.</small></div>
+          <button type="button" class="btn ghost small-btn" id="addMealItemBtn">+ Item</button>
+        </div>
+        <div id="mealItemsEditor" class="item-editor"></div>
+        <div class="computed-total"><span>Meal total</span><strong><span id="mealCaloriesTotal">0</span> kcal · <span id="mealProteinTotal">0</span> g protein</strong></div>
+      </section>
+
+      <div class="field-grid">
+        <label>Confidence
+          <select id="mealConfidence"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select>
+        </label>
+        <label>Source
+          <select id="mealSource">
+            <option value="manual_exact">Manual / exact</option><option value="nutrition_label">Nutrition label</option><option value="weighed">Weighed</option><option value="saved_food">Saved food</option><option value="text_estimate" selected>Text estimate</option><option value="photo_estimate">Photo estimate</option><option value="restaurant_estimate">Restaurant estimate</option><option value="ai_adjusted">AI adjusted</option>
+          </select>
+        </label>
+      </div>
+      <label>Original description <span class="optional">optional</span>
+        <textarea id="mealOriginalInput" rows="2" placeholder="What you originally told ChatGPT or typed"></textarea>
+      </label>
+      <label>Notes / assumptions
+        <textarea id="mealNotes" rows="2" placeholder="e.g. generous sauce, portion estimated from photo"></textarea>
+      </label>
+      <label class="check-row"><input id="saveAsTemplate" type="checkbox" /><span>Save this meal as a reusable usual</span></label>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost danger hidden" id="deleteMealBtn">Delete</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn ghost" data-close="mealDialog">Cancel</button>
+        <button type="submit" class="btn primary">Save meal</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="quickLogDialog" class="modal">
+    <div class="modal-card compact quick-card">
+      <div class="modal-header">
+        <div><p class="eyebrow">One-tap logging</p><h2>Quick log</h2></div>
+        <button class="icon-btn close-btn" type="button" data-close="quickLogDialog" aria-label="Close">×</button>
+      </div>
+      <div class="segmented" id="quickTabs">
+        <button type="button" data-quick="usuals" class="active">Usuals</button>
+        <button type="button" data-quick="yesterday">Yesterday</button>
+        <button type="button" data-quick="recent">Recent</button>
+      </div>
+      <div id="quickLogContent" class="quick-list"></div>
+    </div>
+  </dialog>
+
+  <dialog id="savedFoodDialog" class="modal">
+    <form method="dialog" id="savedFoodForm" class="modal-card compact">
+      <div class="modal-header">
+        <div><p class="eyebrow">Reusable food</p><h2 id="savedFoodDialogTitle">New saved food</h2></div>
+        <button class="icon-btn close-btn" type="button" data-close="savedFoodDialog" aria-label="Close">×</button>
+      </div>
+      <input id="savedFoodId" type="hidden" />
+      <label>Name<input id="savedFoodName" type="text" placeholder="Skyr 300 g" required maxlength="120" /></label>
+      <label>Default quantity <span class="optional">optional</span><input id="savedFoodQuantity" type="text" placeholder="300 g" maxlength="80" /></label>
+      <div class="field-grid">
+        <label>Calories<input id="savedFoodCalories" type="number" min="0" step="1" required /></label>
+        <label>Protein (g)<input id="savedFoodProtein" type="number" min="0" step="0.1" /></label>
+      </div>
+      <div class="field-grid">
+        <label>Confidence<select id="savedFoodConfidence"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></label>
+        <label>Source<select id="savedFoodSource"><option value="manual_exact">Manual / exact</option><option value="nutrition_label">Nutrition label</option><option value="weighed">Weighed</option><option value="text_estimate">Text estimate</option><option value="restaurant_estimate">Restaurant estimate</option></select></label>
+      </div>
+      <label class="check-row"><input id="savedFoodFavorite" type="checkbox" /><span>Favorite / show first</span></label>
+      <div class="modal-actions"><button type="button" class="btn ghost danger hidden" id="deleteSavedFoodBtn">Delete</button><span class="spacer"></span><button type="button" class="btn ghost" data-close="savedFoodDialog">Cancel</button><button type="submit" class="btn primary">Save</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="savedMealDialog" class="modal">
+    <form method="dialog" id="savedMealForm" class="modal-card wide-card">
+      <div class="modal-header">
+        <div><p class="eyebrow">Reusable meal</p><h2 id="savedMealDialogTitle">New saved meal</h2></div>
+        <button class="icon-btn close-btn" type="button" data-close="savedMealDialog" aria-label="Close">×</button>
+      </div>
+      <input id="savedMealId" type="hidden" />
+      <div class="field-grid"><label>Name<input id="savedMealName" type="text" placeholder="Usual breakfast" required maxlength="120" /></label><label>Default meal<select id="savedMealType"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option><option>Other</option></select></label></div>
+      <section class="item-builder">
+        <div class="item-builder-head"><div><strong>Template items</strong><small>These are copied into each new meal.</small></div><button type="button" class="btn ghost small-btn" id="addSavedMealItemBtn">+ Item</button></div>
+        <div id="savedMealItemsEditor" class="item-editor"></div>
+        <div class="computed-total"><span>Template total</span><strong><span id="savedMealCaloriesTotal">0</span> kcal · <span id="savedMealProteinTotal">0</span> g protein</strong></div>
+      </section>
+      <label class="check-row"><input id="savedMealFavorite" type="checkbox" /><span>Favorite / show first</span></label>
+      <div class="modal-actions"><button type="button" class="btn ghost danger hidden" id="deleteSavedMealBtn">Delete</button><span class="spacer"></span><button type="button" class="btn ghost" data-close="savedMealDialog">Cancel</button><button type="submit" class="btn primary">Save</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="weightDialog" class="modal">
+    <form method="dialog" id="weightForm" class="modal-card compact">
+      <div class="modal-header">
+        <div><p class="eyebrow">Body weight</p><h2>Log weight</h2></div>
+        <button class="icon-btn close-btn" value="cancel" type="button" data-close="weightDialog" aria-label="Close">×</button>
+      </div>
+      <label>Weight (kg)<input id="weightValue" type="number" min="20" max="400" step="0.1" inputmode="decimal" placeholder="79.0" required /></label>
+      <label>Date<input id="weightDate" type="date" required /></label>
+      <label>Notes<input id="weightNotes" type="text" placeholder="Morning, after bathroom" maxlength="120" /></label>
+      <div class="modal-actions"><span class="spacer"></span><button type="button" class="btn ghost" data-close="weightDialog">Cancel</button><button type="submit" class="btn primary">Save</button></div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- Pinned browser SDK. If it cannot load, local-only mode still works. -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
+  <script src="app-v1-01.js"></script>
+  <script src="app-v1-02.js"></script>
+  <script src="app-v1-03.js"></script>
+  <script src="app-v1-04.js"></script>
+  <script src="app-v1-05.js"></script>
+  <script src="app-v1-06.js"></script>
+  <script src="app-v1-07.js"></script>
+  <script src="app-v1-08.js"></script>
+  <script src="app-v1-09.js"></script>
+  <script src="app-v1-10.js"></script>
+  <script src="app-v1-11.js"></script>
+  <script src="app-v1-12.js"></script>
+</body>
+</html>

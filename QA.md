@@ -1,86 +1,107 @@
-# Diet Copilot V0.5 — Release QA Matrix
+# Diet Copilot V1.0 — QA Matrix
 
-## A. Static package
+This matrix separates automated checks from scenarios that require a real Supabase project or physical devices.
 
-- [ ] `for f in app-*.js sw.js; do node --check "$f"; done`
-- [ ] `manifest.webmanifest` parses as JSON
-- [ ] HTML parses without duplicate static IDs
-- [ ] no secret/service-role credentials in frontend files
-- [ ] Supabase browser SDK is pinned
-- [ ] every service-worker core asset exists
-- [ ] `python tools/validate_release.py` passes
+## A. Static release checks
 
-## B. Local install
+- [x] all `app-v1-*.js` files parse with `node --check`
+- [x] `sw.js` parses with `node --check`
+- [x] `manifest.webmanifest` parses as JSON
+- [x] HTML parses without duplicate static IDs
+- [x] V1.0 version markers are consistent
+- [x] stable storage key + V0.5 migration path exist
+- [x] no Supabase secret/service-role credential is embedded
+- [x] browser SDK is pinned
+- [x] service-worker core assets include all V1 runtime files
+- [x] `python tools/validate_release.py` passes
 
-- [ ] fresh browser opens Today view
-- [ ] meal create/edit/delete/undo works
-- [ ] saved food + saved meal works
-- [ ] quick logging works
-- [ ] weight logging works
-- [ ] Complete/Partial/Open works
-- [ ] JSON export/import round-trip works
-- [ ] History search works
-- [ ] History “show more” works with >30 days
-- [ ] release check reports no local failures
+## B. Automated browser-DOM regression
 
-## C. Older local-data migration
+- [x] fresh app opens without runtime errors
+- [x] first-run target banner appears
+- [x] saving targets confirms/removes the banner
+- [x] blank meal cannot be saved
+- [x] normal item-level meal can be saved
+- [x] V0.5 local data migrates to stable V1 storage
+- [x] legacy cloud config migrates to stable cloud-config key
+- [x] migration backup is created
+- [x] saved meal preserves medium/low-confidence estimate metadata
+- [x] weight trend compares complete seven-entry windows
+- [x] local reset creates a safety backup
+- [x] local reset deactivates cloud sync
+- [x] local health check passes
+- [x] bulk cloud-upload protein serialization uses `Number(...)`
 
-- [ ] older V0.4 local dataset exists
-- [ ] opening V0.5 migrates automatically
-- [ ] calories/protein totals are unchanged
-- [ ] weights unchanged
-- [ ] saved foods/meals unchanged
-- [ ] pre-V0.5 rollback button appears
-- [ ] rollback restores previous snapshot
+## C. Manual local/browser checks
 
-## D. Fresh Supabase
+- [ ] meal edit/delete/undo through visible UI
+- [ ] saved food create/edit/delete
+- [ ] saved meal create/edit/delete
+- [ ] Usual / Yesterday / Recent quick logging
+- [ ] weight edit/remove flow
+- [ ] Complete / Partial / Open status controls
+- [ ] JSON export/import round trip
+- [ ] History search
+- [ ] History progressive loading with >30 days
+- [ ] restore safety backup
+- [ ] restore migration backup when available
+- [ ] keyboard-only navigation
+- [ ] reduced-motion preference
+- [ ] narrow mobile viewport
 
-- [ ] decompress and run `supabase/schema.sql.gz`
-- [ ] Security Advisor has no high-severity RLS findings
+## D. Fresh Supabase project
+
+- [ ] install the schema from `supabase/schema.sql.gz`
+- [ ] Security Advisor has no high-severity access-control finding
 - [ ] create account/sign in works
-- [ ] release check reports Schema v5
+- [ ] Advanced → Health check reports schema version 5
 - [ ] Replace cloud ← this device works
-- [ ] second device Replace device ← cloud works
+- [ ] second client Replace device ← cloud works
+- [ ] sign out and sign back in restores the correct account dataset
 
-## E. V0.4 Supabase migration
+## E. V0.4 database migration
 
 - [ ] run `supabase/upgrade-v0.4-to-v0.5.sql`
-- [ ] release check reports Schema v5
-- [ ] existing cloud records remain unchanged
-- [ ] weight records have `updated_at`
+- [ ] V1.0 health check reports schema version 5
+- [ ] existing cloud totals remain unchanged
+- [ ] saved foods/meals remain intact
 - [ ] normal create/edit/delete continues working
 
-## F. Sync conflicts
+## F. Multi-device conflicts
 
 1. Sync Device A and Device B.
 2. Take A offline.
-3. Edit a shared meal on B and sync.
-4. Edit the old copy on A.
+3. Edit the same synced meal on B and sync.
+4. Edit the stale copy on A.
 5. Reconnect A.
 
-Expected: A reports **Conflict** and does not silently overwrite B.
+Expected: A reports a conflict and does not silently overwrite B.
 
-- [ ] **Keep local edits** makes A win only on edited rows and reloads unrelated cloud changes
-- [ ] **Discard local edits + use cloud** makes cloud win
+- [ ] **Keep local edits** intentionally makes A win on edited rows
+- [ ] **Use cloud** discards pending local edits and reloads cloud
+- [ ] unrelated remote rows refresh after conflict resolution
 
 ## G. Offline queue lifecycle
 
 - [ ] create meal offline → reconnect → appears in cloud
-- [ ] create meal offline → delete before reconnect → no FK/sync failure
-- [ ] create saved food + dependent meal offline → parents sync before children
+- [ ] create meal offline → delete before reconnect → no orphan/FK failure
+- [ ] saved food + dependent meal sync parent-before-child
 - [ ] failed network write backs off
-- [ ] Retry failed sync works after issue is fixed
+- [ ] manual retry succeeds after issue is fixed
 
 ## H. Account/project isolation
 
-- [ ] pending edits + sign out prompts
-- [ ] sign out disables cloud activation
-- [ ] another account does not receive a previous account's queued edits
-- [ ] changing Supabase URL clears old baselines
-- [ ] importing backup disables cloud activation
+- [ ] pending edits + sign out gives a safe warning/flow
+- [ ] sign out disables active sync
+- [ ] another account cannot receive previous account's queued edits
+- [ ] changing Supabase project clears old baselines
+- [ ] JSON import deactivates cloud sync until explicit direction is chosen
 
-## I. ChatGPT RPCs
+## I. ChatGPT RPC contract
 
+Using a normal authenticated user JWT/RLS context:
+
+- [ ] `diet_copilot_healthcheck`
 - [ ] `get_diet_context`
 - [ ] `search_diet_history`
 - [ ] `log_meal_from_ai` idempotency
@@ -88,17 +109,18 @@ Expected: A reports **Conflict** and does not silently overwrite B.
 - [ ] `delete_meal_from_ai` stale-write protection
 - [ ] `log_weight_from_ai` idempotency
 - [ ] `undo_ai_action`
-- [ ] AI activity appears in Settings
+- [ ] AI activity appears in Advanced diagnostics
 
-## J. Platforms
+## J. Platforms / PWA
 
-- [ ] Android Chrome / installed PWA
-- [ ] desktop Chromium
-- [ ] desktop Firefox
-- [ ] narrow mobile viewport
-- [ ] keyboard-only navigation
-- [ ] reduced-motion preference
+- [ ] Android Chrome
+- [ ] Android installed PWA
+- [ ] desktop Chromium over real HTTP(S)
+- [ ] desktop Firefox over real HTTP(S)
+- [ ] service-worker update from V0.5 cache to V1.0 cache
+- [ ] offline reload after initial installation
+- [ ] GitHub Pages route `https://thiepn.github.io/diet/`
 
-## V1 gate
+## Verification boundary
 
-Do not label the build V1.0 until critical sections A–I pass and no data-loss bug remains.
+The V1.0 local/browser regression suite is complete. Sections D–J cannot be honestly marked passed until the app is connected to a dedicated Diet Copilot Supabase project and exercised on real clients/devices.
