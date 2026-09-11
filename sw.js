@@ -1,24 +1,26 @@
-const CACHE = 'diet-copilot-dashboard-v4.0-p5';
+const CACHE = 'diet-copilot-dashboard-v4.0-p6';
 const CORE = [
   './',
   './index.html',
-  './dashboard-01.css?v=4.0-p5',
-  './dashboard-02.css?v=4.0-p5',
-  './dashboard-03.css?v=4.0-p5',
-  './dashboard-p2.css?v=4.0-p5',
-  './dashboard-p3.css?v=4.0-p5',
-  './dashboard-p4.css?v=4.0-p5',
-  './dashboard-p5.css?v=4.0-p5',
-  './dashboard-01.js?v=4.0-p5',
-  './dashboard-02.js?v=4.0-p5',
-  './dashboard-p2.js?v=4.0-p5',
-  './dashboard-p2-session.js?v=4.0-p5',
-  './dashboard-p3.js?v=4.0-p5',
-  './dashboard-03.js?v=4.0-p5',
-  './dashboard-auth.js?v=4.0-p5',
-  './dashboard-p4.js?v=4.0-p5',
-  './dashboard-p5.js?v=4.0-p5',
-  './dashboard-04.js?v=4.0-p5',
+  './dashboard-01.css?v=4.0-p6',
+  './dashboard-02.css?v=4.0-p6',
+  './dashboard-03.css?v=4.0-p6',
+  './dashboard-p2.css?v=4.0-p6',
+  './dashboard-p3.css?v=4.0-p6',
+  './dashboard-p4.css?v=4.0-p6',
+  './dashboard-p5.css?v=4.0-p6',
+  './dashboard-p6.css?v=4.0-p6',
+  './dashboard-01.js?v=4.0-p6',
+  './dashboard-02.js?v=4.0-p6',
+  './dashboard-p2.js?v=4.0-p6',
+  './dashboard-p2-session.js?v=4.0-p6',
+  './dashboard-p3.js?v=4.0-p6',
+  './dashboard-03.js?v=4.0-p6',
+  './dashboard-auth.js?v=4.0-p6',
+  './dashboard-p4.js?v=4.0-p6',
+  './dashboard-p5.js?v=4.0-p6',
+  './dashboard-p6.js?v=4.0-p6',
+  './dashboard-04.js?v=4.0-p6',
   './manifest.webmanifest',
   './icon.svg',
   './icon-192.png',
@@ -50,6 +52,8 @@ self.addEventListener('fetch', event => {
   if (request.method !== 'GET') return;
 
   const url = new URL(request.url);
+  // Never cache Supabase/API/CDN traffic. Only static files from this app's
+  // own origin are eligible for the offline shell.
   if (url.origin !== self.location.origin) return;
 
   if (request.mode === 'navigate') {
