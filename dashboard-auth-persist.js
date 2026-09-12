@@ -1,10 +1,9 @@
 'use strict';
 
 // Diet Copilot auth persistence.
-// Supabase normally persists auth in localStorage. Some desktop/browser setups
-// can lose or fail to restore that state on reload, so Diet Copilot keeps an
-// independent first-party IndexedDB recovery copy of the session tokens.
-// No password is ever stored.
+// Supabase normally persists auth in localStorage. Some Firefox/Zen setups can
+// fail to restore that state reliably, so Diet Copilot also keeps a first-party
+// IndexedDB recovery copy of the session tokens. No password is ever stored.
 const DIET_AUTH_STORAGE_KEY = 'diet-copilot-auth-session-v1';
 const DIET_AUTH_LEGACY_KEY = 'sb-mrrqsqawwxwebsdmrnre-auth-token';
 const DIET_AUTH_BACKUP_KEY = 'diet-copilot-auth-token-backup-v1';
@@ -61,9 +60,7 @@ function dietAuthOpenVault() {
     const request = indexedDB.open(DIET_AUTH_DB, 1);
     request.onupgradeneeded = () => {
       const db = request.result;
-      if (!db.objectStoreNames.contains(DIET_AUTH_STORE)) {
-        db.createObjectStore(DIET_AUTH_STORE);
-      }
+      if (!db.objectStoreNames.contains(DIET_AUTH_STORE)) db.createObjectStore(DIET_AUTH_STORE);
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error || new Error('IndexedDB open failed'));
@@ -136,9 +133,7 @@ async function persistDietAuthRecovery(session) {
 
 async function readDietAuthRecovery() {
   let local = null;
-  try {
-    local = JSON.parse(localStorage.getItem(DIET_AUTH_BACKUP_KEY) || 'null');
-  } catch {}
+  try { local = JSON.parse(localStorage.getItem(DIET_AUTH_BACKUP_KEY) || 'null'); } catch {}
   if (local?.access_token && local?.refresh_token) return local;
   const vault = await dietAuthVaultGet();
   return vault?.access_token && vault?.refresh_token ? vault : null;
@@ -170,11 +165,17 @@ async function recoverDietAuthSession(client) {
       return data.session;
     }
   } catch (error) {
-    console.warn('Diet Copilot auth recovery failed', error);
+    // Only discard the backup after Supabase has actually rejected the stored
+    // refresh/access token pair. A transient empty startup state is NOT logout.
+    console.warn('Diet Copilot auth recovery rejected', error);
     await clearDietAuthRecovery();
   }
   return null;
 }
+
+// Used by explicit Sign out UI only. Do not call this from transient auth
+// events during page startup.
+window.clearDietAuthRecovery = clearDietAuthRecovery;
 
 initCloud = async function initCloudPersistent(showDialog = false) {
   cloud.error = null;
@@ -195,8 +196,6 @@ initCloud = async function initCloudPersistent(showDialog = false) {
   }
 
   try {
-    // Tear down only an already-existing in-memory client. auth.dispose() does
-    // not sign out or remove persisted credentials.
     if (cloud.client) await disposeCloud();
 
     const hasPersistentStorage = migrateDietAuthStorage();
@@ -208,31 +207,29 @@ initCloud = async function initCloudPersistent(showDialog = false) {
     };
     if (hasPersistentStorage) authOptions.storage = dietAuthStorage;
 
-    cloud.client = window.supabase.createClient(cloudConfig.url, cloudConfig.key, {
-      auth: authOptions
-    });
+    cloud.client = window.supabase.createClient(cloudConfig.url, cloudConfig.key, { auth: authOptions });
 
-    let initialResolved = false;
-    let resolveInitial;
-    const initialSessionPromise = new Promise(resolve => { resolveInitial = resolve; });
+    // Critical ordering for Zen/Firefox:
+    // 1) read Supabase's stored session
+    // 2) if empty, recover from our independent vault
+    // 3) only then register the normal auth listener / render signed-out state
+    let session = null;
+    const { data: stored, error: storedError } = await cloud.client.auth.getSession();
+    if (storedError) throw storedError;
+    session = stored.session || null;
 
-    const { data: listener } = cloud.client.auth.onAuthStateChange((event, session) => {
-      if (session && ['INITIAL_SESSION','SIGNED_IN','TOKEN_REFRESHED','USER_UPDATED'].includes(event)) {
-        persistDietAuthRecovery(session).catch(()=>{});
-      }
-      if (event === 'SIGNED_OUT') {
-        clearDietAuthRecovery().catch(()=>{});
-      }
+    if (!session) session = await recoverDietAuthSession(cloud.client);
 
-      if (event === 'INITIAL_SESSION') {
-        initialResolved = true;
-        applyCloudSession(session);
-        resolveInitial(session || null);
-        return;
+    applyCloudSession(session);
+    if (session) await persistDietAuthRecovery(session);
+
+    const { data: listener } = cloud.client.auth.onAuthStateChange((event, nextSession) => {
+      if (nextSession && ['INITIAL_SESSION','SIGNED_IN','TOKEN_REFRESHED','USER_UPDATED'].includes(event)) {
+        persistDietAuthRecovery(nextSession).catch(()=>{});
       }
 
       const before = cloud.user?.id || null;
-      applyCloudSession(session);
+      applyCloudSession(nextSession);
 
       if (event === 'SIGNED_IN' && cloud.user && cloud.user.id !== before) {
         queueMicrotask(() => {
@@ -242,34 +239,14 @@ initCloud = async function initCloudPersistent(showDialog = false) {
       }
 
       if (event === 'SIGNED_OUT' && cloud.channel) {
-        cloud.client.removeChannel(cloud.channel).catch(() => {});
+        cloud.client.removeChannel(cloud.channel).catch(()=>{});
         cloud.channel = null;
       }
+      // Deliberately DO NOT erase the recovery vault here. Firefox/Zen can
+      // produce transient signed-out states during client/bootstrap lifecycle.
+      // The explicit Sign out button owns permanent recovery-data deletion.
     });
     cloud.authSubscription = listener?.subscription || null;
-
-    // First use Supabase's normal persisted-session restoration.
-    let session = null;
-    try {
-      session = await Promise.race([
-        initialSessionPromise,
-        new Promise((_, reject) => setTimeout(() => reject(new Error('auth-init-timeout')), 1800))
-      ]);
-    } catch {
-      const { data, error } = await cloud.client.auth.getSession();
-      if (error) throw error;
-      session = data.session || null;
-    }
-
-    // If the browser lost/failed to restore Supabase's normal localStorage
-    // state, recover the refresh/access token pair from our IndexedDB vault.
-    if (!session) {
-      session = await recoverDietAuthSession(cloud.client);
-    }
-
-    if (!initialResolved || session) applyCloudSession(session);
-
-    if (session) await persistDietAuthRecovery(session);
 
     if (cloud.user) {
       await refreshData({ silent: true });
