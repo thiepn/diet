@@ -1,7 +1,7 @@
 (() => {
   const config = {
-    url: 'https://mrrqsqawwxwebsdmrnre.supabase.co',
-    key: 'sb_publishable_1skle8AStSXmao9Vx0DOGA_U6mPJfsu'
+    url: 'https://hycegznamzjhwinegaai.supabase.co',
+    key: 'sb_publishable_1rZzRPzfLMaAH5pIgCwIjA_19UPMIsR'
   };
   try {
     localStorage.setItem('diet-copilot-cloud-config', JSON.stringify(config));
