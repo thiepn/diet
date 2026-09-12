@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in *.js; do
+            node --check "$file"
+          done
+
+      - name: THIEPN Account contract
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const files = ['dashboard-01.js', 'dashboard-config.js', 'dashboard-auth-persist.js', 'dashboard-auth.js'];
+          const text = Object.fromEntries(files.map((file) => [file, fs.readFileSync(file, 'utf8')]));
+          const sharedProject = 'hycegznamzjhwinegaai';
+          const oldProject = 'mrrqsqawwxwebsdmrnre';
+          const sharedStorage = `sb-${sharedProject}-auth-token`;
+          if (!text['dashboard-01.js'].includes(sharedProject)) throw new Error('Dashboard runtime is not on THIEPN Account.');
+          if (!text['dashboard-config.js'].includes(sharedProject)) throw new Error('Dashboard config is not on THIEPN Account.');
+          if (!text['dashboard-auth-persist.js'].includes(sharedStorage)) throw new Error('Diet auth does not use the shared THIEPN Account storage key.');
+          for (const file of files) {
+            if (text[file].includes(oldProject)) throw new Error(`${file} still references the retired Diet auth project.`);
+          }
+          if (!text['dashboard-auth.js'].includes('Continue with Google')) throw new Error('Google THIEPN Account entry point is missing.');
+          if (!text['dashboard-auth.js'].includes('signInWithPassword')) throw new Error('Email/password THIEPN Account entry point is missing.');
+          console.log('Diet THIEPN Account contract passed.');
+          NODE
