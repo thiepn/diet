@@ -5,8 +5,8 @@ const CACHE_KEY = 'diet-copilot-dashboard-cache-v2';
 const CLOUD_CONFIG_KEY = 'diet-copilot-cloud-config';
 const LEGACY_STATE_KEY = 'diet-copilot-state';
 const DIET_SUPABASE = Object.freeze({
-  url: 'https://mrrqsqawwxwebsdmrnre.supabase.co',
-  key: 'sb_publishable_1skle8AStSXmao9Vx0DOGA_U6mPJfsu'
+  url: 'https://hycegznamzjhwinegaai.supabase.co',
+  key: 'sb_publishable_1rZzRPzfLMaAH5pIgCwIjA_19UPMIsR'
 });
 const app = document.getElementById('app');
 const connectionDialog = document.getElementById('connectionDialog');
