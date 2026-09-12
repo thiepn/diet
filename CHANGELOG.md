@@ -1,5 +1,43 @@
 # Changelog
 
+## V5.2 — Metrics & Stats — 2026-09-12
+
+Focused analytics redesign making Diet Copilot easier to understand without adding manual logging UI.
+
+### Key Stats
+
+- added 7D / 28D / 90D stat ranges
+- added clear calorie average, target hit rate and typical target miss
+- added protein average and target-hit rate
+- added fiber average, target-hit rate and explicit coverage count
+- added trend weight, observed weekly pace and raw range change
+- added goal progress %, kg remaining and ETA
+- added complete/logged-day data-quality metric
+- added exact/reused vs estimated meal quality
+- added combined adherence score with visible weighting
+- added rough maintenance estimate only after enough complete intake + weight trend data
+- older diagnostic Insights moved behind an expandable secondary section
+- Today now shows progress from phase baseline toward goal weight
+
+### Metrics integrity
+
+- incomplete/open days remain excluded from adherence averages
+- missing fiber remains unknown, not zero
+- weight pace requires adequate weigh-in count and time span
+- early datasets explicitly show “Building baseline”
+- added `private.get_metrics_snapshot(...)` so ChatGPT and the dashboard can share definitions
+
+## V5.1 — Smart Diet Coach — 2026-09-12
+
+- added portion-aware remembered-food logging with multipliers / changed gram amounts
+- added observed pace vs planned pace classification
+- added plateau / slower / faster / on-pace detection
+- added goal ETA using observed trend when trustworthy, planned pace otherwise
+- added adherence scoring across calories, protein and fiber
+- added maintenance-transition guidance near goal weight
+- added end-of-day closeout guidance
+- weekly reviews now include coach interpretation
+
 ## V5 — Diet Intelligence — 2026-09-12
 
 Expanded Diet Copilot from a read-only calorie dashboard into a ChatGPT-controlled diet intelligence system while preserving the no-manual-logging product rule.
@@ -54,70 +92,29 @@ Expanded Diet Copilot from a read-only calorie dashboard into a ChatGPT-controll
 
 ### Dashboard
 
-- Today now surfaces fiber, day completeness and optional goal/macros context
-- Trends now supports Weight / Calories / Protein / Fiber
-- Insights now includes goal phase, 7-day review, calibration status and food memory
+- Today surfaces fiber, day completeness and optional goal/macros context
+- Trends supports Weight / Calories / Protein / Fiber
+- Insights includes goal phase, 7-day review, calibration status and food memory
 - account view shows read-only diet settings managed through ChatGPT
 
 ### Realtime and security
 
-- enabled Supabase Realtime publication for all dashboard-visible tables
+- enabled Supabase Realtime publication for dashboard-visible tables
 - retained owner-scoped RLS
 - retained SELECT-only authenticated browser grants
 - privileged writes remain private to the ChatGPT bridge
-- database healthcheck schema version is now 6
+- database healthcheck schema version is 6
 
 ## V4 — Vibrant Light — 2026-09-12
 
 Complete visual/UX redesign of the read-only Diet Copilot dashboard.
 
-### P1 — Visual foundation
-
-- replaced the dark green developer-dashboard theme with a vibrant light consumer-health identity
-- introduced semantic colors for calories, protein, weight, success and estimates
-- refreshed typography, spacing, iconography, cards, PWA metadata and app icon
-
-### P2 — Mobile core
-
-- rebuilt Today around a coral calorie hero, blue protein tile and violet weight tile
-- redesigned meals as compact expandable cards
-- added clearer signed-out, empty, loading and error states
-- prevented unauthenticated local snapshots from rendering as active dashboard data
-
-### P3 — History, Trends & Insights
-
-- compact History with 3/7/14/30/90/all ranges
-- Weight / Calories / Protein trend tabs
-- 7D / 30D / 90D / 6M / All chart ranges
-- concise factual Insights instead of generic coaching
-
-### P4 — Desktop & responsive UX
-
-- added a true desktop sidebar and 12-column Today layout
-- added tablet-specific behavior
-- increased History density and expanded desktop charts
-- added desktop 7-day snapshot
-- removed portrait-only PWA orientation
-
-### P5 — Interaction & polish
-
-- redesigned account/login UI
-- added human-readable auth/network errors
-- added offline/sync/error notices
-- improved keyboard focus, skip navigation and reduced-motion support
-- hardened long text and interactive states
-
-### P6 — Final audit & hardening
-
-- corrected semantic text contrast while preserving vibrant fills
-- fixed weight-chart label overlap
-- prevented all-time bar-chart overlap on long histories
-- added mouse, touch and keyboard chart value inspection
-- removed the hard-coded “Morning weigh-in” assumption
-- hardened account-dialog initialization/focus behavior
-- safely cached only the version-pinned Supabase SDK for cold offline restore
-- re-verified browser SELECT-only grants and owner-scoped RLS
-- re-verified current production totals against Supabase
+- P1 visual foundation
+- P2 mobile core
+- P3 History / Trends / Insights
+- P4 desktop and responsive UX
+- P5 interaction / account / accessibility polish
+- P6 final audit and release hardening
 
 ## Read-only Dashboard Rebuild — 2026-09-11
 
