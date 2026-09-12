@@ -1,15 +1,15 @@
 'use strict';
 
-// Diet Copilot auth persistence.
-// Supabase normally persists auth in localStorage. Some Firefox/Zen setups can
-// fail to restore that state reliably, so Diet Copilot also keeps a first-party
-// IndexedDB recovery copy of the session tokens. No password is ever stored.
-const DIET_AUTH_STORAGE_KEY = 'diet-copilot-auth-session-v1';
-const DIET_AUTH_LEGACY_KEY = 'sb-mrrqsqawwxwebsdmrnre-auth-token';
-const DIET_AUTH_BACKUP_KEY = 'diet-copilot-auth-token-backup-v1';
+// THIEPN Account auth persistence for Diet Copilot.
+// All THIEPN apps on thiepn.dev use Supabase's standard project-scoped storage
+// key so a valid session can be reused across app paths. Diet Copilot keeps an
+// additional first-party IndexedDB recovery copy for browsers that restore
+// localStorage unreliably. No password is ever stored.
+const DIET_AUTH_STORAGE_KEY = 'sb-hycegznamzjhwinegaai-auth-token';
+const DIET_AUTH_BACKUP_KEY = 'diet-copilot-thiepn-auth-token-backup-v2';
 const DIET_AUTH_DB = 'diet-copilot-auth-vault';
 const DIET_AUTH_STORE = 'sessions';
-const DIET_AUTH_RECORD = 'primary';
+const DIET_AUTH_RECORD = 'thiepn-account-v1';
 
 function dietAuthStorageAvailable() {
   try {
@@ -28,27 +28,18 @@ const dietAuthStorage = {
   },
   setItem(key, value) {
     try { localStorage.setItem(key, value); }
-    catch (error) { console.warn('Diet Copilot auth storage write failed', error); }
+    catch (error) { console.warn('THIEPN Account auth storage write failed', error); }
   },
   removeItem(key) {
     try { localStorage.removeItem(key); }
-    catch (error) { console.warn('Diet Copilot auth storage remove failed', error); }
+    catch (error) { console.warn('THIEPN Account auth storage remove failed', error); }
   }
 };
 
-function migrateDietAuthStorage() {
-  if (!dietAuthStorageAvailable()) return false;
-  const suffixes = ['', '-code-verifier', '-user'];
-  for (const suffix of suffixes) {
-    const from = `${DIET_AUTH_LEGACY_KEY}${suffix}`;
-    const to = `${DIET_AUTH_STORAGE_KEY}${suffix}`;
-    try {
-      if (localStorage.getItem(to) == null && localStorage.getItem(from) != null) {
-        localStorage.setItem(to, localStorage.getItem(from));
-      }
-    } catch {}
-  }
-  return true;
+function prepareDietAuthStorage() {
+  // Do not migrate Diet Copilot's previous project tokens. They were issued by
+  // a different Supabase project and must never be promoted into THIEPN Account.
+  return dietAuthStorageAvailable();
 }
 
 function dietAuthOpenVault() {
@@ -165,9 +156,9 @@ async function recoverDietAuthSession(client) {
       return data.session;
     }
   } catch (error) {
-    // Only discard the backup after Supabase has actually rejected the stored
-    // refresh/access token pair. A transient empty startup state is NOT logout.
-    console.warn('Diet Copilot auth recovery rejected', error);
+    // Only discard the THIEPN Account backup after Supabase has rejected the
+    // stored token pair. A transient empty startup state is not a logout.
+    console.warn('THIEPN Account auth recovery rejected', error);
     await clearDietAuthRecovery();
   }
   return null;
@@ -198,7 +189,7 @@ initCloud = async function initCloudPersistent(showDialog = false) {
   try {
     if (cloud.client) await disposeCloud();
 
-    const hasPersistentStorage = migrateDietAuthStorage();
+    const hasPersistentStorage = prepareDietAuthStorage();
     const authOptions = {
       persistSession: true,
       autoRefreshToken: true,
@@ -210,8 +201,8 @@ initCloud = async function initCloudPersistent(showDialog = false) {
     cloud.client = window.supabase.createClient(cloudConfig.url, cloudConfig.key, { auth: authOptions });
 
     // Critical ordering for Zen/Firefox:
-    // 1) read Supabase's stored session
-    // 2) if empty, recover from our independent vault
+    // 1) read the shared THIEPN Account session
+    // 2) if empty, recover from Diet Copilot's same-project recovery vault
     // 3) only then register the normal auth listener / render signed-out state
     let session = null;
     const { data: stored, error: storedError } = await cloud.client.auth.getSession();
@@ -242,7 +233,7 @@ initCloud = async function initCloudPersistent(showDialog = false) {
         cloud.client.removeChannel(cloud.channel).catch(()=>{});
         cloud.channel = null;
       }
-      // Deliberately DO NOT erase the recovery vault here. Firefox/Zen can
+      // Deliberately do not erase the recovery vault here. Firefox/Zen can
       // produce transient signed-out states during client/bootstrap lifecycle.
       // The explicit Sign out button owns permanent recovery-data deletion.
     });
