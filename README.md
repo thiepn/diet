@@ -34,13 +34,14 @@ V5 builds on the completed Vibrant Light V4 redesign without changing the core p
 - aliases support phrases such as “same protein yogurt”
 - exact remembered values outrank a fresh AI estimate
 - reusable multi-item meals can also be saved and recalled
+- portion-aware reuse supports half portions, multipliers and changed gram amounts without a new estimate
 - memory remains ChatGPT-managed; there is no manual food database UI
 
 ### Nutrition
 
 - calories remain the primary metric
 - protein remains first-class
-- fiber is now tracked as the third core nutrition metric when data is available
+- fiber is tracked as the third core nutrition metric when data is available
 - carbs and fat are stored when known but remain optional/hidden by default
 - fiber coverage is marked partial when some meals lack fiber data rather than pretending the missing values are zero
 
@@ -71,7 +72,51 @@ Guardrails:
 
 ChatGPT must explain a recommendation and receive explicit approval before applying it.
 
-### Weekly review
+## V5.1 — Smart Diet Coach
+
+V5.1 adds interpretation on top of V5 data rather than more logging controls.
+
+- observed weight pace vs planned pace
+- plateau / slower / faster / on-pace classification
+- goal ETA using observed trend when trustworthy, otherwise planned pace
+- adherence score from calorie, protein and fiber target consistency
+- maintenance-transition guidance near the end of a cut or gain
+- end-of-day closeout guidance
+- portion-scaled saved-food logging
+
+The coach waits for sufficient data before judging weight pace; early use is explicitly labeled **Building baseline**.
+
+## V5.2 — Metrics & Stats
+
+V5.2 makes the statistics easier to understand and more useful for decisions.
+
+### Key Stats
+
+The Insights screen now has a primary **Key stats** section with 7D / 28D / 90D ranges. It tracks:
+
+- **Calories:** complete-day average, hit rate within ±150 kcal, typical target miss
+- **Protein:** complete-day average and target-hit rate
+- **Fiber:** average and target-hit rate only on days with complete fiber coverage
+- **Trend weight:** smoothed recent weight and observed pace when enough weigh-ins exist
+- **Goal progress:** percentage from phase baseline toward goal, kg remaining, ETA
+- **Data quality:** complete vs logged days, exact/reused vs estimated meals
+- **Plan adherence:** combined calorie/protein/fiber consistency score
+- **Estimated maintenance:** shown only after enough complete intake and weight-trend data exist
+
+Important definitions are shown directly in the UI rather than hidden behind unexplained scores.
+
+Older diagnostic Insight cards are still available under **Additional diagnostic details**, but no longer dominate the screen.
+
+### Metrics integrity
+
+- incomplete days never count as low-calorie successes
+- averages use Complete days only
+- missing fiber remains unknown, not zero
+- weight pace requires enough weigh-ins and time span
+- estimated maintenance is withheld until the dataset is sufficiently mature
+- early-stage metrics say **Building baseline** instead of pretending to know the answer
+
+## Weekly review
 
 Weekly summaries can report:
 
@@ -79,14 +124,18 @@ Weekly summaries can report:
 - average calories
 - average protein
 - average fiber when coverage is complete
-- protein target consistency
+- calorie / protein / fiber adherence
 - weigh-ins and weight change
+- observed pace vs planned pace
+- goal ETA when meaningful
+- plateau / pace status
+- maintenance-transition status
 
-### Meal photos
+## Meal photos
 
 Meals support optional durable photo URLs and thumbnails. The UI does not expose upload controls; photos remain part of the ChatGPT logging workflow when durable image storage is available.
 
-### Reminders
+## Reminders
 
 Diet Copilot stores opt-in preferences for:
 
@@ -105,10 +154,11 @@ Actual ChatGPT notifications are scheduled separately only after a user chooses 
 - fiber progress/coverage
 - weight
 - open/complete/partial day status
-- optional goal strip
+- goal progress toward target weight
 - optional carbs/fat summary
 - expandable meal cards
 - optional meal thumbnails
+- closeout guidance when the day is still open
 
 ### History
 
@@ -125,14 +175,13 @@ Actual ChatGPT notifications are scheduled separately only after a user chooses 
 
 ### Insights
 
-- weight direction
-- calorie/protein consistency
-- logging completeness
-- estimate quality
+- Key Stats with 7D / 28D / 90D ranges
+- Smart Diet Coach
 - current goal phase
-- 7-day review
+- weekly-review context
 - adaptive-calibration status
 - food-memory status
+- additional diagnostic details on demand
 
 ## Product rule
 
