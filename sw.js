@@ -1,4 +1,4 @@
-const CACHE = 'diet-copilot-dashboard-v5.2.1';
+const CACHE = 'diet-copilot-dashboard-v5.2.2';
 const SUPABASE_SDK = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0';
 const CORE = [
   './',
@@ -20,7 +20,7 @@ const CORE = [
   './dashboard-p2-session.js?v=5.2',
   './dashboard-p3.js?v=5.2',
   './dashboard-03.js?v=5.2',
-  './dashboard-auth-persist.js?v=5.2.1',
+  './dashboard-auth-persist.js?v=5.2.2',
   './dashboard-auth.js?v=5.2',
   './dashboard-p4.js?v=5.2',
   './dashboard-p5.js?v=5.2',
