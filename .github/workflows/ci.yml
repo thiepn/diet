@@ -28,22 +28,73 @@ jobs:
             node --check "$file"
           done
 
-      - name: THIEPN Account contract
+      - name: THIEPN Account platform contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          const files = ['dashboard-01.js', 'dashboard-config.js', 'dashboard-auth-persist.js', 'dashboard-auth.js'];
+          const files = [
+            'index.html',
+            'dashboard-01.js',
+            'dashboard-config.js',
+            'dashboard-account-platform.js',
+            'dashboard-auth-persist.js',
+            'dashboard-auth.js'
+          ];
           const text = Object.fromEntries(files.map((file) => [file, fs.readFileSync(file, 'utf8')]));
           const sharedProject = 'hycegznamzjhwinegaai';
           const oldProject = 'mrrqsqawwxwebsdmrnre';
           const sharedStorage = `sb-${sharedProject}-auth-token`;
+          const a4Sha = '124221f39a932d50f9a86ad5c3da2d8fd1fe50af';
+
           if (!text['dashboard-01.js'].includes(sharedProject)) throw new Error('Dashboard runtime is not on THIEPN Account.');
           if (!text['dashboard-config.js'].includes(sharedProject)) throw new Error('Dashboard config is not on THIEPN Account.');
           if (!text['dashboard-auth-persist.js'].includes(sharedStorage)) throw new Error('Diet auth does not use the shared THIEPN Account storage key.');
           for (const file of files) {
             if (text[file].includes(oldProject)) throw new Error(`${file} still references the retired Diet auth project.`);
+            if (/service[_-]?role/i.test(text[file]) || /sb_secret_/i.test(text[file])) throw new Error(`${file} contains a forbidden privileged credential reference.`);
           }
-          if (!text['dashboard-auth.js'].includes('Continue with Google')) throw new Error('Google THIEPN Account entry point is missing.');
-          if (!text['dashboard-auth.js'].includes('signInWithPassword')) throw new Error('Email/password THIEPN Account entry point is missing.');
-          console.log('Diet THIEPN Account contract passed.');
+
+          const platform = text['dashboard-account-platform.js'];
+          if (!platform.includes("const SDK_VERSION = '1.2.0'")) throw new Error('Diet Account SDK pin changed.');
+          if (!platform.includes("const PLATFORM_VERSION = '1.0.0'")) throw new Error('Diet platform pin changed.');
+          if (!platform.includes(a4Sha)) throw new Error('Diet A4 certified source SHA pin changed.');
+          if (!platform.includes("const APP_ID = 'diet'")) throw new Error('Diet platform app id changed.');
+          if (!platform.includes('account_user_apps')) throw new Error('Diet A4 activity integration is missing.');
+          if (!platform.includes('requiresAdditionalVerification')) throw new Error('Diet A3 MFA handoff state is missing.');
+
+          const index = text['index.html'];
+          const bridgeIndex = index.indexOf('dashboard-account-platform.js');
+          const persistenceIndex = index.indexOf('dashboard-auth-persist.js');
+          if (bridgeIndex < 0 || persistenceIndex < 0 || bridgeIndex >= persistenceIndex) {
+            throw new Error('Diet account platform bridge must load before auth persistence.');
+          }
+
+          const persistence = text['dashboard-auth-persist.js'];
+          for (const invariant of [
+            "const DIET_AUTH_DB = 'diet-copilot-auth-vault'",
+            "const DIET_AUTH_STORE = 'sessions'",
+            'recoverDietAuthSession',
+            'persistDietAuthRecovery',
+            'clearDietAuthRecovery',
+            'prepareDietAuthStorage',
+            'window.dietAccountPlatform?.adoptSession(session)'
+          ]) {
+            if (!persistence.includes(invariant)) throw new Error(`Diet recovery-vault invariant missing: ${invariant}`);
+          }
+          if (!persistence.includes("['INITIAL_SESSION','SIGNED_IN','TOKEN_REFRESHED','USER_UPDATED']")) {
+            throw new Error('Diet recovery vault no longer tracks authoritative auth events.');
+          }
+          if (!persistence.includes('Deliberately do not erase the recovery vault here')) {
+            throw new Error('Firefox/Zen transient signed-out recovery protection was removed.');
+          }
+
+          const auth = text['dashboard-auth.js'];
+          if (!auth.includes('Continue with Google')) throw new Error('Google THIEPN Account entry point is missing.');
+          if (!auth.includes('signInWithPassword')) throw new Error('Email/password THIEPN Account entry point is missing.');
+          if (!auth.includes("password.length < 12")) throw new Error('Diet password-change floor is not 12 characters.');
+          if (!auth.includes("passwordValue.length < 12")) throw new Error('Diet account-creation password floor is not 12 characters.');
+          if (!auth.includes("signOut({ scope: 'local' })")) throw new Error('Diet sign-out is no longer local-browser scoped.');
+          if (!auth.includes('manageAccountBtn')) throw new Error('THIEPN Account management handoff is missing.');
+
+          console.log('Diet A5 THIEPN Account platform contract passed.');
           NODE
