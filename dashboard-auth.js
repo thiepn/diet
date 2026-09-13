@@ -54,7 +54,6 @@ renderConnection = function renderDietConnection() {
     connectionContent.querySelector('#refreshNowBtn')?.addEventListener('click', () => refreshData());
     connectionContent.querySelector('#signOutBtn')?.addEventListener('click', async () => {
       await cloud.client.auth.signOut();
-      await window.clearDietAuthRecovery?.();
       cloud.user = null;
       cloud.status = 'configured';
       dashboard = emptyDashboard();
