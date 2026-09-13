@@ -19,5 +19,14 @@
     "retry_same_request_id": true,
     "verify_after_write": true,
     "dual_write": false
+  },
+  "capabilities": {
+    "barcode_lookup": "open_food_facts_with_saved_food_priority",
+    "quick_capture": ["text", "voice", "photo_share", "barcode", "recipe"],
+    "recipes": true,
+    "scaled_recipe_logging": true,
+    "activity_daily": true,
+    "health_connect": "native_bridge_ready",
+    "coach_snapshot": true
   }
 }
