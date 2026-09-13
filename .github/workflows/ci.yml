@@ -37,6 +37,9 @@ jobs:
           const sharedProject = 'hycegznamzjhwinegaai';
           const oldProject = 'mrrqsqawwxwebsdmrnre';
           const sharedStorage = `sb-${sharedProject}-auth-token`;
+          const legacyBackup = 'diet-copilot-thiepn-auth-token-backup-v2';
+          const legacyVault = 'diet-copilot-auth-vault';
+
           if (!text['dashboard-01.js'].includes(sharedProject)) throw new Error('Dashboard runtime is not on THIEPN Account.');
           if (!text['dashboard-config.js'].includes(sharedProject)) throw new Error('Dashboard config is not on THIEPN Account.');
           if (!text['dashboard-auth-persist.js'].includes(sharedStorage)) throw new Error('Diet auth does not use the shared THIEPN Account storage key.');
@@ -45,5 +48,23 @@ jobs:
           }
           if (!text['dashboard-auth.js'].includes('Continue with Google')) throw new Error('Google THIEPN Account entry point is missing.');
           if (!text['dashboard-auth.js'].includes('signInWithPassword')) throw new Error('Email/password THIEPN Account entry point is missing.');
-          console.log('Diet THIEPN Account contract passed.');
+
+          const bootstrap = text['dashboard-auth-persist.js'];
+          if (bootstrap.includes('setSession(')) throw new Error('Diet must not restore auth from an app-specific token copy.');
+          if (bootstrap.includes('access_token: recovery') || bootstrap.includes('refresh_token: recovery')) {
+            throw new Error('Diet contains legacy token-recovery logic.');
+          }
+          const cleanupOnly = bootstrap
+            .replaceAll(`localStorage.removeItem(LEGACY_DIET_AUTH_BACKUP_KEY)`, '')
+            .replaceAll(`indexedDB.deleteDatabase(LEGACY_DIET_AUTH_DB)`, '');
+          if (cleanupOnly.includes(`localStorage.setItem(LEGACY_DIET_AUTH_BACKUP_KEY`)) {
+            throw new Error('Diet must not persist a duplicate auth-token backup.');
+          }
+          if (!bootstrap.includes(legacyBackup) || !bootstrap.includes(legacyVault)) {
+            throw new Error('A6 targeted legacy auth cleanup is missing.');
+          }
+          if (text['dashboard-auth.js'].includes('clearDietAuthRecovery')) {
+            throw new Error('Legacy auth-recovery hooks remain in the UI layer.');
+          }
+          console.log('Diet A6 THIEPN Account contract passed.');
           NODE
