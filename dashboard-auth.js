@@ -53,7 +53,7 @@ renderConnection = function renderDietConnection() {
 
     connectionContent.querySelector('#refreshNowBtn')?.addEventListener('click', () => refreshData());
     connectionContent.querySelector('#signOutBtn')?.addEventListener('click', async () => {
-      await cloud.client.auth.signOut();
+      await cloud.client.auth.signOut({ scope: 'local' });
       cloud.user = null;
       cloud.status = 'configured';
       dashboard = emptyDashboard();
