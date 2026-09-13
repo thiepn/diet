@@ -1,0 +1,17 @@
+{
+  "product": "Diet Copilot",
+  "canonical_project_ref": "hycegznamzjhwinegaai",
+  "canonical_region": "eu-west-1",
+  "identity_project": "THIEPN Account",
+  "legacy_project_refs": [
+    "mrrqsqawwxwebsdmrnre"
+  ],
+  "legacy_policy": "retired_no_reads_no_writes",
+  "write_protocol": {
+    "require_project_ref_match": true,
+    "require_request_id": true,
+    "retry_same_request_id": true,
+    "verify_after_write": true,
+    "dual_write": false
+  }
+}
