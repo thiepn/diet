@@ -138,6 +138,11 @@ async function clearDietAuthRecovery() {
 function applyCloudSession(session) {
   cloud.user = session?.user || null;
   cloud.status = cloud.user ? 'online' : 'configured';
+  cloud.accountHandoff = window.dietAccountPlatform?.adoptSession(session) || {
+    signedIn: Boolean(cloud.user),
+    requiresAdditionalVerification: false,
+    assuranceLevel: 'aal1'
+  };
   updateStatus();
   if (connectionDialog.open) renderConnection();
 }
