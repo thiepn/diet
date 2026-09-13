@@ -1,4 +1,4 @@
-const CACHE = 'diet-copilot-dashboard-v5.3.0';
+const CACHE = 'diet-copilot-dashboard-v5.3.1-auth-hotfix';
 const SUPABASE_SDK = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0';
 const CORE = [
   './',
@@ -54,6 +54,15 @@ self.addEventListener('activate', event => {
           .map(key => caches.delete(key))
       ))
       .then(() => self.clients.claim())
+      // The previous release reused the old dashboard-auth.js?v=5.2 URL after
+      // changing its contents. Existing PWAs could therefore stay on the old
+      // email/password-only login UI indefinitely. Reload controlled windows
+      // once when this worker takes over so the repaired auth UI is immediate.
+      .then(() => self.clients.matchAll({ type: 'window', includeUncontrolled: true }))
+      .then(clients => Promise.all(clients.map(client => {
+        if (typeof client.navigate !== 'function') return null;
+        return client.navigate(client.url).catch(() => null);
+      })))
   );
 });
 
@@ -90,6 +99,25 @@ self.addEventListener('fetch', event => {
           return response;
         })
         .catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+
+  // Authentication code must prefer the network. These files control which
+  // identity provider is shown and how sessions are restored; stale copies can
+  // lock the user out even while the deployment itself is correct.
+  if (url.pathname.endsWith('/dashboard-auth.js') ||
+      url.pathname.endsWith('/dashboard-auth-persist.js')) {
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          if (response && response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE).then(cache => cache.put(request, copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request))
     );
     return;
   }
