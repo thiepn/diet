@@ -8,6 +8,11 @@ function dietAuthRedirectUrl() {
 
 renderConnection = function renderDietConnection() {
   const email = cloud.user?.email || '';
+  const handoff = cloud.accountHandoff || window.dietAccountPlatform?.getHandoffState(null) || {
+    signedIn: Boolean(cloud.user),
+    requiresAdditionalVerification: false,
+    assuranceLevel: 'aal1'
+  };
 
   if (cloud.user) {
     connectionContent.innerHTML = `
@@ -15,10 +20,15 @@ renderConnection = function renderDietConnection() {
         <strong>THIEPN Account</strong>
         <span>Signed in as ${esc(email)}. This account can be reused across supported THIEPN apps; Diet Copilot data stays private to this account.</span>
       </div>
+      ${handoff.requiresAdditionalVerification ? `
+        <div class="connection-state">
+          <strong>Additional verification available</strong>
+          <span>This account has two-step verification enabled. Diet Copilot does not currently require AAL2 for nutrition data, but protected account settings can be verified in THIEPN Account.</span>
+        </div>` : ''}
       <form id="passwordForm" class="stack">
         <div class="field">
           <label>Set or change password</label>
-          <input id="accountPassword" type="password" autocomplete="new-password" minlength="8" placeholder="At least 8 characters">
+          <input id="accountPassword" type="password" autocomplete="new-password" minlength="12" placeholder="At least 12 characters">
         </div>
         <div class="btn-row">
           <button class="btn ghost" type="submit">Save password</button>
@@ -26,17 +36,18 @@ renderConnection = function renderDietConnection() {
       </form>
       <div class="btn-row">
         <button class="btn primary" id="refreshNowBtn" type="button">Refresh now</button>
+        <button class="btn ghost" id="manageAccountBtn" type="button">Manage THIEPN Account</button>
         <button class="btn ghost" id="signOutBtn" type="button">Sign out</button>
       </div>
       <div class="connection-state">
-        <span>Signing out here signs THIEPN Account out of supported apps in this browser.</span>
+        <span>Signing out clears THIEPN Account from this browser while leaving local Diet Copilot data intact.</span>
       </div>`;
 
     connectionContent.querySelector('#passwordForm')?.addEventListener('submit', async event => {
       event.preventDefault();
       const password = connectionContent.querySelector('#accountPassword')?.value || '';
-      if (password.length < 8) {
-        showToast('Use at least 8 characters');
+      if (password.length < 12) {
+        showToast('Use at least 12 characters');
         return;
       }
       const button = event.currentTarget.querySelector('button[type="submit"]');
@@ -52,10 +63,19 @@ renderConnection = function renderDietConnection() {
     });
 
     connectionContent.querySelector('#refreshNowBtn')?.addEventListener('click', () => refreshData());
+    connectionContent.querySelector('#manageAccountBtn')?.addEventListener('click', () => {
+      location.href = window.dietAccountPlatform?.accountUrl() || `${location.origin}/account/`;
+    });
     connectionContent.querySelector('#signOutBtn')?.addEventListener('click', async () => {
-      await cloud.client.auth.signOut();
+      await cloud.client.auth.signOut({ scope: 'local' });
       await window.clearDietAuthRecovery?.();
+      window.dietAccountPlatform?.clearSessionMarker();
       cloud.user = null;
+      cloud.accountHandoff = {
+        signedIn: false,
+        requiresAdditionalVerification: false,
+        assuranceLevel: 'aal1'
+      };
       cloud.status = 'configured';
       dashboard = emptyDashboard();
       try { localStorage.removeItem(CACHE_KEY); } catch {}
@@ -130,8 +150,8 @@ renderConnection = function renderDietConnection() {
   connectionContent.querySelector('#createAccountBtn')?.addEventListener('click', async event => {
     const emailValue = connectionContent.querySelector('#loginEmail').value.trim();
     const passwordValue = connectionContent.querySelector('#loginPassword').value;
-    if (!emailValue || passwordValue.length < 8) {
-      showToast('Enter an email and an 8+ character password');
+    if (!emailValue || passwordValue.length < 12) {
+      showToast('Enter an email and a 12+ character password');
       return;
     }
     event.currentTarget.disabled = true;
