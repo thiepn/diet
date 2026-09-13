@@ -1,4 +1,4 @@
-const CACHE = 'diet-copilot-dashboard-v5.3.1-auth-hotfix';
+const CACHE = 'diet-copilot-dashboard-v5.3.3-backend-unification';
 const SUPABASE_SDK = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0';
 const CORE = [
   './',
@@ -21,8 +21,8 @@ const CORE = [
   './dashboard-p2-session.js?v=5.2',
   './dashboard-p3.js?v=5.2',
   './dashboard-03.js?v=5.2',
-  './dashboard-auth-persist.js?v=5.2.3',
-  './dashboard-auth.js?v=5.2',
+  './dashboard-auth-persist.js?v=5.3.1',
+  './dashboard-auth.js?v=5.3.1',
   './dashboard-p4.js?v=5.2',
   './dashboard-p5.js?v=5.2',
   './dashboard-p6.js?v=5.2',
@@ -30,7 +30,8 @@ const CORE = [
   './dashboard-v5-1.js?v=5.2',
   './dashboard-v5-2.js?v=5.2',
   './dashboard-v5-3.js?v=5.3',
-  './dashboard-04.js?v=5.2',
+  './dashboard-auth-final.js?v=5.3.2',
+  './dashboard-04.js?v=5.3.1',
   './manifest.webmanifest',
   './icon.svg',
   './icon-192.png',
@@ -54,10 +55,8 @@ self.addEventListener('activate', event => {
           .map(key => caches.delete(key))
       ))
       .then(() => self.clients.claim())
-      // The previous release reused the old dashboard-auth.js?v=5.2 URL after
-      // changing its contents. Existing PWAs could therefore stay on the old
-      // email/password-only login UI indefinitely. Reload controlled windows
-      // once when this worker takes over so the repaired auth UI is immediate.
+      // Backend/auth cutovers must not leave a running PWA on a mixed set of
+      // old and new JavaScript. Reload controlled windows once after takeover.
       .then(() => self.clients.matchAll({ type: 'window', includeUncontrolled: true }))
       .then(clients => Promise.all(clients.map(client => {
         if (typeof client.navigate !== 'function') return null;
@@ -65,6 +64,18 @@ self.addEventListener('activate', event => {
       })))
   );
 });
+
+function networkFirst(request, fallbackKey = request) {
+  return fetch(request)
+    .then(response => {
+      if (response && response.ok) {
+        const copy = response.clone();
+        caches.open(CACHE).then(cache => cache.put(fallbackKey, copy));
+      }
+      return response;
+    })
+    .catch(() => caches.match(fallbackKey));
+}
 
 self.addEventListener('fetch', event => {
   const request = event.request;
@@ -88,37 +99,19 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // Never cache Supabase API/Auth/Realtime traffic. The service worker only
+  // owns static same-origin application assets.
   if (url.origin !== self.location.origin) return;
 
   if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request)
-        .then(response => {
-          const copy = response.clone();
-          caches.open(CACHE).then(cache => cache.put('./index.html', copy));
-          return response;
-        })
-        .catch(() => caches.match('./index.html'))
-    );
+    event.respondWith(networkFirst(request, './index.html'));
     return;
   }
 
-  // Authentication code must prefer the network. These files control which
-  // identity provider is shown and how sessions are restored; stale copies can
-  // lock the user out even while the deployment itself is correct.
-  if (url.pathname.endsWith('/dashboard-auth.js') ||
-      url.pathname.endsWith('/dashboard-auth-persist.js')) {
-    event.respondWith(
-      fetch(request)
-        .then(response => {
-          if (response && response.ok) {
-            const copy = response.clone();
-            caches.open(CACHE).then(cache => cache.put(request, copy));
-          }
-          return response;
-        })
-        .catch(() => caches.match(request))
-    );
+  // JavaScript controls backend selection, auth and data synchronization.
+  // Prefer the deployment over a stale PWA copy; fall back to cache offline.
+  if (url.pathname.endsWith('.js') || url.pathname.endsWith('/manifest.webmanifest')) {
+    event.respondWith(networkFirst(request));
     return;
   }
 
