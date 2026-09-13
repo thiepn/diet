@@ -11,6 +11,8 @@ Diet Copilot uses the shared THIEPN Account Supabase project and canonical brows
 
 Supabase session persistence/refresh is the only persisted auth authority. Diet Copilot must not keep a second recoverable copy of access or refresh tokens.
 
+Ordinary Diet sign-out is explicitly browser/session-local (`scope: 'local'`). Security actions that intentionally revoke other sessions must remain separate, explicit operations.
+
 ## A6 legacy inventory and disposition
 
 | Legacy artifact | A6 disposition |
@@ -18,15 +20,32 @@ Supabase session persistence/refresh is the only persisted auth authority. Diet 
 | `diet-copilot-thiepn-auth-token-backup-v2` | Deleted with targeted cleanup; never restored |
 | IndexedDB `diet-copilot-auth-vault` | Deleted with targeted cleanup; never restored |
 | `clearDietAuthRecovery` UI hook | Removed |
-| Retired Diet Supabase project `mrrqsqawwxwebsdmrnre` | CI rejects references |
+| Retired Diet Supabase project `mrrqsqawwxwebsdmrnre` | No production code references; retained temporarily as rollback-only migration evidence until live certification completes |
 | Shared THIEPN Account storage | Retained as the single session authority |
-| Diet application/user data | Untouched |
+| Diet application/user data | Preserved |
 
 No broad `localStorage.clear()` or equivalent data wipe is used.
 
+## Migration integrity audit
+
+A6 compared the retired Diet project with the canonical THIEPN Account project rather than assuming the A5 cutover was lossless.
+
+The audit found a small cutover-window delta that had not reached the canonical project. The repair was applied atomically on 2026-09-13:
+
+- restored one missing weight record;
+- restored one missing meal and its six child items;
+- restored the two matching action-history records;
+- remapped ownership to the canonical THIEPN Account UUID;
+- reused the existing semantically identical same-day canonical log instead of duplicating it;
+- preserved newer post-cutover canonical records.
+
+Post-repair source/destination semantic hashes match for the restored top-level records after excluding the intentionally remapped ownership/parent identifiers. The retired project is therefore kept intact as rollback evidence until deployment and live smoke validation complete; it is not an active application authority.
+
 ## Automated gates
 
-The repository CI verifies JavaScript syntax, the shared THIEPN project/storage contract, absence of the retired project, Google and email/password entry points, absence of app-specific `setSession()` recovery, absence of duplicate token-backup writes, targeted deletion of retired auth artifacts, and absence of the retired UI recovery hook.
+Repository CI verifies JavaScript syntax, the shared THIEPN project/storage contract, absence of retired-project references, Google and email/password entry points, explicit local browser sign-out, absence of app-specific `setSession()` recovery, absence of duplicate token-backup writes, targeted deletion of retired auth artifacts, and absence of the retired UI recovery hook.
+
+Latest A6 CI on the local-signout hardening head is green.
 
 ## Production/manual certification matrix
 
@@ -44,9 +63,11 @@ The repository CI verifies JavaScript syntax, the shared THIEPN project/storage 
 | Firefox/Zen production smoke test | PENDING MANUAL |
 | Safari/WebKit production smoke test | PENDING MANUAL |
 
-## Security finding resolved
+## Security findings resolved
 
-Diet Copilot previously maintained an app-specific recoverable copy of THIEPN Account access and refresh tokens in localStorage/IndexedDB. A6 removes that duplicate persistence path and retains targeted cleanup only.
+1. Diet Copilot previously maintained an app-specific recoverable copy of THIEPN Account access and refresh tokens in localStorage/IndexedDB. A6 removes that duplicate persistence path and retains targeted cleanup only.
+2. Diet's ordinary sign-out previously relied on Supabase JavaScript's default `signOut()` scope, which is global. A6 makes the intended current-browser/session behavior explicit with `scope: 'local'` and protects it with CI.
+3. A6 detected and repaired the cutover-window data delta before legacy infrastructure removal.
 
 ## Consumer rule
 
