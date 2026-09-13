@@ -36,9 +36,15 @@ jobs:
           const runtimeFiles = ['dashboard-01.js', 'dashboard-config.js', 'dashboard-auth-persist.js', 'dashboard-auth.js'];
           const text = Object.fromEntries(runtimeFiles.map((file) => [file, fs.readFileSync(file, 'utf8')]));
           const bridge = fs.readFileSync('supabase/chatgpt-bridge.md', 'utf8');
+          const backend = JSON.parse(fs.readFileSync('supabase/backend.json', 'utf8'));
           const sharedProject = 'hycegznamzjhwinegaai';
           const oldProject = 'mrrqsqawwxwebsdmrnre';
           const sharedStorage = `sb-${sharedProject}-auth-token`;
+
+          if (backend.canonical_project_ref !== sharedProject) throw new Error('Backend manifest points at the wrong canonical project.');
+          if (!backend.legacy_project_refs?.includes(oldProject)) throw new Error('Backend manifest does not mark the legacy project.');
+          if (backend.write_protocol?.dual_write !== false) throw new Error('Backend manifest must prohibit dual writes.');
+          if (backend.write_protocol?.require_request_id !== true) throw new Error('Backend manifest must require request IDs.');
 
           if (!text['dashboard-01.js'].includes(sharedProject)) throw new Error('Dashboard runtime is not on the canonical THIEPN Account backend.');
           if (!text['dashboard-config.js'].includes(sharedProject)) throw new Error('Dashboard config is not on the canonical THIEPN Account backend.');
