@@ -37,6 +37,7 @@ jobs:
           const text = Object.fromEntries(runtimeFiles.map((file) => [file, fs.readFileSync(file, 'utf8')]));
           const bridge = fs.readFileSync('supabase/chatgpt-bridge.md', 'utf8');
           const backend = JSON.parse(fs.readFileSync('supabase/backend.json', 'utf8'));
+          const finalPolicy = fs.readFileSync('dashboard-04.js', 'utf8');
           const sharedProject = 'hycegznamzjhwinegaai';
           const oldProject = 'mrrqsqawwxwebsdmrnre';
           const sharedStorage = `sb-${sharedProject}-auth-token`;
@@ -47,6 +48,10 @@ jobs:
           if (!backend.legacy_project_refs?.includes(oldProject)) throw new Error('Backend manifest does not mark the legacy project.');
           if (backend.write_protocol?.dual_write !== false) throw new Error('Backend manifest must prohibit dual writes.');
           if (backend.write_protocol?.require_request_id !== true) throw new Error('Backend manifest must require request IDs.');
+          if (backend.metrics_policy?.nutrition_days !== 'all_days_with_logged_intake') throw new Error('Nutrition metrics must use every logged intake day.');
+          if (backend.metrics_policy?.weight !== 'all_available_weigh_ins') throw new Error('Weight metrics must use all weigh-ins.');
+          if (backend.metrics_policy?.day_status !== 'coverage_metadata_only') throw new Error('Day status must be coverage metadata only.');
+          if (!String(backend.metrics_policy?.fiber || '').startsWith('all_known_values')) throw new Error('Fiber metrics must use all known values with coverage separate.');
 
           if (!text['dashboard-01.js'].includes(sharedProject)) throw new Error('Dashboard runtime is not on the canonical THIEPN Account backend.');
           if (!text['dashboard-config.js'].includes(sharedProject)) throw new Error('Dashboard config is not on the canonical THIEPN Account backend.');
@@ -59,6 +64,11 @@ jobs:
           if (!bridge.includes(`Canonical project ref: \`${sharedProject}\``)) throw new Error('ChatGPT bridge does not declare the canonical backend ref.');
           if (!bridge.includes(oldProject) || !bridge.toLowerCase().includes('retired')) throw new Error('ChatGPT bridge does not explicitly retire the legacy backend.');
           if (!bridge.includes('stable, unique `p_request_id`')) throw new Error('ChatGPT bridge is missing the idempotent-write rule.');
+          if (!bridge.includes('Day status is metadata')) throw new Error('ChatGPT bridge must not make day status an exclusion rule.');
+
+          if (!finalPolicy.includes('Logged nutrition always counts')) throw new Error('Dashboard final policy layer is missing the all-logged-data contract.');
+          if (!finalPolicy.includes('Day status is coverage metadata only')) throw new Error('Dashboard still risks using day status as an exclusion rule.');
+          if (!finalPolicy.includes('all available data already contributes')) throw new Error('Dashboard closeout guidance still implies logged data can be excluded.');
 
           if (!text['dashboard-auth.js'].includes('Continue with Google')) throw new Error('Google THIEPN Account entry point is missing.');
           if (!text['dashboard-auth.js'].includes('signInWithPassword')) throw new Error('Email/password THIEPN Account entry point is missing.');
@@ -87,7 +97,7 @@ jobs:
             throw new Error('Legacy auth-recovery hooks remain in the UI layer.');
           }
 
-          console.log('Diet A6 backend + THIEPN Account contract passed.');
+          console.log('Diet backend + THIEPN Account + all-logged-data contract passed.');
           NODE
 
       - name: PWA cache contract
