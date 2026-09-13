@@ -48,6 +48,12 @@ jobs:
           }
           if (!text['dashboard-auth.js'].includes('Continue with Google')) throw new Error('Google THIEPN Account entry point is missing.');
           if (!text['dashboard-auth.js'].includes('signInWithPassword')) throw new Error('Email/password THIEPN Account entry point is missing.');
+          if (!text['dashboard-auth.js'].includes("auth.signOut({ scope: 'local' })")) {
+            throw new Error('Diet browser sign-out must use explicit local Supabase scope.');
+          }
+          if (/auth\.signOut\(\s*\)/.test(text['dashboard-auth.js'])) {
+            throw new Error('Diet must not use Supabase JavaScript global sign-out by default.');
+          }
 
           const bootstrap = text['dashboard-auth-persist.js'];
           if (bootstrap.includes('setSession(')) throw new Error('Diet must not restore auth from an app-specific token copy.');
