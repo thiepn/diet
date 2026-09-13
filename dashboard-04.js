@@ -8,11 +8,15 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 
 if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
   navigator.serviceWorker.addEventListener('controllerchange',()=>{
-    // The previous release accidentally cached authenticated Supabase GETs.
-    // Once the fixed worker takes control, immediately fetch a fresh snapshot.
+    // A new worker may contain backend/auth routing changes. Once it takes
+    // control, immediately replace any stale in-memory snapshot from the old
+    // deployment with a fresh canonical-backend read.
     setTimeout(()=>{ if(cloud.user) refreshData({silent:true}); },250);
   });
-  navigator.serviceWorker.register('./sw.js').then(reg=>reg.update()).catch(e=>console.warn('Service worker registration failed',e));
+  navigator.serviceWorker
+    .register('./sw.js', { updateViaCache: 'none' })
+    .then(reg=>reg.update())
+    .catch(e=>console.warn('Service worker registration failed',e));
 }
 
 render();
