@@ -6,7 +6,7 @@
 User → ChatGPT → canonical Supabase backend → read-only dashboard
 ```
 
-The browser is deliberately a viewer. Meal logging, corrections, weight, goals, reusable foods/meals, reviews, reminders and calorie-target decisions are managed conversationally through ChatGPT.
+The browser is deliberately a viewer. Meal logging, corrections, weight, goals, reusable foods/meals/recipes, activity records, reviews, reminders and calorie-target decisions are managed conversationally through ChatGPT.
 
 The browser receives SELECT-only access to owner-scoped rows through RLS. Privileged helpers live in the non-exposed `private` schema.
 
@@ -22,7 +22,7 @@ The browser receives SELECT-only access to owner-scoped rows through RLS. Privil
 
 The legacy project can still appear in tooling with the display name `Diet Copilot`. That name is stale. Always select the canonical project by **project ref**.
 
-Saved-food IDs, meal IDs, daily-log IDs and user IDs are backend-specific. Never copy an ID from the legacy project into a canonical write. Search/read the canonical backend first and use IDs returned there.
+Saved-food IDs, meal IDs, recipe IDs, daily-log IDs and user IDs are backend-specific. Never copy an ID from the legacy project into a canonical write. Search/read the canonical backend first and use IDs returned there.
 
 ## Required write protocol
 
@@ -79,6 +79,19 @@ Exact sources (`nutrition_label`, `weighed`, `manual_exact`) are promoted into r
 
 Photo-estimated meals should store item estimates, calorie ranges, confidence and assumptions. `photo_url` / `photo_alt` are supported only when a durable image URL exists; do not invent URLs for transient ChatGPT uploads.
 
+## Barcode lookup
+
+The dashboard can scan EAN/UPC codes and look them up through Open Food Facts. Treat crowd-sourced barcode data as a lookup aid, not as stronger evidence than the package in front of the user.
+
+Priority is:
+
+1. exact Diet Copilot saved-food memory for that barcode,
+2. photographed nutrition label / weighed amount,
+3. reputable barcode database result,
+4. estimate only when exact data is unavailable.
+
+When a new exact package label is provided, store its barcode through the normal food-memory path so later scans can resolve to Diet Copilot's verified values.
+
 ## Repeat-food memory
 
 Search canonical memory first:
@@ -126,6 +139,39 @@ select private.log_saved_meal(p_saved_meal_id,p_log_date,p_meal_type,p_request_i
 
 Use this only for genuinely recurring multi-item meals. Do not silently equate vaguely similar meals.
 
+## Recipes — V6
+
+Recipes are structured saved meals with a total serving count and optional serving label/notes. Build the recipe from the actual ingredient quantities for the whole batch, then store how many servings the batch makes.
+
+```sql
+select private.remember_recipe(
+  p_name,
+  p_meal_type,
+  p_items,
+  p_servings,
+  p_serving_text,
+  p_aliases,
+  p_notes,
+  p_photo_url,
+  p_request_id
+);
+```
+
+Log a full or partial serving with proportional scaling:
+
+```sql
+select private.log_saved_meal_scaled(
+  p_saved_meal_id,
+  p_log_date,
+  p_meal_type,
+  p_multiplier,
+  p_quantity_text,
+  p_request_id
+);
+```
+
+For example, if the saved meal represents one serving, `p_multiplier = 0.5` logs half a serving. Do not re-estimate a verified saved recipe unless the user says the ingredients or batch changed.
+
 ## Corrections and deletion
 
 Read/search canonical state first and keep the latest `updated_at` before calling:
@@ -144,6 +190,26 @@ select private.log_weight(p_entry_date,p_weight,p_notes,p_request_id);
 ```
 
 One weight exists per owner/date; a later value for the same date updates it and records the previous state.
+
+## Activity / Health Connect data — V6
+
+Activity is stored separately from food intake. Do not automatically “eat back” active calories or alter the calorie target from one activity reading.
+
+```sql
+select private.upsert_activity_day(
+  p_activity_date,
+  p_steps,
+  p_active_calories,
+  p_exercise_minutes,
+  p_distance_km,
+  p_resting_heart_rate,
+  p_source,
+  p_provider_payload,
+  p_request_id
+);
+```
+
+Use source `health_connect` for Android Health Connect imports and `manual`/`chatgpt` for user-reported activity. Unknown fields stay null. The current PWA cannot directly access Android Health Connect; the backend and dashboard are ready for the native Android bridge when one is added. Until then, ChatGPT can store user-reported activity with the same schema.
 
 ## Day status
 
@@ -190,6 +256,16 @@ If rejected:
 select private.dismiss_target_recommendation(p_recommendation_id,p_request_id);
 ```
 
+## Coach snapshot — V6
+
+For a compact current interpretation plus prioritized actions and recent activity:
+
+```sql
+select private.get_coach_snapshot(p_end_date,p_days);
+```
+
+The returned `actions` are prompts for judgment, not automatic target changes. Weight pace should still wait for enough weigh-ins and time span before being treated as meaningful.
+
 ## Reminders
 
 ```sql
@@ -208,7 +284,7 @@ Keep confirmations compact, then query fresh canonical context again. Always use
 
 ## Security
 
-- Authenticated browser sessions are SELECT-only for Diet Copilot tables.
+- Authenticated browser sessions are SELECT-only for Diet Copilot tables, including activity data.
 - Owner-scoped RLS uses `auth.uid() = user_id`.
 - Private write helpers are executable only by privileged server roles, not browser roles.
 - `private.resolve_owner()` maps privileged ChatGPT/operator writes to the configured Diet owner.
