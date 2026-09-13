@@ -1,4 +1,4 @@
-const CACHE = 'diet-copilot-dashboard-v5.3.3-backend-unification';
+const CACHE = 'diet-copilot-dashboard-v5.3.4-all-logged-data';
 const SUPABASE_SDK = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0';
 const CORE = [
   './',
@@ -55,8 +55,6 @@ self.addEventListener('activate', event => {
           .map(key => caches.delete(key))
       ))
       .then(() => self.clients.claim())
-      // Backend/auth cutovers must not leave a running PWA on a mixed set of
-      // old and new JavaScript. Reload controlled windows once after takeover.
       .then(() => self.clients.matchAll({ type: 'window', includeUncontrolled: true }))
       .then(clients => Promise.all(clients.map(client => {
         if (typeof client.navigate !== 'function') return null;
@@ -99,8 +97,7 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Never cache Supabase API/Auth/Realtime traffic. The service worker only
-  // owns static same-origin application assets.
+  // Supabase API/Auth/Realtime responses are never service-worker cached.
   if (url.origin !== self.location.origin) return;
 
   if (request.mode === 'navigate') {
