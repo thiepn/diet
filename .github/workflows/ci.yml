@@ -28,22 +28,46 @@ jobs:
             node --check "$file"
           done
 
-      - name: THIEPN Account contract
+      - name: THIEPN Account and Diet backend contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          const files = ['dashboard-01.js', 'dashboard-config.js', 'dashboard-auth-persist.js', 'dashboard-auth.js'];
-          const text = Object.fromEntries(files.map((file) => [file, fs.readFileSync(file, 'utf8')]));
+
+          const runtimeFiles = ['dashboard-01.js', 'dashboard-config.js', 'dashboard-auth-persist.js', 'dashboard-auth.js'];
+          const text = Object.fromEntries(runtimeFiles.map((file) => [file, fs.readFileSync(file, 'utf8')]));
+          const bridge = fs.readFileSync('supabase/chatgpt-bridge.md', 'utf8');
           const sharedProject = 'hycegznamzjhwinegaai';
           const oldProject = 'mrrqsqawwxwebsdmrnre';
           const sharedStorage = `sb-${sharedProject}-auth-token`;
-          if (!text['dashboard-01.js'].includes(sharedProject)) throw new Error('Dashboard runtime is not on THIEPN Account.');
-          if (!text['dashboard-config.js'].includes(sharedProject)) throw new Error('Dashboard config is not on THIEPN Account.');
+
+          if (!text['dashboard-01.js'].includes(sharedProject)) throw new Error('Dashboard runtime is not on the canonical THIEPN Account backend.');
+          if (!text['dashboard-config.js'].includes(sharedProject)) throw new Error('Dashboard config is not on the canonical THIEPN Account backend.');
           if (!text['dashboard-auth-persist.js'].includes(sharedStorage)) throw new Error('Diet auth does not use the shared THIEPN Account storage key.');
-          for (const file of files) {
-            if (text[file].includes(oldProject)) throw new Error(`${file} still references the retired Diet auth project.`);
+
+          for (const file of runtimeFiles) {
+            if (text[file].includes(oldProject)) throw new Error(`${file} still references the retired Diet backend.`);
           }
+
+          if (!bridge.includes(`Canonical project ref: \`${sharedProject}\``)) throw new Error('ChatGPT bridge does not declare the canonical backend ref.');
+          if (!bridge.includes(oldProject) || !bridge.toLowerCase().includes('retired')) throw new Error('ChatGPT bridge does not explicitly retire the legacy backend.');
+          if (!bridge.includes('stable, unique `p_request_id`')) throw new Error('ChatGPT bridge is missing the idempotent-write rule.');
+
           if (!text['dashboard-auth.js'].includes('Continue with Google')) throw new Error('Google THIEPN Account entry point is missing.');
           if (!text['dashboard-auth.js'].includes('signInWithPassword')) throw new Error('Email/password THIEPN Account entry point is missing.');
-          console.log('Diet THIEPN Account contract passed.');
+
+          console.log('Diet backend contract passed.');
+          NODE
+
+      - name: PWA cache contract
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+
+          const html = fs.readFileSync('index.html', 'utf8');
+          const sw = fs.readFileSync('sw.js', 'utf8');
+          const assets = [...html.matchAll(/(?:src|href)="((?:dashboard-[^"]+|manifest\.webmanifest|icon\.(?:svg)|icon-(?:192|512)\.png))"/g)].map(m => m[1]);
+          const missing = assets.filter(asset => !sw.includes(`'./${asset}'`));
+          if (missing.length) throw new Error(`Service-worker CORE is missing index assets: ${missing.join(', ')}`);
+          if (!sw.includes('dashboard-auth-final.js')) throw new Error('Final auth compatibility layer is not precached.');
+          console.log(`PWA cache contract passed for ${assets.length} assets.`);
           NODE
