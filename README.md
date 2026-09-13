@@ -3,51 +3,69 @@
 Diet Copilot is a **ChatGPT-controlled nutrition log and diet intelligence system** with a read-only web dashboard.
 
 ```text
-You → ChatGPT → Supabase → Dashboard
+You → ChatGPT → canonical Supabase backend → Dashboard
 ```
 
-- **ChatGPT** handles logging, photo/label interpretation, corrections, day completion, reusable foods/meals, goals and coaching workflows.
+- **ChatGPT** handles meal/weight logging, corrections, photo and nutrition-label interpretation, reusable foods/meals, goals, reviews and coaching.
 - **Supabase** is the durable source of truth.
 - **The dashboard** displays Today, History, Trends and Insights without becoming a manual calorie-entry app.
 
-## V5 — Diet Intelligence
+## Production backend
 
-V5 builds on the completed Vibrant Light V4 redesign without changing the core product boundary.
+Diet Copilot uses the shared **THIEPN Account** Supabase project.
 
-### Low-friction logging
+- Canonical project ref: `hycegznamzjhwinegaai`
+- Canonical dashboard: `https://thiepn.dev/diet/`
+- Legacy project ref `mrrqsqawwxwebsdmrnre` is retired and must not receive new reads/writes from Diet Copilot.
+
+The canonical backend is authoritative for meal IDs, saved-food IDs, weight entries, goals and all current Diet Copilot state.
+
+## Core tracking rule
+
+**Every available logged value counts.**
+
+A day does not disappear from averages or trends because it is Open, Partial, or not manually finalized. Day status is coverage metadata only.
+
+- Calories and protein use all days with logged intake.
+- Weight trends use all available weigh-ins.
+- Fiber uses all known fiber values; missing fiber remains unknown rather than becoming zero.
+- Fiber full-coverage is reported separately from the known fiber total.
+- Status completion/coverage is shown separately and never used as an exclusion rule.
+- Missing meals or nutrients are not invented.
+
+This makes Diet Copilot a low-friction tracker rather than a compliance/closeout system.
+
+## Low-friction logging
 
 - text or photo-based meal logging through ChatGPT
 - exact nutrition-label values when available
-- uncertainty ranges for estimates
+- calorie ranges and confidence for estimates
 - weight logging and corrections
 - automatic Realtime dashboard refresh
+- stable request IDs for idempotent writes and safe retries
 
-### Day completeness
+Every ChatGPT write is directed to the canonical project, verified after the write, and must not be mirrored to a second backend.
 
-- days can be explicitly marked **Complete**, **Open** or **Partial** through ChatGPT
-- completed days are the only days used for adherence/intake averages
-- a later meal, correction or deletion automatically reopens a completed day
+## Food and meal memory
 
-### Food and meal memory
-
-- exact packaged foods are remembered automatically
+- exact packaged foods can be remembered automatically
 - aliases support phrases such as “same protein yogurt”
-- exact remembered values outrank a fresh AI estimate
-- reusable multi-item meals can also be saved and recalled
-- portion-aware reuse supports half portions, multipliers and changed gram amounts without a new estimate
-- memory remains ChatGPT-managed; there is no manual food database UI
+- verified remembered values outrank a fresh estimate
+- reusable multi-item meals can be saved and recalled
+- portion-aware reuse supports half portions, multipliers and changed gram amounts
+- memory remains ChatGPT-managed; there is no manual food-database UI
 
-### Nutrition
+## Nutrition
 
-- calories remain the primary metric
-- protein remains first-class
-- fiber is tracked as the third core nutrition metric when data is available
-- carbs and fat are stored when known but remain optional/hidden by default
-- fiber coverage is marked partial when some meals lack fiber data rather than pretending the missing values are zero
+- calories are the primary metric
+- protein is first-class
+- fiber is the third core nutrition metric when data is available
+- carbs and fat can be stored when known but remain optional/hidden by default
+- partial fiber coverage is explicitly marked instead of treating missing fiber as zero
 
-### Goals and phases
+## Goals and phases
 
-Diet Copilot supports structured phases:
+Supported phases:
 
 - Cut
 - Maintain
@@ -56,80 +74,62 @@ Diet Copilot supports structured phases:
 
 A phase can carry calorie, protein and fiber targets plus an optional goal weight and desired weekly weight-change rate.
 
-### Adaptive calorie calibration
+## Adaptive calorie calibration
 
-After enough trustworthy data, Diet Copilot can estimate whether the calorie target should change.
+After enough logged intake and weight-trend data, Diet Copilot can estimate whether the calorie target should change.
 
 Guardrails:
 
-- requires a desired weekly weight-change rate
-- requires at least 14 complete days by default
-- requires at least four weigh-ins spanning at least seven days
-- uses weight-regression trend rather than a single weigh-in
-- suggested adjustments are capped to ±250 kcal at a time
-- targets are rounded to 25 kcal
-- **recommendations are never silently applied**
+- desired weekly weight-change rate must be configured
+- default minimum is 14 logged intake days
+- at least four weigh-ins spanning at least seven days
+- regression-based weight trend rather than a single weigh-in
+- suggested changes capped to ±250 kcal at a time
+- targets rounded to 25 kcal
+- recommendations are **never silently applied**
 
-ChatGPT must explain a recommendation and receive explicit approval before applying it.
+## Smart Diet Coach
 
-## V5.1 — Smart Diet Coach
-
-V5.1 adds interpretation on top of V5 data rather than more logging controls.
+Diet Copilot can interpret:
 
 - observed weight pace vs planned pace
-- plateau / slower / faster / on-pace classification
-- goal ETA using observed trend when trustworthy, otherwise planned pace
-- adherence score from calorie, protein and fiber target consistency
-- maintenance-transition guidance near the end of a cut or gain
-- end-of-day closeout guidance
-- portion-scaled saved-food logging
+- plateau / slower / faster / on-pace status after enough data exists
+- goal ETA
+- calorie/protein/fiber consistency
+- maintenance-transition context near the end of a cut or gain
+- data coverage separately from the nutrition values themselves
 
-The coach waits for sufficient data before judging weight pace; early use is explicitly labeled **Building baseline**.
+Early weight data is shown as **Building baseline** rather than over-interpreted.
 
-## V5.2 — Metrics & Stats
+## Metrics
 
-V5.2 makes the statistics easier to understand and more useful for decisions.
+Insights support 7D / 28D / 90D views for:
 
-### Key Stats
-
-The Insights screen now has a primary **Key stats** section with 7D / 28D / 90D ranges. It tracks:
-
-- **Calories:** complete-day average, hit rate within ±150 kcal, typical target miss
-- **Protein:** complete-day average and target-hit rate
-- **Fiber:** average and target-hit rate only on days with complete fiber coverage
-- **Trend weight:** smoothed recent weight and observed pace when enough weigh-ins exist
-- **Goal progress:** percentage from phase baseline toward goal, kg remaining, ETA
-- **Data quality:** complete vs logged days, exact/reused vs estimated meals
-- **Plan adherence:** combined calorie/protein/fiber consistency score
-- **Estimated maintenance:** shown only after enough complete intake and weight-trend data exist
-
-Important definitions are shown directly in the UI rather than hidden behind unexplained scores.
-
-Older diagnostic Insight cards are still available under **Additional diagnostic details**, but no longer dominate the screen.
-
-### Metrics integrity
-
-- incomplete days never count as low-calorie successes
-- averages use Complete days only
-- missing fiber remains unknown, not zero
-- weight pace requires enough weigh-ins and time span
-- estimated maintenance is withheld until the dataset is sufficiently mature
-- early-stage metrics say **Building baseline** instead of pretending to know the answer
+- average calories across logged intake days
+- calorie hit rate within ±150 kcal
+- average protein and protein target-hit rate
+- known fiber average and target-hit rate
+- fiber full-coverage count
+- trend weight and observed pace
+- goal progress and ETA
+- exact/reused vs estimated meals
+- status coverage
+- combined plan adherence
+- estimated maintenance when enough data exists
 
 ## Weekly review
 
-Weekly summaries can report:
+Weekly reviews use all available logged intake and can report:
 
-- complete-day coverage
+- logged-day coverage
+- status-complete coverage separately
 - average calories
 - average protein
-- average fiber when coverage is complete
+- average known fiber
 - calorie / protein / fiber adherence
 - weigh-ins and weight change
 - observed pace vs planned pace
-- goal ETA when meaningful
-- plateau / pace status
-- maintenance-transition status
+- goal ETA and maintenance-transition context
 
 ## Meal photos
 
@@ -140,10 +140,10 @@ Meals support optional durable photo URLs and thumbnails. The UI does not expose
 Diet Copilot stores opt-in preferences for:
 
 - weigh-in reminders
-- end-of-day closeout reminders
+- end-of-day reminders
 - weekly review reminders
 
-Actual ChatGPT notifications are scheduled separately only after a user chooses a cadence/time.
+Actual ChatGPT notifications are scheduled separately.
 
 ## Dashboard
 
@@ -151,19 +151,17 @@ Actual ChatGPT notifications are scheduled separately only after a user chooses 
 
 - calories consumed / target / remaining
 - protein progress
-- fiber progress/coverage
+- fiber progress and coverage
 - weight
-- open/complete/partial day status
-- goal progress toward target weight
+- optional day-status metadata
+- goal progress
 - optional carbs/fat summary
 - expandable meal cards
-- optional meal thumbnails
-- closeout guidance when the day is still open
 
 ### History
 
 - 3 / 7 / 14 / 30 / 90 day and all-time ranges
-- calories, protein, weight and completion state
+- calories, protein, weight and status metadata
 - meal-level details
 
 ### Trends
@@ -171,7 +169,7 @@ Actual ChatGPT notifications are scheduled separately only after a user chooses 
 - Weight / Calories / Protein / Fiber
 - 7D / 30D / 90D / 6M / All
 - weight regression and moving trend
-- target lines and complete-day averages
+- target lines and logged-data averages
 
 ### Insights
 
@@ -181,7 +179,6 @@ Actual ChatGPT notifications are scheduled separately only after a user chooses 
 - weekly-review context
 - adaptive-calibration status
 - food-memory status
-- additional diagnostic details on demand
 
 ## Product rule
 
@@ -189,15 +186,13 @@ Actual ChatGPT notifications are scheduled separately only after a user chooses 
 
 If a feature would turn the dashboard into a conventional entry form, it belongs in the ChatGPT layer instead.
 
-## Read-only guarantee
+## Read-only browser guarantee
 
-The authenticated browser role has SELECT-only access to dashboard, memory, goal, recommendation and review tables, protected by owner-scoped RLS. Privileged writes live in the private ChatGPT bridge.
-
-Realtime publication is enabled for dashboard-visible tables; RLS still restricts rows delivered to authenticated clients.
+Authenticated browser sessions have owner-scoped SELECT access to Diet Copilot data. Privileged writes live behind private server-side helpers. Realtime publication remains protected by owner-scoped RLS.
 
 ## Offline behavior
 
-After successful online use, the app caches its static shell, pinned Supabase client SDK and latest read-only snapshot. Supabase database/Auth/Realtime responses are never service-worker cached.
+After successful online use, the app caches its static shell and latest read-only snapshot. Supabase database/Auth/Realtime responses are never service-worker cached.
 
 ## Development
 
