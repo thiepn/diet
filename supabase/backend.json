@@ -7,6 +7,12 @@
     "mrrqsqawwxwebsdmrnre"
   ],
   "legacy_policy": "retired_no_reads_no_writes",
+  "metrics_policy": {
+    "nutrition_days": "all_days_with_logged_intake",
+    "weight": "all_available_weigh_ins",
+    "fiber": "all_known_values_with_full_coverage_reported_separately",
+    "day_status": "coverage_metadata_only"
+  },
   "write_protocol": {
     "require_project_ref_match": true,
     "require_request_id": true,
