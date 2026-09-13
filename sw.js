@@ -1,4 +1,4 @@
-const CACHE = 'diet-copilot-dashboard-v6.0-capture-recipes';
+const CACHE = 'diet-copilot-dashboard-v6.1-capture-recipes-activity';
 const SUPABASE_SDK = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0';
 const CORE = [
   './',
@@ -34,6 +34,7 @@ const CORE = [
   './dashboard-auth-final.js?v=5.3.2',
   './dashboard-04.js?v=5.3.1',
   './dashboard-v6.js?v=6.0',
+  './dashboard-v6-1.js?v=6.1',
   './manifest.webmanifest',
   './icon.svg',
   './icon-192.png',
