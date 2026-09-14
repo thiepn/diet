@@ -20,13 +20,22 @@
     "verify_after_write": true,
     "dual_write": false
   },
+  "product_boundary": {
+    "logging_entrypoint": "direct_chatgpt_conversation",
+    "dashboard_manual_logging": false,
+    "dashboard_quick_capture": false,
+    "dashboard_role": "read_only_status_analytics_and_guidance"
+  },
   "capabilities": {
-    "barcode_lookup": "open_food_facts_with_saved_food_priority",
-    "quick_capture": ["text", "voice", "photo_share", "barcode", "recipe"],
+    "barcode_lookup": "saved_food_priority_then_open_food_facts",
     "recipes": true,
     "scaled_recipe_logging": true,
     "activity_daily": true,
     "health_connect": "native_bridge_ready",
-    "coach_snapshot": true
+    "coach_snapshot": true,
+    "daily_decision_engine": true,
+    "contextual_saved_food_ranking": true,
+    "food_option_comparison": true,
+    "confidence_aware_guidance": true
   }
 }
