@@ -1,4 +1,4 @@
-const CACHE = 'diet-copilot-dashboard-v6.1.1-ui-hotfix';
+const CACHE = 'diet-copilot-dashboard-v6.1.2-remove-today-capture';
 const SUPABASE_SDK = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0';
 const CORE = [
   './',
@@ -36,6 +36,7 @@ const CORE = [
   './dashboard-04.js?v=5.3.1',
   './dashboard-v6.js?v=6.0',
   './dashboard-v6-1.js?v=6.1',
+  './dashboard-v6-1-2.js?v=6.1.2',
   './manifest.webmanifest',
   './icon.svg',
   './icon-192.png',
@@ -101,7 +102,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Supabase API/Auth/Realtime responses are never service-worker cached.
   if (url.origin !== self.location.origin) return;
 
   if (request.mode === 'navigate') {
@@ -109,8 +109,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // JavaScript controls backend selection, auth and data synchronization.
-  // Prefer the deployment over a stale PWA copy; fall back to cache offline.
   if (url.pathname.endsWith('.js') || url.pathname.endsWith('/manifest.webmanifest')) {
     event.respondWith(networkFirst(request));
     return;
