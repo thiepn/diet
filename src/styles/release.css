@@ -1,0 +1,34 @@
+/* Diet Copilot Web 1.0 — final stable release */
+html,body{max-width:100%;overflow-x:hidden}
+#app,.content,.today-v2,.p3-view,.v66-insights-stack{min-width:0;max-width:100%}
+
+/* Frozen product boundary: the web dashboard is read-only. */
+.v6-capture-card,[data-v6-capture],.today-v2 .v6-activity,.v51-closeout-hint,#v6CaptureDialog{display:none!important}
+
+/* Uniform detail-sheet constraints for narrow phones through desktop. */
+.v53-detail-dialog{inset:0!important;width:100vw!important;max-width:100vw!important;overflow:hidden!important}
+.v53-detail-sheet{box-sizing:border-box!important;min-width:0!important;max-width:min(680px,100vw)!important}
+.v53-detail-body,.v53-detail-body>*{min-width:0!important;max-width:100%!important}
+.v53-detail-body table{display:block;max-width:100%;overflow-x:auto}
+.v53-detail-body img,.v53-detail-body svg{max-width:100%}
+
+/* Long content wraps instead of widening the app. */
+.p3-history-meal-main,.p3-history-date-block,.v66-memory-row>div,.v66-week-grid>div,.v66-quality-grid>div,.v66-quality-grid>button{min-width:0}
+.p3-history-meal-main strong,.p3-history-meal-main small,.v66-lead,.v66-provenance-head p{overflow-wrap:anywhere}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
+
+@media(max-width:360px){
+  .today-metrics{gap:8px}
+  .v66-panel{padding:12px}
+  .v66-section-head h3{font-size:16px}
+  .v53-detail-head{gap:8px}
+  .v53-detail-heading h2{font-size:19px}
+}
+
+@media(orientation:landscape) and (max-height:520px){
+  .v53-detail-sheet{max-height:96dvh!important}
+  .v53-detail-body{overscroll-behavior:contain}
+}

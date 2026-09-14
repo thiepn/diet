@@ -1,0 +1,10 @@
+exclude:
+  - archive
+  - docs
+  - scripts
+  - src
+  - supabase
+  - tests
+  - CHANGELOG.md
+  - QA.md
+  - README.md

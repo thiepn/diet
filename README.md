@@ -6,200 +6,154 @@ Diet Copilot is a **ChatGPT-controlled nutrition log and diet intelligence syste
 You → ChatGPT → canonical Supabase backend → Dashboard
 ```
 
-- **ChatGPT** handles meal/weight logging, corrections, photo and nutrition-label interpretation, reusable foods/meals, goals, reviews and coaching.
-- **Supabase** is the durable source of truth.
-- **The dashboard** displays Today, History, Trends and Insights without becoming a manual calorie-entry app.
+**Stable web release:** `1.0.0`  
+**Internal milestone:** `V6.8`
+
+## Product boundary
+
+The dashboard is not a food-entry app. Meal and weight logging, corrections, photo/label interpretation, goals, reusable foods and coaching are handled through ChatGPT. The website displays Today, History, Trends and Insights.
+
+The following are deliberate invariants:
+
+- no manual food-entry form on the dashboard
+- no Quick Capture workflow
+- no requirement to close a day before its data counts
+- no automatic activity-calorie eat-back
+- no silent calorie-target changes
+- hypothetical/planned food never contaminates logged intake
 
 ## Production backend
 
 Diet Copilot uses the shared **THIEPN Account** Supabase project.
 
 - Canonical project ref: `hycegznamzjhwinegaai`
-- Canonical dashboard: `https://thiepn.dev/diet/`
-- Legacy project ref `mrrqsqawwxwebsdmrnre` is retired and must not receive new reads/writes from Diet Copilot.
+- Production app: `https://thiepn.dev/diet/`
+- Retired Diet project: `mrrqsqawwxwebsdmrnre`
 
-The canonical backend is authoritative for meal IDs, saved-food IDs, weight entries, goals and all current Diet Copilot state.
+The retired project must receive no Diet Copilot reads or writes.
 
-## Core tracking rule
+Authenticated browser sessions are owner-scoped and read-only. Privileged mutations use private backend helpers with stable request IDs, idempotent retry and post-write verification.
 
-**Every available logged value counts.**
+## Tracking policy
 
-A day does not disappear from averages or trends because it is Open, Partial, or not manually finalized. Day status is coverage metadata only.
+**Every available logged value counts.** Day status is coverage metadata only.
 
-- Calories and protein use all days with logged intake.
-- Weight trends use all available weigh-ins.
-- Fiber uses all known fiber values; missing fiber remains unknown rather than becoming zero.
-- Fiber full-coverage is reported separately from the known fiber total.
-- Status completion/coverage is shown separately and never used as an exclusion rule.
-- Missing meals or nutrients are not invented.
+- Calories and protein use every day containing logged intake.
+- Weight analysis uses every available weigh-in.
+- Fiber uses every known fiber value.
+- Missing fiber remains unknown rather than becoming zero.
+- Full fiber coverage is reported separately.
+- Estimated meals count normally; uncertainty changes confidence, not inclusion.
+- Legitimately repeated identical foods remain separate records.
 
-This makes Diet Copilot a low-friction tracker rather than a compliance/closeout system.
+## Intelligence
 
-## Low-friction logging
+The stable web product includes:
 
-- text or photo-based meal logging through ChatGPT
-- exact nutrition-label values when available
-- calorie ranges and confidence for estimates
-- weight logging and corrections
-- automatic Realtime dashboard refresh
-- stable request IDs for idempotent writes and safe retries
+- uncertainty-aware daily guidance
+- remembered foods, aliases and learned usual portions
+- verified barcode memory
+- recurring food/routine recognition
+- weight-trend confidence
+- week-over-week nutrition intelligence
+- conservative adaptive calorie recommendations
+- goal forecasting and maintenance-transition guidance
+- metric provenance and standardized confidence labels
+- integrity checking and exactly-once write semantics
 
-Every ChatGPT write is directed to the canonical project, verified after the write, and must not be mirrored to a second backend.
-
-## Food and meal memory
-
-- exact packaged foods can be remembered automatically
-- aliases support phrases such as “same protein yogurt”
-- verified remembered values outrank a fresh estimate
-- reusable multi-item meals can be saved and recalled
-- portion-aware reuse supports half portions, multipliers and changed gram amounts
-- memory remains ChatGPT-managed; there is no manual food-database UI
-
-## Nutrition
-
-- calories are the primary metric
-- protein is first-class
-- fiber is the third core nutrition metric when data is available
-- carbs and fat can be stored when known but remain optional/hidden by default
-- partial fiber coverage is explicitly marked instead of treating missing fiber as zero
-
-## Goals and phases
-
-Supported phases:
-
-- Cut
-- Maintain
-- Gain
-- Custom
-
-A phase can carry calorie, protein and fiber targets plus an optional goal weight and desired weekly weight-change rate.
-
-## Adaptive calorie calibration
-
-After enough logged intake and weight-trend data, Diet Copilot can estimate whether the calorie target should change.
-
-Guardrails:
-
-- desired weekly weight-change rate must be configured
-- default minimum is 14 logged intake days
-- at least four weigh-ins spanning at least seven days
-- regression-based weight trend rather than a single weigh-in
-- suggested changes capped to ±250 kcal at a time
-- targets rounded to 25 kcal
-- recommendations are **never silently applied**
-
-## Smart Diet Coach
-
-Diet Copilot can interpret:
-
-- observed weight pace vs planned pace
-- plateau / slower / faster / on-pace status after enough data exists
-- goal ETA
-- calorie/protein/fiber consistency
-- maintenance-transition context near the end of a cut or gain
-- data coverage separately from the nutrition values themselves
-
-Early weight data is shown as **Building baseline** rather than over-interpreted.
-
-## Metrics
-
-Insights support 7D / 28D / 90D views for:
-
-- average calories across logged intake days
-- calorie hit rate within ±150 kcal
-- average protein and protein target-hit rate
-- known fiber average and target-hit rate
-- fiber full-coverage count
-- trend weight and observed pace
-- goal progress and ETA
-- exact/reused vs estimated meals
-- status coverage
-- combined plan adherence
-- estimated maintenance when enough data exists
-
-## Weekly review
-
-Weekly reviews use all available logged intake and can report:
-
-- logged-day coverage
-- status-complete coverage separately
-- average calories
-- average protein
-- average known fiber
-- calorie / protein / fiber adherence
-- weigh-ins and weight change
-- observed pace vs planned pace
-- goal ETA and maintenance-transition context
-
-## Meal photos
-
-Meals support optional durable photo URLs and thumbnails. The UI does not expose upload controls; photos remain part of the ChatGPT logging workflow when durable image storage is available.
-
-## Reminders
-
-Diet Copilot stores opt-in preferences for:
-
-- weigh-in reminders
-- end-of-day reminders
-- weekly review reminders
-
-Actual ChatGPT notifications are scheduled separately.
+Recommendations never change targets automatically.
 
 ## Dashboard
 
 ### Today
 
-- calories consumed / target / remaining
-- protein progress
-- fiber progress and coverage
-- weight
-- optional day-status metadata
-- goal progress
-- optional carbs/fat summary
-- expandable meal cards
+Calories, protein, fiber, weight, goal progress, meals and passive contextual guidance. Core metric cards open consistent detail sheets with provenance.
 
 ### History
 
-- 3 / 7 / 14 / 30 / 90 day and all-time ranges
-- calories, protein, weight and status metadata
-- meal-level details
+3D / 7D / 14D / 30D / 90D / All ranges, meal expansion, source quality, uncertainty ranges, and All / Exact / Estimated filters. Filters never change day totals.
 
 ### Trends
 
-- Weight / Calories / Protein / Fiber
-- 7D / 30D / 90D / 6M / All
-- weight regression and moving trend
-- target lines and logged-data averages
+Weight / Calories / Protein / Fiber across 7D / 30D / 90D / 6M / All. Immature datasets are explicitly labeled rather than presented as established trends.
 
 ### Insights
 
-- Key Stats with 7D / 28D / 90D ranges
-- Smart Diet Coach
-- current goal phase
-- weekly-review context
-- adaptive-calibration status
-- food-memory status
+One consolidated hierarchy:
 
-## Product rule
+1. This week
+2. Nutrition
+3. Weight & goal
+4. Food intelligence
+5. Data quality
 
-> The user should never need to manually log food on the website.
+## Source layout
 
-If a feature would turn the dashboard into a conventional entry form, it belongs in the ChatGPT layer instead.
+V6.8 removed the historical pile of root-level dashboard override files from the active source tree.
 
-## Read-only browser guarantee
+```text
+src/
+  auth/
+  core/
+  intelligence/
+  operations/
+  styles/
+  ui/
+  config.js
+  release.js
 
-Authenticated browser sessions have owner-scoped SELECT access to Diet Copilot data. Privileged writes live behind private server-side helpers. Realtime publication remains protected by owner-scoped RLS.
+archive/
+  legacy-dashboard/
+  legacy-build/
+  legacy-tests/
 
-## Offline behavior
+scripts/
+tests/
+supabase/
+```
 
-After successful online use, the app caches its static shell and latest read-only snapshot. Supabase database/Auth/Realtime responses are never service-worker cached.
+Legacy files are retained under `archive/` for history only and cannot feed the production builder. `src/config.js` is the canonical configuration contract checked by CI; the production bundle continues to carry the same public Supabase endpoint/key through the certified core runtime.
+
+## Production bundles
+
+GitHub Pages serves exactly one local JavaScript bundle and one stylesheet:
+
+```text
+diet-app.js
+diet.css
+```
+
+They are Jekyll templates assembled from the certified source list in `scripts/build-v68.mjs`. The browser does not load the individual source fragments.
+
+The service worker uses the stable cache generation:
+
+```text
+diet-copilot-web-v1.0.0
+```
+
+Navigation and the consolidated runtime assets are network-first, with the cached read-only shell available for degraded/offline use.
 
 ## Development
 
-There is no build step.
+Run the certification build first:
 
 ```bash
-python -m http.server 8080
+node scripts/build-v68.mjs
+node tests/policy.mjs
+node tests/release.mjs
 ```
 
-Then open `http://localhost:8080`.
+The GitHub Actions release pipeline additionally:
+
+- syntax-checks all active JavaScript
+- verifies the backend/product contract
+- verifies deterministic bundle expansion
+- runs the actual GitHub Pages Jekyll build
+- validates the deployed bundle artifacts
+- enforces JS/CSS size budgets
+
+For local browser work, serve the repository through a Jekyll-compatible build or inspect the expanded `.v68-build/` artifacts produced by the build script.
+
+## Release policy
+
+Web `1.0.0` is the frozen stable baseline. Future web changes should be maintenance fixes or clearly justified product improvements. The next major platform work is the native Android companion and Health Connect integration.

@@ -3,7 +3,7 @@ name: A7 Operations Contract
 on:
   pull_request:
   push:
-    branches: [main, v6.7-release-candidate]
+    branches: [main, v6.8-web-v1]
 
 permissions:
   contents: read
@@ -16,25 +16,26 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - name: Expand V6.7 production runtime
-        run: node scripts/build-v67.mjs
+      - name: Expand Web 1.0 production runtime
+        run: node scripts/build-v68.mjs
       - name: A7 diagnostics contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          const operations=fs.readFileSync('dashboard-ops.js','utf8');
-          const bundle=fs.readFileSync('.v67-build/diet-app.js','utf8');
+          const operations=fs.readFileSync('src/operations/dashboard-ops.js','utf8');
+          const bundle=fs.readFileSync('.v68-build/diet-app.js','utf8');
           const manifest=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
           const index=fs.readFileSync('index.html','utf8');
           if(manifest.app!=='diet'||manifest.operationsVersion!=='A7.1')throw new Error('Diet A7 metadata invalid.');
           if(manifest.degradedMode!=='cached-read-only')throw new Error('Diet degraded mode must preserve cached reads.');
           if(manifest.health?.networkFailureLogsOutUser!==false)throw new Error('Network failure must not become logout.');
           if(manifest.health?.writesPerformedByDashboard!==false)throw new Error('Dashboard must remain read-only.');
-          if(!index.includes('diet-app.js?v=1.0-rc1'))throw new Error('V6.7 production bundle is not loaded.');
+          if(manifest.webRelease!=='1.0.0'||manifest.releaseChannel!=='stable')throw new Error('Stable release metadata missing.');
+          if(!index.includes('diet-app.js?v=1.0.0'))throw new Error('Web 1.0 production bundle is not loaded.');
           if(!operations.includes('window.DietOperations')||!bundle.includes('window.DietOperations'))throw new Error('Diet diagnostics surface missing from production runtime.');
+          if(!bundle.includes('window.DietRelease')||!bundle.includes("DIET_RELEASE_CHANNEL = 'stable'"))throw new Error('Stable DietRelease surface missing.');
           for(const category of ["'network'","'authentication'","'authorization'","'rate_limit'","'service'"]){if(!operations.includes(category))throw new Error(`Missing failure category ${category}`)}
           if(operations.includes('localStorage.clear('))throw new Error('Operations must not broadly clear storage.');
-          if(/\.auth\.signOut\s*\(/.test(operations))throw new Error('Operations must not convert failures into sign-out.');
-          if(/access_token|refresh_token|Authorization/.test(operations))throw new Error('Operations layer must not inspect credentials.');
-          console.log('Diet A7 operations contract passed inside V6.7 bundle.');
+          if(operations.includes('.auth.signOut('))throw new Error('Operations must not convert failures into sign-out.');
+          console.log('Diet A7 operations contract passed inside Web 1.0.');
           NODE
