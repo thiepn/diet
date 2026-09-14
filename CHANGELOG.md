@@ -1,5 +1,49 @@
 # Changelog
 
+## V6.6 — Product Consolidation & Intelligent UX — 2026-09-14
+
+Consolidates the accumulated V5/V6 intelligence into one cleaner read-only product instead of adding another tracking feature.
+
+### Interface consolidation
+
+- rebuilt the final Insights hierarchy around This week, Nutrition, Weight & goal, Food intelligence, and Data quality
+- removed the stacked Smart Coach / Key Stats / Weekly Intelligence / Health / recipe sections from the final Insights presentation
+- Today remains core-only: current status, meals and useful passive guidance
+- removed the legacy Today activity tile, Quick Capture remnants and obsolete day-close hint from the final UI
+
+### Provenance and confidence
+
+- added metric provenance for calories, protein, fiber, weight, goal and adherence so important numbers explain which records and rules produced them
+- standardized evidence labels to High, Moderate, Low and Building confidence
+- low-confidence data remains valid logged data; confidence changes interpretation, never whether intake counts
+- fixed stale detail-sheet wording that still implied only Complete days were included
+
+### History and trends
+
+- added lightweight All / Exact / Estimated History filters while keeping day totals unchanged
+- History now exposes source quality, confidence and stored calorie ranges for uncertain meals
+- Trends remembers selected metric/range and shows an evidence-maturity banner so very small datasets do not look like established trends
+
+### Performance and architecture
+
+- replaced the final stacked refresh chain with one V6.6 canonical request batch and one render
+- retired the V6.3 and V6.5 refresh/render bootstrap wrappers while preserving their reusable intelligence helpers
+- unified dashboard Realtime updates into one owner-scoped channel, including activity and learned food portions
+- retained V6.4 foreground/reconnect reconciliation against the final V6.6 refresh function
+
+### Mobile/detail polish
+
+- normalized the shared metric detail sheet across cards
+- constrained sheets to the visual viewport and safe areas
+- prevented horizontal overflow and long provenance text from breaking narrow-phone layouts
+
+### Product boundary
+
+- no manual food logging was added
+- no planning tool was added
+- direct ChatGPT conversation remains the only logging entry point
+- the dashboard remains read-only and all logged nutrition continues to count
+
 ## V6.5 — Weekly Intelligence & Adaptive Coaching 2.0 — 2026-09-14
 
 Turns existing logged data into conservative plan-level coaching without adding any new logging workflow.
@@ -108,7 +152,7 @@ Focused analytics redesign making Diet Copilot easier to understand without addi
 
 - added 7D / 28D / 90D stat ranges
 - added clear calorie average, target hit rate and typical target miss
-- added protein average and target-hit rate
+- added protein average and protein target-hit rate
 - added fiber average, target-hit rate and explicit coverage count
 - added trend weight, observed weekly pace and raw range change
 - added goal progress %, kg remaining and ETA
