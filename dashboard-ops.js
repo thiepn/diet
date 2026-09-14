@@ -5,6 +5,10 @@
 // redacted operational metadata.
 const DIET_OPERATIONS_VERSION = 'A7.1';
 
+function dietReleaseLabel() {
+  return window.DietRelease?.webRelease || (typeof RELEASE === 'string' ? RELEASE : null);
+}
+
 function dietOperationId() {
   try { return crypto.randomUUID(); }
   catch { return `op-${Date.now()}-${Math.random().toString(36).slice(2,10)}`; }
@@ -37,7 +41,7 @@ function dietOperationalSnapshot() {
   return Object.freeze({
     app: 'diet',
     operationsVersion: DIET_OPERATIONS_VERSION,
-    release: typeof RELEASE === 'string' ? RELEASE : null,
+    release: dietReleaseLabel(),
     online: navigator.onLine,
     cloudStatus: cloud?.status ?? 'unknown',
     hasSession: Boolean(cloud?.user),
@@ -60,7 +64,7 @@ if (dietRefreshBeforeOperations) {
           duration_ms: Date.now() - started,
           online: navigator.onLine,
           cloud_status: cloud.status,
-          release: RELEASE,
+          release: dietReleaseLabel(),
         });
       } else {
         dietOperationalEvent('diet.refresh.success', {
@@ -68,7 +72,7 @@ if (dietRefreshBeforeOperations) {
           duration_ms: Date.now() - started,
           online: navigator.onLine,
           cloud_status: cloud?.status ?? 'unknown',
-          release: RELEASE,
+          release: dietReleaseLabel(),
         });
       }
       return result;
@@ -79,7 +83,7 @@ if (dietRefreshBeforeOperations) {
         duration_ms: Date.now() - started,
         online: navigator.onLine,
         cloud_status: cloud?.status ?? 'unknown',
-        release: RELEASE,
+        release: dietReleaseLabel(),
         error_name: error?.name || 'Error',
       });
       throw error;
@@ -93,7 +97,7 @@ window.addEventListener('offline', () => {
     category: 'network',
     online: false,
     cloud_status: cloud?.status ?? 'unknown',
-    release: RELEASE,
+    release: dietReleaseLabel(),
   });
 });
 
@@ -102,7 +106,7 @@ window.addEventListener('online', () => {
     operation_id: dietOperationId(),
     online: true,
     cloud_status: cloud?.status ?? 'unknown',
-    release: RELEASE,
+    release: dietReleaseLabel(),
   });
 });
 
