@@ -1,0 +1,21 @@
+.v63-food-intelligence{display:grid;gap:12px;margin-top:4px}
+.v63-memory-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.v63-memory-stats>div{min-width:0;padding:13px 14px;border-radius:16px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.v63-memory-stats span{display:block;font-size:9px;font-weight:750;text-transform:uppercase;letter-spacing:.045em;color:var(--muted)}
+.v63-memory-stats strong{display:block;margin-top:5px;font-size:20px;line-height:1;color:var(--text);letter-spacing:-.035em}
+.v63-memory-columns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.v63-memory-block{min-width:0;padding:14px;border-radius:18px;background:var(--surface);box-shadow:var(--shadow-sm)}
+.v63-block-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:9px}
+.v63-block-head strong{font-size:13px;color:var(--text)}
+.v63-block-head small{font-size:9px;color:var(--muted)}
+.v63-memory-list,.v63-pattern-list{display:grid}
+.v63-memory-row,.v63-pattern-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0}
+.v63-memory-row+.v63-memory-row,.v63-pattern-row+.v63-pattern-row{border-top:1px solid var(--line)}
+.v63-memory-row>div,.v63-pattern-row>div{min-width:0}
+.v63-memory-row>div:last-child{text-align:right;flex:0 0 auto}
+.v63-memory-row strong,.v63-pattern-row strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;line-height:1.3;color:var(--text)}
+.v63-memory-row small,.v63-pattern-row small{display:block;margin-top:2px;font-size:9px;line-height:1.35;color:var(--muted)}
+.v63-memory-row b,.v63-pattern-row b{display:block;flex:0 0 auto;font-size:10px;color:var(--text)}
+.v63-memory-note{font-size:10px;line-height:1.45;color:var(--muted)}
+@media(max-width:719px){.v63-memory-stats{grid-template-columns:1fr 1fr}.v63-memory-columns{grid-template-columns:1fr}.v63-memory-block{padding:13px}.v63-block-head{align-items:flex-start;flex-direction:column;gap:2px}}
+@media(max-width:359px){.v63-memory-stats{grid-template-columns:1fr}.v63-memory-row,.v63-pattern-row{align-items:flex-start}}
