@@ -5,11 +5,12 @@ on:
     paths:
       - '.well-known/thiepn-app.json'
       - 'src/auth/**'
+      - 'src/native/**'
       - 'src/config.js'
       - 'docs/account-platform/**'
       - '.github/workflows/a8-account-contract.yml'
   push:
-    branches: [main, v6.8-web-v1]
+    branches: [main, v7.0-android]
 
 permissions:
   contents: read
@@ -29,17 +30,20 @@ jobs:
           const manifest=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
           const auth=fs.readFileSync('src/auth/dashboard-auth.js','utf8');
           const persist=fs.readFileSync('src/auth/dashboard-auth-persist.js','utf8');
+          const nativeBridge=fs.readFileSync('src/native/android-bridge.js','utf8');
           const config=fs.readFileSync('src/config.js','utf8');
           const expected={schemaVersion:'1.0',app:'diet',displayName:'Diet Copilot',path:'/diet/',accountContract:'1.0',sdkContract:'1.x',integrationMode:'certified-legacy',operationsVersion:'A7.1',sessionAuthority:'thiepn-account'};
           for(const [key,value] of Object.entries(expected))if(manifest[key]!==value)throw new Error(`Diet A8 manifest mismatch: ${key}`);
-          if(manifest.webRelease!=='1.0.0'||manifest.releaseChannel!=='stable'||manifest.stable!==true)throw new Error('Diet stable release metadata invalid.');
-          if(manifest.sourceLayout!=='src'||manifest.runtimeMode!=='consolidated-stable')throw new Error('Diet source/runtime layout metadata invalid.');
+          if(manifest.release!=='V7.0'||manifest.webRelease!=='1.0.0'||manifest.nativeRelease!=='7.0.0'||manifest.releaseChannel!=='stable'||manifest.stable!==true)throw new Error('Diet V7 release metadata invalid.');
+          if(manifest.sourceLayout!=='src'||manifest.runtimeMode!=='web-stable-native-companion')throw new Error('Diet source/runtime layout metadata invalid.');
           if(manifest.health?.networkFailureLogsOutUser!==false)throw new Error('Network failure must not log Diet out.');
           if(manifest.health?.writesPerformedByDashboard!==false)throw new Error('Diet dashboard must remain read-only.');
+          if(manifest.android?.appId!=='dev.thiepn.diet'||manifest.android?.healthConnect!==true)throw new Error('Android companion contract missing.');
           if(!config.includes('hycegznamzjhwinegaai'))throw new Error('Canonical THIEPN project missing.');
           if(!auth.includes('Continue with Google')||!auth.includes('signInWithPassword'))throw new Error('Declared Diet auth entry points regressed.');
           if(!auth.includes("auth.signOut({ scope: 'local' })"))throw new Error('Diet ordinary sign-out is not explicitly local.');
           if(persist.includes('setSession('))throw new Error('App-specific token restoration returned.');
           if(config.includes('mrrqsqawwxwebsdmrnre'))throw new Error('Retired Diet backend returned to runtime config.');
-          console.log('Diet A8 consumer contract passed for Web 1.0.');
+          for(const symbol of ['configureSession','accessToken','refreshToken'])if(!nativeBridge.includes(symbol))throw new Error(`Native session bridge missing ${symbol}`);
+          console.log('Diet A8 consumer contract passed for Web 1.0 + Android V7.');
           NODE

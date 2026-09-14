@@ -25,7 +25,8 @@
     "logging_entrypoint": "direct_chatgpt_conversation",
     "dashboard_manual_logging": false,
     "dashboard_quick_capture": false,
-    "dashboard_role": "read_only_status_analytics_and_guidance"
+    "dashboard_role": "read_only_status_analytics_and_guidance",
+    "native_health_sync": "health_connect_activity_only"
   },
   "capabilities": {
     "daily_decision_engine": true,
@@ -45,6 +46,12 @@
     "history_quality_filters": true,
     "single_pass_dashboard_refresh": true,
     "unified_realtime_channel": true,
-    "today_core_only": true
+    "today_core_only": true,
+    "android_native_companion": true,
+    "health_connect_sync": true,
+    "background_activity_sync": true,
+    "native_weigh_in_reminders": true,
+    "native_weekly_review_reminders": true,
+    "activity_calorie_eat_back": false
   }
 }
