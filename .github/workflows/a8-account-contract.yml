@@ -1,0 +1,43 @@
+name: A8 Account Consumer Contract
+
+on:
+  pull_request:
+    paths:
+      - '.well-known/thiepn-app.json'
+      - 'dashboard-auth*.js'
+      - 'dashboard-config.js'
+      - 'docs/account-platform/**'
+      - '.github/workflows/a8-account-contract.yml'
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - name: Validate Diet A8 contract
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const manifest=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
+          const auth=fs.readFileSync('dashboard-auth.js','utf8');
+          const persist=fs.readFileSync('dashboard-auth-persist.js','utf8');
+          const config=fs.readFileSync('dashboard-config.js','utf8');
+          const expected={schemaVersion:'1.0',app:'diet',displayName:'Diet Copilot',path:'/diet/',accountContract:'1.0',sdkContract:'1.x',integrationMode:'certified-legacy',operationsVersion:'A7.1',sessionAuthority:'thiepn-account'};
+          for(const [key,value] of Object.entries(expected))if(manifest[key]!==value)throw new Error(`Diet A8 manifest mismatch: ${key}`);
+          if(manifest.health?.networkFailureLogsOutUser!==false)throw new Error('Network failure must not log Diet out.');
+          if(manifest.health?.writesPerformedByDashboard!==false)throw new Error('Diet dashboard must remain read-only.');
+          if(!config.includes('hycegznamzjhwinegaai'))throw new Error('Canonical THIEPN project missing.');
+          if(!auth.includes('Continue with Google')||!auth.includes('signInWithPassword'))throw new Error('Declared Diet auth entry points regressed.');
+          if(!auth.includes("auth.signOut({ scope: 'local' })"))throw new Error('Diet ordinary sign-out is not explicitly local.');
+          if(persist.includes('setSession('))throw new Error('App-specific token restoration returned.');
+          if(config.includes('mrrqsqawwxwebsdmrnre'))throw new Error('Retired Diet backend returned to runtime config.');
+          console.log('Diet A8 consumer contract passed.');
+          NODE
