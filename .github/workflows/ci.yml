@@ -60,10 +60,10 @@ jobs:
           if(!v63.includes('v63UsualPortion'))throw new Error('V6.3 portion intelligence missing.');
           if(!v64.includes('v64RefreshCanonical'))throw new Error('V6.4 canonical refresh missing.');
           if(!v65.includes('Weekly Intelligence & Adaptive Coaching 2.0')||!v65.includes('v65Trend')||!v65.includes('v65GoalForecast'))throw new Error('V6.5 weekly intelligence missing.');
-          if(!v65.includes(".v6-capture-card')?.remove"))throw new Error('V6.5 must preserve no-Quick-Capture invariant.');
           if(!v66.includes('Product Consolidation & Intelligent UX'))throw new Error('V6.6 consolidation layer missing.');
           for(const symbol of ['renderInsightsV66','refreshDataV66','subscribeRealtimeV66','v66Provenance','v66ConfidenceForRange'])if(!v66.includes(symbol))throw new Error(`V6.6 symbol missing: ${symbol}`);
           if(!v66.includes(".v6-capture-card')?.remove")||!v66.includes(".v6-activity')?.remove"))throw new Error('V6.6 Today must remain core-only.');
+          if(v63.includes('refreshDataV63')||v65.includes('refreshDataV65'))throw new Error('Legacy refresh wrappers must be retired by V6.6.');
 
           if(!d62.includes('private.get_daily_guidance')||!d62.includes('private.compare_food_options'))throw new Error('V6.2 backend helpers undocumented.');
           for(const helper of ['private.get_action_status','private.preflight_meal_write','private.verify_ai_action','private.get_integrity_report','private.reconcile_integrity'])if(!d64.includes(helper))throw new Error(`V6.4 helper undocumented: ${helper}`);
