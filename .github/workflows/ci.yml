@@ -38,6 +38,9 @@ jobs:
           const bridge = fs.readFileSync('supabase/chatgpt-bridge.md', 'utf8');
           const backend = JSON.parse(fs.readFileSync('supabase/backend.json', 'utf8'));
           const finalPolicy = fs.readFileSync('dashboard-04.js', 'utf8');
+          const v612 = fs.readFileSync('dashboard-v6-1-2.js', 'utf8');
+          const v62 = fs.readFileSync('dashboard-v6-2.js', 'utf8');
+          const v62DecisionDoc = fs.readFileSync('supabase/decision-engine-v6.2.md', 'utf8');
           const sharedProject = 'hycegznamzjhwinegaai';
           const oldProject = 'mrrqsqawwxwebsdmrnre';
           const sharedStorage = `sb-${sharedProject}-auth-token`;
@@ -52,6 +55,17 @@ jobs:
           if (backend.metrics_policy?.weight !== 'all_available_weigh_ins') throw new Error('Weight metrics must use all weigh-ins.');
           if (backend.metrics_policy?.day_status !== 'coverage_metadata_only') throw new Error('Day status must be coverage metadata only.');
           if (!String(backend.metrics_policy?.fiber || '').startsWith('all_known_values')) throw new Error('Fiber metrics must use all known values with coverage separate.');
+
+          if (backend.product_boundary?.logging_entrypoint !== 'direct_chatgpt_conversation') throw new Error('Diet logging must remain direct-to-ChatGPT.');
+          if (backend.product_boundary?.dashboard_manual_logging !== false) throw new Error('Dashboard manual logging must remain disabled.');
+          if (backend.product_boundary?.dashboard_quick_capture !== false) throw new Error('Quick Capture must not return to the dashboard.');
+          if (backend.capabilities?.daily_decision_engine !== true) throw new Error('V6.2 daily decision engine is not declared.');
+          if (backend.capabilities?.contextual_saved_food_ranking !== true) throw new Error('V6.2 contextual food ranking is not declared.');
+          if (backend.capabilities?.food_option_comparison !== true) throw new Error('V6.2 option comparison is not declared.');
+          if (!v612.includes('v612NoTodayQuickCapture')) throw new Error('V6.1.2 Quick Capture removal guard is missing.');
+          if (!v62.includes("Today's guidance")) throw new Error('V6.2 Today guidance is missing.');
+          if (!v62.includes('uncertaintyMaterial')) throw new Error('V6.2 confidence-aware guidance is missing.');
+          if (!v62DecisionDoc.includes('private.get_daily_guidance') || !v62DecisionDoc.includes('private.compare_food_options')) throw new Error('V6.2 ChatGPT decision helpers are undocumented.');
 
           if (!text['dashboard-01.js'].includes(sharedProject)) throw new Error('Dashboard runtime is not on the canonical THIEPN Account backend.');
           if (!text['dashboard-config.js'].includes(sharedProject)) throw new Error('Dashboard config is not on the canonical THIEPN Account backend.');
@@ -97,7 +111,7 @@ jobs:
             throw new Error('Legacy auth-recovery hooks remain in the UI layer.');
           }
 
-          console.log('Diet backend + THIEPN Account + all-logged-data contract passed.');
+          console.log('Diet backend + THIEPN Account + V6.2 decision-engine contract passed.');
           NODE
 
       - name: PWA cache contract
