@@ -1,0 +1,12 @@
+{
+  "app": "diet",
+  "accountContract": "1.0",
+  "operationsVersion": "A7.1",
+  "degradedMode": "cached-read-only",
+  "sessionAuthority": "thiepn-account",
+  "health": {
+    "cachedDataPreservedOnBackendFailure": true,
+    "networkFailureLogsOutUser": false,
+    "writesPerformedByDashboard": false
+  }
+}
