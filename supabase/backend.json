@@ -18,6 +18,9 @@
     "require_request_id": true,
     "retry_same_request_id": true,
     "verify_after_write": true,
+    "preflight_meal_writes": true,
+    "recover_uncertain_write_by_request_id": true,
+    "never_retry_with_new_request_id": true,
     "dual_write": false
   },
   "product_boundary": {
@@ -41,6 +44,15 @@
     "automatic_usual_portion_learning": true,
     "verified_barcode_memory": true,
     "meal_pattern_recognition": true,
-    "food_memory_intelligence": true
+    "food_memory_intelligence": true,
+    "exactly_once_request_writes": true,
+    "meal_duplicate_preflight": true,
+    "post_write_verification": true,
+    "uncertain_write_recovery": true,
+    "correction_candidate_lookup": true,
+    "audit_trail": true,
+    "integrity_report": true,
+    "deterministic_reconciliation": true,
+    "foreground_canonical_refresh": true
   }
 }
