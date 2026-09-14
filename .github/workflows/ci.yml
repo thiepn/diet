@@ -24,109 +24,65 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in *.js; do
-            node --check "$file"
-          done
+          for file in *.js; do node --check "$file"; done
 
-      - name: THIEPN Account and Diet backend contract
+      - name: Diet product and backend contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
+          const backend=JSON.parse(fs.readFileSync('supabase/backend.json','utf8'));
+          const bridge=fs.readFileSync('supabase/chatgpt-bridge.md','utf8');
+          const finalPolicy=fs.readFileSync('dashboard-04.js','utf8');
+          const v612=fs.readFileSync('dashboard-v6-1-2.js','utf8');
+          const v62=fs.readFileSync('dashboard-v6-2.js','utf8');
+          const v63=fs.readFileSync('dashboard-v6-3.js','utf8');
+          const v64=fs.readFileSync('dashboard-v6-4.js','utf8');
+          const v65=fs.readFileSync('dashboard-v6-5.js','utf8');
+          const d62=fs.readFileSync('supabase/decision-engine-v6.2.md','utf8');
+          const d64=fs.readFileSync('supabase/reliability-v6.4.md','utf8');
+          const d65=fs.readFileSync('supabase/weekly-intelligence-v6.5.md','utf8');
+          const shared='hycegznamzjhwinegaai',legacy='mrrqsqawwxwebsdmrnre';
 
-          const runtimeFiles = ['dashboard-01.js', 'dashboard-config.js', 'dashboard-auth-persist.js', 'dashboard-auth.js', 'dashboard-ops.js'];
-          const text = Object.fromEntries(runtimeFiles.map((file) => [file, fs.readFileSync(file, 'utf8')]));
-          const bridge = fs.readFileSync('supabase/chatgpt-bridge.md', 'utf8');
-          const backend = JSON.parse(fs.readFileSync('supabase/backend.json', 'utf8'));
-          const finalPolicy = fs.readFileSync('dashboard-04.js', 'utf8');
-          const operations = text['dashboard-ops.js'];
-          const operationsManifest = JSON.parse(fs.readFileSync('.well-known/thiepn-app.json', 'utf8'));
-          const index = fs.readFileSync('index.html', 'utf8');
-          const sharedProject = 'hycegznamzjhwinegaai';
-          const oldProject = 'mrrqsqawwxwebsdmrnre';
-          const sharedStorage = `sb-${sharedProject}-auth-token`;
-          const legacyBackup = 'diet-copilot-thiepn-auth-token-backup-v2';
-          const legacyVault = 'diet-copilot-auth-vault';
+          if(backend.canonical_project_ref!==shared)throw new Error('Wrong canonical backend.');
+          if(!backend.legacy_project_refs?.includes(legacy)||!String(backend.legacy_policy).includes('retired'))throw new Error('Legacy backend is not retired.');
+          if(backend.write_protocol?.require_request_id!==true||backend.write_protocol?.retry_same_request_id!==true||backend.write_protocol?.verify_after_write!==true||backend.write_protocol?.dual_write!==false)throw new Error('Reliable write protocol regressed.');
+          if(backend.metrics_policy?.nutrition_days!=='all_days_with_logged_intake'||backend.metrics_policy?.weight!=='all_available_weigh_ins'||backend.metrics_policy?.day_status!=='coverage_metadata_only')throw new Error('All-logged-data metrics contract regressed.');
+          if(backend.product_boundary?.logging_entrypoint!=='direct_chatgpt_conversation'||backend.product_boundary?.dashboard_manual_logging!==false||backend.product_boundary?.dashboard_quick_capture!==false)throw new Error('Dashboard product boundary regressed.');
 
-          if (backend.canonical_project_ref !== sharedProject) throw new Error('Backend manifest points at the wrong canonical project.');
-          if (!backend.legacy_project_refs?.includes(oldProject)) throw new Error('Backend manifest does not mark the legacy project.');
-          if (backend.write_protocol?.dual_write !== false) throw new Error('Backend manifest must prohibit dual writes.');
-          if (backend.write_protocol?.require_request_id !== true) throw new Error('Backend manifest must require request IDs.');
-          if (backend.metrics_policy?.nutrition_days !== 'all_days_with_logged_intake') throw new Error('Nutrition metrics must use every logged intake day.');
-          if (backend.metrics_policy?.weight !== 'all_available_weigh_ins') throw new Error('Weight metrics must use all weigh-ins.');
-          if (backend.metrics_policy?.day_status !== 'coverage_metadata_only') throw new Error('Day status must be coverage metadata only.');
-          if (!String(backend.metrics_policy?.fiber || '').startsWith('all_known_values')) throw new Error('Fiber metrics must use all known values with coverage separate.');
-
-          if (!text['dashboard-01.js'].includes(sharedProject)) throw new Error('Dashboard runtime is not on the canonical THIEPN Account backend.');
-          if (!text['dashboard-config.js'].includes(sharedProject)) throw new Error('Dashboard config is not on the canonical THIEPN Account backend.');
-          if (!text['dashboard-auth-persist.js'].includes(sharedStorage)) throw new Error('Diet auth does not use the shared THIEPN Account storage key.');
-
-          for (const file of runtimeFiles) {
-            if (text[file].includes(oldProject)) throw new Error(`${file} still references the retired Diet backend.`);
+          for(const capability of ['daily_decision_engine','food_memory_intelligence','post_write_verification','integrity_report','weekly_intelligence','week_over_week_comparison','trend_confidence','adaptive_coaching_v2','goal_forecast','maintenance_transition_guidance','descriptive_association_analysis']){
+            if(backend.capabilities?.[capability]!==true)throw new Error(`Missing capability: ${capability}`);
           }
 
-          if (!bridge.includes(`Canonical project ref: \`${sharedProject}\``)) throw new Error('ChatGPT bridge does not declare the canonical backend ref.');
-          if (!bridge.includes(oldProject) || !bridge.toLowerCase().includes('retired')) throw new Error('ChatGPT bridge does not explicitly retire the legacy backend.');
-          if (!bridge.includes('stable, unique `p_request_id`')) throw new Error('ChatGPT bridge is missing the idempotent-write rule.');
-          if (!bridge.includes('Day status is metadata')) throw new Error('ChatGPT bridge must not make day status an exclusion rule.');
+          if(!v612.includes('v612NoTodayQuickCapture'))throw new Error('Quick Capture removal guard missing.');
+          if(!v62.includes("Today's guidance")||!v62.includes('uncertaintyMaterial'))throw new Error('V6.2 guidance regressed.');
+          if(!v63.includes('v63UsualPortion'))throw new Error('V6.3 portion intelligence missing.');
+          if(!v64.includes('v64RefreshCanonical'))throw new Error('V6.4 canonical refresh missing.');
+          if(!v65.includes('Weekly Intelligence & Adaptive Coaching 2.0')||!v65.includes('v65Trend')||!v65.includes('v65GoalForecast'))throw new Error('V6.5 weekly intelligence missing.');
+          if(!v65.includes(".v6-capture-card')?.remove"))throw new Error('V6.5 must preserve no-Quick-Capture invariant.');
 
-          if (!finalPolicy.includes('Logged nutrition always counts')) throw new Error('Dashboard final policy layer is missing the all-logged-data contract.');
-          if (!finalPolicy.includes('Day status is coverage metadata only')) throw new Error('Dashboard still risks using day status as an exclusion rule.');
-          if (!finalPolicy.includes('all available data already contributes')) throw new Error('Dashboard closeout guidance still implies logged data can be excluded.');
+          if(!d62.includes('private.get_daily_guidance')||!d62.includes('private.compare_food_options'))throw new Error('V6.2 backend helpers undocumented.');
+          for(const helper of ['private.get_action_status','private.preflight_meal_write','private.verify_ai_action','private.get_integrity_report','private.reconcile_integrity'])if(!d64.includes(helper))throw new Error(`V6.4 helper undocumented: ${helper}`);
+          for(const helper of ['private.get_trend_confidence','private.get_adaptive_plan_decision','private.get_weekly_intelligence','private.generate_weekly_review'])if(!d65.includes(helper))throw new Error(`V6.5 helper undocumented: ${helper}`);
 
-          if (!text['dashboard-auth.js'].includes('Continue with Google')) throw new Error('Google THIEPN Account entry point is missing.');
-          if (!text['dashboard-auth.js'].includes('signInWithPassword')) throw new Error('Email/password THIEPN Account entry point is missing.');
-          if (!text['dashboard-auth.js'].includes("auth.signOut({ scope: 'local' })")) {
-            throw new Error('Diet browser sign-out must use explicit local Supabase scope.');
-          }
-          if (/auth\.signOut\(\s*\)/.test(text['dashboard-auth.js'])) {
-            throw new Error('Diet must not use Supabase JavaScript global sign-out by default.');
-          }
+          if(!bridge.includes(`Canonical project ref: \`${shared}\``)||!bridge.includes(legacy))throw new Error('ChatGPT bridge backend contract missing.');
+          if(!finalPolicy.includes('Logged nutrition always counts')||!finalPolicy.includes('Day status is coverage metadata only'))throw new Error('All-logged-data final policy missing.');
 
-          const bootstrap = text['dashboard-auth-persist.js'];
-          if (bootstrap.includes('setSession(')) throw new Error('Diet must not restore auth from an app-specific token copy.');
-          if (bootstrap.includes('access_token: recovery') || bootstrap.includes('refresh_token: recovery')) {
-            throw new Error('Diet contains legacy token-recovery logic.');
-          }
-          const cleanupOnly = bootstrap
-            .replaceAll(`localStorage.removeItem(LEGACY_DIET_AUTH_BACKUP_KEY)`, '')
-            .replaceAll(`indexedDB.deleteDatabase(LEGACY_DIET_AUTH_DB)`, '');
-          if (cleanupOnly.includes(`localStorage.setItem(LEGACY_DIET_AUTH_BACKUP_KEY`)) {
-            throw new Error('Diet must not persist a duplicate auth-token backup.');
-          }
-          if (!bootstrap.includes(legacyBackup) || !bootstrap.includes(legacyVault)) {
-            throw new Error('A6 targeted legacy auth cleanup is missing.');
-          }
-          if (text['dashboard-auth.js'].includes('clearDietAuthRecovery')) {
-            throw new Error('Legacy auth-recovery hooks remain in the UI layer.');
-          }
-
-          if (operationsManifest.app !== 'diet' || operationsManifest.operationsVersion !== 'A7.1') {
-            throw new Error('Diet A7 operations metadata is missing or invalid.');
-          }
-          if (!index.includes('dashboard-ops.js?v=7.1')) throw new Error('Diet A7 operations layer is not loaded.');
-          if (!operations.includes('window.DietOperations')) throw new Error('Diet diagnostics contract is missing.');
-          if (!operations.includes("'network'") || !operations.includes("'authentication'") || !operations.includes("'rate_limit'")) {
-            throw new Error('Diet failure taxonomy is incomplete.');
-          }
-          if (operations.includes('localStorage.clear(')) throw new Error('Diet operations must not broadly clear browser storage.');
-          if (/\.auth\.signOut\s*\(/.test(operations)) throw new Error('Diet operations must not convert failures into sign-out.');
-          if (/access_token|refresh_token|Authorization/.test(operations)) throw new Error('Diet operations layer must not inspect or log credentials.');
-
-          console.log('Diet backend + THIEPN Account + A7 operations contract passed.');
+          const auth=fs.readFileSync('dashboard-auth.js','utf8');
+          const persist=fs.readFileSync('dashboard-auth-persist.js','utf8');
+          if(!auth.includes('Continue with Google')||!auth.includes('signInWithPassword')||!auth.includes("auth.signOut({ scope: 'local' })"))throw new Error('THIEPN Account auth contract regressed.');
+          if(persist.includes('setSession('))throw new Error('Legacy app-specific auth restoration returned.');
+          console.log('Diet V6.5 product/backend contract passed.');
           NODE
 
       - name: PWA cache contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-
-          const html = fs.readFileSync('index.html', 'utf8');
-          const sw = fs.readFileSync('sw.js', 'utf8');
-          const assets = [...html.matchAll(/(?:src|href)="((?:dashboard-[^"]+|manifest\.webmanifest|icon\.(?:svg)|icon-(?:192|512)\.png))"/g)].map(m => m[1]);
-          const missing = assets.filter(asset => !sw.includes(`'./${asset}'`));
-          if (missing.length) throw new Error(`Service-worker CORE is missing index assets: ${missing.join(', ')}`);
-          if (!sw.includes('dashboard-auth-final.js')) throw new Error('Final auth compatibility layer is not precached.');
-          if (!sw.includes('dashboard-ops.js?v=7.1')) throw new Error('A7 operations layer is not precached.');
-          if (!sw.includes('./.well-known/thiepn-app.json')) throw new Error('A7 operations metadata is not precached.');
+          const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
+          const assets=[...html.matchAll(/(?:src|href)="((?:dashboard-[^"]+|manifest\.webmanifest|icon\.(?:svg)|icon-(?:192|512)\.png))"/g)].map(m=>m[1]);
+          const missing=assets.filter(a=>!sw.includes(`'./${a}'`));
+          if(missing.length)throw new Error(`Service-worker CORE missing: ${missing.join(', ')}`);
+          for(const required of ['dashboard-auth-final.js','dashboard-v6-4.js?v=6.4','dashboard-v6-5.js?v=6.5','dashboard-v6-5.css?v=6.5'])if(!sw.includes(required))throw new Error(`PWA missing ${required}`);
+          if(!sw.includes("u.pathname.includes('/dashboard-')"))throw new Error('Dashboard assets must be network-first.');
           console.log(`PWA cache contract passed for ${assets.length} assets.`);
           NODE

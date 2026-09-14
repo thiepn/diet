@@ -37,6 +37,84 @@ For every ChatGPT write:
 
 This idempotency rule prevents accidental duplicate meals when a request is retried.
 
+## V6.4 reliability protocol
+
+### Meal preflight
+
+Before a new meal write, call:
+
+```sql
+select private.preflight_meal_write(
+  p_log_date,
+  p_meal_type,
+  p_title,
+  p_items,
+  p_request_id
+);
+```
+
+If the response says `already_applied`, do **not** write again. If it says `possible_duplicate`, inspect the candidate rather than automatically deleting or blocking it. Explicit repetition such as “another 50 g” is legitimate and should be written with a new request ID.
+
+### Post-write verification
+
+V6.4 meal, correction, delete, weight and day-status writes verify their persisted result inside the transaction. Successful responses include verification data.
+
+You can verify any action again with:
+
+```sql
+select private.verify_ai_action(p_request_id);
+```
+
+A meal verification checks the stored meal entity and compares calories/protein with its item totals. A delete verification checks that the deleted entity is absent.
+
+### Uncertain write recovery
+
+If a tool/network error occurs **after a write may have reached Supabase**, do not immediately call the write again and do not invent a new request ID. First query:
+
+```sql
+select private.get_action_status(p_request_id);
+```
+
+- `found = true`: the action committed; do not repeat it.
+- `found = false`: retry the original operation using the **same** request ID.
+
+### Natural corrections
+
+Messages such as “actually it was 100 g”, “remove the yogurt”, or “that lunch was closer to 1,100 kcal” are corrections, not new meals.
+
+When the intended record is not already obvious from fresh context, use:
+
+```sql
+select private.find_recent_meals_for_correction(p_query,p_date,p_limit);
+```
+
+Then use the returned `meal_id` and latest `updated_at` with `private.update_meal` or `private.delete_meal`. If multiple records remain genuinely plausible, clarify instead of guessing.
+
+### Integrity and audit
+
+Read the mutation trail with:
+
+```sql
+select private.get_audit_trail(p_limit);
+```
+
+Check integrity with:
+
+```sql
+select private.get_integrity_report(p_start_date,p_end_date);
+```
+
+Possible duplicate groups are advisory because identical foods can be intentionally eaten twice. Never auto-delete them.
+
+For deterministic meal-total mismatches only, dry-run or apply reconciliation with:
+
+```sql
+select private.reconcile_integrity(p_start_date,p_end_date,false,null);
+select private.reconcile_integrity(p_start_date,p_end_date,true,p_request_id);
+```
+
+See `supabase/reliability-v6.4.md` for the full protocol.
+
 ## Core context
 
 Before answering questions such as “how much can I still eat?”, “how did I do this week?”, “am I losing fast enough?”, or “same yogurt as last time”, read the canonical database rather than relying on conversational memory.
@@ -81,7 +159,7 @@ Photo-estimated meals should store item estimates, calorie ranges, confidence an
 
 ## Barcode lookup
 
-The dashboard can scan EAN/UPC codes and look them up through Open Food Facts. Treat crowd-sourced barcode data as a lookup aid, not as stronger evidence than the package in front of the user.
+Treat crowd-sourced barcode data as a lookup aid, not as stronger evidence than the package in front of the user.
 
 Priority is:
 
@@ -280,7 +358,7 @@ Do not ask for routine confirmation when logging is clear. Clarify only when amb
 
 ## Response after writes
 
-Keep confirmations compact, then query fresh canonical context again. Always use the current database targets and totals rather than assuming them from conversation history.
+Keep confirmations compact. Require successful V6.4 verification, then query fresh canonical context again. Always use the current database targets and totals rather than assuming them from conversation history.
 
 ## Security
 

@@ -3,9 +3,7 @@
   "canonical_project_ref": "hycegznamzjhwinegaai",
   "canonical_region": "eu-west-1",
   "identity_project": "THIEPN Account",
-  "legacy_project_refs": [
-    "mrrqsqawwxwebsdmrnre"
-  ],
+  "legacy_project_refs": ["mrrqsqawwxwebsdmrnre"],
   "legacy_policy": "retired_no_reads_no_writes",
   "metrics_policy": {
     "nutrition_days": "all_days_with_logged_intake",
@@ -18,15 +16,28 @@
     "require_request_id": true,
     "retry_same_request_id": true,
     "verify_after_write": true,
+    "preflight_meal_writes": true,
+    "recover_uncertain_write_by_request_id": true,
+    "never_retry_with_new_request_id": true,
     "dual_write": false
   },
+  "product_boundary": {
+    "logging_entrypoint": "direct_chatgpt_conversation",
+    "dashboard_manual_logging": false,
+    "dashboard_quick_capture": false,
+    "dashboard_role": "read_only_status_analytics_and_guidance"
+  },
   "capabilities": {
-    "barcode_lookup": "open_food_facts_with_saved_food_priority",
-    "quick_capture": ["text", "voice", "photo_share", "barcode", "recipe"],
-    "recipes": true,
-    "scaled_recipe_logging": true,
-    "activity_daily": true,
-    "health_connect": "native_bridge_ready",
-    "coach_snapshot": true
+    "daily_decision_engine": true,
+    "food_memory_intelligence": true,
+    "post_write_verification": true,
+    "integrity_report": true,
+    "weekly_intelligence": true,
+    "week_over_week_comparison": true,
+    "trend_confidence": true,
+    "adaptive_coaching_v2": true,
+    "goal_forecast": true,
+    "maintenance_transition_guidance": true,
+    "descriptive_association_analysis": true
   }
 }
