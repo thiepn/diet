@@ -33,11 +33,14 @@ jobs:
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
 
-          const runtimeFiles = ['dashboard-01.js', 'dashboard-config.js', 'dashboard-auth-persist.js', 'dashboard-auth.js'];
+          const runtimeFiles = ['dashboard-01.js', 'dashboard-config.js', 'dashboard-auth-persist.js', 'dashboard-auth.js', 'dashboard-ops.js'];
           const text = Object.fromEntries(runtimeFiles.map((file) => [file, fs.readFileSync(file, 'utf8')]));
           const bridge = fs.readFileSync('supabase/chatgpt-bridge.md', 'utf8');
           const backend = JSON.parse(fs.readFileSync('supabase/backend.json', 'utf8'));
           const finalPolicy = fs.readFileSync('dashboard-04.js', 'utf8');
+          const operations = text['dashboard-ops.js'];
+          const operationsManifest = JSON.parse(fs.readFileSync('.well-known/thiepn-app.json', 'utf8'));
+          const index = fs.readFileSync('index.html', 'utf8');
           const sharedProject = 'hycegznamzjhwinegaai';
           const oldProject = 'mrrqsqawwxwebsdmrnre';
           const sharedStorage = `sb-${sharedProject}-auth-token`;
@@ -97,7 +100,19 @@ jobs:
             throw new Error('Legacy auth-recovery hooks remain in the UI layer.');
           }
 
-          console.log('Diet backend + THIEPN Account + all-logged-data contract passed.');
+          if (operationsManifest.app !== 'diet' || operationsManifest.operationsVersion !== 'A7.1') {
+            throw new Error('Diet A7 operations metadata is missing or invalid.');
+          }
+          if (!index.includes('dashboard-ops.js?v=7.1')) throw new Error('Diet A7 operations layer is not loaded.');
+          if (!operations.includes('window.DietOperations')) throw new Error('Diet diagnostics contract is missing.');
+          if (!operations.includes("'network'") || !operations.includes("'authentication'") || !operations.includes("'rate_limit'")) {
+            throw new Error('Diet failure taxonomy is incomplete.');
+          }
+          if (operations.includes('localStorage.clear(')) throw new Error('Diet operations must not broadly clear browser storage.');
+          if (/\.auth\.signOut\s*\(/.test(operations)) throw new Error('Diet operations must not convert failures into sign-out.');
+          if (/access_token|refresh_token|Authorization/.test(operations)) throw new Error('Diet operations layer must not inspect or log credentials.');
+
+          console.log('Diet backend + THIEPN Account + A7 operations contract passed.');
           NODE
 
       - name: PWA cache contract
@@ -111,5 +126,7 @@ jobs:
           const missing = assets.filter(asset => !sw.includes(`'./${asset}'`));
           if (missing.length) throw new Error(`Service-worker CORE is missing index assets: ${missing.join(', ')}`);
           if (!sw.includes('dashboard-auth-final.js')) throw new Error('Final auth compatibility layer is not precached.');
+          if (!sw.includes('dashboard-ops.js?v=7.1')) throw new Error('A7 operations layer is not precached.');
+          if (!sw.includes('./.well-known/thiepn-app.json')) throw new Error('A7 operations metadata is not precached.');
           console.log(`PWA cache contract passed for ${assets.length} assets.`);
           NODE
