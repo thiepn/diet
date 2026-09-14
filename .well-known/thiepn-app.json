@@ -10,6 +10,11 @@
   "sessionAuthority": "thiepn-account",
   "degradedMode": "cached-read-only",
   "authEntryPoints": ["email-password", "google"],
+  "release": "V6.7",
+  "webRelease": "1.0-rc1",
+  "productionBundle": "diet-app.js",
+  "productionStyles": "diet.css",
+  "runtimeMode": "consolidated-release-candidate",
   "health": {
     "cachedDataPreservedOnBackendFailure": true,
     "networkFailureLogsOutUser": false,
