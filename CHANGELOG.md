@@ -1,5 +1,62 @@
 # Changelog
 
+## V6.4 — Reliability, Reconciliation & Data Integrity — 2026-09-14
+
+Hardens the invisible ChatGPT → Supabase → dashboard pipeline without adding any dashboard logging UI.
+
+### Exactly-once writes
+
+- all core meal, correction, deletion, weight and day-status writes require a non-empty request ID
+- retries reuse the same request ID and return the already-applied action rather than creating another record
+- added `private.get_action_status(...)` for uncertain network/tool outcomes
+- canonical saved-food IDs are validated before a meal write can persist
+
+### Duplicate protection and verification
+
+- added `private.preflight_meal_write(...)` to detect an already-applied request or flag a suspicious recent lookalike
+- possible duplicate meals remain advisory because legitimate repeated foods are allowed
+- core writes now perform post-write verification inside the transaction
+- failed verification raises and rolls the whole write back
+- added `private.verify_ai_action(...)` for independent verification
+
+### Corrections and audit
+
+- added `private.find_recent_meals_for_correction(...)` so natural-language corrections can resolve the intended existing meal instead of adding a new one
+- retained optimistic concurrency through `updated_at`
+- added `private.get_audit_trail(...)` over request IDs, actions, before/after state and timestamps
+
+### Integrity and reconciliation
+
+- added `private.get_integrity_report(...)`
+- checks meal totals vs item totals, action/entity links, saved-food references and advisory duplicate groups
+- added `private.reconcile_integrity(...)` with dry-run support
+- automatic reconciliation only repairs deterministic meal/item total mismatches; it never auto-deletes suspected duplicates
+- current 30-day integrity scan: zero deterministic mismatches, zero broken action links, zero broken saved-food references
+
+### Dashboard freshness
+
+- foreground/resume/reconnect now silently reconciles against canonical Supabase state when the cached snapshot is stale
+- Realtime subscriptions rebuild after reconnect
+- all versioned dashboard JS/CSS assets are network-first in the service worker
+- Quick Capture remains explicitly blocked from Today
+
+## V6.3 — Food Intelligence & Memory 2.0 — 2026-09-14
+
+- learned usual portions automatically from normal ChatGPT logging
+- improved food-memory matching across names, aliases, brands, recency and frequency
+- added verified-barcode memory, favorites and alias learning
+- added passive repeated meal-pattern and pairing recognition
+- integrated learned portions into V6.2 contextual food suggestions
+- kept the dashboard read-only
+
+## V6.2 — Smart Diet Coach & Decision Engine — 2026-09-14
+
+- added passive Today guidance based on calories, protein, fiber, time, goal phase and uncertainty
+- added contextual ranking of remembered foods
+- added food-option comparison and “can I eat this?” backend helpers
+- made coaching confidence-aware so large photo-estimate ranges do not trigger false precision
+- preserved direct ChatGPT conversation as the only logging entry point
+
 ## V5.2 — Metrics & Stats — 2026-09-12
 
 Focused analytics redesign making Diet Copilot easier to understand without adding manual logging UI.
