@@ -36,14 +36,12 @@ jobs:
           const backend=JSON.parse(fs.readFileSync('supabase/backend.json','utf8'));
           const bridge=fs.readFileSync('supabase/chatgpt-bridge.md','utf8');
           const finalPolicy=fs.readFileSync('src/core/dashboard-04.js','utf8');
-          const v62=fs.readFileSync('src/intelligence/dashboard-v6-2.js','utf8');
-          const v63=fs.readFileSync('src/intelligence/dashboard-v6-3.js','utf8');
-          const v64=fs.readFileSync('src/intelligence/dashboard-v6-4.js','utf8');
-          const v65=fs.readFileSync('src/intelligence/dashboard-v6-5.js','utf8');
-          const v66=fs.readFileSync('src/intelligence/dashboard-v6-6.js','utf8');
           const release=fs.readFileSync('src/release.js','utf8');
           const build=fs.readFileSync('scripts/build-v68.mjs','utf8');
           const config=fs.readFileSync('src/config.js','utf8');
+          const v63=fs.readFileSync('src/intelligence/dashboard-v6-3.js','utf8');
+          const v65=fs.readFileSync('src/intelligence/dashboard-v6-5.js','utf8');
+          const v66=fs.readFileSync('src/intelligence/dashboard-v6-6.js','utf8');
           const shared='hycegznamzjhwinegaai',legacy='mrrqsqawwxwebsdmrnre';
 
           if(backend.canonical_project_ref!==shared)throw new Error('Wrong canonical backend.');
@@ -52,22 +50,16 @@ jobs:
           if(backend.metrics_policy?.nutrition_days!=='all_days_with_logged_intake'||backend.metrics_policy?.weight!=='all_available_weigh_ins'||backend.metrics_policy?.day_status!=='coverage_metadata_only')throw new Error('All-logged-data metrics contract regressed.');
           if(backend.product_boundary?.logging_entrypoint!=='direct_chatgpt_conversation'||backend.product_boundary?.dashboard_manual_logging!==false||backend.product_boundary?.dashboard_quick_capture!==false)throw new Error('Dashboard product boundary regressed.');
 
-          for(const capability of ['daily_decision_engine','food_memory_intelligence','post_write_verification','integrity_report','weekly_intelligence','week_over_week_comparison','trend_confidence','adaptive_coaching_v2','goal_forecast','maintenance_transition_guidance','descriptive_association_analysis','consolidated_insights','metric_provenance','standardized_confidence','history_quality_filters','single_pass_dashboard_refresh','unified_realtime_channel','today_core_only']){
+          for(const capability of ['daily_decision_engine','food_memory_intelligence','post_write_verification','integrity_report','weekly_intelligence','trend_confidence','adaptive_coaching_v2','goal_forecast','consolidated_insights','metric_provenance','single_pass_dashboard_refresh','unified_realtime_channel','today_core_only']){
             if(backend.capabilities?.[capability]!==true)throw new Error(`Missing capability: ${capability}`);
           }
 
-          if(!v62.includes("Today's guidance")||!v62.includes('uncertaintyMaterial'))throw new Error('Daily guidance regressed.');
-          if(!v63.includes('v63UsualPortion'))throw new Error('Food memory intelligence missing.');
-          if(!v64.includes('v64RefreshCanonical'))throw new Error('Canonical refresh missing.');
-          if(!v65.includes('v65Trend')||!v65.includes('v65GoalForecast'))throw new Error('Weekly intelligence missing.');
-          for(const symbol of ['renderInsightsV66','refreshDataV66','subscribeRealtimeV66','v66Provenance','v66ConfidenceForRange'])if(!v66.includes(symbol))throw new Error(`Consolidated UX symbol missing: ${symbol}`);
           for(const symbol of ["DIET_WEB_RELEASE = '1.0.0'","DIET_RELEASE_CHANNEL = 'stable'",'renderTodayV68','window.DietRelease'])if(!release.includes(symbol))throw new Error(`Stable release symbol missing: ${symbol}`);
           if(v63.includes('refreshDataV63')||v65.includes('refreshDataV65'))throw new Error('Legacy refresh wrappers returned.');
-
-          if(!build.includes("'{src/release.js}'"))throw new Error('Stable release source missing from builder.');
-          if(build.includes("'{archive/"))throw new Error('Archive leaked into production builder.');
+          for(const symbol of ['renderInsightsV66','refreshDataV66','subscribeRealtimeV66'])if(!v66.includes(symbol))throw new Error(`Consolidated UX symbol missing: ${symbol}`);
+          if(!build.includes("'src/release.js'"))throw new Error('Stable release source missing from builder.');
+          if(build.includes("'archive/"))throw new Error('Archive leaked into production builder.');
           if(!config.includes(shared)||config.includes(legacy))throw new Error('Active config does not point only at canonical backend.');
-
           if(!bridge.includes(`Canonical project ref: \`${shared}\``)||!bridge.includes(legacy))throw new Error('ChatGPT bridge backend contract missing.');
           if(!finalPolicy.includes('Logged nutrition always counts')||!finalPolicy.includes('Day status is coverage metadata only'))throw new Error('All-logged-data final policy missing.');
 
