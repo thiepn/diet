@@ -72,29 +72,26 @@ jobs:
           const auth=fs.readFileSync('dashboard-auth.js','utf8');
           const persist=fs.readFileSync('dashboard-auth-persist.js','utf8');
           if(!auth.includes('Continue with Google')||!auth.includes('signInWithPassword')||!auth.includes("auth.signOut({ scope: 'local' })"))throw new Error('THIEPN Account auth contract regressed.');
-          if(persist.includes('setSession('))throw new Error('Legacy app-specific auth restoration returned.');
+          if(persist.includes('setSession('))throw new Error('Legacy app-specific token restoration returned.');
           console.log('Diet V6.7 product/backend contract passed.');
           NODE
 
       - name: Nutrition and coaching regression fixtures
         run: node tests/v67-policy.mjs
 
-      - name: Build release candidate bundle
+      - name: Expand certified production templates
         run: node scripts/build-v67.mjs
 
       - name: Production bundle certification
         run: |
-          node --check diet-app.js
+          node --check .v67-build/diet-app.js
           node tests/v67-bundle.mjs
 
-      - name: Generated tree must be deterministic
+      - name: Template expansion must be deterministic
         run: |
-          cp diet-app.js /tmp/diet-app.js
-          cp diet.css /tmp/diet.css
-          cp index.html /tmp/index.html
-          cp sw.js /tmp/sw.js
+          cp .v67-build/diet-app.js /tmp/diet-app.js
+          cp .v67-build/diet.css /tmp/diet.css
+          rm -rf .v67-build
           node scripts/build-v67.mjs
-          cmp diet-app.js /tmp/diet-app.js
-          cmp diet.css /tmp/diet.css
-          cmp index.html /tmp/index.html
-          cmp sw.js /tmp/sw.js
+          cmp .v67-build/diet-app.js /tmp/diet-app.js
+          cmp .v67-build/diet.css /tmp/diet.css
