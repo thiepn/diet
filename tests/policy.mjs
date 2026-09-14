@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 
 function mean(values){return values.length?values.reduce((a,b)=>a+b,0)/values.length:null;}
 function nutritionSummary(days){
@@ -95,6 +96,31 @@ assert.equal(adaptiveDecision({loggedDays:3,weights:[{date:'2026-09-11',weight:8
 {
   const weights=Array.from({length:22},(_,i)=>({date:new Date(Date.UTC(2026,7,1+i)).toISOString().slice(0,10),weight:77-(0.5/7)*i}));
   assert.equal(adaptiveDecision({loggedDays:22,weights,desired:-0.5,goal:75,currentWeight:75.8}).decision,'prepare_maintenance');
+}
+
+// Guard the production implementation itself. The fixture above is not enough:
+// CI must fail if the real dashboard silently returns to Complete-only metrics.
+{
+  const finalPolicy=fs.readFileSync('src/core/dashboard-04.js','utf8');
+  const template=fs.readFileSync('diet-app.js','utf8');
+  const v66=fs.readFileSync('src/intelligence/dashboard-v6-6.js','utf8');
+
+  assert.match(finalPolicy,/const calorieValues = logged\.map/,'Production calorie averages must use logged intake days.');
+  assert.match(finalPolicy,/const proteinValues = logged\.map/,'Production protein averages must use logged intake days.');
+  assert.doesNotMatch(finalPolicy,/const calorieValues = complete\.map/,'Production policy regressed to Complete-only calorie averages.');
+  assert.doesNotMatch(finalPolicy,/const proteinValues = complete\.map/,'Production policy regressed to Complete-only protein averages.');
+  assert.match(finalPolicy,/const fiberDays = fiberRows\.filter\(x=>x\.hasAny\)/,'Known fiber must contribute even when daily fiber coverage is partial.');
+  assert.match(finalPolicy,/p4WeekSnapshotMarkup = function dietV54WeekSnapshotMarkup/,'7-day snapshot policy override is missing.');
+  assert.match(finalPolicy,/p3TrendCalories = function dietV54TrendCalories/,'Calorie trend policy override is missing.');
+  assert.match(finalPolicy,/p3TrendProtein = function dietV54TrendProtein/,'Protein trend policy override is missing.');
+  assert.match(finalPolicy,/Open or partial status never removes logged calories, protein, fiber or weigh-ins from statistics\./,'Coverage-vs-inclusion copy regressed.');
+  assert.match(v66,/Open, Partial and Complete status never excludes valid intake\./,'Final provenance must explain the same inclusion rule.');
+
+  const detailPos=template.indexOf('src/ui/dashboard-v5-3.js');
+  const policyPos=template.indexOf('src/core/dashboard-04.js');
+  const intelligencePos=template.indexOf('src/intelligence/dashboard-v6-6.js');
+  assert.ok(detailPos>=0&&policyPos>detailPos,'Final all-logged-data policy must load after legacy detail/stat definitions.');
+  assert.ok(intelligencePos>policyPos,'Consolidated intelligence must consume the corrected production metrics.');
 }
 
 console.log('Diet Copilot Web 1.0 nutrition/coaching policy suite passed.');
