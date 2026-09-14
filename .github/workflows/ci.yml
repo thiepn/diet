@@ -40,7 +40,10 @@ jobs:
           const finalPolicy = fs.readFileSync('dashboard-04.js', 'utf8');
           const v612 = fs.readFileSync('dashboard-v6-1-2.js', 'utf8');
           const v62 = fs.readFileSync('dashboard-v6-2.js', 'utf8');
+          const v63 = fs.readFileSync('dashboard-v6-3.js', 'utf8');
+          const v64 = fs.readFileSync('dashboard-v6-4.js', 'utf8');
           const v62DecisionDoc = fs.readFileSync('supabase/decision-engine-v6.2.md', 'utf8');
+          const v64ReliabilityDoc = fs.readFileSync('supabase/reliability-v6.4.md', 'utf8');
           const sharedProject = 'hycegznamzjhwinegaai';
           const oldProject = 'mrrqsqawwxwebsdmrnre';
           const sharedStorage = `sb-${sharedProject}-auth-token`;
@@ -51,6 +54,11 @@ jobs:
           if (!backend.legacy_project_refs?.includes(oldProject)) throw new Error('Backend manifest does not mark the legacy project.');
           if (backend.write_protocol?.dual_write !== false) throw new Error('Backend manifest must prohibit dual writes.');
           if (backend.write_protocol?.require_request_id !== true) throw new Error('Backend manifest must require request IDs.');
+          if (backend.write_protocol?.retry_same_request_id !== true) throw new Error('Retries must reuse request IDs.');
+          if (backend.write_protocol?.verify_after_write !== true) throw new Error('Writes must be verified.');
+          if (backend.write_protocol?.preflight_meal_writes !== true) throw new Error('Meal writes must support duplicate preflight.');
+          if (backend.write_protocol?.recover_uncertain_write_by_request_id !== true) throw new Error('Uncertain writes must be recoverable by request ID.');
+          if (backend.write_protocol?.never_retry_with_new_request_id !== true) throw new Error('Uncertain writes must never be retried with a new request ID.');
           if (backend.metrics_policy?.nutrition_days !== 'all_days_with_logged_intake') throw new Error('Nutrition metrics must use every logged intake day.');
           if (backend.metrics_policy?.weight !== 'all_available_weigh_ins') throw new Error('Weight metrics must use all weigh-ins.');
           if (backend.metrics_policy?.day_status !== 'coverage_metadata_only') throw new Error('Day status must be coverage metadata only.');
@@ -62,10 +70,25 @@ jobs:
           if (backend.capabilities?.daily_decision_engine !== true) throw new Error('V6.2 daily decision engine is not declared.');
           if (backend.capabilities?.contextual_saved_food_ranking !== true) throw new Error('V6.2 contextual food ranking is not declared.');
           if (backend.capabilities?.food_option_comparison !== true) throw new Error('V6.2 option comparison is not declared.');
+          if (backend.capabilities?.automatic_usual_portion_learning !== true) throw new Error('V6.3 portion learning is not declared.');
+          if (backend.capabilities?.food_memory_intelligence !== true) throw new Error('V6.3 food memory intelligence is not declared.');
+          if (backend.capabilities?.exactly_once_request_writes !== true) throw new Error('V6.4 exactly-once writes are not declared.');
+          if (backend.capabilities?.post_write_verification !== true) throw new Error('V6.4 post-write verification is not declared.');
+          if (backend.capabilities?.uncertain_write_recovery !== true) throw new Error('V6.4 uncertain-write recovery is not declared.');
+          if (backend.capabilities?.integrity_report !== true) throw new Error('V6.4 integrity reporting is not declared.');
+          if (backend.capabilities?.deterministic_reconciliation !== true) throw new Error('V6.4 reconciliation is not declared.');
+          if (backend.capabilities?.foreground_canonical_refresh !== true) throw new Error('V6.4 foreground refresh is not declared.');
+
           if (!v612.includes('v612NoTodayQuickCapture')) throw new Error('V6.1.2 Quick Capture removal guard is missing.');
           if (!v62.includes("Today's guidance")) throw new Error('V6.2 Today guidance is missing.');
           if (!v62.includes('uncertaintyMaterial')) throw new Error('V6.2 confidence-aware guidance is missing.');
+          if (!v63.includes('v63UsualPortion')) throw new Error('V6.3 usual-portion intelligence is missing.');
+          if (!v64.includes('v64RefreshCanonical')) throw new Error('V6.4 foreground reconciliation is missing.');
+          if (!v64.includes(".v6-capture-card')?.remove")) throw new Error('V6.4 must preserve the no-Quick-Capture invariant.');
           if (!v62DecisionDoc.includes('private.get_daily_guidance') || !v62DecisionDoc.includes('private.compare_food_options')) throw new Error('V6.2 ChatGPT decision helpers are undocumented.');
+          for (const helper of ['private.get_action_status', 'private.preflight_meal_write', 'private.verify_ai_action', 'private.get_integrity_report', 'private.reconcile_integrity', 'private.find_recent_meals_for_correction']) {
+            if (!v64ReliabilityDoc.includes(helper)) throw new Error(`V6.4 reliability helper is undocumented: ${helper}`);
+          }
 
           if (!text['dashboard-01.js'].includes(sharedProject)) throw new Error('Dashboard runtime is not on the canonical THIEPN Account backend.');
           if (!text['dashboard-config.js'].includes(sharedProject)) throw new Error('Dashboard config is not on the canonical THIEPN Account backend.');
@@ -111,7 +134,7 @@ jobs:
             throw new Error('Legacy auth-recovery hooks remain in the UI layer.');
           }
 
-          console.log('Diet backend + THIEPN Account + V6.2 decision-engine contract passed.');
+          console.log('Diet backend + THIEPN Account + V6.4 reliability contract passed.');
           NODE
 
       - name: PWA cache contract
@@ -125,5 +148,7 @@ jobs:
           const missing = assets.filter(asset => !sw.includes(`'./${asset}'`));
           if (missing.length) throw new Error(`Service-worker CORE is missing index assets: ${missing.join(', ')}`);
           if (!sw.includes('dashboard-auth-final.js')) throw new Error('Final auth compatibility layer is not precached.');
+          if (!sw.includes('dashboard-v6-4.js?v=6.4')) throw new Error('V6.4 reliability layer is not precached.');
+          if (!sw.includes("url.pathname.includes('/dashboard-')")) throw new Error('Dashboard assets must be network-first in V6.4.');
           console.log(`PWA cache contract passed for ${assets.length} assets.`);
           NODE
