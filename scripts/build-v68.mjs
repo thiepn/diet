@@ -49,6 +49,12 @@ const cssSources=[
 for(const file of [...jsSources,...cssSources]){
   if(!fs.existsSync(file))throw new Error(`Missing Web 1.0 source: ${file}`);
 }
+for(const file of cssSources){
+  const source=fs.readFileSync(file,'utf8');
+  const opens=(source.match(/{/g)||[]).length;
+  const closes=(source.match(/}/g)||[]).length;
+  if(opens!==closes)throw new Error(`Unbalanced CSS braces in ${file}: ${opens} opening / ${closes} closing`);
+}
 
 const strayRoot=fs.readdirSync('.').filter(file=>/^dashboard-.*\.(?:js|css)$/.test(file));
 if(strayRoot.length)throw new Error(`Historical root dashboard fragments remain: ${strayRoot.join(', ')}`);
