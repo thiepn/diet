@@ -42,6 +42,10 @@ if (!manifest.includes('READ_STEPS')) manifest = manifest.replace('<application'
 if (!manifest.includes('HealthPermissionActivity')) {
   manifest = manifest.replace('        <activity\n            android:configChanges=', '        <activity android:name=".HealthPermissionActivity" android:exported="false" android:theme="@style/AppTheme.NoActionBar" />\n\n        <activity\n            android:configChanges=');
 }
+if (!manifest.includes('auth-callback')) {
+  const deepLink = `\n            <intent-filter>\n                <action android:name="android.intent.action.VIEW" />\n                <category android:name="android.intent.category.DEFAULT" />\n                <category android:name="android.intent.category.BROWSABLE" />\n                <data android:scheme="dev.thiepn.diet" android:host="auth-callback" />\n            </intent-filter>`;
+  manifest = manifest.replace('        </activity>', `${deepLink}\n        </activity>`);
+}
 manifest = manifest.replace('android:allowBackup="true"', 'android:allowBackup="true"\n        android:usesCleartextTraffic="false"');
 fs.writeFileSync(manifestPath, manifest);
 
