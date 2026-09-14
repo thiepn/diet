@@ -1,5 +1,55 @@
 # Changelog
 
+## V6.8 — Diet Copilot Web 1.0 Final Release — 2026-09-14
+
+Promotes the certified V6.7 release candidate to the stable Web `1.0.0` baseline without adding another tracking workflow.
+
+### Stable source architecture
+
+- moved active web source into `src/` by responsibility: core, auth, UI, intelligence, operations and styles
+- removed historical `dashboard-*.js/css` fragments from the repository root
+- moved superseded runtime fragments, V6.7 build tooling and V6.7 tests under `archive/`
+- production builder and Jekyll output explicitly exclude the archive
+- production continues to load exactly one local JavaScript bundle and one stylesheet
+
+### Stable runtime
+
+- release metadata is now `V6.8 / Web 1.0.0 / stable`
+- service-worker generation is `diet-copilot-web-v1.0.0`
+- added final `window.DietRelease` certification surface
+- retained one canonical refresh pipeline and one owner-scoped Diet Realtime channel
+- retained the read-only browser boundary and canonical Supabase-only runtime configuration
+
+### Release certification
+
+- replaced RC tests with stable nutrition/coaching and bundle certification suites
+- added deterministic bundle generation checks
+- added stable JS/CSS size budgets
+- actual GitHub Pages Jekyll output is built and validated in CI
+- A7 operations and A8 account contracts now validate the `src/` source layout and Web 1.0 metadata
+- backend certification confirms zero deterministic integrity repairs and zero authenticated Diet write policies
+
+### Frozen product rules
+
+- ChatGPT remains the only food/weight logging entry point
+- no Quick Capture or manual food-entry UI
+- Open / Partial / Complete status never excludes logged nutrition
+- missing fiber stays unknown rather than zero
+- estimated meals count normally; uncertainty affects confidence only
+- activity calories are not automatically eaten back
+- adaptive calorie changes remain recommendations requiring explicit approval
+
+## V6.7 — Web V1.0 RC1 & Final Certification — 2026-09-14
+
+Converted the accumulated V5/V6 compatibility stack into a release-candidate production runtime and established exhaustive regression gates before the stable release.
+
+- production cut over to one Jekyll-expanded `diet-app.js` and one `diet.css`
+- retired Quick Capture and obsolete dashboard logging layers from the production bundle
+- added mobile/detail-sheet overflow hardening and reduced-motion behavior
+- added all-logged-day, unknown-fiber, duplicate-intent and coaching regression fixtures
+- added deterministic bundle checks and actual GitHub Pages build validation
+- V6.7 shipped as Web `1.0-rc1` and served as the soak candidate for V6.8
+
 ## V6.6 — Product Consolidation & Intelligent UX — 2026-09-14
 
 Consolidates the accumulated V5/V6 intelligence into one cleaner read-only product instead of adding another tracking feature.
