@@ -2,8 +2,24 @@
 
 // Diet Copilot uses THIEPN Account, the shared Supabase identity used by other
 // first-party THIEPN apps. App data remains isolated by the authenticated UUID.
+const DIET_NATIVE_AUTH_REDIRECT = 'dev.thiepn.diet://auth-callback/';
 function dietAuthRedirectUrl() {
+  if (typeof dietIsNativeAndroid === 'function' && dietIsNativeAndroid()) return DIET_NATIVE_AUTH_REDIRECT;
   return `${location.origin}${location.pathname}`;
+}
+
+async function dietSignInWithGoogle() {
+  if (typeof dietIsNativeAndroid === 'function' && dietIsNativeAndroid() && window.DietNative?.startGoogleOAuth) {
+    return window.DietNative.startGoogleOAuth();
+  }
+  const { error } = await cloud.client.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: dietAuthRedirectUrl(),
+      queryParams: { prompt: 'select_account' }
+    }
+  });
+  if (error) throw error;
 }
 
 renderConnection = function renderDietConnection() {
@@ -92,15 +108,10 @@ renderConnection = function renderDietConnection() {
   connectionContent.querySelector('#googleSignInBtn')?.addEventListener('click', async event => {
     event.currentTarget.disabled = true;
     event.currentTarget.textContent = 'Redirecting…';
-    const { error } = await cloud.client.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: dietAuthRedirectUrl(),
-        queryParams: { prompt: 'select_account' }
-      }
-    });
-    if (error) {
-      cloud.error = error.message;
+    try {
+      await dietSignInWithGoogle();
+    } catch (error) {
+      cloud.error = error?.message || String(error);
       renderConnection();
     }
   });
