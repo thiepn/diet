@@ -1,14 +1,14 @@
 package dev.thiepn.diet
 
-import android.app.Activity
 import android.os.Bundle
-import androidx.health.connect.client.HealthConnectClient
-import androidx.health.connect.client.feature.HealthConnectFeatures
+import androidx.activity.ComponentActivity
+import androidx.health.connect.client.HealthConnectFeatures
+import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.permission.HealthPermission
 
-class HealthPermissionActivity : Activity() {
+class HealthPermissionActivity : ComponentActivity() {
     private val permissionLauncher = registerForActivityResult(
-        androidx.health.connect.client.PermissionController.createRequestPermissionResultContract()
+        PermissionController.createRequestPermissionResultContract()
     ) {
         setResult(RESULT_OK)
         finish()
