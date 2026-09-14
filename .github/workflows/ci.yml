@@ -95,3 +95,22 @@ jobs:
           node scripts/build-v67.mjs
           cmp .v67-build/diet-app.js /tmp/diet-app.js
           cmp .v67-build/diet.css /tmp/diet.css
+
+      - name: Build the actual GitHub Pages site
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+
+      - name: Validate deployed bundle artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f _site/diet-app.js
+          test -f _site/diet.css
+          test -f _site/index.html
+          node --check _site/diet-app.js
+          ! grep -q '{% include_relative' _site/diet-app.js
+          ! grep -q '{% include_relative' _site/diet.css
+          grep -q 'diet-app.js?v=1.0-rc1' _site/index.html
+          grep -q 'diet.css?v=1.0-rc1' _site/index.html
