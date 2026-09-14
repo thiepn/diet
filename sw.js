@@ -1,5 +1,5 @@
-const CACHE='diet-copilot-web-v1-rc1';
-const CORE=['./','./index.html','./diet.css?v=1.0-rc1','./diet-app.js?v=1.0-rc1','./.well-known/thiepn-app.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
+const CACHE='diet-copilot-web-v1.0.0';
+const CORE=['./','./index.html','./diet.css?v=1.0.0','./diet-app.js?v=1.0.0','./.well-known/thiepn-app.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE&&k.startsWith('diet-copilot')).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 function fresh(r){try{return new Request(r,{cache:'no-cache'})}catch{return r}}
