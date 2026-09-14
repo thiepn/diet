@@ -1,4 +1,4 @@
-const CACHE = 'diet-copilot-dashboard-v7.1-operations';
+const CACHE = 'diet-copilot-dashboard-v7.1-operations-v6.1.2';
 const SUPABASE_SDK = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0';
 const CORE = [
   './',
@@ -16,6 +16,7 @@ const CORE = [
   './dashboard-v5-2.css?v=5.2',
   './dashboard-v5-3.css?v=5.3',
   './dashboard-v6.css?v=6.0',
+  './dashboard-v6-1-1.css?v=6.1.1',
   './dashboard-01.js?v=5.2',
   './dashboard-02.js?v=5.2',
   './dashboard-p2.js?v=5.2',
@@ -35,6 +36,7 @@ const CORE = [
   './dashboard-04.js?v=5.3.1',
   './dashboard-v6.js?v=6.0',
   './dashboard-v6-1.js?v=6.1',
+  './dashboard-v6-1-2.js?v=6.1.2',
   './dashboard-ops.js?v=7.1',
   './.well-known/thiepn-app.json',
   './manifest.webmanifest',
@@ -102,7 +104,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // Supabase API/Auth/Realtime responses are never service-worker cached.
   if (url.origin !== self.location.origin) return;
 
   if (request.mode === 'navigate') {
@@ -110,8 +111,6 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // JavaScript controls backend selection, auth and data synchronization.
-  // Prefer the deployment over a stale PWA copy; fall back to cache offline.
   if (url.pathname.endsWith('.js') || url.pathname.endsWith('/manifest.webmanifest')) {
     event.respondWith(networkFirst(request));
     return;
