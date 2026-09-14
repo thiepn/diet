@@ -20,6 +20,7 @@ if (!root.includes('kotlin-gradle-plugin')) {
 const appGradle = 'android/app/build.gradle';
 let app = fs.readFileSync(appGradle, 'utf8');
 if (!app.includes("apply plugin: 'kotlin-android'")) app = app.replace("apply plugin: 'com.android.application'", "apply plugin: 'com.android.application'\napply plugin: 'kotlin-android'");
+app = app.replace('minSdkVersion rootProject.ext.minSdkVersion', 'minSdkVersion 26');
 app = app.replace(/versionName\s+"[^"]+"/, 'versionName "7.0.0"');
 if (!app.includes('health-connect-client')) {
   app = app.replace('implementation project(\':capacitor-android\')', `implementation project(':capacitor-android')\n    implementation 'androidx.health.connect:connect-client:1.1.0'\n    implementation 'androidx.work:work-runtime-ktx:2.11.2'\n    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'`);
