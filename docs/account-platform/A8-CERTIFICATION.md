@@ -3,9 +3,10 @@
 **Consumer:** Diet Copilot  
 **Account contract:** 1.0  
 **SDK compatibility:** 1.x  
-**Integration mode:** `certified-legacy`
+**Integration mode:** `certified-legacy`  
+**Verdict:** **CONSUMER CONTRACT CERTIFIED**
 
-A8 leaves the A6/A7 Diet authentication implementation and V6.5 product behavior untouched. The consumer now publishes the normalized A8 manifest and gains a dedicated compatibility check against the frozen developer contract.
+A8 leaves the A6/A7 Diet authentication implementation and V6.5 product behavior untouched. The consumer publishes the normalized A8 manifest and is guarded by a dedicated compatibility workflow against the frozen developer contract.
 
 ## Contract
 
@@ -17,6 +18,11 @@ A8 leaves the A6/A7 Diet authentication implementation and V6.5 product behavior
 - canonical backend writes continue to require stable request IDs;
 - backend/network failure preserves the last trustworthy cached dashboard state and does not become logout.
 
-## Status
+## Certification evidence
 
-**CERTIFICATION PENDING A8 CI.** Runtime behavior is unchanged from the A7-certified release.
+- A8 consumer-contract workflow passes.
+- Existing Diet CI/backend/PWA contract passes.
+- A7 operations contract passes.
+- No Diet product/auth runtime code is changed by A8.
+
+Merge remains gated on those workflows being green for the final A8 head. Runtime behavior remains the A7-certified release.
