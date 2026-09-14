@@ -1,9 +1,15 @@
 {
+  "schemaVersion": "1.0",
   "app": "diet",
+  "displayName": "Diet Copilot",
+  "path": "/diet/",
   "accountContract": "1.0",
+  "sdkContract": "1.x",
+  "integrationMode": "certified-legacy",
   "operationsVersion": "A7.1",
-  "degradedMode": "cached-read-only",
   "sessionAuthority": "thiepn-account",
+  "degradedMode": "cached-read-only",
+  "authEntryPoints": ["email-password", "google"],
   "health": {
     "cachedDataPreservedOnBackendFailure": true,
     "networkFailureLogsOutUser": false,
