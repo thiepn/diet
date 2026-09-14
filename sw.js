@@ -1,4 +1,4 @@
-const CACHE = 'diet-copilot-dashboard-v6.1.2-remove-today-capture';
+const CACHE = 'diet-copilot-dashboard-v6.2-smart-decision-engine';
 const SUPABASE_SDK = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0';
 const CORE = [
   './',
@@ -17,6 +17,7 @@ const CORE = [
   './dashboard-v5-3.css?v=5.3',
   './dashboard-v6.css?v=6.0',
   './dashboard-v6-1-1.css?v=6.1.1',
+  './dashboard-v6-2.css?v=6.2',
   './dashboard-01.js?v=5.2',
   './dashboard-02.js?v=5.2',
   './dashboard-p2.js?v=5.2',
@@ -37,6 +38,7 @@ const CORE = [
   './dashboard-v6.js?v=6.0',
   './dashboard-v6-1.js?v=6.1',
   './dashboard-v6-1-2.js?v=6.1.2',
+  './dashboard-v6-2.js?v=6.2',
   './manifest.webmanifest',
   './icon.svg',
   './icon-192.png',
