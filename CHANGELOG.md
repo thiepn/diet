@@ -1,5 +1,48 @@
 # Changelog
 
+## V6.5 — Weekly Intelligence & Adaptive Coaching 2.0 — 2026-09-14
+
+Turns existing logged data into conservative plan-level coaching without adding any new logging workflow.
+
+### Weekly intelligence
+
+- added current-week vs previous-week comparisons for calories, protein and known fiber
+- added an overall weekly verdict and primary coaching focus
+- weekly reviews now persist trend confidence, plan decision, goal/maintenance context and descriptive associations
+- all nutrition calculations continue to use every day with logged intake; day status remains coverage metadata only
+
+### Trend confidence
+
+- added `private.get_trend_confidence(...)`
+- classifies weight evidence as Building baseline, Emerging, Established, Noisy or Possible plateau
+- compares regression evidence across multiple windows rather than treating a few flat scale days as a plateau
+- reports intake estimate uncertainty alongside weight confidence
+
+### Adaptive Coaching 2.0
+
+- added `private.get_adaptive_plan_decision(...)`
+- requires at least 14 logged intake days and four weigh-ins spanning 14 days before recommending a calorie change
+- distinguishes Keep target, Observe another week, Consider increase/decrease, Need more data and maintenance-transition states
+- material intake uncertainty can block a small apparent calorie adjustment
+- calorie-change proposals remain conservative and require explicit approval; targets never change silently
+
+### Goal and maintenance intelligence
+
+- added confidence-aware goal forecasting using observed trend when sufficiently supported and planned pace otherwise
+- maintenance-transition guidance takes priority as the goal is approached
+- avoids recommending progressively lower calories merely because the user is near goal
+
+### Pattern analysis
+
+- weekly intelligence can surface descriptive associations such as weekday/weekend intake differences, exact-vs-estimated logging patterns and protein-food patterns when enough observations exist
+- associations are explicitly non-causal
+
+### Dashboard
+
+- added a read-only Weekly Intelligence / Adaptive Coaching 2.0 section to Insights
+- shows trend confidence, week-over-week changes, goal forecast, plan decision and estimate-uncertainty warnings
+- Today remains status/guidance only and Quick Capture remains blocked
+
 ## V6.4 — Reliability, Reconciliation & Data Integrity — 2026-09-14
 
 Hardens the invisible ChatGPT → Supabase → dashboard pipeline without adding any dashboard logging UI.
