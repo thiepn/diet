@@ -6,7 +6,10 @@ on:
       - '.well-known/thiepn-app.json'
       - 'src/auth/**'
       - 'src/native/**'
+      - 'src/core/dashboard-03.js'
       - 'src/config.js'
+      - 'scripts/prepare-android.mjs'
+      - 'package.json'
       - 'docs/account-platform/**'
       - '.github/workflows/a8-account-contract.yml'
   push:
@@ -30,7 +33,10 @@ jobs:
           const manifest=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
           const auth=fs.readFileSync('src/auth/dashboard-auth.js','utf8');
           const persist=fs.readFileSync('src/auth/dashboard-auth-persist.js','utf8');
+          const cloud=fs.readFileSync('src/core/dashboard-03.js','utf8');
           const nativeBridge=fs.readFileSync('src/native/android-bridge.js','utf8');
+          const prepareAndroid=fs.readFileSync('scripts/prepare-android.mjs','utf8');
+          const pkg=JSON.parse(fs.readFileSync('package.json','utf8'));
           const config=fs.readFileSync('src/config.js','utf8');
           const expected={schemaVersion:'1.0',app:'diet',displayName:'Diet Copilot',path:'/diet/',accountContract:'1.0',sdkContract:'1.x',integrationMode:'certified-legacy',operationsVersion:'A7.1',sessionAuthority:'thiepn-account'};
           for(const [key,value] of Object.entries(expected))if(manifest[key]!==value)throw new Error(`Diet A8 manifest mismatch: ${key}`);
@@ -44,6 +50,9 @@ jobs:
           if(!auth.includes("auth.signOut({ scope: 'local' })"))throw new Error('Diet ordinary sign-out is not explicitly local.');
           if(persist.includes('setSession('))throw new Error('App-specific token restoration returned.');
           if(config.includes('mrrqsqawwxwebsdmrnre'))throw new Error('Retired Diet backend returned to runtime config.');
-          for(const symbol of ['configureSession','accessToken','refreshToken'])if(!nativeBridge.includes(symbol))throw new Error(`Native session bridge missing ${symbol}`);
-          console.log('Diet A8 consumer contract passed for Web 1.0 + Android V7.');
+          if(!cloud.includes("flowType:'pkce'"))throw new Error('Android-safe PKCE auth flow missing.');
+          for(const symbol of ['configureSession','accessToken','refreshToken','startGoogleOAuth','exchangeCodeForSession','appUrlOpen','DIET_NATIVE_AUTH_REDIRECT'])if(!nativeBridge.includes(symbol)&&!auth.includes(symbol))throw new Error(`Native auth/session bridge missing ${symbol}`);
+          if(!prepareAndroid.includes('android:scheme="dev.thiepn.diet"')||!prepareAndroid.includes('android:host="auth-callback"'))throw new Error('Android OAuth intent filter missing.');
+          if(!pkg.dependencies?.['@capacitor/app']||!pkg.dependencies?.['@capacitor/browser'])throw new Error('Capacitor App/Browser OAuth dependencies missing.');
+          console.log('Diet A8 consumer contract passed for Web 1.0 + Android V7 PKCE/deep-link auth.');
           NODE
