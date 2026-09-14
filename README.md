@@ -112,7 +112,7 @@ tests/
 supabase/
 ```
 
-Legacy files are retained under `archive/` for history only and cannot feed the production builder.
+Legacy files are retained under `archive/` for history only and cannot feed the production builder. `src/config.js` is the canonical configuration contract checked by CI; the production bundle continues to carry the same public Supabase endpoint/key through the certified core runtime.
 
 ## Production bundles
 
