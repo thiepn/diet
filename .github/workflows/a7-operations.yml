@@ -16,14 +16,14 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - name: Build V6.7 production runtime
+      - name: Expand V6.7 production runtime
         run: node scripts/build-v67.mjs
       - name: A7 diagnostics contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const operations=fs.readFileSync('dashboard-ops.js','utf8');
-          const bundle=fs.readFileSync('diet-app.js','utf8');
+          const bundle=fs.readFileSync('.v67-build/diet-app.js','utf8');
           const manifest=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
           const index=fs.readFileSync('index.html','utf8');
           if(manifest.app!=='diet'||manifest.operationsVersion!=='A7.1')throw new Error('Diet A7 metadata invalid.');
