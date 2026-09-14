@@ -1,9 +1,8 @@
 'use strict';
 
 // V6.3 — Food Intelligence & Memory 2.0.
-// This layer stays passive in the dashboard. It learns from foods already logged
-// through ChatGPT and surfaces useful memory in Insights without adding manual
-// logging or management controls to Today.
+// V6.6 owns final rendering, refresh and realtime. V6.3 now contributes only
+// reusable food-memory intelligence and the remembered-food guidance upgrade.
 
 function v63EnsureShape(){
   dashboard.foodPortions ||= [];
@@ -60,7 +59,7 @@ function v63ScaleFoodToUsual(food){
   };
 }
 
-// V6.2 food suggestions now use the user's learned usual amount rather than
+// V6.2 food suggestions use the user's learned usual amount rather than
 // blindly assuming the saved base portion when enough portion history exists.
 if(typeof v62FoodSuggestions==='function'){
   v62FoodSuggestions=function v63FoodSuggestions(d,limit=2){
@@ -184,35 +183,3 @@ function v63FoodIntelligenceMarkup(){
     <p class="v63-memory-note">Aliases, usual portions and meal patterns are learned from normal ChatGPT logging. The dashboard remains read-only.</p>
   </section>`;
 }
-
-const v63RenderInsightsBase=renderInsights;
-renderInsights=function renderInsightsV63(){
-  const result=v63RenderInsightsBase();
-  const root=app.querySelector('.p3-insights-view');
-  if(!root)return result;
-  root.querySelector('.v63-food-intelligence')?.remove();
-  const coach=root.querySelector('.v6-coach');
-  if(coach)coach.insertAdjacentHTML('afterend',v63FoodIntelligenceMarkup());
-  else root.insertAdjacentHTML('afterbegin',v63FoodIntelligenceMarkup());
-  return result;
-};
-
-const v63RefreshBase=refreshData;
-refreshData=async function refreshDataV63(options={}){
-  await v63RefreshBase(options);
-  if(!cloud.user)return;
-  try{
-    await v63LoadFoodPortions();
-    render();
-  }catch(error){
-    console.warn('V6.3 food memory refresh failed',error);
-  }
-};
-
-// Preserve the no-Quick-Capture product invariant and enrich an already-open
-// session without waiting for a manual refresh.
-queueMicrotask(()=>{
-  app.querySelector('.today-v2 .v6-capture-card')?.remove();
-  v63EnsureShape();
-  if(cloud.user)v63LoadFoodPortions().then(()=>render()).catch(error=>console.warn('V6.3 bootstrap failed',error));
-});
