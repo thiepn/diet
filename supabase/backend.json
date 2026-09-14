@@ -38,6 +38,13 @@
     "adaptive_coaching_v2": true,
     "goal_forecast": true,
     "maintenance_transition_guidance": true,
-    "descriptive_association_analysis": true
+    "descriptive_association_analysis": true,
+    "consolidated_insights": true,
+    "metric_provenance": true,
+    "standardized_confidence": true,
+    "history_quality_filters": true,
+    "single_pass_dashboard_refresh": true,
+    "unified_realtime_channel": true,
+    "today_core_only": true
   }
 }
