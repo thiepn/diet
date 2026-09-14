@@ -28,17 +28,7 @@ renderConnection = function renderConnectionFinalAuth() {
     cloud.error = null;
 
     try {
-      const redirectTo = typeof dietAuthRedirectUrl === 'function'
-        ? dietAuthRedirectUrl()
-        : `${location.origin}${location.pathname}`;
-      const { error } = await cloud.client.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo,
-          queryParams: { prompt: 'select_account' }
-        }
-      });
-      if (error) throw error;
+      await dietSignInWithGoogle();
     } catch (error) {
       cloud.error = error?.message || String(error);
       renderConnection();
