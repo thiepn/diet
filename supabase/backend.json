@@ -36,6 +36,11 @@
     "daily_decision_engine": true,
     "contextual_saved_food_ranking": true,
     "food_option_comparison": true,
-    "confidence_aware_guidance": true
+    "confidence_aware_guidance": true,
+    "food_alias_learning": true,
+    "automatic_usual_portion_learning": true,
+    "verified_barcode_memory": true,
+    "meal_pattern_recognition": true,
+    "food_memory_intelligence": true
   }
 }
