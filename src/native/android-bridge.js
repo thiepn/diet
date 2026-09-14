@@ -3,11 +3,19 @@
 // V7.0 native Android companion. This file is deliberately inert on the web.
 const DIET_NATIVE_VERSION = '7.0.0';
 let dietNativeAuthSubscription = null;
+let dietNativeAuthUrlListener = null;
 let dietNativeSessionFingerprint = null;
 let dietNativePanelBusy = false;
+let dietNativeOAuthBusy = false;
 
 function dietNativePlugin(){
   return globalThis.Capacitor?.Plugins?.DietHealthConnect || null;
+}
+function dietNativeAppPlugin(){
+  return globalThis.Capacitor?.Plugins?.App || null;
+}
+function dietNativeBrowserPlugin(){
+  return globalThis.Capacitor?.Plugins?.Browser || null;
 }
 function dietIsNativeAndroid(){
   return Boolean(dietNativePlugin());
@@ -15,6 +23,94 @@ function dietIsNativeAndroid(){
 function dietNativeTime(value){
   if(!value)return 'Not synced yet';
   const d=new Date(value); return Number.isNaN(d.getTime())?'Not synced yet':d.toLocaleString([], {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+}
+
+async function dietNativeStartGoogleOAuth(){
+  if(!dietIsNativeAndroid()||!cloud?.client)throw new Error('Native sign-in is unavailable.');
+  if(dietNativeOAuthBusy)return;
+  const browser=dietNativeBrowserPlugin();
+  if(!browser)throw new Error('Android browser integration is unavailable.');
+  dietNativeOAuthBusy=true;
+  try{
+    const {data,error}=await cloud.client.auth.signInWithOAuth({
+      provider:'google',
+      options:{
+        redirectTo:DIET_NATIVE_AUTH_REDIRECT,
+        skipBrowserRedirect:true,
+        queryParams:{prompt:'select_account'}
+      }
+    });
+    if(error)throw error;
+    if(!data?.url)throw new Error('Google sign-in URL was not created.');
+    await browser.open({url:data.url});
+  }finally{
+    dietNativeOAuthBusy=false;
+  }
+}
+
+async function dietNativeHandleAuthUrl(rawUrl){
+  if(!rawUrl||!cloud?.client)return false;
+  let url;
+  try{url=new URL(rawUrl)}catch{return false}
+  if(url.protocol!=='dev.thiepn.diet:'||url.hostname!=='auth-callback')return false;
+
+  await dietNativeBrowserPlugin()?.close?.().catch(()=>{});
+  const authError=url.searchParams.get('error_description')||url.searchParams.get('error');
+  if(authError){
+    cloud.error=authError;
+    cloud.status='configured';
+    updateStatus();
+    if(connectionDialog?.open)renderConnection();
+    showToast(`Google sign-in failed: ${authError}`);
+    return true;
+  }
+
+  const code=url.searchParams.get('code');
+  if(!code){
+    cloud.error='Google sign-in returned without an authorization code.';
+    if(connectionDialog?.open)renderConnection();
+    showToast(cloud.error);
+    return true;
+  }
+
+  try{
+    const flowId=url.searchParams.get('sb_flow_id');
+    const {data,error}=await cloud.client.auth.exchangeCodeForSession(code,flowId?{flowId}:undefined);
+    if(error)throw error;
+    cloud.user=data?.session?.user||null;
+    cloud.status=cloud.user?'online':'configured';
+    cloud.error=null;
+    dietNativeSessionFingerprint=null;
+    updateStatus();
+    await dietNativeConfigureSession();
+    if(cloud.user){
+      await refreshData({silent:true});
+      await subscribeRealtime();
+    }
+    render();
+    if(connectionDialog?.open)connectionDialog.close();
+    showToast('Signed in with THIEPN Account');
+  }catch(error){
+    cloud.error=error?.message||String(error);
+    cloud.status='configured';
+    updateStatus();
+    if(connectionDialog?.open)renderConnection();
+    showToast(`Google sign-in failed: ${cloud.error}`);
+  }
+  return true;
+}
+
+async function dietNativeInstallAuthDeepLink(){
+  const appPlugin=dietNativeAppPlugin();
+  if(!appPlugin||dietNativeAuthUrlListener)return;
+  dietNativeAuthUrlListener=await appPlugin.addListener('appUrlOpen',event=>{
+    dietNativeHandleAuthUrl(event?.url).catch(error=>{
+      cloud.error=error?.message||String(error);
+      if(connectionDialog?.open)renderConnection();
+    });
+  });
+  const launch=await appPlugin.getLaunchUrl().catch(()=>null);
+  if(launch?.url)await dietNativeHandleAuthUrl(launch.url);
 }
 
 async function dietNativeConfigureSession(){
@@ -123,6 +219,7 @@ renderConnection=function renderConnectionNative(){
 
 async function dietNativeBootstrap(){
   if(!dietIsNativeAndroid()||!cloud?.client)return;
+  await dietNativeInstallAuthDeepLink().catch(()=>{});
   await dietNativeConfigureSession().catch(()=>{});
   if(!dietNativeAuthSubscription){
     const {data}=cloud.client.auth.onAuthStateChange(()=>{
@@ -143,4 +240,11 @@ document.addEventListener('visibilitychange',()=>{
 });
 setTimeout(dietNativeBootstrap,500);
 
-window.DietNative=Object.freeze({version:DIET_NATIVE_VERSION,isAndroid:dietIsNativeAndroid,state:()=>dietNativePlugin()?.getState(),sync:()=>dietNativePlugin()?.syncDailyActivity({days:2})});
+window.DietNative=Object.freeze({
+  version:DIET_NATIVE_VERSION,
+  isAndroid:dietIsNativeAndroid,
+  state:()=>dietNativePlugin()?.getState(),
+  sync:()=>dietNativePlugin()?.syncDailyActivity({days:2}),
+  startGoogleOAuth:dietNativeStartGoogleOAuth,
+  handleAuthUrl:dietNativeHandleAuthUrl
+});
