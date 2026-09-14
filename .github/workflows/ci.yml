@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, v6.7-release-candidate]
   pull_request:
 
 permissions:
@@ -24,7 +24,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in *.js; do node --check "$file"; done
+          for file in dashboard-*.js; do node --check "$file"; done
+          node --check scripts/build-v67.mjs
+          node --check tests/v67-policy.mjs
+          node --check tests/v67-bundle.mjs
 
       - name: Diet product and backend contract
         run: |
@@ -33,16 +36,13 @@ jobs:
           const backend=JSON.parse(fs.readFileSync('supabase/backend.json','utf8'));
           const bridge=fs.readFileSync('supabase/chatgpt-bridge.md','utf8');
           const finalPolicy=fs.readFileSync('dashboard-04.js','utf8');
-          const v612=fs.readFileSync('dashboard-v6-1-2.js','utf8');
           const v62=fs.readFileSync('dashboard-v6-2.js','utf8');
           const v63=fs.readFileSync('dashboard-v6-3.js','utf8');
           const v64=fs.readFileSync('dashboard-v6-4.js','utf8');
           const v65=fs.readFileSync('dashboard-v6-5.js','utf8');
           const v66=fs.readFileSync('dashboard-v6-6.js','utf8');
-          const d62=fs.readFileSync('supabase/decision-engine-v6.2.md','utf8');
-          const d64=fs.readFileSync('supabase/reliability-v6.4.md','utf8');
-          const d65=fs.readFileSync('supabase/weekly-intelligence-v6.5.md','utf8');
-          const d66=fs.readFileSync('supabase/product-consolidation-v6.6.md','utf8');
+          const v67=fs.readFileSync('dashboard-v6-7.js','utf8');
+          const build=fs.readFileSync('scripts/build-v67.mjs','utf8');
           const shared='hycegznamzjhwinegaai',legacy='mrrqsqawwxwebsdmrnre';
 
           if(backend.canonical_project_ref!==shared)throw new Error('Wrong canonical backend.');
@@ -55,20 +55,16 @@ jobs:
             if(backend.capabilities?.[capability]!==true)throw new Error(`Missing capability: ${capability}`);
           }
 
-          if(!v612.includes('v612NoTodayQuickCapture'))throw new Error('Quick Capture removal guard missing.');
           if(!v62.includes("Today's guidance")||!v62.includes('uncertaintyMaterial'))throw new Error('V6.2 guidance regressed.');
           if(!v63.includes('v63UsualPortion'))throw new Error('V6.3 portion intelligence missing.');
           if(!v64.includes('v64RefreshCanonical'))throw new Error('V6.4 canonical refresh missing.');
-          if(!v65.includes('Weekly Intelligence & Adaptive Coaching 2.0')||!v65.includes('v65Trend')||!v65.includes('v65GoalForecast'))throw new Error('V6.5 weekly intelligence missing.');
-          if(!v66.includes('Product Consolidation & Intelligent UX'))throw new Error('V6.6 consolidation layer missing.');
+          if(!v65.includes('v65Trend')||!v65.includes('v65GoalForecast'))throw new Error('V6.5 weekly intelligence missing.');
           for(const symbol of ['renderInsightsV66','refreshDataV66','subscribeRealtimeV66','v66Provenance','v66ConfidenceForRange'])if(!v66.includes(symbol))throw new Error(`V6.6 symbol missing: ${symbol}`);
-          if(!v66.includes(".v6-capture-card')?.remove")||!v66.includes(".v6-activity')?.remove"))throw new Error('V6.6 Today must remain core-only.');
-          if(v63.includes('refreshDataV63')||v65.includes('refreshDataV65'))throw new Error('Legacy refresh wrappers must be retired by V6.6.');
+          for(const symbol of ['Web Release Candidate & Final Certification','renderTodayV67','v67RuntimeSnapshot','window.DietRelease'])if(!v67.includes(symbol))throw new Error(`V6.7 symbol missing: ${symbol}`);
+          if(v63.includes('refreshDataV63')||v65.includes('refreshDataV65'))throw new Error('Legacy refresh wrappers returned.');
 
-          if(!d62.includes('private.get_daily_guidance')||!d62.includes('private.compare_food_options'))throw new Error('V6.2 backend helpers undocumented.');
-          for(const helper of ['private.get_action_status','private.preflight_meal_write','private.verify_ai_action','private.get_integrity_report','private.reconcile_integrity'])if(!d64.includes(helper))throw new Error(`V6.4 helper undocumented: ${helper}`);
-          for(const helper of ['private.get_trend_confidence','private.get_adaptive_plan_decision','private.get_weekly_intelligence','private.generate_weekly_review'])if(!d65.includes(helper))throw new Error(`V6.5 helper undocumented: ${helper}`);
-          for(const phrase of ['One coherent Insights page','Metric provenance','Standardized confidence','Single-pass refresh','Unified Realtime','Today remains core-only'])if(!d66.includes(phrase))throw new Error(`V6.6 contract missing: ${phrase}`);
+          for(const removed of ['dashboard-v5-1.js','dashboard-v6.js','dashboard-v6-1.js','dashboard-v6-1-2.js'])if(!build.includes(`'${removed}'`))throw new Error(`V6.7 retirement list missing ${removed}`);
+          if(!build.includes("'dashboard-v6-7.js'"))throw new Error('V6.7 production source missing from builder.');
 
           if(!bridge.includes(`Canonical project ref: \`${shared}\``)||!bridge.includes(legacy))throw new Error('ChatGPT bridge backend contract missing.');
           if(!finalPolicy.includes('Logged nutrition always counts')||!finalPolicy.includes('Day status is coverage metadata only'))throw new Error('All-logged-data final policy missing.');
@@ -76,19 +72,45 @@ jobs:
           const auth=fs.readFileSync('dashboard-auth.js','utf8');
           const persist=fs.readFileSync('dashboard-auth-persist.js','utf8');
           if(!auth.includes('Continue with Google')||!auth.includes('signInWithPassword')||!auth.includes("auth.signOut({ scope: 'local' })"))throw new Error('THIEPN Account auth contract regressed.');
-          if(persist.includes('setSession('))throw new Error('Legacy app-specific auth restoration returned.');
-          console.log('Diet V6.6 product/backend contract passed.');
+          if(persist.includes('setSession('))throw new Error('Legacy app-specific token restoration returned.');
+          console.log('Diet V6.7 product/backend contract passed.');
           NODE
 
-      - name: PWA cache contract
+      - name: Nutrition and coaching regression fixtures
+        run: node tests/v67-policy.mjs
+
+      - name: Expand certified production templates
+        run: node scripts/build-v67.mjs
+
+      - name: Production bundle certification
         run: |
-          node --input-type=module <<'NODE'
-          import fs from 'node:fs';
-          const html=fs.readFileSync('index.html','utf8'),sw=fs.readFileSync('sw.js','utf8');
-          const assets=[...html.matchAll(/(?:src|href)="((?:dashboard-[^"]+|manifest\.webmanifest|icon\.(?:svg)|icon-(?:192|512)\.png))"/g)].map(m=>m[1]);
-          const missing=assets.filter(a=>!sw.includes(`'./${a}'`));
-          if(missing.length)throw new Error(`Service-worker CORE missing: ${missing.join(', ')}`);
-          for(const required of ['dashboard-auth-final.js','dashboard-v6-4.js?v=6.4','dashboard-v6-5.js?v=6.5','dashboard-v6-5.css?v=6.5','dashboard-v6-6.js?v=6.6','dashboard-v6-6.css?v=6.6','dashboard-ops.js?v=7.1'])if(!sw.includes(required))throw new Error(`PWA missing ${required}`);
-          if(!sw.includes("u.pathname.includes('/dashboard-')"))throw new Error('Dashboard assets must be network-first.');
-          console.log(`PWA cache contract passed for ${assets.length} assets.`);
-          NODE
+          node --check .v67-build/diet-app.js
+          node tests/v67-bundle.mjs
+
+      - name: Template expansion must be deterministic
+        run: |
+          cp .v67-build/diet-app.js /tmp/diet-app.js
+          cp .v67-build/diet.css /tmp/diet.css
+          rm -rf .v67-build
+          node scripts/build-v67.mjs
+          cmp .v67-build/diet-app.js /tmp/diet-app.js
+          cmp .v67-build/diet.css /tmp/diet.css
+
+      - name: Build the actual GitHub Pages site
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+
+      - name: Validate deployed bundle artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f _site/diet-app.js
+          test -f _site/diet.css
+          test -f _site/index.html
+          node --check _site/diet-app.js
+          ! grep -q '{% include_relative' _site/diet-app.js
+          ! grep -q '{% include_relative' _site/diet.css
+          grep -q 'diet-app.js?v=1.0-rc1' _site/index.html
+          grep -q 'diet.css?v=1.0-rc1' _site/index.html
