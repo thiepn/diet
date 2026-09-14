@@ -1,56 +1,30 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import postgres from "npm:postgres@3.4.7";
 
-Deno.serve(async (req: Request) => {
-  if (req.method !== "POST") return new Response("Method not allowed", { status: 405 });
+function reply(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
+}
+function sub(req: Request) {
+  const jwt=(req.headers.get("Authorization")||"").replace(/^Bearer\s+/i,"");
+  const p=jwt.split(".")[1]; if(!p)return null;
+  try { const n=p.replace(/-/g,"+").replace(/_/g,"/"); const j=JSON.parse(atob(n+"=".repeat((4-n.length%4)%4))); return typeof j.sub==="string"?j.sub:null; } catch { return null; }
+}
+function metric(v: unknown, max: number){ const n=Number(v??0); return Number.isFinite(n)&&n>=0&&n<=max?n:null; }
 
-  // The function is deployed with verify_jwt=true; the gateway validates the JWT.
-  const jwt = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
-  const part = jwt.split(".")[1];
-  if (!part) return new Response("Unauthorized", { status: 401 });
-  const payload = JSON.parse(atob(part.replace(/-/g, "+").replace(/_/g, "/")));
-  const userId = payload.sub;
-  if (typeof userId !== "string") return new Response("Unauthorized", { status: 401 });
-
-  const body = await req.json();
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(body.activity_date || ""))) {
-    return new Response("Invalid", { status: 400 });
-  }
-
-  const dbUrl = Deno.env.get("SUPABASE_DB_URL");
-  if (!dbUrl) return new Response("Unavailable", { status: 503 });
-  const sql = postgres(dbUrl, { prepare: false, max: 1 });
-
-  try {
-    await sql`
-      insert into public.activity_daily (
-        user_id, activity_date, steps, active_calories, exercise_minutes,
-        distance_km, source, provider_payload, synced_at, updated_at
-      ) values (
-        ${userId}::uuid,
-        ${body.activity_date}::date,
-        ${Number(body.steps || 0)},
-        ${Number(body.active_calories || 0)},
-        ${Number(body.exercise_minutes || 0)},
-        ${Number(body.distance_km || 0)},
-        'health_connect',
-        '{}'::jsonb,
-        now(),
-        now()
-      )
-      on conflict (user_id, activity_date) do update set
-        steps = excluded.steps,
-        active_calories = excluded.active_calories,
-        exercise_minutes = excluded.exercise_minutes,
-        distance_km = excluded.distance_km,
-        source = 'health_connect',
-        synced_at = now(),
-        updated_at = now()
-    `;
-    return new Response(JSON.stringify({ ok: true }), {
-      headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
-    });
-  } finally {
-    await sql.end({ timeout: 2 });
-  }
+Deno.serve(async req => {
+  if(req.method!=="POST")return reply({error:"method_not_allowed"},405);
+  const userId=sub(req); if(!userId)return reply({error:"unauthorized"},401);
+  let b:any; try{b=await req.json()}catch{return reply({error:"invalid_json"},400)}
+  const date=String(b.activity_date||"");
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return reply({error:"invalid_date"},400);
+  const values=[metric(b.steps,500000),metric(b.active_calories,20000),metric(b.exercise_minutes,1440),metric(b.distance_km,1000)];
+  if(values.some(v=>v===null))return reply({error:"metric_out_of_range"},400);
+  const [steps,calories,minutes,distance]=values as number[];
+  const deviceId=String(b.device_id||"android").slice(0,64);
+  const dbUrl=Deno.env.get("SUPABASE_DB_URL"); if(!dbUrl)return reply({error:"server_unavailable"},503);
+  const sql=postgres(dbUrl,{prepare:false,max:1});
+  try{
+    await sql`insert into public.activity_daily (user_id,activity_date,steps,active_calories,exercise_minutes,distance_km,resting_heart_rate,source,provider_payload,synced_at,updated_at) values (${userId}::uuid,${date}::date,${Math.round(steps)},${Math.round(calories*10)/10},${Math.round(minutes*10)/10},${Math.round(distance*1000)/1000},null,'health_connect',jsonb_build_object('device_id',${deviceId}::text,'native_version','7.0.0'),now(),now()) on conflict (user_id,activity_date) do update set steps=excluded.steps,active_calories=excluded.active_calories,exercise_minutes=excluded.exercise_minutes,distance_km=excluded.distance_km,resting_heart_rate=null,source='health_connect',provider_payload=excluded.provider_payload,synced_at=now(),updated_at=now()`;
+    return reply({ok:true,activity_date:date,synced_at:new Date().toISOString()});
+  }catch(e){console.error("diet-health-sync",e instanceof Error?e.name:"Error");return reply({error:"sync_failed"},500)}finally{await sql.end({timeout:2})}
 });
