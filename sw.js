@@ -1,4 +1,4 @@
-const CACHE = 'diet-copilot-dashboard-v6.3-food-intelligence';
+const CACHE = 'diet-copilot-dashboard-v6.4-reliability';
 const SUPABASE_SDK = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0';
 const CORE = [
   './',
@@ -41,6 +41,7 @@ const CORE = [
   './dashboard-v6-1-2.js?v=6.1.2',
   './dashboard-v6-2.js?v=6.2',
   './dashboard-v6-3.js?v=6.3',
+  './dashboard-v6-4.js?v=6.4',
   './manifest.webmanifest',
   './icon.svg',
   './icon-192.png',
@@ -72,8 +73,13 @@ self.addEventListener('activate', event => {
   );
 });
 
+function freshRequest(request) {
+  try { return new Request(request, { cache: 'no-cache' }); }
+  catch { return request; }
+}
+
 function networkFirst(request, fallbackKey = request) {
-  return fetch(request)
+  return fetch(freshRequest(request))
     .then(response => {
       if (response && response.ok) {
         const copy = response.clone();
@@ -106,6 +112,7 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // Supabase API/Auth/Realtime responses are never service-worker cached.
   if (url.origin !== self.location.origin) return;
 
   if (request.mode === 'navigate') {
@@ -113,7 +120,9 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  if (url.pathname.endsWith('.js') || url.pathname.endsWith('/manifest.webmanifest')) {
+  // V6.4: all versioned dashboard code/styles are network-first. This prevents
+  // an old PWA shell from keeping stale backend logic or UI after deployment.
+  if (url.pathname.includes('/dashboard-') || url.pathname.endsWith('/manifest.webmanifest')) {
     event.respondWith(networkFirst(request));
     return;
   }
