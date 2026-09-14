@@ -1,7 +1,8 @@
 'use strict';
 
 // V6.5 — Weekly Intelligence & Adaptive Coaching 2.0.
-// Read-only analysis only: food logging remains a direct ChatGPT conversation.
+// V6.6 owns final rendering, refresh and realtime. This file now exposes the
+// reusable weekly/trend/plan intelligence only.
 
 function v65Shift(date,days){const d=new Date(`${date}T12:00:00`);d.setDate(d.getDate()+days);return d.toISOString().slice(0,10)}
 function v65Mean(values){const a=values.filter(Number.isFinite);return a.length?a.reduce((s,v)=>s+v,0)/a.length:null}
@@ -69,18 +70,3 @@ function v65WeeklyMarkup(){
     ${uncertain?`<div class="v65-evidence-note"><strong>Intake uncertainty is material</strong><span>Stored calorie ranges average about ${fmt(cur.uncertainty)} kcal wide per logged day. Small apparent differences should not trigger a target change.</span></div>`:''}
   </section>`;
 }
-
-async function v65LoadPlan(){
-  if(!cloud.client||!cloud.user)return;
-  try{const {data,error}=await cloud.client.from('target_recommendations').select('id,generated_on,status,current_target,recommended_target,rationale,decision_payload,created_at').order('created_at',{ascending:false}).limit(1).maybeSingle();if(error)throw error;dashboard.v65Plan=data?{decisionPayload:data.decision_payload||null}:null;saveDashboardCache()}catch(error){console.warn('V6.5 plan read failed',error)}
-}
-
-const v65RenderInsightsBase=renderInsights;
-renderInsights=function renderInsightsV65(){const result=v65RenderInsightsBase();const root=app.querySelector('.p3-insights-view');if(!root)return result;root.querySelector('.v65-weekly')?.remove();const coach=root.querySelector('.v6-coach');if(coach)coach.insertAdjacentHTML('afterend',v65WeeklyMarkup());else root.insertAdjacentHTML('afterbegin',v65WeeklyMarkup());return result};
-
-const v65RefreshBase=refreshData;
-refreshData=async function refreshDataV65(options={}){await v65RefreshBase(options);if(!cloud.user)return;await v65LoadPlan();render()};
-
-const v65RenderTodayBase=renderToday;
-renderToday=function renderTodayV65(){const result=v65RenderTodayBase();app.querySelector('.today-v2 .v6-capture-card')?.remove();return result};
-queueMicrotask(()=>{app.querySelector('.today-v2 .v6-capture-card')?.remove();if(cloud.user)v65LoadPlan().then(()=>render()).catch(()=>{})});
