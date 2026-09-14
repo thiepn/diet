@@ -22,4 +22,5 @@
 {% include_relative src/intelligence/dashboard-v6-5.js %}
 {% include_relative src/intelligence/dashboard-v6-6.js %}
 {% include_relative src/release.js %}
+{% include_relative src/native/android-bridge.js %}
 {% include_relative src/operations/dashboard-ops.js %}

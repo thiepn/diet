@@ -1,0 +1,15 @@
+/* V7.0 native Android companion */
+.diet-native-health{margin-top:16px;padding:16px;border:1px solid var(--line,#dfe3e8);border-radius:18px;background:var(--surface,#fff);display:grid;gap:12px}
+.diet-native-health-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.diet-native-health-head>div{display:grid;gap:2px;min-width:0}
+.diet-native-health-head span{font-size:12px;color:var(--muted,#697386)}
+.diet-native-health-head strong{font-size:16px}
+.diet-native-health-badge{flex:none;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:700;background:#eef1f4;color:#586272}
+.diet-native-health-badge.connected{background:#e9f7ef;color:#237a45}
+.diet-native-health p{margin:0;color:var(--muted,#697386);font-size:13px;line-height:1.45}
+.diet-native-health-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.diet-native-health-stats>div{min-width:0;padding:10px;border-radius:12px;background:var(--soft,#f5f7f9);display:grid;gap:3px}
+.diet-native-health-stats span{font-size:11px;color:var(--muted,#697386)}
+.diet-native-health-stats strong{font-size:12px;overflow-wrap:anywhere}
+.diet-native-health-actions{margin:0}
+@media(max-width:360px){.diet-native-health{padding:12px}.diet-native-health-stats{grid-template-columns:1fr}}
