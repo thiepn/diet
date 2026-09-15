@@ -1,0 +1,29 @@
+name: Export final release audit source
+
+on:
+  push:
+    paths:
+      - '.github/workflows/export-final-audit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Package active release source
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/diet-audit
+          cp -a src tests scripts supabase .well-known /tmp/diet-audit/
+          cp index.html sw.js manifest.webmanifest diet-app.js diet.css README.md QA.md CHANGELOG.md _config.yml /tmp/diet-audit/
+          cp -a .github/workflows /tmp/diet-audit/workflows
+      - uses: actions/upload-artifact@v4
+        with:
+          name: diet-final-audit-source
+          path: /tmp/diet-audit
+          if-no-files-found: error
+          retention-days: 1
