@@ -49,6 +49,7 @@ initCloud = async function initCloudFinal(showDialog = false) {
 
     cloud.client = window.supabase.createClient(cloudConfig.url, cloudConfig.key, {
       auth: {
+        flowType: 'pkce',
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
