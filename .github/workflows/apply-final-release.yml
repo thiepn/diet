@@ -1,0 +1,41 @@
+name: Apply final Diet Copilot release
+
+on:
+  push:
+    paths:
+      - '.release/finalpayload.b64'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Apply certified final source payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/diet-final
+          base64 -d .release/finalpayload.b64 > /tmp/diet-final.tar.gz
+          tar -xzf /tmp/diet-final.tar.gz -C /tmp/diet-final
+          cp -a /tmp/diet-final/. ./
+          if [ -f .delete-after-release ]; then
+            while IFS= read -r path; do
+              [ -n "$path" ] && rm -f "$path"
+            done < .delete-after-release
+            rm -f .delete-after-release
+          fi
+          rm -rf .release
+          rm -f .github/workflows/apply-final-release.yml
+          node scripts/build-v68.mjs
+          node tests/policy.mjs
+          node tests/release.mjs
+          git config user.name 'thiepn'
+          git config user.email 'junsosmart@gmail.com'
+          git add -A
+          git commit -m 'Finalize Diet Copilot Web 1.0.1 and Android 7.0.2 source'
+          git push origin HEAD:main
