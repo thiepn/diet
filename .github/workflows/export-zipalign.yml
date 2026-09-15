@@ -18,10 +18,13 @@ jobs:
           set -euo pipefail
           tool="$(find "$ANDROID_HOME/build-tools" -type f -name zipalign -print | sort -V | tail -1)"
           test -n "$tool"
-          mkdir -p /tmp/zipalign-tool
+          mkdir -p /tmp/zipalign-tool/lib
           cp "$tool" /tmp/zipalign-tool/zipalign
           chmod +x /tmp/zipalign-tool/zipalign
-          "$tool" -h >/dev/null 2>&1 || true
+          while read -r dep; do
+            [ -f "$dep" ] && cp "$dep" "/tmp/zipalign-tool/lib/$(basename "$dep")"
+          done < <(ldd "$tool" | awk '/libc\+\+/{if ($3 ~ /^\//) print $3} /libc\+\+abi/{if ($3 ~ /^\//) print $3}')
+          LD_LIBRARY_PATH=/tmp/zipalign-tool/lib "$tool" -h >/dev/null 2>&1 || true
 
       - name: Upload zipalign
         uses: actions/upload-artifact@v4
