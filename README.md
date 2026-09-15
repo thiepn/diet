@@ -1,19 +1,20 @@
 # Diet Copilot
 
-Diet Copilot is a **ChatGPT-controlled nutrition log and diet intelligence system** with a read-only web dashboard.
+Diet Copilot is a **ChatGPT-controlled nutrition log and diet intelligence system** with a read-only web dashboard and a native Android companion.
 
 ```text
-You → ChatGPT → canonical Supabase backend → Dashboard
+You → ChatGPT → canonical Supabase backend → Web dashboard
+                                          ↘ Android + Health Connect
 ```
 
 **Stable web release:** `1.0.0`  
-**Internal milestone:** `V6.8`
+**Native Android milestone:** `V7.0`
 
 ## Product boundary
 
-The dashboard is not a food-entry app. Meal and weight logging, corrections, photo/label interpretation, goals, reusable foods and coaching are handled through ChatGPT. The website displays Today, History, Trends and Insights.
+The dashboard is not a food-entry app. Meal and weight logging, corrections, photo/label interpretation, goals, reusable foods and coaching are handled through ChatGPT. The website displays Today, History, Trends and Insights. Android adds device capabilities the browser cannot provide.
 
-The following are deliberate invariants:
+Deliberate invariants:
 
 - no manual food-entry form on the dashboard
 - no Quick Capture workflow
@@ -21,18 +22,20 @@ The following are deliberate invariants:
 - no automatic activity-calorie eat-back
 - no silent calorie-target changes
 - hypothetical/planned food never contaminates logged intake
+- Health Connect is activity context, not a second nutrition log
 
 ## Production backend
 
 Diet Copilot uses the shared **THIEPN Account** Supabase project.
 
 - Canonical project ref: `hycegznamzjhwinegaai`
-- Production app: `https://thiepn.dev/diet/`
+- Web app: `https://thiepn.dev/diet/`
+- Android app ID: `dev.thiepn.diet`
 - Retired Diet project: `mrrqsqawwxwebsdmrnre`
 
 The retired project must receive no Diet Copilot reads or writes.
 
-Authenticated browser sessions are owner-scoped and read-only. Privileged mutations use private backend helpers with stable request IDs, idempotent retry and post-write verification.
+Authenticated browser sessions are owner-scoped and read-only. Privileged nutrition mutations use private backend helpers with stable request IDs, idempotent retry and post-write verification. Native Health Connect activity is synchronized through the JWT-protected `diet-health-sync` function into the canonical `activity_daily` table.
 
 ## Tracking policy
 
@@ -48,26 +51,46 @@ Authenticated browser sessions are owner-scoped and read-only. Privileged mutati
 
 ## Intelligence
 
-The stable web product includes:
-
-- uncertainty-aware daily guidance
-- remembered foods, aliases and learned usual portions
-- verified barcode memory
-- recurring food/routine recognition
-- weight-trend confidence
-- week-over-week nutrition intelligence
-- conservative adaptive calorie recommendations
-- goal forecasting and maintenance-transition guidance
-- metric provenance and standardized confidence labels
-- integrity checking and exactly-once write semantics
+The stable product includes uncertainty-aware daily guidance, remembered foods and learned portions, verified barcode memory, recurring routines, weight-trend confidence, weekly intelligence, conservative adaptive calorie recommendations, goal forecasting, maintenance-transition guidance, metric provenance and integrity checking.
 
 Recommendations never change targets automatically.
+
+## Android V7
+
+V7 is a thin Capacitor 8 Android shell around the certified Web 1.0 experience. It does not rewrite the product in Flutter or duplicate the dashboard.
+
+### Health Connect
+
+The native layer can read:
+
+- steps
+- active calories burned
+- distance
+- exercise sessions / derived exercise minutes
+- background health access when supported and granted
+
+Foreground sync is available from the Android-only Account card. WorkManager performs periodic background synchronization after the native encrypted session and Health Connect permissions are available.
+
+### Native reminders
+
+The Android companion schedules the existing opt-in:
+
+- weigh-in reminder
+- weekly review reminder
+
+The obsolete day-close requirement is intentionally not restored.
+
+### Session security
+
+The WebView still signs in through the THIEPN Account. The current Supabase access/refresh session is handed to the native plugin and encrypted with Android Keystore AES/GCM so WorkManager can refresh and synchronize while the WebView is not active.
+
+Google OAuth inside the native shell still requires the final system-browser/deep-link redirect allowlist to be certified on a real device. Email/password authentication remains part of the existing THIEPN Account flow.
 
 ## Dashboard
 
 ### Today
 
-Calories, protein, fiber, weight, goal progress, meals and passive contextual guidance. Core metric cards open consistent detail sheets with provenance.
+Calories, protein, fiber, weight, goal progress, meals and passive contextual guidance. Activity remains secondary context and does not become a large Today card.
 
 ### History
 
@@ -79,63 +102,34 @@ Weight / Calories / Protein / Fiber across 7D / 30D / 90D / 6M / All. Immature d
 
 ### Insights
 
-One consolidated hierarchy:
-
-1. This week
-2. Nutrition
-3. Weight & goal
-4. Food intelligence
-5. Data quality
+One consolidated hierarchy: This week → Nutrition → Weight & goal → Food intelligence → Data quality.
 
 ## Source layout
-
-V6.8 removed the historical pile of root-level dashboard override files from the active source tree.
 
 ```text
 src/
   auth/
   core/
   intelligence/
+  native/
   operations/
   styles/
   ui/
   config.js
   release.js
 
-archive/
-  legacy-dashboard/
-  legacy-build/
-  legacy-tests/
-
-scripts/
+native/android/src/     # maintained Kotlin sources
+scripts/                # web + Android generators
 tests/
 supabase/
+archive/                # historical sources only
 ```
 
-Legacy files are retained under `archive/` for history only and cannot feed the production builder. `src/config.js` is the canonical configuration contract checked by CI; the production bundle continues to carry the same public Supabase endpoint/key through the certified core runtime.
+The generated `android/`, `www/` and `node_modules/` directories are ignored. The active native sources live under `native/android/src/` and `scripts/prepare-android.mjs` recreates the Android project deterministically.
 
-## Production bundles
+## Build
 
-GitHub Pages serves exactly one local JavaScript bundle and one stylesheet:
-
-```text
-diet-app.js
-diet.css
-```
-
-They are Jekyll templates assembled from the certified source list in `scripts/build-v68.mjs`. The browser does not load the individual source fragments.
-
-The service worker uses the stable cache generation:
-
-```text
-diet-copilot-web-v1.0.0
-```
-
-Navigation and the consolidated runtime assets are network-first, with the cached read-only shell available for degraded/offline use.
-
-## Development
-
-Run the certification build first:
+### Web certification
 
 ```bash
 node scripts/build-v68.mjs
@@ -143,17 +137,17 @@ node tests/policy.mjs
 node tests/release.mjs
 ```
 
-The GitHub Actions release pipeline additionally:
+### Android debug build
 
-- syntax-checks all active JavaScript
-- verifies the backend/product contract
-- verifies deterministic bundle expansion
-- runs the actual GitHub Pages Jekyll build
-- validates the deployed bundle artifacts
-- enforces JS/CSS size budgets
+```bash
+npm install
+npm run android:prepare
+cd android
+./gradlew assembleDebug
+```
 
-For local browser work, serve the repository through a Jekyll-compatible build or inspect the expanded `.v68-build/` artifacts produced by the build script.
+GitHub Actions performs the same Android generation/build and uploads `diet-copilot-v7-debug` as a debug APK artifact.
 
 ## Release policy
 
-Web `1.0.0` is the frozen stable baseline. Future web changes should be maintenance fixes or clearly justified product improvements. The next major platform work is the native Android companion and Health Connect integration.
+Web `1.0.0` remains the stable web baseline. V7 adds the Android platform layer. A production Play Store release still requires user-owned signing credentials, Play Console configuration and physical-device Health Connect certification; CI compilation alone is not treated as device certification.

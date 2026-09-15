@@ -24,6 +24,7 @@ const jsSources=[
   'src/intelligence/dashboard-v6-5.js',
   'src/intelligence/dashboard-v6-6.js',
   'src/release.js',
+  'src/native/android-bridge.js',
   'src/operations/dashboard-ops.js'
 ];
 
@@ -41,11 +42,18 @@ const cssSources=[
   'src/styles/dashboard-v5-3.css',
   'src/styles/dashboard-v6-2.css',
   'src/styles/dashboard-v6-6.css',
-  'src/styles/release.css'
+  'src/styles/release.css',
+  'src/styles/native.css'
 ];
 
 for(const file of [...jsSources,...cssSources]){
   if(!fs.existsSync(file))throw new Error(`Missing Web 1.0 source: ${file}`);
+}
+for(const file of cssSources){
+  const source=fs.readFileSync(file,'utf8');
+  const opens=(source.match(/{/g)||[]).length;
+  const closes=(source.match(/}/g)||[]).length;
+  if(opens!==closes)throw new Error(`Unbalanced CSS braces in ${file}: ${opens} opening / ${closes} closing`);
 }
 
 const strayRoot=fs.readdirSync('.').filter(file=>/^dashboard-.*\.(?:js|css)$/.test(file));
@@ -57,8 +65,8 @@ function expectedTemplate(files){
 
 const jsTemplate=fs.readFileSync('diet-app.js','utf8');
 const cssTemplate=fs.readFileSync('diet.css','utf8');
-if(jsTemplate!==expectedTemplate(jsSources))throw new Error('diet-app.js source order does not match Web 1.0.0.');
-if(cssTemplate!==expectedTemplate(cssSources))throw new Error('diet.css source order does not match Web 1.0.0.');
+if(jsTemplate!==expectedTemplate(jsSources))throw new Error('diet-app.js source order does not match Web 1.0.0 + V7 native bridge.');
+if(cssTemplate!==expectedTemplate(cssSources))throw new Error('diet.css source order does not match Web 1.0.0 + V7 native bridge.');
 
 fs.rmSync('.v68-build',{recursive:true,force:true});
 fs.mkdirSync('.v68-build',{recursive:true});
@@ -70,7 +78,7 @@ for(const file of cssSources)css+=`\n/* ===== ${file} ===== */\n${fs.readFileSyn
 for(const banned of ['function v6CaptureMarkup','data-v6-capture="','data-v6-recipe-log="','1.0-rc1']){
   if(js.includes(banned))throw new Error(`Retired runtime leaked into stable bundle: ${banned}`);
 }
-for(const required of ['renderInsightsV66','renderHistoryV66','renderTodayV68','DIET_WEB_RELEASE = \'1.0.0\'','window.DietRelease','Logged nutrition always counts','window.DietOperations']){
+for(const required of ['renderInsightsV66','renderHistoryV66','renderTodayV68','DIET_WEB_RELEASE = \'1.0.0\'','window.DietRelease','Logged nutrition always counts','window.DietOperations','window.DietNative']){
   if(!js.includes(required))throw new Error(`Stable bundle missing ${required}`);
 }
 if(!css.includes('prefers-reduced-motion:reduce'))throw new Error('Reduced-motion styles missing.');
@@ -84,9 +92,9 @@ fs.writeFileSync('.v68-build/diet-app.js',js);
 fs.writeFileSync('.v68-build/diet.css',css);
 
 const jsKB=Buffer.byteLength(js)/1024,cssKB=Buffer.byteLength(css)/1024;
-if(jsKB>=400)throw new Error(`Stable JS exceeds 400 KB budget: ${jsKB.toFixed(1)} KB`);
-if(cssKB>=160)throw new Error(`Stable CSS exceeds 160 KB budget: ${cssKB.toFixed(1)} KB`);
+if(jsKB>=420)throw new Error(`Stable JS exceeds 420 KB budget: ${jsKB.toFixed(1)} KB`);
+if(cssKB>=165)throw new Error(`Stable CSS exceeds 165 KB budget: ${cssKB.toFixed(1)} KB`);
 
-console.log(`Built Diet Copilot Web ${release}.`);
+console.log(`Built Diet Copilot Web ${release} with the inert V7 native bridge.`);
 console.log(`Sources: ${jsSources.length} JS / ${cssSources.length} CSS.`);
 console.log(`Bundle budgets: ${jsKB.toFixed(1)} KB JS / ${cssKB.toFixed(1)} KB CSS.`);

@@ -1,0 +1,9 @@
+{
+  "appId": "dev.thiepn.diet",
+  "appName": "Diet Copilot",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#F7F8FA",
+    "allowMixedContent": false
+  }
+}

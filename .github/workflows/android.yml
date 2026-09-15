@@ -1,0 +1,62 @@
+name: Android V7
+
+on:
+  push:
+    branches: [main, v7.0-android]
+    paths:
+      - 'native/**'
+      - 'src/native/**'
+      - 'src/styles/native.css'
+      - 'scripts/build-native-web.mjs'
+      - 'scripts/prepare-android.mjs'
+      - 'capacitor.config.json'
+      - 'package.json'
+      - 'diet-app.js'
+      - 'diet.css'
+      - '.github/workflows/android.yml'
+  pull_request:
+    paths:
+      - 'native/**'
+      - 'src/native/**'
+      - 'src/styles/native.css'
+      - 'scripts/build-native-web.mjs'
+      - 'scripts/prepare-android.mjs'
+      - 'capacitor.config.json'
+      - 'package.json'
+      - 'diet-app.js'
+      - 'diet.css'
+      - '.github/workflows/android.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+      - name: Android SDK 36
+        run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
+      - name: Install native dependencies
+        run: npm install --no-audit --no-fund
+      - name: Generate Android project
+        run: npm run android:prepare
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew --no-daemon assembleDebug
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: diet-copilot-v7-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

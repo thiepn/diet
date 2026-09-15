@@ -14,3 +14,4 @@
 {% include_relative src/styles/dashboard-v6-2.css %}
 {% include_relative src/styles/dashboard-v6-6.css %}
 {% include_relative src/styles/release.css %}
+{% include_relative src/styles/native.css %}

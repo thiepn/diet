@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, v6.8-web-v1]
+    branches: [main, v7.0-android]
   pull_request:
 
 permissions:
@@ -26,6 +26,8 @@ jobs:
           set -euo pipefail
           find src -type f -name '*.js' -print0 | xargs -0 -n1 node --check
           node --check scripts/build-v68.mjs
+          node --check scripts/build-native-web.mjs
+          node --check scripts/prepare-android.mjs
           node --check tests/policy.mjs
           node --check tests/release.mjs
 
@@ -37,6 +39,7 @@ jobs:
           const bridge=fs.readFileSync('supabase/chatgpt-bridge.md','utf8');
           const finalPolicy=fs.readFileSync('src/core/dashboard-04.js','utf8');
           const release=fs.readFileSync('src/release.js','utf8');
+          const nativeBridge=fs.readFileSync('src/native/android-bridge.js','utf8');
           const build=fs.readFileSync('scripts/build-v68.mjs','utf8');
           const config=fs.readFileSync('src/config.js','utf8');
           const v63=fs.readFileSync('src/intelligence/dashboard-v6-3.js','utf8');
@@ -49,15 +52,18 @@ jobs:
           if(backend.write_protocol?.require_request_id!==true||backend.write_protocol?.retry_same_request_id!==true||backend.write_protocol?.verify_after_write!==true||backend.write_protocol?.dual_write!==false)throw new Error('Reliable write protocol regressed.');
           if(backend.metrics_policy?.nutrition_days!=='all_days_with_logged_intake'||backend.metrics_policy?.weight!=='all_available_weigh_ins'||backend.metrics_policy?.day_status!=='coverage_metadata_only')throw new Error('All-logged-data metrics contract regressed.');
           if(backend.product_boundary?.logging_entrypoint!=='direct_chatgpt_conversation'||backend.product_boundary?.dashboard_manual_logging!==false||backend.product_boundary?.dashboard_quick_capture!==false)throw new Error('Dashboard product boundary regressed.');
+          if(backend.product_boundary?.native_health_sync!=='health_connect_activity_only')throw new Error('Native health boundary regressed.');
 
-          for(const capability of ['daily_decision_engine','food_memory_intelligence','post_write_verification','integrity_report','weekly_intelligence','trend_confidence','adaptive_coaching_v2','goal_forecast','consolidated_insights','metric_provenance','single_pass_dashboard_refresh','unified_realtime_channel','today_core_only']){
+          for(const capability of ['daily_decision_engine','food_memory_intelligence','post_write_verification','integrity_report','weekly_intelligence','trend_confidence','adaptive_coaching_v2','goal_forecast','consolidated_insights','metric_provenance','single_pass_dashboard_refresh','unified_realtime_channel','today_core_only','android_native_companion','health_connect_sync','background_activity_sync','native_weigh_in_reminders','native_weekly_review_reminders']){
             if(backend.capabilities?.[capability]!==true)throw new Error(`Missing capability: ${capability}`);
           }
+          if(backend.capabilities?.activity_calorie_eat_back!==false)throw new Error('Activity calories must not be eaten back.');
 
           for(const symbol of ["DIET_WEB_RELEASE = '1.0.0'","DIET_RELEASE_CHANNEL = 'stable'",'renderTodayV68','window.DietRelease'])if(!release.includes(symbol))throw new Error(`Stable release symbol missing: ${symbol}`);
           if(v63.includes('refreshDataV63')||v65.includes('refreshDataV65'))throw new Error('Legacy refresh wrappers returned.');
           for(const symbol of ['renderInsightsV66','refreshDataV66','subscribeRealtimeV66'])if(!v66.includes(symbol))throw new Error(`Consolidated UX symbol missing: ${symbol}`);
-          if(!build.includes("'src/release.js'"))throw new Error('Stable release source missing from builder.');
+          for(const symbol of ['DIET_NATIVE_VERSION','window.DietNative','DietHealthConnect','configureSession','syncDailyActivity'])if(!nativeBridge.includes(symbol))throw new Error(`Native bridge symbol missing: ${symbol}`);
+          if(!build.includes("'src/release.js'")||!build.includes("'src/native/android-bridge.js'"))throw new Error('Stable/native release source missing from builder.');
           if(build.includes("'archive/"))throw new Error('Archive leaked into production builder.');
           if(!config.includes(shared)||config.includes(legacy))throw new Error('Active config does not point only at canonical backend.');
           if(!bridge.includes(`Canonical project ref: \`${shared}\``)||!bridge.includes(legacy))throw new Error('ChatGPT bridge backend contract missing.');
@@ -67,7 +73,7 @@ jobs:
           const persist=fs.readFileSync('src/auth/dashboard-auth-persist.js','utf8');
           if(!auth.includes('Continue with Google')||!auth.includes('signInWithPassword')||!auth.includes("auth.signOut({ scope: 'local' })"))throw new Error('THIEPN Account auth contract regressed.');
           if(persist.includes('setSession('))throw new Error('App-specific token restoration returned.');
-          console.log('Diet Copilot Web 1.0 product/backend contract passed.');
+          console.log('Diet Copilot Web 1.0 + Android V7 product/backend contract passed.');
           NODE
 
       - name: Nutrition and coaching regression fixtures
@@ -111,3 +117,4 @@ jobs:
           grep -q 'diet-app.js?v=1.0.0' _site/index.html
           grep -q 'diet.css?v=1.0.0' _site/index.html
           grep -q "DIET_WEB_RELEASE = '1.0.0'" _site/diet-app.js
+          grep -q 'window.DietNative' _site/diet-app.js

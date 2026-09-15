@@ -10,17 +10,27 @@
   "sessionAuthority": "thiepn-account",
   "degradedMode": "cached-read-only",
   "authEntryPoints": ["email-password", "google"],
-  "release": "V6.8",
+  "release": "V7.0",
   "webRelease": "1.0.0",
+  "nativeRelease": "7.0.0",
   "releaseChannel": "stable",
   "stable": true,
   "productionBundle": "diet-app.js",
   "productionStyles": "diet.css",
-  "runtimeMode": "consolidated-stable",
+  "runtimeMode": "web-stable-native-companion",
   "sourceLayout": "src",
+  "android": {
+    "appId": "dev.thiepn.diet",
+    "runtime": "Capacitor 8",
+    "healthConnect": true,
+    "backgroundHealthSync": true,
+    "nativeReminders": true,
+    "activityCalorieEatBack": false
+  },
   "health": {
     "cachedDataPreservedOnBackendFailure": true,
     "networkFailureLogsOutUser": false,
-    "writesPerformedByDashboard": false
+    "writesPerformedByDashboard": false,
+    "healthConnectWritesThroughNativeBridge": true
   }
 }
