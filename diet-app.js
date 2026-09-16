@@ -764,7 +764,8 @@ initCloud = async function initCloudFinal(showDialog = false) {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
-        storageKey: DIET_AUTH_STORAGE_KEY
+        storageKey: DIET_AUTH_STORAGE_KEY,
+        experimental: { appendPkceFlowIdToRedirects: true }
       }
     });
 
