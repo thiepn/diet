@@ -11,8 +11,8 @@ const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const manifest=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
 
-assert.match(html,/diet\.css\?v=1\.0\.2-static5/);
-assert.match(html,/diet-app\.js\?v=1\.0\.2-static5/);
+assert.match(html,/diet\.css\?v=1\.0\.2-static6/);
+assert.match(html,/diet-app\.js\?v=1\.0\.2-static6/);
 assert.match(html,/application-version" content="1\.0\.2/);
 assert.equal((html.match(/<script src="dashboard-/g)||[]).length,0,'Historical dashboard scripts are still loaded by production HTML');
 assert.equal((html.match(/<link rel="stylesheet" href="dashboard-/g)||[]).length,0,'Historical dashboard styles are still loaded by production HTML');
@@ -38,9 +38,9 @@ assert.ok(css.includes('.v53-detail-sheet'),'Detail-sheet hardening missing');
 assert.ok(css.includes('overflow-x:hidden'),'Horizontal overflow guard missing');
 assert.equal((css.match(/{/g)||[]).length,(css.match(/}/g)||[]).length,'Production CSS braces are unbalanced');
 
-assert.ok(sw.includes("const CACHE='diet-copilot-web-v1.0.2-static5'"),'Wrong service-worker generation');
-assert.ok(sw.includes("'./diet-app.js?v=1.0.2-static5'"),'Service worker missing stable JS bundle');
-assert.ok(sw.includes("'./diet.css?v=1.0.2-static5'"),'Service worker missing stable CSS bundle');
+assert.ok(sw.includes("const CACHE='diet-copilot-web-v1.0.2-static6'"),'Wrong service-worker generation');
+assert.ok(sw.includes("'./diet-app.js?v=1.0.2-static6'"),'Service worker missing stable JS bundle');
+assert.ok(sw.includes("'./diet.css?v=1.0.2-static6'"),'Service worker missing stable CSS bundle');
 assert.ok(!sw.includes('dashboard-v6-5.js'),'Service worker still precaches historical fragments');
 assert.ok(!sw.includes('1.0-rc1'),'Release-candidate cache marker remains');
 
@@ -58,7 +58,9 @@ assert.deepEqual(manifest.authEntryPoints,['google'],'Diet Copilot must expose G
 for(const bannedAuth of ['signInWithPassword','resetPasswordForEmail','loginPassword','passwordForm','email-password'])assert.ok(!js.includes(bannedAuth),`Password auth leaked into production: ${bannedAuth}`);
 assert.ok(js.includes("flowType: 'pkce'") || js.includes("flowType:'pkce'"),'PKCE auth configuration missing');
 assert.ok(js.includes('detectSessionInUrl: false'),'Web PKCE callback must be exchanged explicitly');
-assert.ok(js.includes('dietReadWebOAuthCallback')&&js.includes('callback.code')&&js.includes('exchangeOptions'),'Explicit web PKCE callback exchange is missing');
+assert.ok(js.includes('dietReadWebOAuthCallback')&&js.includes('callback.code'),'Explicit web PKCE callback exchange is missing');
+assert.ok(js.includes('dietBackupBrowserPkceVerifier')&&js.includes('dietRestoreBrowserPkceVerifier')&&js.includes('DIET_PKCE_BACKUP_KEY'),'Tab-scoped PKCE verifier recovery is missing');
+assert.ok(js.includes('dietPkceVerifierMissing')&&js.includes('effectiveFlowId'),'PKCE compatibility fallback is missing');
 assert.ok(!js.includes('appendPkceFlowIdToRedirects: true'),'Web PKCE must not mutate redirectTo; the relay carries flowId explicitly');
 assert.ok(js.includes('data.flowId')&&js.includes("dietSetBrowserOAuthRelayState('web'"),'Web PKCE flow id relay is missing');
 assert.ok(js.includes("DIET_NATIVE_VERSION = '7.0.3'"),'Android 7.0.3 source marker missing');
@@ -94,4 +96,4 @@ assert.ok(nativeStart.includes("sessionStorage.setItem(TARGET_KEY,'native')"),'N
 assert.ok(nativeStart.includes('hycegznamzjhwinegaai.supabase.co'),'Native browser bootstrap origin guard missing');
 assert.ok(sw.includes('/native-auth-start.html')&&sw.includes('/native-auth-callback.html')&&sw.includes('/web-auth-callback.html'),'Auth relay pages must bypass the Diet service worker');
 
-console.log(`Diet Copilot Web 1.0.2 static5 runtime certified: ${sizeKB.toFixed(1)} KB JS, ${cssKB.toFixed(1)} KB CSS.`);
+console.log(`Diet Copilot Web 1.0.2 static6 runtime certified: ${sizeKB.toFixed(1)} KB JS, ${cssKB.toFixed(1)} KB CSS.`);
