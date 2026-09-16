@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 
 const release='1.0.2';
+const writeProduction=process.argv.includes('--write');
 const jsSources=[
   'src/core/dashboard-01.js',
   'src/core/dashboard-02.js',
@@ -53,15 +54,6 @@ for(const file of [...jsSources,...cssSources]){
 const strayRoot=fs.readdirSync('.').filter(file=>/^dashboard-.*\.(?:js|css)$/.test(file));
 if(strayRoot.length)throw new Error(`Historical root dashboard fragments remain: ${strayRoot.join(', ')}`);
 
-function expectedTemplate(files){
-  return `---\n---\n${files.map(file=>`{% include_relative ${file} %}`).join('\n')}\n`;
-}
-
-const jsTemplate=fs.readFileSync('diet-app.js','utf8');
-const cssTemplate=fs.readFileSync('diet.css','utf8');
-if(jsTemplate!==expectedTemplate(jsSources))throw new Error('diet-app.js source order does not match Web 1.0.2.');
-if(cssTemplate!==expectedTemplate(cssSources))throw new Error('diet.css source order does not match Web 1.0.2.');
-
 fs.rmSync('.v68-build',{recursive:true,force:true});
 fs.mkdirSync('.v68-build',{recursive:true});
 let js=`/* Diet Copilot Web ${release} — stable production bundle. */\n`;
@@ -84,6 +76,19 @@ if(config.includes('mrrqsqawwxwebsdmrnre'))throw new Error('Retired Supabase pro
 
 fs.writeFileSync('.v68-build/diet-app.js',js);
 fs.writeFileSync('.v68-build/diet.css',css);
+
+if(writeProduction){
+  fs.writeFileSync('diet-app.js',js);
+  fs.writeFileSync('diet.css',css);
+  console.log('Updated committed static production bundles.');
+}else{
+  const productionJs=fs.readFileSync('diet-app.js','utf8');
+  const productionCss=fs.readFileSync('diet.css','utf8');
+  if(productionJs!==js)throw new Error('Committed diet-app.js is stale. Run: node scripts/build-v68.mjs --write');
+  if(productionCss!==css)throw new Error('Committed diet.css is stale. Run: node scripts/build-v68.mjs --write');
+  if(productionJs.includes('{%')||productionCss.includes('{%'))throw new Error('Liquid directives must never ship in production runtime assets.');
+  if(productionJs.startsWith('---')||productionCss.startsWith('---'))throw new Error('Jekyll front matter must never ship in production runtime assets.');
+}
 
 const jsKB=Buffer.byteLength(js)/1024,cssKB=Buffer.byteLength(css)/1024;
 if(jsKB>=400)throw new Error(`Stable JS exceeds 400 KB budget: ${jsKB.toFixed(1)} KB`);
