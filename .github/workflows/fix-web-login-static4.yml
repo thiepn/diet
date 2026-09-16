@@ -39,11 +39,9 @@ jobs:
           python - <<'PY'
           from pathlib import Path
 
-          # Force every browser/service worker onto the corrected runtime.
-          for name in ['index.html', 'sw.js', 'tests/release.mjs', '.github/workflows/ci.yml', '.github/workflows/a7-operations.yml']:
+          for name in ['index.html', 'sw.js', 'tests/release.mjs']:
               p = Path(name)
-              s = p.read_text().replace('static3', 'static4')
-              p.write_text(s)
+              p.write_text(p.read_text().replace('static3', 'static4'))
 
           p = Path('tests/release.mjs')
           s = p.read_text()
@@ -54,16 +52,6 @@ jobs:
           if old1 not in s or old2 not in s:
               raise SystemExit('Expected release PKCE assertions not found')
           p.write_text(s.replace(old1, new1, 1).replace(old2, new2, 1))
-
-          p = Path('.github/workflows/ci.yml')
-          s = p.read_text()
-          old = "          if(!persist.includes('appendPkceFlowIdToRedirects: true'))throw new Error('Per-flow PKCE redirect IDs are missing.');\n"
-          new = "          if(persist.includes('appendPkceFlowIdToRedirects: true'))throw new Error('Web PKCE must not mutate redirectTo with sb_flow_id.');\n          if(!auth.includes('data.flowId')||!auth.includes(\"dietSetBrowserOAuthRelayState('web'\"))throw new Error('Web PKCE flow id relay is missing.');\n"
-          oldgrep = "          grep -q 'appendPkceFlowIdToRedirects: true' _site/diet-app.js\n"
-          newgrep = "          ! grep -q 'appendPkceFlowIdToRedirects: true' _site/diet-app.js\n          grep -q 'data.flowId' _site/diet-app.js\n"
-          if old not in s or oldgrep not in s:
-              raise SystemExit('Expected CI PKCE assertions not found')
-          p.write_text(s.replace(old, new, 1).replace(oldgrep, newgrep, 1))
           PY
 
           node --check diet-app.js
@@ -81,6 +69,6 @@ jobs:
           set -euo pipefail
           git config user.name 'thiepn'
           git config user.email 'junsosmart@gmail.com'
-          git add src/auth/dashboard-auth-persist.js diet-app.js index.html sw.js tests/release.mjs .github/workflows/ci.yml .github/workflows/a7-operations.yml
+          git add src/auth/dashboard-auth-persist.js diet-app.js index.html sw.js tests/release.mjs
           git commit -m 'Fix Diet web PKCE redirect allowlist regression'
           git push origin HEAD:main
