@@ -1,7 +1,9 @@
 'use strict';
 
-// V7.0.2 native Android companion. This file is deliberately inert on the web.
-const DIET_NATIVE_VERSION = '7.0.2';
+// V7.0.3 native Android companion. This file is deliberately inert on the web.
+const DIET_NATIVE_VERSION = '7.0.3';
+const DIET_NATIVE_AUTH_START = 'https://thiepn.dev/diet/native-auth-start.html';
+const DIET_NATIVE_PENDING_FLOW_KEY = 'diet-copilot:native-oauth-flow-v2';
 let dietNativeAuthSubscription = null;
 let dietNativeAuthUrlListener = null;
 let dietNativeSessionFingerprint = null;
@@ -25,6 +27,16 @@ function dietNativeTime(value){
   const d=new Date(value); return Number.isNaN(d.getTime())?'Not synced yet':d.toLocaleString([], {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
 }
 
+function dietNativeRememberFlowId(flowId){
+  try{
+    if(flowId)localStorage.setItem(DIET_NATIVE_PENDING_FLOW_KEY,flowId);
+    else localStorage.removeItem(DIET_NATIVE_PENDING_FLOW_KEY);
+  }catch{}
+}
+function dietNativePendingFlowId(){
+  try{return localStorage.getItem(DIET_NATIVE_PENDING_FLOW_KEY)||null}catch{return null}
+}
+
 async function dietNativeStartGoogleOAuth(){
   if(!dietIsNativeAndroid()||!cloud?.client)throw new Error('Native sign-in is unavailable.');
   if(dietNativeOAuthBusy)return;
@@ -35,14 +47,27 @@ async function dietNativeStartGoogleOAuth(){
     const {data,error}=await cloud.client.auth.signInWithOAuth({
       provider:'google',
       options:{
-        redirectTo:DIET_NATIVE_AUTH_REDIRECT,
+        redirectTo:DIET_AUTH_RELAY,
         skipBrowserRedirect:true,
         queryParams:{prompt:'select_account'}
       }
     });
     if(error)throw error;
     if(!data?.url)throw new Error('Google sign-in URL was not created.');
-    await browser.open({url:data.url});
+
+    const flowId=data.flowId||null;
+    dietNativeRememberFlowId(flowId);
+
+    // Open a first-party bootstrap page before Supabase. It marks this external
+    // browser tab as the native client, then immediately continues to the
+    // provider URL. This prevents the shared WordStrike callback from guessing
+    // whether a PKCE code belongs to the website or to the Android WebView.
+    const startUrl=new URL(DIET_NATIVE_AUTH_START);
+    startUrl.hash=new URLSearchParams({auth_url:data.url,flow_id:flowId||''}).toString();
+    await browser.open({url:startUrl.toString()});
+  }catch(error){
+    dietNativeRememberFlowId(null);
+    throw error;
   }finally{
     dietNativeOAuthBusy=false;
   }
@@ -68,18 +93,20 @@ async function dietNativeHandleAuthUrl(rawUrl){
   const code=url.searchParams.get('code');
   if(!code){
     cloud.error='Google sign-in returned without an authorization code.';
+    dietNativeRememberFlowId(null);
     if(connectionDialog?.open)renderConnection();
     showToast(cloud.error);
     return true;
   }
 
   try{
-    const flowId=url.searchParams.get('sb_flow_id');
+    const flowId=url.searchParams.get('sb_flow_id')||dietNativePendingFlowId();
     const {data,error}=await cloud.client.auth.exchangeCodeForSession(code,flowId?{flowId}:undefined);
     if(error)throw error;
     cloud.user=data?.session?.user||null;
     cloud.status=cloud.user?'online':'configured';
     cloud.error=null;
+    dietNativeRememberFlowId(null);
     dietNativeSessionFingerprint=null;
     updateStatus();
     await dietNativeConfigureSession();
@@ -92,6 +119,7 @@ async function dietNativeHandleAuthUrl(rawUrl){
     showToast('Signed in with THIEPN Account');
   }catch(error){
     cloud.error=error?.message||String(error);
+    dietNativeRememberFlowId(null);
     cloud.status='configured';
     updateStatus();
     if(connectionDialog?.open)renderConnection();

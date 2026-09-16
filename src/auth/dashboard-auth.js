@@ -3,25 +3,48 @@
 // Diet Copilot uses THIEPN Account, the shared Supabase identity used by other
 // first-party THIEPN apps. Diet Copilot intentionally exposes Google sign-in
 // only; password/account-management flows are not part of this product.
-const DIET_NATIVE_AUTH_REDIRECT = 'https://thiepn.dev/WORDSTRIKE/';
+const DIET_AUTH_RELAY = 'https://thiepn.dev/WORDSTRIKE/';
+const DIET_OAUTH_TARGET_KEY = 'diet-copilot:oauth-target-v2';
+const DIET_OAUTH_FLOW_KEY = 'diet-copilot:oauth-flow-v2';
 
-function dietAuthRedirectUrl() {
-  if (typeof dietIsNativeAndroid === 'function' && dietIsNativeAndroid()) return DIET_NATIVE_AUTH_REDIRECT;
-  return `${location.origin}${location.pathname}`;
+function dietClearBrowserOAuthRelayState() {
+  try {
+    sessionStorage.removeItem(DIET_OAUTH_TARGET_KEY);
+    sessionStorage.removeItem(DIET_OAUTH_FLOW_KEY);
+  } catch {}
+}
+
+function dietSetBrowserOAuthRelayState(target, flowId) {
+  try {
+    sessionStorage.setItem(DIET_OAUTH_TARGET_KEY, target);
+    if (flowId) sessionStorage.setItem(DIET_OAUTH_FLOW_KEY, flowId);
+    else sessionStorage.removeItem(DIET_OAUTH_FLOW_KEY);
+  } catch {}
 }
 
 async function dietSignInWithGoogle() {
   if (typeof dietIsNativeAndroid === 'function' && dietIsNativeAndroid() && window.DietNative?.startGoogleOAuth) {
     return window.DietNative.startGoogleOAuth();
   }
-  const { error } = await cloud.client.auth.signInWithOAuth({
+
+  dietClearBrowserOAuthRelayState();
+  const { data, error } = await cloud.client.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: dietAuthRedirectUrl(),
+      redirectTo: DIET_AUTH_RELAY,
+      skipBrowserRedirect: true,
       queryParams: { prompt: 'select_account' }
     }
   });
   if (error) throw error;
+  if (!data?.url) throw new Error('Google sign-in URL was not created.');
+
+  // The callback is hosted on the same thiepn.dev origin as Diet Copilot.
+  // Mark this browsing context as the web client and preserve Supabase's exact
+  // PKCE flow id so the returned authorization code is exchanged against the
+  // same verifier that created it.
+  dietSetBrowserOAuthRelayState('web', data.flowId || '');
+  location.assign(data.url);
 }
 
 renderConnection = function renderDietConnection() {
@@ -44,6 +67,7 @@ renderConnection = function renderDietConnection() {
       cloud.user = null;
       cloud.status = 'configured';
       dashboard = emptyDashboard();
+      dietClearBrowserOAuthRelayState();
       try { localStorage.removeItem(CACHE_KEY); } catch {}
       renderConnection();
       render();
@@ -70,6 +94,7 @@ renderConnection = function renderDietConnection() {
       await dietSignInWithGoogle();
     } catch (error) {
       cloud.error = error?.message || String(error);
+      dietClearBrowserOAuthRelayState();
       renderConnection();
     }
   });
