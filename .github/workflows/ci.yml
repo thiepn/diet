@@ -61,6 +61,8 @@ jobs:
           const activeJs=fs.readdirSync('src',{recursive:true}).filter(p=>String(p).endsWith('.js')).map(p=>fs.readFileSync(`src/${p}`,'utf8')).join('\n');
           for(const banned of ['signInWithPassword','resetPasswordForEmail','loginPassword','passwordForm','email-password'])if(activeJs.includes(banned))throw new Error(`Legacy password auth returned: ${banned}`);
           if(!(persist.includes("flowType: 'pkce'")||persist.includes("flowType:'pkce'")))throw new Error('PKCE auth flow missing.');
+          if(!persist.includes('detectSessionInUrl: false'))throw new Error('Web PKCE callback must use explicit session exchange.');
+          for(const symbol of ['dietReadWebOAuthCallback','callback.code','exchangeCodeForSession','dietStripWebOAuthCallback'])if(!persist.includes(symbol))throw new Error(`Explicit web PKCE callback handling missing: ${symbol}`);
           if(persist.includes('appendPkceFlowIdToRedirects: true'))throw new Error('Web PKCE must not mutate redirectTo with sb_flow_id.');
           if(!auth.includes('data.flowId')||!auth.includes("dietSetBrowserOAuthRelayState('web'"))throw new Error('Web PKCE flow id relay is missing.');
           if(persist.includes('setSession('))throw new Error('App-specific token restoration returned.');
@@ -108,8 +110,11 @@ jobs:
           ! grep -q '{%' _site/diet.css
           ! grep -q '1.0-rc1' _site/diet-app.js
           ! grep -q 'data-v6-capture=' _site/diet-app.js
-          grep -q 'diet-app.js?v=1.0.2-static4' _site/index.html
-          grep -q 'diet.css?v=1.0.2-static4' _site/index.html
+          grep -q 'diet-app.js?v=1.0.2-static5' _site/index.html
+          grep -q 'diet.css?v=1.0.2-static5' _site/index.html
+          grep -q 'detectSessionInUrl: false' _site/diet-app.js
+          grep -q 'dietReadWebOAuthCallback' _site/diet-app.js
+          grep -q 'callback.code' _site/diet-app.js
           ! grep -q 'appendPkceFlowIdToRedirects: true' _site/diet-app.js
           grep -q 'data.flowId' _site/diet-app.js
           ! grep -q 'exchangeCodeForSession' _site/web-auth-callback.html
