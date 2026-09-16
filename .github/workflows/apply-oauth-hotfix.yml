@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '.release/oauth-hotfix.b64'
+      - '.release/oauth-hotfix-05.b64'
 
 permissions:
   contents: write
@@ -24,7 +24,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/diet-oauth-hotfix
-          base64 -d .release/oauth-hotfix.b64 > /tmp/diet-oauth-hotfix.tar.gz
+          cat .release/oauth-hotfix-{00,01,02,03,04,05}.b64 | base64 -d > /tmp/diet-oauth-hotfix.tar.gz
           echo '709c0db201106ccc88f28273e41cafad9721c15240e5efe516467d79607b91d6  /tmp/diet-oauth-hotfix.tar.gz' | sha256sum -c -
           tar -xzf /tmp/diet-oauth-hotfix.tar.gz -C /tmp/diet-oauth-hotfix
           cp -a /tmp/diet-oauth-hotfix/. ./
