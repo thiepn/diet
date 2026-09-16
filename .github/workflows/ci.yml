@@ -14,12 +14,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
           node-version: 22
-
       - name: JavaScript syntax
         shell: bash
         run: |
@@ -28,7 +26,6 @@ jobs:
           node --check scripts/build-v68.mjs
           node --check tests/policy.mjs
           node --check tests/release.mjs
-
       - name: Diet product and backend contract
         run: |
           node --input-type=module <<'NODE'
@@ -43,18 +40,13 @@ jobs:
           const v65=fs.readFileSync('src/intelligence/dashboard-v6-5.js','utf8');
           const v66=fs.readFileSync('src/intelligence/dashboard-v6-6.js','utf8');
           const shared='hycegznamzjhwinegaai',legacy='mrrqsqawwxwebsdmrnre';
-
           if(backend.canonical_project_ref!==shared)throw new Error('Wrong canonical backend.');
           if(!backend.legacy_project_refs?.includes(legacy)||!String(backend.legacy_policy).includes('retired'))throw new Error('Legacy backend is not retired.');
           if(backend.write_protocol?.require_request_id!==true||backend.write_protocol?.retry_same_request_id!==true||backend.write_protocol?.verify_after_write!==true||backend.write_protocol?.dual_write!==false)throw new Error('Reliable write protocol regressed.');
           if(backend.metrics_policy?.nutrition_days!=='all_days_with_logged_intake'||backend.metrics_policy?.weight!=='all_available_weigh_ins'||backend.metrics_policy?.day_status!=='coverage_metadata_only')throw new Error('All-logged-data metrics contract regressed.');
           if(backend.product_boundary?.logging_entrypoint!=='direct_chatgpt_conversation'||backend.product_boundary?.dashboard_manual_logging!==false||backend.product_boundary?.dashboard_quick_capture!==false)throw new Error('Dashboard product boundary regressed.');
-
-          for(const capability of ['daily_decision_engine','food_memory_intelligence','post_write_verification','integrity_report','weekly_intelligence','trend_confidence','adaptive_coaching_v2','goal_forecast','consolidated_insights','metric_provenance','single_pass_dashboard_refresh','unified_realtime_channel','today_core_only']){
-            if(backend.capabilities?.[capability]!==true)throw new Error(`Missing capability: ${capability}`);
-          }
-
-          for(const symbol of ["DIET_WEB_RELEASE = '1.0.1'","DIET_RELEASE_CHANNEL = 'stable'",'renderTodayV68','window.DietRelease'])if(!release.includes(symbol))throw new Error(`Stable release symbol missing: ${symbol}`);
+          for(const capability of ['daily_decision_engine','food_memory_intelligence','post_write_verification','integrity_report','weekly_intelligence','trend_confidence','adaptive_coaching_v2','goal_forecast','consolidated_insights','metric_provenance','single_pass_dashboard_refresh','unified_realtime_channel','today_core_only'])if(backend.capabilities?.[capability]!==true)throw new Error(`Missing capability: ${capability}`);
+          for(const symbol of ["DIET_WEB_RELEASE = '1.0.2'","DIET_RELEASE_CHANNEL = 'stable'",'renderTodayV68','window.DietRelease'])if(!release.includes(symbol))throw new Error(`Stable release symbol missing: ${symbol}`);
           if(v63.includes('refreshDataV63')||v65.includes('refreshDataV65'))throw new Error('Legacy refresh wrappers returned.');
           for(const symbol of ['renderInsightsV66','refreshDataV66','subscribeRealtimeV66'])if(!v66.includes(symbol))throw new Error(`Consolidated UX symbol missing: ${symbol}`);
           if(!build.includes("'src/release.js'"))throw new Error('Stable release source missing from builder.');
@@ -62,7 +54,6 @@ jobs:
           if(!config.includes(shared)||config.includes(legacy))throw new Error('Active config does not point only at canonical backend.');
           if(!bridge.includes(`Canonical project ref: \`${shared}\``)||!bridge.includes(legacy))throw new Error('ChatGPT bridge backend contract missing.');
           if(!finalPolicy.includes('Logged nutrition always counts')||!finalPolicy.includes('Day status is coverage metadata only'))throw new Error('All-logged-data final policy missing.');
-
           const auth=fs.readFileSync('src/auth/dashboard-auth.js','utf8');
           const persist=fs.readFileSync('src/auth/dashboard-auth-persist.js','utf8');
           if(!auth.includes('Continue with Google')||!auth.includes('dietSignInWithGoogle')||!auth.includes("auth.signOut({ scope: 'local' })"))throw new Error('THIEPN Account Google-only auth contract regressed.');
@@ -70,20 +61,16 @@ jobs:
           for(const banned of ['signInWithPassword','resetPasswordForEmail','loginPassword','passwordForm','email-password'])if(activeJs.includes(banned))throw new Error(`Legacy password auth returned: ${banned}`);
           if(!(persist.includes("flowType: 'pkce'")||persist.includes("flowType:'pkce'")))throw new Error('PKCE auth flow missing.');
           if(persist.includes('setSession('))throw new Error('App-specific token restoration returned.');
-          console.log('Diet Copilot Web 1.0.1 product/backend contract passed.');
+          console.log('Diet Copilot Web 1.0.2 product/backend contract passed.');
           NODE
-
       - name: Nutrition and coaching regression fixtures
         run: node tests/policy.mjs
-
       - name: Expand stable production templates
         run: node scripts/build-v68.mjs
-
       - name: Stable bundle certification
         run: |
           node --check .v68-build/diet-app.js
           node tests/release.mjs
-
       - name: Template expansion must be deterministic
         run: |
           cp .v68-build/diet-app.js /tmp/diet-app.js
@@ -92,13 +79,11 @@ jobs:
           node scripts/build-v68.mjs
           cmp .v68-build/diet-app.js /tmp/diet-app.js
           cmp .v68-build/diet.css /tmp/diet.css
-
       - name: Build the actual GitHub Pages site
         uses: actions/jekyll-build-pages@v1
         with:
           source: ./
           destination: ./_site
-
       - name: Validate deployed stable artifacts
         shell: bash
         run: |
@@ -111,6 +96,6 @@ jobs:
           ! grep -q '{% include_relative' _site/diet.css
           ! grep -q '1.0-rc1' _site/diet-app.js
           ! grep -q 'data-v6-capture=' _site/diet-app.js
-          grep -q 'diet-app.js?v=1.0.1' _site/index.html
-          grep -q 'diet.css?v=1.0.1' _site/index.html
-          grep -q "DIET_WEB_RELEASE = '1.0.1'" _site/diet-app.js
+          grep -q 'diet-app.js?v=1.0.2' _site/index.html
+          grep -q 'diet.css?v=1.0.2' _site/index.html
+          grep -q "DIET_WEB_RELEASE = '1.0.2'" _site/diet-app.js

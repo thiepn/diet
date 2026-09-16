@@ -30,31 +30,20 @@
   const target = new URL('dev.thiepn.diet://auth-callback/');
   const allowed = ['code', 'error', 'error_description', 'error_code', 'sb_flow_id'];
   let hasAuthResult = false;
-
   for (const key of allowed) {
     const value = source.searchParams.get(key);
-    if (value !== null) {
-      target.searchParams.set(key, value);
-      hasAuthResult = true;
-    }
+    if (value !== null) { target.searchParams.set(key, value); hasAuthResult = true; }
   }
-
   const button = document.getElementById('openApp');
   const status = document.getElementById('status');
-
   if (!hasAuthResult) {
     status.textContent = 'The authentication response is missing. Return to Diet Copilot and try again.';
     button.hidden = true;
     return;
   }
-
   const deepLink = target.toString();
   button.href = deepLink;
-
-  // Remove the one-time authorization code from browser history before handing
-  // control back to Android. The code remains only in the in-memory deep link.
   try { history.replaceState(null, '', source.pathname); } catch {}
-
   try { window.location.replace(deepLink); } catch {}
 })();
 </script>

@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - name: Expand Web 1.0.1 production runtime
+      - name: Expand Web 1.0.2 production runtime
         run: node scripts/build-v68.mjs
       - name: A7 diagnostics contract
         run: |
@@ -30,12 +30,12 @@ jobs:
           if(manifest.degradedMode!=='cached-read-only')throw new Error('Diet degraded mode must preserve cached reads.');
           if(manifest.health?.networkFailureLogsOutUser!==false)throw new Error('Network failure must not become logout.');
           if(manifest.health?.writesPerformedByDashboard!==false)throw new Error('Dashboard must remain read-only.');
-          if(manifest.webRelease!=='1.0.1'||manifest.releaseChannel!=='stable')throw new Error('Stable release metadata missing.');
-          if(!index.includes('diet-app.js?v=1.0.1'))throw new Error('Web 1.0 production bundle is not loaded.');
+          if(manifest.webRelease!=='1.0.2'||manifest.releaseChannel!=='stable')throw new Error('Stable release metadata missing.');
+          if(!index.includes('diet-app.js?v=1.0.2'))throw new Error('Web 1.0.2 production bundle is not loaded.');
           if(!operations.includes('window.DietOperations')||!bundle.includes('window.DietOperations'))throw new Error('Diet diagnostics surface missing from production runtime.');
           if(!bundle.includes('window.DietRelease')||!bundle.includes("DIET_RELEASE_CHANNEL = 'stable'"))throw new Error('Stable DietRelease surface missing.');
           for(const category of ["'network'","'authentication'","'authorization'","'rate_limit'","'service'"]){if(!operations.includes(category))throw new Error(`Missing failure category ${category}`)}
           if(operations.includes('localStorage.clear('))throw new Error('Operations must not broadly clear storage.');
           if(operations.includes('.auth.signOut('))throw new Error('Operations must not convert failures into sign-out.');
-          console.log('Diet A7 operations contract passed inside Web 1.0.1.');
+          console.log('Diet A7 operations contract passed inside Web 1.0.2.');
           NODE
