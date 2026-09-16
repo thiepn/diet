@@ -1,11 +1,11 @@
 'use strict';
 
-// Static10 compatibility repair. The consolidated source contains the canonical
-// implementation; this layer only exists so the persistence fix can ship even
-// when the full bundle rebuild queue is delayed. Once the canonical persistence
-// assertion exists in diet-app.js, this file intentionally becomes a no-op.
+// Static10b compatibility repair. This layer hardens the existing Diet auth
+// adapter without creating a second Supabase client. Long-lived sessions prefer
+// localStorage and fall back to secure first-party cookies when localStorage is
+// unavailable. Temporary PKCE state remains tab-scoped.
 (() => {
-  if (typeof dietAssertSessionPersisted === 'function') return;
+  if (window.DietAuthPersistenceHotfix?.version === 'static10b') return;
   if (typeof dietRawAuthStorageGet !== 'function' ||
       typeof dietRawAuthStorageSet !== 'function' ||
       typeof dietRawAuthStorageRemove !== 'function' ||
@@ -13,33 +13,145 @@
 
   const authKey = 'sb-hycegznamzjhwinegaai-auth-token';
   const fallbackPrefix = 'diet-copilot:auth-fallback:';
+  const cookiePrefix = 'diet-auth-v2-';
+  const cookieChunkSize = 2800;
+  const sessionMaxAge = 60 * 60 * 24 * 365;
 
-  function persistentGet(key) {
+  function isPkceKey(key) {
+    return String(key).includes('code-verifier');
+  }
+
+  function cookieBase(key) {
+    return `${cookiePrefix}${encodeURIComponent(String(key))}`;
+  }
+
+  function cookieRead(name) {
+    try {
+      const prefix = `${name}=`;
+      for (const part of String(document.cookie || '').split('; ')) {
+        if (part.startsWith(prefix)) return part.slice(prefix.length);
+      }
+    } catch {}
+    return null;
+  }
+
+  function cookieWrite(name, value, maxAge) {
+    const secure = location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = `${name}=${value}; Path=/; Max-Age=${maxAge}; SameSite=Lax${secure}`;
+  }
+
+  function cookieDelete(name) {
+    const secure = location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = `${name}=; Path=/; Max-Age=0; SameSite=Lax${secure}`;
+  }
+
+  function cookieStorageRemove(key) {
+    const base = cookieBase(key);
+    const rawCount = cookieRead(`${base}.n`);
+    const count = Math.max(0, Math.min(24, Number.parseInt(rawCount || '0', 10) || 0));
+    cookieDelete(`${base}.n`);
+    for (let i = 0; i < Math.max(count, 8); i++) cookieDelete(`${base}.${i}`);
+  }
+
+  function cookieStorageGet(key) {
+    const base = cookieBase(key);
+    const count = Number.parseInt(cookieRead(`${base}.n`) || '', 10);
+    if (!Number.isInteger(count) || count < 1 || count > 24) return null;
+    let encoded = '';
+    for (let i = 0; i < count; i++) {
+      const chunk = cookieRead(`${base}.${i}`);
+      if (chunk == null) return null;
+      encoded += chunk;
+    }
+    try { return decodeURIComponent(encoded); }
+    catch { return null; }
+  }
+
+  function cookieStorageSet(key, value) {
+    cookieStorageRemove(key);
+    const encoded = encodeURIComponent(String(value));
+    const chunks = [];
+    for (let i = 0; i < encoded.length; i += cookieChunkSize) {
+      chunks.push(encoded.slice(i, i + cookieChunkSize));
+    }
+    if (!chunks.length || chunks.length > 24) {
+      throw new Error('The login session is too large for persistent cookie storage.');
+    }
+    const base = cookieBase(key);
+    cookieWrite(`${base}.n`, String(chunks.length), sessionMaxAge);
+    chunks.forEach((chunk, index) => cookieWrite(`${base}.${index}`, chunk, sessionMaxAge));
+    if (cookieStorageGet(key) !== String(value)) {
+      cookieStorageRemove(key);
+      throw new Error('Persistent cookie storage verification failed.');
+    }
+  }
+
+  function localStorageGet(key) {
     try { return localStorage.getItem(key); }
     catch { return null; }
   }
 
-  function persistentSet(key, value) {
+  function localStorageSet(key, value) {
     try {
       localStorage.setItem(key, value);
-      if (localStorage.getItem(key) !== value) {
-        throw new Error('Persistent auth storage verification failed.');
-      }
+      return localStorage.getItem(key) === value;
     } catch {
-      throw new Error('Persistent browser storage is unavailable. Diet Copilot cannot keep you signed in on this device.');
+      return false;
+    }
+  }
+
+  function transientGet(key) {
+    try { return sessionStorage.getItem(`${fallbackPrefix}${key}`); }
+    catch { return null; }
+  }
+
+  function transientSet(key, value) {
+    try {
+      sessionStorage.setItem(`${fallbackPrefix}${key}`, value);
+      return sessionStorage.getItem(`${fallbackPrefix}${key}`) === value;
+    } catch {
+      return false;
+    }
+  }
+
+  function persistentGet(key) {
+    const local = localStorageGet(key);
+    if (local !== null) return local;
+    if (isPkceKey(key)) return transientGet(key);
+    return cookieStorageGet(key);
+  }
+
+  function persistentSet(key, value) {
+    const text = String(value);
+    if (localStorageSet(key, text)) {
+      if (!isPkceKey(key)) cookieStorageRemove(key);
+      try { sessionStorage.removeItem(`${fallbackPrefix}${key}`); } catch {}
+      return;
+    }
+
+    if (isPkceKey(key)) {
+      if (transientSet(key, text)) return;
+      throw new Error('Temporary OAuth storage is unavailable. Google sign-in cannot continue.');
+    }
+
+    try {
+      cookieStorageSet(key, text);
+    } catch {
+      throw new Error('Persistent site storage is unavailable. Diet Copilot cannot keep you signed in on this device.');
     }
   }
 
   function persistentRemove(key) {
     try { localStorage.removeItem(key); } catch {}
     try { sessionStorage.removeItem(`${fallbackPrefix}${key}`); } catch {}
+    if (!isPkceKey(key)) cookieStorageRemove(key);
   }
 
   function verifySession(session) {
     if (!session?.user?.id) return;
     const raw = persistentGet(authKey);
     if (!raw) {
-      throw new Error('Diet Copilot received a session, but could not persist it. Enable persistent site storage to stay signed in.');
+      throw new Error('Diet Copilot received a session, but could not persist it on this device.');
     }
     try {
       const stored = JSON.parse(raw);
@@ -47,29 +159,31 @@
         throw new Error('Persisted session verification failed.');
       }
     } catch {
-      throw new Error('Diet Copilot could not verify the persisted login session. Sign in again after enabling persistent site storage.');
+      throw new Error('Diet Copilot could not verify the persisted login session. Please sign in again.');
     }
   }
 
-  // Recover a session that an older build put in tab-only storage while this
-  // tab is still alive. Never keep a second long-lived token copy afterward.
+  // Recover the bad pre-static10 tab-only session while that tab is still alive.
   try {
     const fallbackKey = `${fallbackPrefix}${authKey}`;
     const transient = sessionStorage.getItem(fallbackKey);
-    if (transient !== null && persistentGet(authKey) === null) {
-      persistentSet(authKey, transient);
-    }
+    if (transient !== null && persistentGet(authKey) === null) persistentSet(authKey, transient);
     sessionStorage.removeItem(fallbackKey);
   } catch (error) {
     console.warn('Diet Copilot could not migrate transient auth storage', error);
   }
 
-  // dietAuthStorage calls these bindings dynamically, so replacing the three
-  // primitives upgrades the already-created Supabase client as well as future
-  // clients without creating another token authority.
+  // Upgrade the storage primitives used by the already-created Supabase client.
   dietRawAuthStorageGet = persistentGet;
   dietRawAuthStorageSet = persistentSet;
   dietRawAuthStorageRemove = persistentRemove;
+
+  // A later consolidated build may contain its own persistence assertion. Point
+  // that assertion at the same verified storage rather than letting it enforce
+  // localStorage-only behavior again.
+  if (typeof dietAssertSessionPersisted === 'function') {
+    dietAssertSessionPersisted = verifySession;
+  }
 
   const applyCloudSessionBeforePersistenceRepair = applyCloudSession;
   applyCloudSession = function applyCloudSessionPersistent(session) {
@@ -77,12 +191,16 @@
     return applyCloudSessionBeforePersistenceRepair(session);
   };
 
+  function storageBackend() {
+    if (localStorageGet(authKey) !== null) return 'localStorage';
+    if (cookieStorageGet(authKey) !== null) return 'cookie';
+    return 'none';
+  }
+
   window.DietAuthPersistenceHotfix = Object.freeze({
-    version: 'static10',
-    storage: 'localStorage-only',
-    verify: () => {
-      const raw = persistentGet(authKey);
-      return Boolean(raw);
-    }
+    version: 'static10b',
+    storage: 'localStorage-or-secure-cookie',
+    backend: storageBackend,
+    verify: () => Boolean(persistentGet(authKey))
   });
 })();
