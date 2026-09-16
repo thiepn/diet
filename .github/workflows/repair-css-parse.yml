@@ -36,7 +36,7 @@ jobs:
               t=f.read_text()
               if t.count('{') != t.count('}'):
                   raise SystemExit(f'CSS brace imbalance remains in {f}: {t.count("{")} opens / {t.count("}")} closes')
-          for name in ['index.html','sw.js','.github/workflows/ci.yml']:
+          for name in ['index.html','sw.js']:
               f=Path(name)
               t=f.read_text().replace('1.0.2-static1','1.0.2-static2')
               if name=='sw.js':
@@ -56,11 +56,10 @@ jobs:
                   raise SystemExit(f'Missing required CSS token: {token}')
           print('CSS parse repair verified')
           PY
-          rm -f .github/workflows/repair-css-parse.yml
       - name: Commit repair
         run: |
           git config user.name 'thiepn'
           git config user.email 'junsosmart@gmail.com'
-          git add -A
+          git add src/styles/dashboard-02.css diet.css diet-app.js index.html sw.js
           git commit -m 'Fix Diet CSS parse failure and rotate web assets'
           git push origin HEAD:main
