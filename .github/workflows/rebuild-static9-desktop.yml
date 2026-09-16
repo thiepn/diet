@@ -1,0 +1,67 @@
+name: Rebuild Diet static9 desktop and zoom
+
+on:
+  push:
+    paths:
+      - '.github/workflows/rebuild-static9-desktop.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - name: Build static9 web runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/build-v68.mjs --write
+          python - <<'PY'
+          from pathlib import Path
+
+          p=Path('index.html')
+          s=p.read_text()
+          s=s.replace('width=device-width, initial-scale=1, viewport-fit=cover','width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover')
+          s=s.replace('static8','static9')
+          p.write_text(s)
+
+          p=Path('sw.js')
+          p.write_text(p.read_text().replace('static8','static9'))
+
+          p=Path('tests/release.mjs')
+          s=p.read_text().replace('static8','static9')
+          old="assert.ok(!html.includes('user-scalable=no'),'Production viewport must allow pinch zoom');\nassert.ok(!html.includes('maximum-scale=1'),'Production viewport must not cap zoom');"
+          new="assert.ok(html.includes('user-scalable=no'),'Production viewport must disable user zoom');\nassert.ok(html.includes('maximum-scale=1'),'Production viewport must cap zoom at 1');\nassert.ok(css.includes('touch-action:pan-x pan-y'),'Touch zoom lock CSS is missing');\nassert.ok(js.includes('dietInstallZoomLock')&&js.includes('zoomLocked:snapshot.zoomLockInstalled'),'Runtime zoom lock is missing');\nassert.ok(css.includes('.today-v2>.v62-guidance')&&css.includes('.today-v2>.v52-goal-progress')&&css.includes('grid-column:1/-1!important'),'Desktop Today grid-span guard is missing');"
+          if old not in s:
+              raise SystemExit('zoom release assertion anchor missing')
+          p.write_text(s.replace(old,new,1))
+          PY
+
+          node --check diet-app.js
+          node scripts/build-v68.mjs
+          node tests/release.mjs
+          grep -q 'diet-app.js?v=1.0.2-static9' index.html
+          grep -q 'diet.css?v=1.0.2-static9' index.html
+          grep -q 'user-scalable=no' index.html
+          grep -q 'maximum-scale=1' index.html
+          grep -q 'diet-copilot-web-v1.0.2-static9' sw.js
+          grep -q '.today-v2>.v62-guidance' diet.css
+          grep -q '.today-v2>.v52-goal-progress' diet.css
+          grep -q 'dietInstallZoomLock' diet-app.js
+
+      - name: Commit static9 web release
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'thiepn'
+          git config user.email 'junsosmart@gmail.com'
+          git add diet-app.js diet.css index.html sw.js tests/release.mjs
+          git commit -m 'Ship desktop layout and no-zoom static9'
+          git push origin HEAD:main
