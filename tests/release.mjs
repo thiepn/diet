@@ -11,8 +11,8 @@ const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const manifest=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
 
-assert.match(html,/diet\.css\?v=1\.0\.2-static7/);
-assert.match(html,/diet-app\.js\?v=1\.0\.2-static7/);
+assert.match(html,/diet\.css\?v=1\.0\.2-static8/);
+assert.match(html,/diet-app\.js\?v=1\.0\.2-static8/);
 assert.match(html,/application-version" content="1\.0\.2/);
 assert.equal((html.match(/<script src="dashboard-/g)||[]).length,0,'Historical dashboard scripts are still loaded by production HTML');
 assert.equal((html.match(/<link rel="stylesheet" href="dashboard-/g)||[]).length,0,'Historical dashboard styles are still loaded by production HTML');
@@ -37,10 +37,11 @@ assert.ok(css.includes('prefers-reduced-motion:reduce'),'Reduced-motion certific
 assert.ok(css.includes('.v53-detail-sheet'),'Detail-sheet hardening missing');
 assert.ok(css.includes('overflow-x:hidden'),'Horizontal overflow guard missing');
 assert.equal((css.match(/{/g)||[]).length,(css.match(/}/g)||[]).length,'Production CSS braces are unbalanced');
+assert.ok(css.includes('.v53-open-indicator{display:none!important}'),'V6.1.1 redundant card-chevron hotfix is missing');
 
-assert.ok(sw.includes("const CACHE='diet-copilot-web-v1.0.2-static7'"),'Wrong service-worker generation');
-assert.ok(sw.includes("'./diet-app.js?v=1.0.2-static7'"),'Service worker missing stable JS bundle');
-assert.ok(sw.includes("'./diet.css?v=1.0.2-static7'"),'Service worker missing stable CSS bundle');
+assert.ok(sw.includes("const CACHE='diet-copilot-web-v1.0.2-static8'"),'Wrong service-worker generation');
+assert.ok(sw.includes("'./diet-app.js?v=1.0.2-static8'"),'Service worker missing stable JS bundle');
+assert.ok(sw.includes("'./diet.css?v=1.0.2-static8'"),'Service worker missing stable CSS bundle');
 assert.ok(!sw.includes('dashboard-v6-5.js'),'Service worker still precaches historical fragments');
 assert.ok(!sw.includes('1.0-rc1'),'Release-candidate cache marker remains');
 
@@ -97,4 +98,4 @@ assert.ok(nativeStart.includes("sessionStorage.setItem(TARGET_KEY,'native')"),'N
 assert.ok(nativeStart.includes('hycegznamzjhwinegaai.supabase.co'),'Native browser bootstrap origin guard missing');
 assert.ok(sw.includes('/native-auth-start.html')&&sw.includes('/native-auth-callback.html')&&sw.includes('/web-auth-callback.html'),'Auth relay pages must bypass the Diet service worker');
 
-console.log(`Diet Copilot Web 1.0.2 static7 runtime certified: ${sizeKB.toFixed(1)} KB JS, ${cssKB.toFixed(1)} KB CSS.`);
+console.log(`Diet Copilot Web 1.0.2 static8 runtime certified: ${sizeKB.toFixed(1)} KB JS, ${cssKB.toFixed(1)} KB CSS.`);
