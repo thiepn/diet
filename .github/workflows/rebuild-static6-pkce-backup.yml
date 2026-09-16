@@ -1,61 +1,14 @@
-name: Rebuild Diet static6 PKCE backup
+name: Retired static6 rebuild
 
 on:
-  push:
-    paths:
-      - '.github/workflows/rebuild-static6-pkce-backup.yml'
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  rebuild:
+  retired:
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-      - name: Build static6 web runtime
-        shell: bash
-        run: |
-          set -euo pipefail
-          node scripts/build-v68.mjs --write
-          python - <<'PY'
-          from pathlib import Path
-
-          for name in ['index.html', 'sw.js', 'tests/release.mjs']:
-              p = Path(name)
-              s = p.read_text().replace('static5', 'static6')
-              p.write_text(s)
-
-          p = Path('tests/release.mjs')
-          s = p.read_text()
-          anchor = "assert.ok(js.includes('dietReadWebOAuthCallback')&&js.includes('callback.code')&&js.includes('exchangeOptions'),'Explicit web PKCE callback exchange is missing');\n"
-          replacement = "assert.ok(js.includes('dietReadWebOAuthCallback')&&js.includes('callback.code'),'Explicit web PKCE callback exchange is missing');\nassert.ok(js.includes('dietBackupBrowserPkceVerifier')&&js.includes('dietRestoreBrowserPkceVerifier')&&js.includes('DIET_PKCE_BACKUP_KEY'),'Tab-scoped PKCE verifier recovery is missing');\nassert.ok(js.includes('dietPkceVerifierMissing')&&js.includes('effectiveFlowId'),'PKCE compatibility fallback is missing');\n"
-          if anchor in s:
-              s = s.replace(anchor, replacement, 1)
-          elif 'dietBackupBrowserPkceVerifier' not in s:
-              raise SystemExit('release PKCE assertion anchor missing')
-          p.write_text(s)
-          PY
-
-          node --check diet-app.js
-          node scripts/build-v68.mjs
-          node tests/release.mjs
-          grep -q "dietBackupBrowserPkceVerifier" diet-app.js
-          grep -q "dietRestoreBrowserPkceVerifier" diet-app.js
-          grep -q "diet-app.js?v=1.0.2-static6" index.html
-          grep -q "diet-copilot-web-v1.0.2-static6" sw.js
-
-      - name: Commit static6 web release
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name 'thiepn'
-          git config user.email 'junsosmart@gmail.com'
-          git add diet-app.js index.html sw.js tests/release.mjs
-          git commit -m 'Ship PKCE verifier recovery in static6'
-          git push origin HEAD:main
+      - run: echo retired
