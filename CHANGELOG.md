@@ -1,5 +1,20 @@
 # Changelog
 
+## V6.8.1 — Web 1.0.1 / Android 7.0.2 Finalization — 2026-09-16
+
+Final maintenance and native-release hardening pass before reinstalling the Android app.
+
+- removed all active email/password sign-in, account-creation, password-reset and password-change code; Diet Copilot is Google-only
+- standardized browser and Android authentication on Supabase PKCE
+- added canonical Android bridge/native styles to the source builder instead of shipping APK-only runtime patches
+- retained the temporary WORDSTRIKE Site-URL relay only for PKCE code callbacks needed by the shared Supabase project
+- added the dedicated native callback page and deep-link handoff to `dev.thiepn.diet://auth-callback/`
+- rotated production assets and service-worker cache to Web `1.0.1`
+- restored pinch-to-zoom by removing viewport zoom restrictions
+- hardened Android `7.0.2` (`versionCode 702`) as non-debuggable, backup-disabled and cleartext-disabled
+- re-certified owner-scoped read-only Diet browser access and backend data integrity
+- added CI gates that fail if password auth, stale release markers, inaccessible viewport settings or the native PKCE callback regress
+
 ## V6.8 — Diet Copilot Web 1.0 Final Release — 2026-09-14
 
 Promotes the certified V6.7 release candidate to the stable Web `1.0.0` baseline without adding another tracking workflow.

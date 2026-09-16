@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-const release='1.0.0';
+const release='1.0.1';
 const jsSources=[
   'src/core/dashboard-01.js',
   'src/core/dashboard-02.js',
@@ -24,6 +24,7 @@ const jsSources=[
   'src/intelligence/dashboard-v6-5.js',
   'src/intelligence/dashboard-v6-6.js',
   'src/release.js',
+  'src/native/android-bridge.js',
   'src/operations/dashboard-ops.js'
 ];
 
@@ -41,7 +42,8 @@ const cssSources=[
   'src/styles/dashboard-v5-3.css',
   'src/styles/dashboard-v6-2.css',
   'src/styles/dashboard-v6-6.css',
-  'src/styles/release.css'
+  'src/styles/release.css',
+  'src/styles/native.css'
 ];
 
 for(const file of [...jsSources,...cssSources]){
@@ -57,8 +59,8 @@ function expectedTemplate(files){
 
 const jsTemplate=fs.readFileSync('diet-app.js','utf8');
 const cssTemplate=fs.readFileSync('diet.css','utf8');
-if(jsTemplate!==expectedTemplate(jsSources))throw new Error('diet-app.js source order does not match Web 1.0.0.');
-if(cssTemplate!==expectedTemplate(cssSources))throw new Error('diet.css source order does not match Web 1.0.0.');
+if(jsTemplate!==expectedTemplate(jsSources))throw new Error('diet-app.js source order does not match Web 1.0.1.');
+if(cssTemplate!==expectedTemplate(cssSources))throw new Error('diet.css source order does not match Web 1.0.1.');
 
 fs.rmSync('.v68-build',{recursive:true,force:true});
 fs.mkdirSync('.v68-build',{recursive:true});
@@ -70,7 +72,7 @@ for(const file of cssSources)css+=`\n/* ===== ${file} ===== */\n${fs.readFileSyn
 for(const banned of ['function v6CaptureMarkup','data-v6-capture="','data-v6-recipe-log="','1.0-rc1']){
   if(js.includes(banned))throw new Error(`Retired runtime leaked into stable bundle: ${banned}`);
 }
-for(const required of ['renderInsightsV66','renderHistoryV66','renderTodayV68','DIET_WEB_RELEASE = \'1.0.0\'','window.DietRelease','Logged nutrition always counts','window.DietOperations']){
+for(const required of ['renderInsightsV66','renderHistoryV66','renderTodayV68','DIET_WEB_RELEASE = \'1.0.1\'','window.DietRelease','Logged nutrition always counts','window.DietOperations']){
   if(!js.includes(required))throw new Error(`Stable bundle missing ${required}`);
 }
 if(!css.includes('prefers-reduced-motion:reduce'))throw new Error('Reduced-motion styles missing.');

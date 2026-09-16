@@ -9,9 +9,11 @@
   "operationsVersion": "A7.1",
   "sessionAuthority": "thiepn-account",
   "degradedMode": "cached-read-only",
-  "authEntryPoints": ["email-password", "google"],
-  "release": "V6.8",
-  "webRelease": "1.0.0",
+  "authEntryPoints": [
+    "google"
+  ],
+  "release": "V6.8.1",
+  "webRelease": "1.0.1",
   "releaseChannel": "stable",
   "stable": true,
   "productionBundle": "diet-app.js",

@@ -1,15 +1,10 @@
 'use strict';
 
-// Final auth compatibility layer.
-// dashboard-p5.js can replace renderConnection after dashboard-auth.js loads.
-// Enforce the final product contract here: Google-only account UI. Older
-// email/password controls may still exist in legacy source for compatibility,
-// but they are never exposed by the final Diet Copilot account sheet.
+// Final auth surface guard. All active layers are Google-only; this last layer
+// keeps that contract explicit if presentation layers are rearranged later.
 const dietRenderConnectionBeforeFinalAuth = renderConnection;
 
 renderConnection = function renderConnectionFinalAuth() {
-  // Allow earlier layers to keep any non-auth side effects they own, then fully
-  // replace the visible account sheet so legacy controls cannot leak through.
   const result = dietRenderConnectionBeforeFinalAuth();
   const email = cloud.user?.email || '';
 
@@ -53,19 +48,8 @@ renderConnection = function renderConnectionFinalAuth() {
     target.disabled = true;
     target.textContent = 'Redirecting…';
     cloud.error = null;
-
     try {
-      const redirectTo = typeof dietAuthRedirectUrl === 'function'
-        ? dietAuthRedirectUrl()
-        : `${location.origin}${location.pathname}`;
-      const { error } = await cloud.client.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo,
-          queryParams: { prompt: 'select_account' }
-        }
-      });
-      if (error) throw error;
+      await dietSignInWithGoogle();
     } catch (error) {
       cloud.error = error?.message || String(error);
       renderConnection();

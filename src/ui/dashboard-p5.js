@@ -4,8 +4,7 @@ function p5FriendlyError(error) {
   const raw = String(error || '').trim();
   const lower = raw.toLowerCase();
   if (!raw) return 'Something went wrong while updating Diet Copilot. Please try again.';
-  if (lower.includes('invalid login credentials') || lower.includes('invalid credentials')) return 'The email or password is incorrect.';
-  if (lower.includes('email not confirmed')) return 'Please confirm your email address before signing in.';
+  if (lower.includes('invalid login credentials') || lower.includes('invalid credentials') || lower.includes('oauth')) return 'Google sign-in could not be completed. Try again.';
   if (lower.includes('failed to fetch') || lower.includes('network') || lower.includes('load failed')) return 'Diet Copilot could not reach the server. Check your internet connection and try again.';
   if (lower.includes('jwt') || lower.includes('token') || lower.includes('session')) return 'Your session needs to be refreshed. Sign in again to continue.';
   if (lower.includes('rate limit') || lower.includes('too many')) return 'Too many attempts. Wait a moment and try again.';
@@ -109,7 +108,7 @@ renderConnection = function renderConnectionP5() {
       render();
     });
     connectionContent.querySelector('#signOutBtn')?.addEventListener('click', async () => {
-      await cloud.client.auth.signOut();
+      await cloud.client.auth.signOut({ scope: 'local' });
       cloud.user = null;
       cloud.status = 'configured';
       dashboard = emptyDashboard();
@@ -126,73 +125,23 @@ renderConnection = function renderConnectionP5() {
     <div class="p5-login-intro">
       <div class="p5-login-icon" aria-hidden="true">${p5AccountIcon()}</div>
       <h3>Welcome back</h3>
-      <p>Sign in with your Diet Copilot account to see the same meals, calories, protein and weight history on this device.</p>
+      <p>Continue with your Google account to sync your Diet Copilot history on this device.</p>
     </div>
     ${cloud.error ? `<div class="p5-inline-alert" role="alert">${esc(p5FriendlyError(cloud.error))}</div>` : ''}
-    <form id="loginForm" class="stack p5-login-form" novalidate>
-      <div class="field">
-        <label for="loginEmail">Email</label>
-        <input id="loginEmail" type="email" inputmode="email" autocomplete="email" spellcheck="false" required autofocus>
-      </div>
-      <div class="field">
-        <label for="loginPassword">Password</label>
-        <div class="p5-password-wrap"><input id="loginPassword" type="password" autocomplete="current-password" minlength="6" required><button type="button" class="p5-password-toggle" aria-label="Show password" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg></button></div>
-      </div>
-      <div class="p5-form-error" role="alert" aria-live="assertive"></div>
-      <button class="btn primary p5-signin-btn" type="submit">Sign in</button>
-    </form>
-    <p class="p5-login-footnote">Use the same account on phone, tablet and desktop.</p>`;
+    <button class="btn primary p5-signin-btn" id="googleSignInBtn" type="button">Continue with Google</button>
+    <p class="p5-login-footnote">Diet Copilot uses Google sign-in only.</p>`;
 
-  const form = connectionContent.querySelector('#loginForm');
-  const emailInput = connectionContent.querySelector('#loginEmail');
-  const passwordInput = connectionContent.querySelector('#loginPassword');
-  const errorBox = connectionContent.querySelector('.p5-form-error');
-  const toggle = connectionContent.querySelector('.p5-password-toggle');
-  toggle?.addEventListener('click',()=>{
-    const showing = passwordInput.type === 'text';
-    passwordInput.type = showing ? 'password' : 'text';
-    toggle.setAttribute('aria-pressed', String(!showing));
-    toggle.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
-    passwordInput.focus();
-  });
-  form?.addEventListener('submit', async event => {
-    event.preventDefault();
-    errorBox.textContent = '';
-    const emailValue = emailInput.value.trim();
-    const passwordValue = passwordInput.value;
-    if (!emailValue) {
-      errorBox.textContent = 'Enter your email address.';
-      emailInput.focus();
-      return;
-    }
-    if (!emailInput.validity.valid) {
-      errorBox.textContent = 'Enter a valid email address.';
-      emailInput.focus();
-      return;
-    }
-    if (!passwordValue || passwordValue.length < 6) {
-      errorBox.textContent = 'Enter your password.';
-      passwordInput.focus();
-      return;
-    }
-    const button = form.querySelector('button[type="submit"]');
+  connectionContent.querySelector('#googleSignInBtn')?.addEventListener('click', async event => {
+    const button = event.currentTarget;
     button.disabled = true;
-    button.textContent = 'Signing in…';
+    button.textContent = 'Redirecting…';
     cloud.error = null;
-    const { error } = await cloud.client.auth.signInWithPassword({email:emailValue,password:passwordValue});
-    if (error) {
-      cloud.error = error.message;
-      errorBox.textContent = p5FriendlyError(error.message);
-      button.disabled = false;
-      button.textContent = 'Sign in';
-      passwordInput.select();
-      return;
+    try {
+      await dietSignInWithGoogle();
+    } catch (error) {
+      cloud.error = error?.message || String(error);
+      renderConnection();
     }
-    await refreshData({silent:true});
-    await subscribeRealtime();
-    render();
-    if (connectionDialog.open) connectionDialog.close();
-    showToast('Signed in · history synced');
   });
 };
 

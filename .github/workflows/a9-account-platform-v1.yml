@@ -30,5 +30,5 @@ jobs:
           if(release.platformCommit!=='169e083f268e895cd44d8a5fe706ba5d4532bfa2')throw new Error('Unexpected platform release commit.');
           for(const key of ['accountContract','sdkContract','integrationMode'])if(release[key]!==app[key])throw new Error(`Release contract mismatch: ${key}`);
           if(release.consumerRelease!==app.webRelease)throw new Error('Diet Web release mismatch.');
-          console.log('Diet Platform v1 release metadata passed.');
+          console.log('Diet Platform v1 / Diet Web 1.0.1 metadata passed.');
           NODE

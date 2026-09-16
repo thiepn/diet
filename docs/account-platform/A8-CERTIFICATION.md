@@ -4,25 +4,23 @@
 **Account contract:** 1.0  
 **SDK compatibility:** 1.x  
 **Integration mode:** `certified-legacy`  
+**Consumer release:** `1.0.1`  
 **Verdict:** **CONSUMER CONTRACT CERTIFIED**
-
-A8 leaves the A6/A7 Diet authentication implementation and V6.5 product behavior untouched. The consumer publishes the normalized A8 manifest and is guarded by a dedicated compatibility workflow against the frozen developer contract.
 
 ## Contract
 
-- THIEPN Account remains the sole identity/session authority;
-- Google and email/password remain the declared Diet account entry points;
-- browser sign-out is explicitly local;
-- duplicate app-specific token restoration remains prohibited;
-- the dashboard remains read-only and never falls back to the retired Diet backend;
-- canonical backend writes continue to require stable request IDs;
-- backend/network failure preserves the last trustworthy cached dashboard state and does not become logout.
+- THIEPN Account remains the sole identity/session authority.
+- Diet Copilot exposes Google sign-in only.
+- Browser and Android OAuth use PKCE.
+- Browser sign-out is explicitly local.
+- Duplicate app-specific token restoration remains prohibited.
+- Diet data stays owner-scoped and read-only in the dashboard.
+- The retired Diet backend never returns to runtime configuration.
+- Network/backend failure preserves the last trustworthy cached dashboard state rather than becoming logout.
 
 ## Certification evidence
 
-- A8 consumer-contract workflow passes.
-- Existing Diet CI/backend/PWA contract passes.
+- A8 consumer-contract workflow rejects any active password-auth implementation.
+- Existing Diet CI/backend/PWA contracts pass.
 - A7 operations contract passes.
-- No Diet product/auth runtime code is changed by A8.
-
-Merge remains gated on those workflows being green for the final A8 head. Runtime behavior remains the A7-certified release.
+- Native PKCE handoff is represented in canonical source and release tests.

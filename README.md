@@ -6,8 +6,8 @@ Diet Copilot is a **ChatGPT-controlled nutrition log and diet intelligence syste
 You → ChatGPT → canonical Supabase backend → Dashboard
 ```
 
-**Stable web release:** `1.0.0`  
-**Internal milestone:** `V6.8`
+**Stable web release:** `1.0.1`  
+**Internal milestone:** `V6.8.1`
 
 ## Product boundary
 
@@ -31,6 +31,10 @@ Diet Copilot uses the shared **THIEPN Account** Supabase project.
 - Retired Diet project: `mrrqsqawwxwebsdmrnre`
 
 The retired project must receive no Diet Copilot reads or writes.
+
+## Authentication
+
+Diet Copilot exposes **Google sign-in only**. Browser and Android flows use Supabase PKCE. The Android companion completes OAuth through the `dev.thiepn.diet://auth-callback/` deep link; email/password account UI is intentionally absent.
 
 Authenticated browser sessions are owner-scoped and read-only. Privileged mutations use private backend helpers with stable request IDs, idempotent retry and post-write verification.
 
@@ -96,6 +100,7 @@ src/
   auth/
   core/
   intelligence/
+  native/
   operations/
   styles/
   ui/
@@ -128,7 +133,7 @@ They are Jekyll templates assembled from the certified source list in `scripts/b
 The service worker uses the stable cache generation:
 
 ```text
-diet-copilot-web-v1.0.0
+diet-copilot-web-v1.0.1
 ```
 
 Navigation and the consolidated runtime assets are network-first, with the cached read-only shell available for degraded/offline use.
@@ -156,4 +161,4 @@ For local browser work, serve the repository through a Jekyll-compatible build o
 
 ## Release policy
 
-Web `1.0.0` is the frozen stable baseline. Future web changes should be maintenance fixes or clearly justified product improvements. The next major platform work is the native Android companion and Health Connect integration.
+Web `1.0.1` is the stable maintenance baseline. Authentication is Google-only and uses PKCE; the Android companion is `7.0.2` with the same read-only dashboard plus Health Connect context.

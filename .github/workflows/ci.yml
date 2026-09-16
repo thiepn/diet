@@ -54,7 +54,7 @@ jobs:
             if(backend.capabilities?.[capability]!==true)throw new Error(`Missing capability: ${capability}`);
           }
 
-          for(const symbol of ["DIET_WEB_RELEASE = '1.0.0'","DIET_RELEASE_CHANNEL = 'stable'",'renderTodayV68','window.DietRelease'])if(!release.includes(symbol))throw new Error(`Stable release symbol missing: ${symbol}`);
+          for(const symbol of ["DIET_WEB_RELEASE = '1.0.1'","DIET_RELEASE_CHANNEL = 'stable'",'renderTodayV68','window.DietRelease'])if(!release.includes(symbol))throw new Error(`Stable release symbol missing: ${symbol}`);
           if(v63.includes('refreshDataV63')||v65.includes('refreshDataV65'))throw new Error('Legacy refresh wrappers returned.');
           for(const symbol of ['renderInsightsV66','refreshDataV66','subscribeRealtimeV66'])if(!v66.includes(symbol))throw new Error(`Consolidated UX symbol missing: ${symbol}`);
           if(!build.includes("'src/release.js'"))throw new Error('Stable release source missing from builder.');
@@ -65,9 +65,12 @@ jobs:
 
           const auth=fs.readFileSync('src/auth/dashboard-auth.js','utf8');
           const persist=fs.readFileSync('src/auth/dashboard-auth-persist.js','utf8');
-          if(!auth.includes('Continue with Google')||!auth.includes('signInWithPassword')||!auth.includes("auth.signOut({ scope: 'local' })"))throw new Error('THIEPN Account auth contract regressed.');
+          if(!auth.includes('Continue with Google')||!auth.includes('dietSignInWithGoogle')||!auth.includes("auth.signOut({ scope: 'local' })"))throw new Error('THIEPN Account Google-only auth contract regressed.');
+          const activeJs=fs.readdirSync('src',{recursive:true}).filter(p=>String(p).endsWith('.js')).map(p=>fs.readFileSync(`src/${p}`,'utf8')).join('\n');
+          for(const banned of ['signInWithPassword','resetPasswordForEmail','loginPassword','passwordForm','email-password'])if(activeJs.includes(banned))throw new Error(`Legacy password auth returned: ${banned}`);
+          if(!(persist.includes("flowType: 'pkce'")||persist.includes("flowType:'pkce'")))throw new Error('PKCE auth flow missing.');
           if(persist.includes('setSession('))throw new Error('App-specific token restoration returned.');
-          console.log('Diet Copilot Web 1.0 product/backend contract passed.');
+          console.log('Diet Copilot Web 1.0.1 product/backend contract passed.');
           NODE
 
       - name: Nutrition and coaching regression fixtures
@@ -108,6 +111,6 @@ jobs:
           ! grep -q '{% include_relative' _site/diet.css
           ! grep -q '1.0-rc1' _site/diet-app.js
           ! grep -q 'data-v6-capture=' _site/diet-app.js
-          grep -q 'diet-app.js?v=1.0.0' _site/index.html
-          grep -q 'diet.css?v=1.0.0' _site/index.html
-          grep -q "DIET_WEB_RELEASE = '1.0.0'" _site/diet-app.js
+          grep -q 'diet-app.js?v=1.0.1' _site/index.html
+          grep -q 'diet.css?v=1.0.1' _site/index.html
+          grep -q "DIET_WEB_RELEASE = '1.0.1'" _site/diet-app.js

@@ -1,7 +1,7 @@
 # Diet Copilot Web 1.0 — QA & Certification
 
-Internal milestone: **V6.8**  
-Stable release: **1.0.0**
+Internal milestone: **V6.8.1**  
+Stable release: **1.0.1**
 
 ## Product boundary
 
@@ -101,7 +101,7 @@ Stable release: **1.0.0**
 
 ## PWA
 
-- [x] stable cache generation: `diet-copilot-web-v1.0.0`
+- [x] stable cache generation: `diet-copilot-web-v1.0.1`
 - [x] old Diet Copilot caches removed on activation
 - [x] navigation is network-first
 - [x] consolidated JS/CSS are network-first
@@ -133,6 +133,19 @@ Stable release: **1.0.0**
 - [x] actual GitHub Pages build validation
 - [x] JS production budget < 400 KB
 - [x] CSS production budget < 160 KB
+
+## Authentication & Android release
+
+- [x] Google-only account UI
+- [x] no active email/password auth implementation
+- [x] Supabase PKCE enabled
+- [x] native OAuth callback returns through `dev.thiepn.diet://auth-callback/`
+- [x] one-time PKCE code removed from browser history before app handoff
+- [x] Android release version `7.0.2` / versionCode `702`
+- [x] Android package is non-debuggable
+- [x] Android backup disabled
+- [x] cleartext traffic disabled
+- [x] APK Signature Scheme v2/v3 verified
 
 ## Device smoke checks
 
