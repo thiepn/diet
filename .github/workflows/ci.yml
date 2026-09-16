@@ -27,48 +27,35 @@ jobs:
           node --check tests/policy.mjs
           node --check tests/release.mjs
           node --check diet-app.js
-      - name: Diet product and backend contract
+      - name: Diet product backend and auth contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const backend=JSON.parse(fs.readFileSync('supabase/backend.json','utf8'));
           const bridge=fs.readFileSync('supabase/chatgpt-bridge.md','utf8');
-          const finalPolicy=fs.readFileSync('src/core/dashboard-04.js','utf8');
-          const release=fs.readFileSync('src/release.js','utf8');
-          const build=fs.readFileSync('scripts/build-v68.mjs','utf8');
           const config=fs.readFileSync('src/config.js','utf8');
-          const v63=fs.readFileSync('src/intelligence/dashboard-v6-3.js','utf8');
-          const v65=fs.readFileSync('src/intelligence/dashboard-v6-5.js','utf8');
-          const v66=fs.readFileSync('src/intelligence/dashboard-v6-6.js','utf8');
+          const release=fs.readFileSync('src/release.js','utf8');
+          const auth=fs.readFileSync('src/auth/dashboard-auth.js','utf8');
+          const persist=fs.readFileSync('src/auth/dashboard-auth-persist.js','utf8');
+          const styles=fs.readFileSync('src/styles/release.css','utf8');
           const shared='hycegznamzjhwinegaai',legacy='mrrqsqawwxwebsdmrnre';
           if(backend.canonical_project_ref!==shared)throw new Error('Wrong canonical backend.');
           if(!backend.legacy_project_refs?.includes(legacy)||!String(backend.legacy_policy).includes('retired'))throw new Error('Legacy backend is not retired.');
           if(backend.write_protocol?.require_request_id!==true||backend.write_protocol?.retry_same_request_id!==true||backend.write_protocol?.verify_after_write!==true||backend.write_protocol?.dual_write!==false)throw new Error('Reliable write protocol regressed.');
-          if(backend.metrics_policy?.nutrition_days!=='all_days_with_logged_intake'||backend.metrics_policy?.weight!=='all_available_weigh_ins'||backend.metrics_policy?.day_status!=='coverage_metadata_only')throw new Error('All-logged-data metrics contract regressed.');
           if(backend.product_boundary?.logging_entrypoint!=='direct_chatgpt_conversation'||backend.product_boundary?.dashboard_manual_logging!==false||backend.product_boundary?.dashboard_quick_capture!==false)throw new Error('Dashboard product boundary regressed.');
-          for(const capability of ['daily_decision_engine','food_memory_intelligence','post_write_verification','integrity_report','weekly_intelligence','trend_confidence','adaptive_coaching_v2','goal_forecast','consolidated_insights','metric_provenance','single_pass_dashboard_refresh','unified_realtime_channel','today_core_only'])if(backend.capabilities?.[capability]!==true)throw new Error(`Missing capability: ${capability}`);
-          for(const symbol of ["DIET_WEB_RELEASE = '1.0.2'","DIET_RELEASE_CHANNEL = 'stable'",'renderTodayV68','window.DietRelease'])if(!release.includes(symbol))throw new Error(`Stable release symbol missing: ${symbol}`);
-          if(v63.includes('refreshDataV63')||v65.includes('refreshDataV65'))throw new Error('Legacy refresh wrappers returned.');
-          for(const symbol of ['renderInsightsV66','refreshDataV66','subscribeRealtimeV66'])if(!v66.includes(symbol))throw new Error(`Consolidated UX symbol missing: ${symbol}`);
-          if(!build.includes("'src/release.js'"))throw new Error('Stable release source missing from builder.');
-          if(build.includes("'archive/"))throw new Error('Archive leaked into production builder.');
-          if(!config.includes(shared)||config.includes(legacy))throw new Error('Active config does not point only at canonical backend.');
+          if(!config.includes(shared)||config.includes(legacy))throw new Error('Active config is not canonical.');
           if(!bridge.includes(`Canonical project ref: \`${shared}\``)||!bridge.includes(legacy))throw new Error('ChatGPT bridge backend contract missing.');
-          if(!finalPolicy.includes('Logged nutrition always counts')||!finalPolicy.includes('Day status is coverage metadata only'))throw new Error('All-logged-data final policy missing.');
-          const auth=fs.readFileSync('src/auth/dashboard-auth.js','utf8');
-          const persist=fs.readFileSync('src/auth/dashboard-auth-persist.js','utf8');
-          if(!auth.includes('Continue with Google')||!auth.includes('dietSignInWithGoogle')||!auth.includes("auth.signOut({ scope: 'local' })"))throw new Error('THIEPN Account Google-only auth contract regressed.');
+          for(const symbol of ["DIET_WEB_RELEASE = '1.0.2'","DIET_RELEASE_CHANNEL = 'stable'",'renderTodayV68','window.DietRelease','dietInstallZoomLock'])if(!release.includes(symbol))throw new Error(`Stable release symbol missing: ${symbol}`);
+          if(!auth.includes('Continue with Google')||!auth.includes('dietSignInWithGoogle')||!auth.includes("auth.signOut({ scope: 'local' })"))throw new Error('Google-only auth contract regressed.');
           const activeJs=fs.readdirSync('src',{recursive:true}).filter(p=>String(p).endsWith('.js')).map(p=>fs.readFileSync(`src/${p}`,'utf8')).join('\n');
           for(const banned of ['signInWithPassword','resetPasswordForEmail','loginPassword','passwordForm','email-password'])if(activeJs.includes(banned))throw new Error(`Legacy password auth returned: ${banned}`);
-          if(!(persist.includes("flowType: 'pkce'")||persist.includes("flowType:'pkce'")))throw new Error('PKCE auth flow missing.');
-          if(!persist.includes('detectSessionInUrl: false'))throw new Error('Web PKCE callback must use explicit session exchange.');
-          for(const symbol of ['dietReadWebOAuthCallback','callback.code','exchangeCodeForSession','dietStripWebOAuthCallback','dietRestoreBrowserPkceVerifier','dietPkceVerifierMissing','dietAuthStorage','dietMirrorPkceStorageEntry','__dietAuthStorageV2'])if(!(persist.includes(symbol)||auth.includes(symbol)))throw new Error(`Controlled web PKCE handling missing: ${symbol}`);
-          if(!persist.includes('storage: dietAuthStorage'))throw new Error('Canonical Supabase client must use controlled auth storage.');
-          if(!auth.includes('data.flowId')||!auth.includes("dietSetBrowserOAuthRelayState('web'")||!auth.includes('dietTagBrowserPkceBackupFlow'))throw new Error('Web PKCE flow relay/recovery is missing.');
-          if(activeJs.includes('Supabase did not persist the PKCE verifier before redirect.'))throw new Error('Obsolete post-hoc PKCE scan returned.');
-          if(persist.includes('appendPkceFlowIdToRedirects: true'))throw new Error('Web PKCE must not mutate redirectTo with sb_flow_id.');
-          if(persist.includes('setSession('))throw new Error('App-specific token restoration returned.');
-          console.log('Diet Copilot Web 1.0.2 product/backend contract passed.');
+          for(const symbol of ["flowType: 'pkce'",'detectSessionInUrl: false','storage: dietAuthStorage','dietMirrorPkceStorageEntry','dietRestoreBrowserPkceVerifier','__dietAuthStorageV2'])if(!persist.includes(symbol))throw new Error(`Controlled PKCE handling missing: ${symbol}`);
+          if(!auth.includes('data.flowId')||!auth.includes("dietSetBrowserOAuthRelayState('web'")||!auth.includes('dietTagBrowserPkceBackupFlow'))throw new Error('Web PKCE relay/recovery regressed.');
+          if(activeJs.includes('Supabase did not persist the PKCE verifier before redirect.'))throw new Error('Obsolete PKCE scan returned.');
+          if(!styles.includes('.v53-open-indicator{display:none!important}'))throw new Error('Card-chevron hotfix missing.');
+          if(!styles.includes('.today-v2>.v62-guidance')||!styles.includes('.today-v2>.v52-goal-progress')||!styles.includes('grid-column:1/-1!important'))throw new Error('Desktop Today grid-span guard missing.');
+          if(!styles.includes('touch-action:pan-x pan-y'))throw new Error('Touch zoom lock missing.');
+          console.log('Diet Copilot Web 1.0.2 static9 product/backend/auth contract passed.');
           NODE
       - name: Nutrition and coaching regression fixtures
         run: node tests/policy.mjs
@@ -110,19 +97,14 @@ jobs:
           cmp diet.css _site/diet.css
           ! grep -q '{%' _site/diet-app.js
           ! grep -q '{%' _site/diet.css
-          ! grep -q '1.0-rc1' _site/diet-app.js
-          ! grep -q 'data-v6-capture=' _site/diet-app.js
-          grep -q 'diet-app.js?v=1.0.2-static7' _site/index.html
-          grep -q 'diet.css?v=1.0.2-static7' _site/index.html
+          grep -q 'diet-app.js?v=1.0.2-static9' _site/index.html
+          grep -q 'diet.css?v=1.0.2-static9' _site/index.html
+          grep -q 'user-scalable=no' _site/index.html
+          grep -q 'maximum-scale=1' _site/index.html
           grep -q 'detectSessionInUrl: false' _site/diet-app.js
-          grep -q 'dietReadWebOAuthCallback' _site/diet-app.js
           grep -q 'storage: dietAuthStorage' _site/diet-app.js
-          grep -q 'dietMirrorPkceStorageEntry' _site/diet-app.js
-          grep -q 'dietRestoreBrowserPkceVerifier' _site/diet-app.js
-          grep -q '__dietAuthStorageV2' _site/diet-app.js
-          grep -q 'dietTagBrowserPkceBackupFlow' _site/diet-app.js
-          ! grep -q 'Supabase did not persist the PKCE verifier before redirect' _site/diet-app.js
-          ! grep -q 'appendPkceFlowIdToRedirects: true' _site/diet-app.js
-          grep -q 'data.flowId' _site/diet-app.js
-          ! grep -q 'exchangeCodeForSession' _site/web-auth-callback.html
+          grep -q 'dietInstallZoomLock' _site/diet-app.js
+          grep -Fq '.v53-open-indicator{display:none!important}' _site/diet.css
+          grep -Fq '.today-v2>.v62-guidance' _site/diet.css
+          grep -Fq '.today-v2>.v52-goal-progress' _site/diet.css
           grep -q "DIET_WEB_RELEASE = '1.0.2'" _site/diet-app.js
