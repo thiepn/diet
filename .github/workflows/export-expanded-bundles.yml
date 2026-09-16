@@ -1,0 +1,36 @@
+name: Export expanded Diet bundles
+
+on:
+  push:
+    paths:
+      - '.github/workflows/export-expanded-bundles.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - name: Build certified production bundles
+        run: |
+          set -euo pipefail
+          node scripts/build-v68.mjs
+          node tests/policy.mjs
+          node tests/release.mjs
+      - name: Package expanded bundles
+        run: |
+          cp .v68-build/diet-app.js /tmp/diet-app.js
+          cp .v68-build/diet.css /tmp/diet.css
+      - uses: actions/upload-artifact@v4
+        with:
+          name: diet-expanded-production-bundles
+          path: |
+            /tmp/diet-app.js
+            /tmp/diet.css
+          if-no-files-found: error
+          retention-days: 1
