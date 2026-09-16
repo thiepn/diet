@@ -62,10 +62,11 @@ jobs:
           for(const banned of ['signInWithPassword','resetPasswordForEmail','loginPassword','passwordForm','email-password'])if(activeJs.includes(banned))throw new Error(`Legacy password auth returned: ${banned}`);
           if(!(persist.includes("flowType: 'pkce'")||persist.includes("flowType:'pkce'")))throw new Error('PKCE auth flow missing.');
           if(!persist.includes('detectSessionInUrl: false'))throw new Error('Web PKCE callback must use explicit session exchange.');
-          for(const symbol of ['dietReadWebOAuthCallback','callback.code','exchangeCodeForSession','dietStripWebOAuthCallback','dietRestoreBrowserPkceVerifier','dietPkceVerifierMissing'])if(!(persist.includes(symbol)||auth.includes(symbol)))throw new Error(`Explicit web PKCE callback handling missing: ${symbol}`);
-          for(const symbol of ['DIET_PKCE_BACKUP_KEY','dietBackupBrowserPkceVerifier','dietRestoreBrowserPkceVerifier'])if(!auth.includes(symbol))throw new Error(`Tab-scoped PKCE recovery missing: ${symbol}`);
+          for(const symbol of ['dietReadWebOAuthCallback','callback.code','exchangeCodeForSession','dietStripWebOAuthCallback','dietRestoreBrowserPkceVerifier','dietPkceVerifierMissing','dietAuthStorage','dietMirrorPkceStorageEntry','__dietAuthStorageV2'])if(!(persist.includes(symbol)||auth.includes(symbol)))throw new Error(`Controlled web PKCE handling missing: ${symbol}`);
+          if(!persist.includes('storage: dietAuthStorage'))throw new Error('Canonical Supabase client must use controlled auth storage.');
+          if(!auth.includes('data.flowId')||!auth.includes("dietSetBrowserOAuthRelayState('web'")||!auth.includes('dietTagBrowserPkceBackupFlow'))throw new Error('Web PKCE flow relay/recovery is missing.');
+          if(activeJs.includes('Supabase did not persist the PKCE verifier before redirect.'))throw new Error('Obsolete post-hoc PKCE scan returned.');
           if(persist.includes('appendPkceFlowIdToRedirects: true'))throw new Error('Web PKCE must not mutate redirectTo with sb_flow_id.');
-          if(!auth.includes('data.flowId')||!auth.includes("dietSetBrowserOAuthRelayState('web'"))throw new Error('Web PKCE flow id relay is missing.');
           if(persist.includes('setSession('))throw new Error('App-specific token restoration returned.');
           console.log('Diet Copilot Web 1.0.2 product/backend contract passed.');
           NODE
@@ -111,13 +112,16 @@ jobs:
           ! grep -q '{%' _site/diet.css
           ! grep -q '1.0-rc1' _site/diet-app.js
           ! grep -q 'data-v6-capture=' _site/diet-app.js
-          grep -q 'diet-app.js?v=1.0.2-static6' _site/index.html
-          grep -q 'diet.css?v=1.0.2-static6' _site/index.html
+          grep -q 'diet-app.js?v=1.0.2-static7' _site/index.html
+          grep -q 'diet.css?v=1.0.2-static7' _site/index.html
           grep -q 'detectSessionInUrl: false' _site/diet-app.js
           grep -q 'dietReadWebOAuthCallback' _site/diet-app.js
-          grep -q 'dietBackupBrowserPkceVerifier' _site/diet-app.js
+          grep -q 'storage: dietAuthStorage' _site/diet-app.js
+          grep -q 'dietMirrorPkceStorageEntry' _site/diet-app.js
           grep -q 'dietRestoreBrowserPkceVerifier' _site/diet-app.js
-          grep -q 'dietPkceVerifierMissing' _site/diet-app.js
+          grep -q '__dietAuthStorageV2' _site/diet-app.js
+          grep -q 'dietTagBrowserPkceBackupFlow' _site/diet-app.js
+          ! grep -q 'Supabase did not persist the PKCE verifier before redirect' _site/diet-app.js
           ! grep -q 'appendPkceFlowIdToRedirects: true' _site/diet-app.js
           grep -q 'data.flowId' _site/diet-app.js
           ! grep -q 'exchangeCodeForSession' _site/web-auth-callback.html
