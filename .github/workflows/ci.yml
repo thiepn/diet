@@ -26,6 +26,7 @@ jobs:
           node --check scripts/build-v68.mjs
           node --check tests/policy.mjs
           node --check tests/release.mjs
+          node --check diet-app.js
       - name: Diet product and backend contract
         run: |
           node --input-type=module <<'NODE'
@@ -65,13 +66,18 @@ jobs:
           NODE
       - name: Nutrition and coaching regression fixtures
         run: node tests/policy.mjs
-      - name: Expand stable production templates
+      - name: Verify committed static production bundles
         run: node scripts/build-v68.mjs
       - name: Stable bundle certification
         run: |
+          node --check diet-app.js
           node --check .v68-build/diet-app.js
           node tests/release.mjs
-      - name: Template expansion must be deterministic
+          ! grep -q '{%' diet-app.js
+          ! grep -q '{%' diet.css
+          test "$(head -c 3 diet-app.js)" != '---'
+          test "$(head -c 3 diet.css)" != '---'
+      - name: Static bundle generation must be deterministic
         run: |
           cp .v68-build/diet-app.js /tmp/diet-app.js
           cp .v68-build/diet.css /tmp/diet.css
@@ -79,6 +85,8 @@ jobs:
           node scripts/build-v68.mjs
           cmp .v68-build/diet-app.js /tmp/diet-app.js
           cmp .v68-build/diet.css /tmp/diet.css
+          cmp diet-app.js .v68-build/diet-app.js
+          cmp diet.css .v68-build/diet.css
       - name: Build the actual GitHub Pages site
         uses: actions/jekyll-build-pages@v1
         with:
@@ -92,10 +100,12 @@ jobs:
           test -f _site/diet.css
           test -f _site/index.html
           node --check _site/diet-app.js
-          ! grep -q '{% include_relative' _site/diet-app.js
-          ! grep -q '{% include_relative' _site/diet.css
+          cmp diet-app.js _site/diet-app.js
+          cmp diet.css _site/diet.css
+          ! grep -q '{%' _site/diet-app.js
+          ! grep -q '{%' _site/diet.css
           ! grep -q '1.0-rc1' _site/diet-app.js
           ! grep -q 'data-v6-capture=' _site/diet-app.js
-          grep -q 'diet-app.js?v=1.0.2' _site/index.html
-          grep -q 'diet.css?v=1.0.2' _site/index.html
+          grep -q 'diet-app.js?v=1.0.2-static1' _site/index.html
+          grep -q 'diet.css?v=1.0.2-static1' _site/index.html
           grep -q "DIET_WEB_RELEASE = '1.0.2'" _site/diet-app.js
