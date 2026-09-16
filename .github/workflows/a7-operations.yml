@@ -32,15 +32,18 @@ jobs:
           if(manifest.health?.networkFailureLogsOutUser!==false)throw new Error('Network failure must not become logout.');
           if(manifest.health?.writesPerformedByDashboard!==false)throw new Error('Dashboard must remain read-only.');
           if(manifest.webRelease!=='1.0.2'||manifest.releaseChannel!=='stable')throw new Error('Stable release metadata missing.');
-          if(!index.includes('diet-app.js?v=1.0.2-static7')||!index.includes('diet.css?v=1.0.2-static7'))throw new Error('Web 1.0.2 static7 runtime is not loaded.');
-          if(bundle.includes('{%')||styles.includes('{%')||bundle.startsWith('---')||styles.startsWith('---'))throw new Error('Production runtime contains unexpanded Jekyll/Liquid templates.');
+          if(!index.includes('diet-app.js?v=1.0.2-static9')||!index.includes('diet.css?v=1.0.2-static9'))throw new Error('Web 1.0.2 static9 runtime is not loaded.');
+          if(!index.includes('user-scalable=no')||!index.includes('maximum-scale=1'))throw new Error('No-zoom viewport contract missing.');
+          if(bundle.includes('{%')||styles.includes('{%')||bundle.startsWith('---')||styles.startsWith('---'))throw new Error('Production runtime contains unexpanded templates.');
           if(!bundle.includes('detectSessionInUrl: false')||!bundle.includes('dietReadWebOAuthCallback')||!bundle.includes('exchangeCodeForSession'))throw new Error('Explicit web PKCE session establishment is missing.');
           if(!bundle.includes('storage: dietAuthStorage')||!bundle.includes('dietMirrorPkceStorageEntry')||!bundle.includes('dietRestoreBrowserPkceVerifier')||!bundle.includes('__dietAuthStorageV2'))throw new Error('Controlled web PKCE storage is missing.');
-          if(bundle.includes('Supabase did not persist the PKCE verifier before redirect.'))throw new Error('Obsolete post-hoc PKCE scan returned.');
+          if(!bundle.includes('dietInstallZoomLock')||!bundle.includes('zoomLocked:snapshot.zoomLockInstalled'))throw new Error('Runtime zoom lock is missing.');
+          if(!styles.includes('.v53-open-indicator{display:none!important}'))throw new Error('Card-chevron regression returned.');
+          if(!styles.includes('.today-v2>.v62-guidance')||!styles.includes('.today-v2>.v52-goal-progress')||!styles.includes('grid-column:1/-1!important'))throw new Error('Desktop Today grid-span regression returned.');
           if(!operations.includes('window.DietOperations')||!bundle.includes('window.DietOperations'))throw new Error('Diet diagnostics surface missing from production runtime.');
           if(!bundle.includes('window.DietRelease')||!bundle.includes("DIET_RELEASE_CHANNEL = 'stable'"))throw new Error('Stable DietRelease surface missing.');
           for(const category of ["'network'","'authentication'","'authorization'","'rate_limit'","'service'"]){if(!operations.includes(category))throw new Error(`Missing failure category ${category}`)}
           if(operations.includes('localStorage.clear('))throw new Error('Operations must not broadly clear storage.');
           if(operations.includes('.auth.signOut('))throw new Error('Operations must not convert failures into sign-out.');
-          console.log('Diet A7 operations contract passed inside Web 1.0.2 static7 runtime.');
+          console.log('Diet A7 operations contract passed inside Web 1.0.2 static9 runtime.');
           NODE
