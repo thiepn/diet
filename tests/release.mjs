@@ -3,28 +3,32 @@ import fs from 'node:fs';
 
 for(const file of ['diet-app.js','diet.css','.v68-build/diet-app.js','.v68-build/diet.css','index.html','sw.js','.well-known/thiepn-app.json','src/release.js','src/native/android-bridge.js','src/styles/native.css','native-auth-start.html','native-auth-callback.html'])assert.ok(fs.existsSync(file),`Missing ${file}`);
 
-const jsTemplate=fs.readFileSync('diet-app.js','utf8');
-const cssTemplate=fs.readFileSync('diet.css','utf8');
+const productionJs=fs.readFileSync('diet-app.js','utf8');
+const productionCss=fs.readFileSync('diet.css','utf8');
 const js=fs.readFileSync('.v68-build/diet-app.js','utf8');
 const css=fs.readFileSync('.v68-build/diet.css','utf8');
 const html=fs.readFileSync('index.html','utf8');
 const sw=fs.readFileSync('sw.js','utf8');
 const manifest=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
 
-assert.match(html,/diet\.css\?v=1\.0\.2/);
-assert.match(html,/diet-app\.js\?v=1\.0\.2/);
+assert.match(html,/diet\.css\?v=1\.0\.2-static1/);
+assert.match(html,/diet-app\.js\?v=1\.0\.2-static1/);
 assert.match(html,/application-version" content="1\.0\.2/);
 assert.equal((html.match(/<script src="dashboard-/g)||[]).length,0,'Historical dashboard scripts are still loaded by production HTML');
 assert.equal((html.match(/<link rel="stylesheet" href="dashboard-/g)||[]).length,0,'Historical dashboard styles are still loaded by production HTML');
 assert.equal((html.match(/diet-app\.js/g)||[]).length,1,'Production must load exactly one local JS bundle');
 assert.equal((html.match(/diet\.css/g)||[]).length,1,'Production must load exactly one CSS bundle');
 
-assert.ok(jsTemplate.startsWith('---\n---\n'),'Production JS must be a Jekyll-expanded template');
-assert.ok(cssTemplate.startsWith('---\n---\n'),'Production CSS must be a Jekyll-expanded template');
-assert.ok(jsTemplate.includes('src/release.js'),'Stable release source missing from JS template');
-assert.ok(cssTemplate.includes('src/styles/release.css'),'Stable release source missing from CSS template');
-assert.ok(!jsTemplate.includes('archive/'),'Archive must never feed production JS');
-assert.ok(!cssTemplate.includes('archive/'),'Archive must never feed production CSS');
+assert.equal(productionJs,js,'Committed production JS must equal the certified expanded bundle');
+assert.equal(productionCss,css,'Committed production CSS must equal the certified expanded stylesheet');
+assert.ok(!productionJs.startsWith('---'),'Production JS must not contain Jekyll front matter');
+assert.ok(!productionCss.startsWith('---'),'Production CSS must not contain Jekyll front matter');
+assert.ok(!productionJs.includes('{%'),'Production JS must not contain Liquid directives');
+assert.ok(!productionCss.includes('{%'),'Production CSS must not contain Liquid directives');
+assert.ok(productionJs.includes('src/release.js'),'Stable release source marker missing from production JS');
+assert.ok(productionCss.includes('src/styles/release.css'),'Stable release source marker missing from production CSS');
+assert.ok(!productionJs.includes('archive/'),'Archive must never feed production JS');
+assert.ok(!productionCss.includes('archive/'),'Archive must never feed production CSS');
 
 for(const required of ['renderInsightsV66','renderHistoryV66','renderTodayV68','DIET_WEB_RELEASE = \'1.0.2\'','DIET_RELEASE_CHANNEL = \'stable\'','Logged nutrition always counts','window.DietOperations','window.DietRelease'])assert.ok(js.includes(required),`Expanded production JS missing ${required}`);
 for(const banned of ['function v6CaptureMarkup','data-v6-capture="','data-v6-recipe-log="','1.0-rc1'])assert.ok(!js.includes(banned),`Retired dashboard behavior leaked into production: ${banned}`);
@@ -33,9 +37,9 @@ assert.ok(css.includes('prefers-reduced-motion:reduce'),'Reduced-motion certific
 assert.ok(css.includes('.v53-detail-sheet'),'Detail-sheet hardening missing');
 assert.ok(css.includes('overflow-x:hidden'),'Horizontal overflow guard missing');
 
-assert.ok(sw.includes("const CACHE='diet-copilot-web-v1.0.2'"),'Wrong service-worker generation');
-assert.ok(sw.includes("'./diet-app.js?v=1.0.2'"),'Service worker missing stable JS bundle');
-assert.ok(sw.includes("'./diet.css?v=1.0.2'"),'Service worker missing stable CSS bundle');
+assert.ok(sw.includes("const CACHE='diet-copilot-web-v1.0.2-static1'"),'Wrong service-worker generation');
+assert.ok(sw.includes("'./diet-app.js?v=1.0.2-static1'"),'Service worker missing stable JS bundle');
+assert.ok(sw.includes("'./diet.css?v=1.0.2-static1'"),'Service worker missing stable CSS bundle');
 assert.ok(!sw.includes('dashboard-v6-5.js'),'Service worker still precaches historical fragments');
 assert.ok(!sw.includes('1.0-rc1'),'Release-candidate cache marker remains');
 
@@ -79,4 +83,4 @@ assert.ok(nativeStart.includes("sessionStorage.setItem(TARGET_KEY,'native')"),'N
 assert.ok(nativeStart.includes('hycegznamzjhwinegaai.supabase.co'),'Native browser bootstrap origin guard missing');
 assert.ok(sw.includes('/native-auth-start.html')&&sw.includes('/native-auth-callback.html'),'Auth relay pages must bypass the Diet service worker');
 
-console.log(`Diet Copilot Web 1.0.2 release certified: ${sizeKB.toFixed(1)} KB JS, ${cssKB.toFixed(1)} KB CSS.`);
+console.log(`Diet Copilot Web 1.0.2 static runtime certified: ${sizeKB.toFixed(1)} KB JS, ${cssKB.toFixed(1)} KB CSS.`);
