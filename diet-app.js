@@ -3558,6 +3558,22 @@ function dietTodayInvariant(){
   document.getElementById('v6CaptureDialog')?.remove();
 }
 
+function dietInstallZoomLock(){
+  if(dietInstallZoomLock.installed)return;
+  dietInstallZoomLock.installed=true;
+  const prevent=event=>event.preventDefault();
+  for(const type of ['gesturestart','gesturechange','gestureend'])document.addEventListener(type,prevent,{passive:false});
+  document.addEventListener('touchmove',event=>{
+    if(event.touches?.length>1)event.preventDefault();
+  },{passive:false});
+  window.addEventListener('wheel',event=>{
+    if(event.ctrlKey)event.preventDefault();
+  },{passive:false});
+  window.addEventListener('keydown',event=>{
+    if((event.ctrlKey||event.metaKey)&&['+','-','='].includes(event.key))event.preventDefault();
+  });
+}
+
 function dietHorizontalOverflow(){
   const doc=document.documentElement;
   return Math.max(0,(doc?.scrollWidth||0)-(doc?.clientWidth||0));
@@ -3578,6 +3594,7 @@ function dietReleaseSnapshot(){
     fetchedAt:dashboard?.fetchedAt??null,
     realtimeChannels:[cloud?.channel,cloud?.v6ActivityChannel].filter(Boolean).length,
     horizontalOverflowPx:dietHorizontalOverflow(),
+    zoomLockInstalled:Boolean(dietInstallZoomLock.installed),
     quickCapturePresent:Boolean(document.querySelector('.v6-capture-card,[data-v6-capture]')),
     activityTodayCardPresent:Boolean(document.querySelector('.today-v2 .v6-activity')),
     closeoutPromptPresent:Boolean(document.querySelector('.today-v2 .v51-closeout-hint')),
@@ -3593,6 +3610,7 @@ function dietReleaseChecks(){
     stable:true,
     dashboardReadOnly:true,
     directChatGPTLogging:true,
+    zoomLocked:snapshot.zoomLockInstalled,
     quickCaptureAbsent:!snapshot.quickCapturePresent,
     todayActivityCardAbsent:!snapshot.activityTodayCardPresent,
     closeoutPromptAbsent:!snapshot.closeoutPromptPresent,
@@ -3608,6 +3626,8 @@ renderToday=function renderTodayV68(){
   dietTodayInvariant();
   return result;
 };
+
+dietInstallZoomLock();
 
 window.DietRelease=Object.freeze({
   version:DIET_PRODUCT_VERSION,
