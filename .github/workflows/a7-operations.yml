@@ -16,14 +16,15 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - name: Expand Web 1.0.2 production runtime
+      - name: Verify Web 1.0.2 static production runtime
         run: node scripts/build-v68.mjs
       - name: A7 diagnostics contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const operations=fs.readFileSync('src/operations/dashboard-ops.js','utf8');
-          const bundle=fs.readFileSync('.v68-build/diet-app.js','utf8');
+          const bundle=fs.readFileSync('diet-app.js','utf8');
+          const styles=fs.readFileSync('diet.css','utf8');
           const manifest=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
           const index=fs.readFileSync('index.html','utf8');
           if(manifest.app!=='diet'||manifest.operationsVersion!=='A7.1')throw new Error('Diet A7 metadata invalid.');
@@ -31,11 +32,12 @@ jobs:
           if(manifest.health?.networkFailureLogsOutUser!==false)throw new Error('Network failure must not become logout.');
           if(manifest.health?.writesPerformedByDashboard!==false)throw new Error('Dashboard must remain read-only.');
           if(manifest.webRelease!=='1.0.2'||manifest.releaseChannel!=='stable')throw new Error('Stable release metadata missing.');
-          if(!index.includes('diet-app.js?v=1.0.2'))throw new Error('Web 1.0.2 production bundle is not loaded.');
+          if(!index.includes('diet-app.js?v=1.0.2-static1')||!index.includes('diet.css?v=1.0.2-static1'))throw new Error('Web 1.0.2 static runtime is not loaded.');
+          if(bundle.includes('{%')||styles.includes('{%')||bundle.startsWith('---')||styles.startsWith('---'))throw new Error('Production runtime contains unexpanded Jekyll/Liquid templates.');
           if(!operations.includes('window.DietOperations')||!bundle.includes('window.DietOperations'))throw new Error('Diet diagnostics surface missing from production runtime.');
           if(!bundle.includes('window.DietRelease')||!bundle.includes("DIET_RELEASE_CHANNEL = 'stable'"))throw new Error('Stable DietRelease surface missing.');
           for(const category of ["'network'","'authentication'","'authorization'","'rate_limit'","'service'"]){if(!operations.includes(category))throw new Error(`Missing failure category ${category}`)}
           if(operations.includes('localStorage.clear('))throw new Error('Operations must not broadly clear storage.');
           if(operations.includes('.auth.signOut('))throw new Error('Operations must not convert failures into sign-out.');
-          console.log('Diet A7 operations contract passed inside Web 1.0.2.');
+          console.log('Diet A7 operations contract passed inside Web 1.0.2 static runtime.');
           NODE
