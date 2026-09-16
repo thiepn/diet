@@ -6,6 +6,7 @@
 const DIET_AUTH_RELAY = 'https://thiepn.dev/WORDSTRIKE/';
 const DIET_OAUTH_TARGET_KEY = 'diet-copilot:oauth-target-v2';
 const DIET_OAUTH_FLOW_KEY = 'diet-copilot:oauth-flow-v2';
+const DIET_PKCE_BACKUP_KEY = 'diet-copilot:pkce-verifier-backup-v1';
 
 function dietClearBrowserOAuthRelayState() {
   try {
@@ -22,12 +23,74 @@ function dietSetBrowserOAuthRelayState(target, flowId) {
   } catch {}
 }
 
+function dietClearBrowserPkceBackup() {
+  try { sessionStorage.removeItem(DIET_PKCE_BACKUP_KEY); } catch {}
+}
+
+function dietBackupBrowserPkceVerifier(flowId = '') {
+  try {
+    const entries = {};
+    const legacyKey = `${DIET_AUTH_STORAGE_KEY}-code-verifier`;
+    const legacyValue = localStorage.getItem(legacyKey);
+    if (legacyValue != null) entries[legacyKey] = legacyValue;
+
+    const prefix = `${DIET_AUTH_STORAGE_KEY}-flow-`;
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const key = localStorage.key(i);
+      if (!key || !key.startsWith(prefix) || !key.endsWith('-code-verifier')) continue;
+      const value = localStorage.getItem(key);
+      if (value != null) entries[key] = value;
+    }
+
+    if (flowId) {
+      const exactKey = `${DIET_AUTH_STORAGE_KEY}-flow-${flowId}-code-verifier`;
+      const exactValue = localStorage.getItem(exactKey);
+      if (exactValue != null) entries[exactKey] = exactValue;
+    }
+
+    if (!Object.keys(entries).length) {
+      throw new Error('Supabase did not persist the PKCE verifier before redirect.');
+    }
+
+    sessionStorage.setItem(DIET_PKCE_BACKUP_KEY, JSON.stringify({
+      flowId: flowId || null,
+      createdAt: Date.now(),
+      entries
+    }));
+  } catch (error) {
+    dietClearBrowserPkceBackup();
+    throw error;
+  }
+}
+
+function dietRestoreBrowserPkceVerifier() {
+  try {
+    const raw = sessionStorage.getItem(DIET_PKCE_BACKUP_KEY);
+    if (!raw) return null;
+    const backup = JSON.parse(raw);
+    if (!backup || typeof backup !== 'object' || typeof backup.entries !== 'object') return null;
+    if (Number.isFinite(Number(backup.createdAt)) && Date.now() - Number(backup.createdAt) > 15 * 60 * 1000) {
+      dietClearBrowserPkceBackup();
+      return null;
+    }
+    for (const [key, value] of Object.entries(backup.entries)) {
+      if (!key.startsWith(`${DIET_AUTH_STORAGE_KEY}-`) || !key.endsWith('-code-verifier')) continue;
+      if (typeof value !== 'string') continue;
+      if (localStorage.getItem(key) == null) localStorage.setItem(key, value);
+    }
+    return typeof backup.flowId === 'string' && backup.flowId ? backup.flowId : null;
+  } catch {
+    return null;
+  }
+}
+
 async function dietSignInWithGoogle() {
   if (typeof dietIsNativeAndroid === 'function' && dietIsNativeAndroid() && window.DietNative?.startGoogleOAuth) {
     return window.DietNative.startGoogleOAuth();
   }
 
   dietClearBrowserOAuthRelayState();
+  dietClearBrowserPkceBackup();
   const { data, error } = await cloud.client.auth.signInWithOAuth({
     provider: 'google',
     options: {
@@ -39,11 +102,11 @@ async function dietSignInWithGoogle() {
   if (error) throw error;
   if (!data?.url) throw new Error('Google sign-in URL was not created.');
 
-  // The callback is hosted on the same thiepn.dev origin as Diet Copilot.
-  // Mark this browsing context as the web client and preserve Supabase's exact
-  // PKCE flow id so the returned authorization code is exchanged against the
-  // same verifier that created it.
+  // Preserve both Supabase's flow id and the verifier material before leaving
+  // thiepn.dev. The verifier backup is tab-scoped and restored before the code
+  // exchange, so the shared Site URL relay cannot strand the PKCE flow.
   dietSetBrowserOAuthRelayState('web', data.flowId || '');
+  dietBackupBrowserPkceVerifier(data.flowId || '');
   location.assign(data.url);
 }
 
@@ -68,6 +131,7 @@ renderConnection = function renderDietConnection() {
       cloud.status = 'configured';
       dashboard = emptyDashboard();
       dietClearBrowserOAuthRelayState();
+      dietClearBrowserPkceBackup();
       try { localStorage.removeItem(CACHE_KEY); } catch {}
       renderConnection();
       render();
@@ -95,6 +159,7 @@ renderConnection = function renderDietConnection() {
     } catch (error) {
       cloud.error = error?.message || String(error);
       dietClearBrowserOAuthRelayState();
+      dietClearBrowserPkceBackup();
       renderConnection();
     }
   });
