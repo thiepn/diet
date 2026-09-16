@@ -5,6 +5,13 @@ html,body{max-width:100%;overflow-x:hidden}
 /* Frozen product boundary: the web dashboard is read-only. */
 .v6-capture-card,[data-v6-capture],.today-v2 .v6-activity,.v51-closeout-hint,#v6CaptureDialog{display:none!important}
 
+/* Preserve the V6.1.1 card-affordance hotfix. The cards are already clearly
+   interactive; do not render redundant circular chevrons. */
+.v53-open-indicator{display:none!important}
+.today-metric .metric-v2-head{padding-right:0}
+.v5-goal-strip.v53-clickable-tile{padding-right:14px}
+.v52-goal-progress.v53-clickable-tile{padding-right:14px}
+
 /* Uniform detail-sheet constraints for narrow phones through desktop. */
 .v53-detail-dialog{inset:0!important;width:100vw!important;max-width:100vw!important;overflow:hidden!important}
 .v53-detail-sheet{box-sizing:border-box!important;min-width:0!important;max-width:min(680px,100vw)!important}
