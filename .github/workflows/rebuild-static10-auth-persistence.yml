@@ -1,0 +1,203 @@
+name: Rebuild Diet static10 auth persistence
+
+on:
+  push:
+    paths:
+      - '.github/workflows/rebuild-static10-auth-persistence.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Repair persistent browser auth
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('src/auth/dashboard-auth-persist.js')
+          s = p.read_text()
+
+          old = '''function dietRawAuthStorageGet(key) {
+            try {
+              const value = localStorage.getItem(key);
+              if (value !== null) return value;
+            } catch {}
+            try { return sessionStorage.getItem(`${DIET_AUTH_FALLBACK_PREFIX}${key}`); }
+            catch { return null; }
+          }
+
+          function dietRawAuthStorageSet(key, value) {
+            let stored = false;
+            try {
+              localStorage.setItem(key, value);
+              stored = true;
+            } catch {}
+            if (!stored) {
+              try {
+                sessionStorage.setItem(`${DIET_AUTH_FALLBACK_PREFIX}${key}`, value);
+                stored = true;
+              } catch {}
+            }
+            if (!stored) throw new Error('Browser storage is unavailable. Google sign-in cannot continue.');
+          }
+
+          function dietRawAuthStorageRemove(key) {
+            try { localStorage.removeItem(key); } catch {}
+            try { sessionStorage.removeItem(`${DIET_AUTH_FALLBACK_PREFIX}${key}`); } catch {}
+          }
+          '''
+
+          new = '''function dietRawAuthStorageGet(key) {
+            try { return localStorage.getItem(key); }
+            catch { return null; }
+          }
+
+          function dietRawAuthStorageSet(key, value) {
+            try {
+              localStorage.setItem(key, value);
+              if (localStorage.getItem(key) !== value) {
+                throw new Error('Persistent auth storage verification failed.');
+              }
+            } catch {
+              throw new Error('Persistent browser storage is unavailable. Diet Copilot cannot keep you signed in on this device.');
+            }
+          }
+
+          function dietRawAuthStorageRemove(key) {
+            try { localStorage.removeItem(key); } catch {}
+            // Remove obsolete tab-only fallback data left by pre-static10 builds.
+            try { sessionStorage.removeItem(`${DIET_AUTH_FALLBACK_PREFIX}${key}`); } catch {}
+          }
+
+          function dietMigrateTransientAuthFallback() {
+            const fallbackKey = `${DIET_AUTH_FALLBACK_PREFIX}${DIET_AUTH_STORAGE_KEY}`;
+            try {
+              const transient = sessionStorage.getItem(fallbackKey);
+              if (transient !== null && localStorage.getItem(DIET_AUTH_STORAGE_KEY) === null) {
+                localStorage.setItem(DIET_AUTH_STORAGE_KEY, transient);
+                if (localStorage.getItem(DIET_AUTH_STORAGE_KEY) !== transient) {
+                  throw new Error('Transient auth migration verification failed.');
+                }
+              }
+              sessionStorage.removeItem(fallbackKey);
+            } catch (error) {
+              console.warn('Diet Copilot could not migrate transient auth storage', error);
+            }
+          }
+          '''
+
+          if old not in s:
+              raise SystemExit('auth storage replacement anchor missing')
+          s = s.replace(old, new, 1)
+
+          anchor = '''function dietPkceVerifierMissing(error) {
+            const text = `${error?.name || ''} ${error?.message || error || ''}`;
+            return /PKCE code verifier not found|AuthPKCECodeVerifierMissingError/i.test(text);
+          }
+
+          cleanupLegacyDietAuthArtifacts();
+          '''
+
+          replacement = '''function dietPkceVerifierMissing(error) {
+            const text = `${error?.name || ''} ${error?.message || error || ''}`;
+            return /PKCE code verifier not found|AuthPKCECodeVerifierMissingError/i.test(text);
+          }
+
+          function dietAssertSessionPersisted(session) {
+            if (!session?.user?.id) return;
+            let raw = null;
+            try { raw = localStorage.getItem(DIET_AUTH_STORAGE_KEY); } catch {}
+            if (!raw) {
+              throw new Error('Diet Copilot received a session, but could not persist it. Enable persistent site storage to stay signed in.');
+            }
+            try {
+              const stored = JSON.parse(raw);
+              if (stored?.user?.id !== session.user.id || !stored?.refresh_token) {
+                throw new Error('Persisted session verification failed.');
+              }
+            } catch {
+              throw new Error('Diet Copilot could not verify the persisted login session. Sign in again after enabling persistent site storage.');
+            }
+          }
+
+          dietMigrateTransientAuthFallback();
+          cleanupLegacyDietAuthArtifacts();
+          '''
+
+          if anchor not in s:
+              raise SystemExit('session persistence assertion anchor missing')
+          s = s.replace(anchor, replacement, 1)
+
+          apply_anchor = '''    applyCloudSession(initialSession);
+          '''
+          apply_replacement = '''    if (initialSession?.user) dietAssertSessionPersisted(initialSession);
+            applyCloudSession(initialSession);
+          '''
+          if apply_anchor not in s:
+              raise SystemExit('initial session apply anchor missing')
+          s = s.replace(apply_anchor, apply_replacement, 1)
+          p.write_text(s)
+
+          p = Path('tests/release.mjs')
+          t = p.read_text().replace('static9', 'static10')
+          test_anchor = '''assert.ok(!persist.includes('appendPkceFlowIdToRedirects: true'),'Canonical Diet auth client must not mutate redirectTo with sb_flow_id');
+          '''
+          test_replacement = '''assert.ok(!persist.includes('appendPkceFlowIdToRedirects: true'),'Canonical Diet auth client must not mutate redirectTo with sb_flow_id');
+          assert.ok(persist.includes('dietMigrateTransientAuthFallback'),'Legacy tab-only auth migration is missing');
+          assert.ok(persist.includes('dietAssertSessionPersisted'),'Persistent-session verification is missing');
+          assert.ok(!persist.includes('return sessionStorage.getItem(`${DIET_AUTH_FALLBACK_PREFIX}${key}`)'),'Long-lived auth must never fall back to sessionStorage');
+          assert.ok(persist.includes('Persistent browser storage is unavailable. Diet Copilot cannot keep you signed in on this device.'),'Persistent-storage failure must be explicit');
+          '''
+          if test_anchor not in t:
+              raise SystemExit('release auth assertion anchor missing')
+          p.write_text(t.replace(test_anchor, test_replacement, 1))
+
+          p = Path('index.html')
+          s = p.read_text()
+          if 'static9' not in s:
+              raise SystemExit('index static9 marker missing')
+          p.write_text(s.replace('static9', 'static10'))
+
+          p = Path('sw.js')
+          s = p.read_text()
+          if 'static9' not in s:
+              raise SystemExit('service worker static9 marker missing')
+          p.write_text(s.replace('static9', 'static10'))
+          PY
+
+          node scripts/build-v68.mjs --write
+          node --check diet-app.js
+          node scripts/build-v68.mjs
+          node tests/policy.mjs
+          node tests/release.mjs
+
+          grep -q 'diet-app.js?v=1.0.2-static10' index.html
+          grep -q 'diet-copilot-web-v1.0.2-static10' sw.js
+          grep -q 'dietAssertSessionPersisted' diet-app.js
+          grep -q 'dietMigrateTransientAuthFallback' diet-app.js
+          if grep -Fq 'return sessionStorage.getItem(`${DIET_AUTH_FALLBACK_PREFIX}${key}`)' src/auth/dashboard-auth-persist.js; then
+            echo 'Tab-only auth fallback still present' >&2
+            exit 1
+          fi
+
+      - name: Commit static10 auth persistence repair
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'thiepn'
+          git config user.email 'junsosmart@gmail.com'
+          git add src/auth/dashboard-auth-persist.js diet-app.js index.html sw.js tests/release.mjs
+          git commit -m 'Fix persistent Diet browser sessions in static10'
+          git push origin HEAD:main
