@@ -61,6 +61,7 @@ jobs:
           const activeJs=fs.readdirSync('src',{recursive:true}).filter(p=>String(p).endsWith('.js')).map(p=>fs.readFileSync(`src/${p}`,'utf8')).join('\n');
           for(const banned of ['signInWithPassword','resetPasswordForEmail','loginPassword','passwordForm','email-password'])if(activeJs.includes(banned))throw new Error(`Legacy password auth returned: ${banned}`);
           if(!(persist.includes("flowType: 'pkce'")||persist.includes("flowType:'pkce'")))throw new Error('PKCE auth flow missing.');
+          if(!persist.includes('appendPkceFlowIdToRedirects: true'))throw new Error('Per-flow PKCE redirect IDs are missing.');
           if(persist.includes('setSession('))throw new Error('App-specific token restoration returned.');
           console.log('Diet Copilot Web 1.0.2 product/backend contract passed.');
           NODE
@@ -106,6 +107,8 @@ jobs:
           ! grep -q '{%' _site/diet.css
           ! grep -q '1.0-rc1' _site/diet-app.js
           ! grep -q 'data-v6-capture=' _site/diet-app.js
-          grep -q 'diet-app.js?v=1.0.2-static1' _site/index.html
-          grep -q 'diet.css?v=1.0.2-static1' _site/index.html
+          grep -q 'diet-app.js?v=1.0.2-static3' _site/index.html
+          grep -q 'diet.css?v=1.0.2-static3' _site/index.html
+          grep -q 'appendPkceFlowIdToRedirects: true' _site/diet-app.js
+          ! grep -q 'exchangeCodeForSession' _site/web-auth-callback.html
           grep -q "DIET_WEB_RELEASE = '1.0.2'" _site/diet-app.js
