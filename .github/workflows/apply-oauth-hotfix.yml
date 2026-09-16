@@ -1,0 +1,40 @@
+name: Apply Diet OAuth routing hotfix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.release/oauth-hotfix.b64'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - name: Apply certified OAuth hotfix
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/diet-oauth-hotfix
+          base64 -d .release/oauth-hotfix.b64 > /tmp/diet-oauth-hotfix.tar.gz
+          echo '709c0db201106ccc88f28273e41cafad9721c15240e5efe516467d79607b91d6  /tmp/diet-oauth-hotfix.tar.gz' | sha256sum -c -
+          tar -xzf /tmp/diet-oauth-hotfix.tar.gz -C /tmp/diet-oauth-hotfix
+          cp -a /tmp/diet-oauth-hotfix/. ./
+          node scripts/build-v68.mjs
+          node tests/policy.mjs
+          node tests/release.mjs
+          rm -rf .release
+          rm -f .github/workflows/apply-oauth-hotfix.yml
+          git config user.name 'thiepn'
+          git config user.email 'junsosmart@gmail.com'
+          git add -A
+          git commit -m 'Fix Diet Copilot web and Android OAuth routing'
+          git push origin HEAD:main
