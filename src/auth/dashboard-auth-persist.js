@@ -44,6 +44,11 @@ function dietStripWebOAuthCallback(url) {
   } catch {}
 }
 
+function dietPkceVerifierMissing(error) {
+  const text = `${error?.name || ''} ${error?.message || error || ''}`;
+  return /PKCE code verifier not found|AuthPKCECodeVerifierMissingError/i.test(text);
+}
+
 cleanupLegacyDietAuthArtifacts();
 
 initCloud = async function initCloudFinal(showDialog = false) {
@@ -67,6 +72,11 @@ initCloud = async function initCloudFinal(showDialog = false) {
   try {
     if (cloud.client) await disposeCloud();
 
+    const callback = dietReadWebOAuthCallback();
+    const restoredFlowId = callback.code && typeof dietRestoreBrowserPkceVerifier === 'function'
+      ? dietRestoreBrowserPkceVerifier()
+      : null;
+
     // The web callback is exchanged explicitly below. This guarantees that the
     // exact canonical Diet client which owns the PKCE verifier performs the
     // exchange, instead of relying on implicit URL detection during startup.
@@ -80,26 +90,38 @@ initCloud = async function initCloudFinal(showDialog = false) {
       }
     });
 
-    const callback = dietReadWebOAuthCallback();
     let initialSession = null;
 
     if (callback.error) {
       dietStripWebOAuthCallback(callback.url);
+      if (typeof dietClearBrowserPkceBackup === 'function') dietClearBrowserPkceBackup();
+      if (typeof dietClearBrowserOAuthRelayState === 'function') dietClearBrowserOAuthRelayState();
       throw new Error(callback.error);
     }
 
     if (callback.code) {
-      const exchangeOptions = callback.flowId ? { flowId: callback.flowId } : undefined;
-      const { data: exchanged, error: exchangeError } = await cloud.client.auth.exchangeCodeForSession(
+      const effectiveFlowId = callback.flowId || restoredFlowId || null;
+      let result = await cloud.client.auth.exchangeCodeForSession(
         callback.code,
-        exchangeOptions
+        effectiveFlowId ? { flowId: effectiveFlowId } : undefined
       );
+
+      // Supabase maintains a legacy single-flow verifier slot alongside the
+      // flow-specific slot. For a single interactive Diet web login, falling
+      // back to that slot is safe and gives older/newer SDK storage layouts a
+      // compatible recovery path without issuing a second OAuth request.
+      if (result.error && effectiveFlowId && dietPkceVerifierMissing(result.error)) {
+        result = await cloud.client.auth.exchangeCodeForSession(callback.code);
+      }
+
       dietStripWebOAuthCallback(callback.url);
-      if (exchangeError) throw exchangeError;
-      if (!exchanged?.session?.user) {
+      if (result.error) throw result.error;
+      if (!result.data?.session?.user) {
         throw new Error('Google sign-in completed, but Diet Copilot did not receive a session.');
       }
-      initialSession = exchanged.session;
+      initialSession = result.data.session;
+      if (typeof dietClearBrowserPkceBackup === 'function') dietClearBrowserPkceBackup();
+      if (typeof dietClearBrowserOAuthRelayState === 'function') dietClearBrowserOAuthRelayState();
     } else {
       const { data: stored, error: storedError } = await cloud.client.auth.getSession();
       if (storedError) throw storedError;
