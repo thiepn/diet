@@ -8,14 +8,135 @@ const DIET_AUTH_STORAGE_KEY = 'sb-hycegznamzjhwinegaai-auth-token';
 const LEGACY_DIET_AUTH_BACKUP_KEY = 'diet-copilot-thiepn-auth-token-backup-v2';
 const LEGACY_DIET_AUTH_DB = 'diet-copilot-auth-vault';
 const DIET_OAUTH_QUERY_KEYS = ['code', 'sb_flow_id', 'error', 'error_code', 'error_description'];
+const DIET_PKCE_BACKUP_KEY = 'diet-copilot:pkce-verifier-backup-v2';
+const DIET_PKCE_BACKUP_LEGACY_KEY = 'diet-copilot:pkce-verifier-backup-v1';
+const DIET_AUTH_FALLBACK_PREFIX = 'diet-copilot:auth-fallback:';
+const DIET_PKCE_BACKUP_TTL_MS = 15 * 60 * 1000;
 
 function cleanupLegacyDietAuthArtifacts() {
   // Targeted cleanup only. Never clear all localStorage because Diet Copilot
   // keeps legitimate user/application state alongside auth metadata.
   try { localStorage.removeItem(LEGACY_DIET_AUTH_BACKUP_KEY); } catch {}
+  try { sessionStorage.removeItem(DIET_PKCE_BACKUP_LEGACY_KEY); } catch {}
   try {
     if ('indexedDB' in window) indexedDB.deleteDatabase(LEGACY_DIET_AUTH_DB);
   } catch {}
+}
+
+function dietRawAuthStorageGet(key) {
+  try {
+    const value = localStorage.getItem(key);
+    if (value !== null) return value;
+  } catch {}
+  try { return sessionStorage.getItem(`${DIET_AUTH_FALLBACK_PREFIX}${key}`); }
+  catch { return null; }
+}
+
+function dietRawAuthStorageSet(key, value) {
+  let stored = false;
+  try {
+    localStorage.setItem(key, value);
+    stored = true;
+  } catch {}
+  if (!stored) {
+    try {
+      sessionStorage.setItem(`${DIET_AUTH_FALLBACK_PREFIX}${key}`, value);
+      stored = true;
+    } catch {}
+  }
+  if (!stored) throw new Error('Browser storage is unavailable. Google sign-in cannot continue.');
+}
+
+function dietRawAuthStorageRemove(key) {
+  try { localStorage.removeItem(key); } catch {}
+  try { sessionStorage.removeItem(`${DIET_AUTH_FALLBACK_PREFIX}${key}`); } catch {}
+}
+
+function dietReadBrowserPkceBackup() {
+  try {
+    const raw = sessionStorage.getItem(DIET_PKCE_BACKUP_KEY);
+    if (!raw) return null;
+    const backup = JSON.parse(raw);
+    if (!backup || typeof backup !== 'object' || typeof backup.entries !== 'object') return null;
+    const createdAt = Number(backup.createdAt || 0);
+    if (!createdAt || Date.now() - createdAt > DIET_PKCE_BACKUP_TTL_MS) {
+      sessionStorage.removeItem(DIET_PKCE_BACKUP_KEY);
+      return null;
+    }
+    return backup;
+  } catch {
+    return null;
+  }
+}
+
+function dietWriteBrowserPkceBackup(backup) {
+  try {
+    sessionStorage.setItem(DIET_PKCE_BACKUP_KEY, JSON.stringify(backup));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function dietMirrorPkceStorageEntry(key, value) {
+  if (!String(key).endsWith('-code-verifier')) return;
+  const current = dietReadBrowserPkceBackup() || { flowId: null, createdAt: Date.now(), entries: {} };
+  current.createdAt = Date.now();
+  current.entries[key] = value;
+  dietWriteBrowserPkceBackup(current);
+}
+
+// Supabase writes every auth value through this adapter. PKCE verifier writes
+// are mirrored at write-time into tab-scoped sessionStorage. If another client
+// or navigation removes a verifier before callback exchange, getItem restores
+// the exact value Supabase originally wrote.
+const dietAuthStorage = Object.freeze({
+  getItem(key) {
+    let value = dietRawAuthStorageGet(key);
+    if (value == null && String(key).endsWith('-code-verifier')) {
+      const backupValue = dietReadBrowserPkceBackup()?.entries?.[key];
+      if (typeof backupValue === 'string') {
+        dietRawAuthStorageSet(key, backupValue);
+        value = backupValue;
+      }
+    }
+    return value;
+  },
+  setItem(key, value) {
+    dietRawAuthStorageSet(key, value);
+    dietMirrorPkceStorageEntry(key, value);
+  },
+  removeItem(key) {
+    // Do not delete the tab-scoped PKCE mirror here. Supabase may remove a
+    // verifier while handling a failed/partial exchange. Diet clears the mirror
+    // only after a successful session or an explicit cancelled/failed flow.
+    dietRawAuthStorageRemove(key);
+  }
+});
+
+function dietClearBrowserPkceBackup() {
+  try { sessionStorage.removeItem(DIET_PKCE_BACKUP_KEY); } catch {}
+  try { sessionStorage.removeItem(DIET_PKCE_BACKUP_LEGACY_KEY); } catch {}
+}
+
+function dietTagBrowserPkceBackupFlow(flowId = '') {
+  if (!flowId) return;
+  const current = dietReadBrowserPkceBackup() || { flowId: null, createdAt: Date.now(), entries: {} };
+  current.flowId = flowId;
+  current.createdAt = Date.now();
+  dietWriteBrowserPkceBackup(current);
+}
+
+function dietRestoreBrowserPkceVerifier(flowIdHint = '') {
+  const backup = dietReadBrowserPkceBackup();
+  if (!backup) return flowIdHint || null;
+  for (const [key, value] of Object.entries(backup.entries || {})) {
+    if (!String(key).startsWith(`${DIET_AUTH_STORAGE_KEY}-`)) continue;
+    if (!String(key).endsWith('-code-verifier')) continue;
+    if (typeof value !== 'string') continue;
+    if (dietRawAuthStorageGet(key) == null) dietRawAuthStorageSet(key, value);
+  }
+  return (typeof backup.flowId === 'string' && backup.flowId) || flowIdHint || null;
 }
 
 function applyCloudSession(session) {
@@ -73,28 +194,30 @@ initCloud = async function initCloudFinal(showDialog = false) {
     if (cloud.client) await disposeCloud();
 
     const callback = dietReadWebOAuthCallback();
-    const restoredFlowId = callback.code && typeof dietRestoreBrowserPkceVerifier === 'function'
-      ? dietRestoreBrowserPkceVerifier()
+    const restoredFlowId = callback.code
+      ? dietRestoreBrowserPkceVerifier(callback.flowId || '')
       : null;
 
-    // The web callback is exchanged explicitly below. This guarantees that the
-    // exact canonical Diet client which owns the PKCE verifier performs the
-    // exchange, instead of relying on implicit URL detection during startup.
+    // One canonical web client owns both normal session persistence and PKCE.
+    // The custom storage adapter mirrors verifier writes at source instead of
+    // attempting to discover them after signInWithOAuth returns.
     cloud.client = window.supabase.createClient(cloudConfig.url, cloudConfig.key, {
       auth: {
         flowType: 'pkce',
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: false,
-        storageKey: DIET_AUTH_STORAGE_KEY
+        storageKey: DIET_AUTH_STORAGE_KEY,
+        storage: dietAuthStorage
       }
     });
+    cloud.client.__dietAuthStorageV2 = true;
 
     let initialSession = null;
 
     if (callback.error) {
       dietStripWebOAuthCallback(callback.url);
-      if (typeof dietClearBrowserPkceBackup === 'function') dietClearBrowserPkceBackup();
+      dietClearBrowserPkceBackup();
       if (typeof dietClearBrowserOAuthRelayState === 'function') dietClearBrowserOAuthRelayState();
       throw new Error(callback.error);
     }
@@ -106,11 +229,9 @@ initCloud = async function initCloudFinal(showDialog = false) {
         effectiveFlowId ? { flowId: effectiveFlowId } : undefined
       );
 
-      // Supabase maintains a legacy single-flow verifier slot alongside the
-      // flow-specific slot. For a single interactive Diet web login, falling
-      // back to that slot is safe and gives older/newer SDK storage layouts a
-      // compatible recovery path without issuing a second OAuth request.
       if (result.error && effectiveFlowId && dietPkceVerifierMissing(result.error)) {
+        // The adapter can restore the mirrored legacy slot on demand. This
+        // fallback is only attempted for a missing-verifier error.
         result = await cloud.client.auth.exchangeCodeForSession(callback.code);
       }
 
@@ -120,7 +241,7 @@ initCloud = async function initCloudFinal(showDialog = false) {
         throw new Error('Google sign-in completed, but Diet Copilot did not receive a session.');
       }
       initialSession = result.data.session;
-      if (typeof dietClearBrowserPkceBackup === 'function') dietClearBrowserPkceBackup();
+      dietClearBrowserPkceBackup();
       if (typeof dietClearBrowserOAuthRelayState === 'function') dietClearBrowserOAuthRelayState();
     } else {
       const { data: stored, error: storedError } = await cloud.client.auth.getSession();
