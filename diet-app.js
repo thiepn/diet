@@ -2652,7 +2652,11 @@ function v65WeeklyMarkup(){
 
 const V66_VERSION = '6.6';
 const V66_EXACT_SOURCES = new Set(['nutrition_label','weighed','manual_exact','saved_food','saved_meal','saved_recipe']);
-let v66HistoryFilter = localStorage.getItem('diet-v66-history-filter') || 'all';
+// Optional UI preferences must never prevent account startup or navigation.
+function v66PreferenceGet(key) { try { return localStorage.getItem(key); } catch { return null; } }
+function v66PreferenceSet(key,value) { try { localStorage.setItem(key,value); } catch {} }
+const v66SavedHistoryFilter = v66PreferenceGet('diet-v66-history-filter');
+let v66HistoryFilter = ['all','exact','estimated'].includes(v66SavedHistoryFilter) ? v66SavedHistoryFilter : 'all';
 let v66RealtimeTimer = null;
 let v66RefreshPromise = null;
 
@@ -2812,13 +2816,13 @@ renderHistory=function renderHistoryV66(){
   const dates=datesInRange(historyRange).sort().reverse().filter(date=>v66HistoryFilter==='all'||mealsFor(date).some(v66HistoryMatches));
   app.innerHTML=`<div class="p3-view p3-history-view v66-history">${p3PageHeader('History','Browse logged days with clearer source, confidence and uncertainty information.')}<div class="v66-history-controls">${p3RangeBar(historyRange,'history',[[3,'3D'],[7,'7D'],[14,'14D'],[30,'30D'],[90,'90D'],[Infinity,'All']])}<div class="v66-filter" role="group" aria-label="Meal source quality"><button type="button" class="${v66HistoryFilter==='all'?'active':''}" data-v66-history-filter="all">All</button><button type="button" class="${v66HistoryFilter==='exact'?'active':''}" data-v66-history-filter="exact">Exact</button><button type="button" class="${v66HistoryFilter==='estimated'?'active':''}" data-v66-history-filter="estimated">Estimated</button></div></div><p class="v66-history-note">Filters change the meal list only. Day totals always remain the full logged total.</p><div class="p3-history-list">${dates.length?dates.map(v66HistoryDay).join(''):`<div class="p3-empty"><strong>No matching history</strong><span>Try another range or source filter.</span></div>`}</div></div>`;
   app.querySelectorAll('[data-history-range]').forEach(button=>button.addEventListener('click',()=>{historyRange=button.dataset.historyRange==='all'?Infinity:Number(button.dataset.historyRange);renderHistory()}));
-  app.querySelectorAll('[data-v66-history-filter]').forEach(button=>button.addEventListener('click',()=>{v66HistoryFilter=button.dataset.v66HistoryFilter;localStorage.setItem('diet-v66-history-filter',v66HistoryFilter);renderHistory()}));
+  app.querySelectorAll('[data-v66-history-filter]').forEach(button=>button.addEventListener('click',()=>{v66HistoryFilter=button.dataset.v66HistoryFilter;v66PreferenceSet('diet-v66-history-filter',v66HistoryFilter);renderHistory()}));
 };
 
 try{
-  const savedMetric=localStorage.getItem('diet-v66-trend-metric');
+  const savedMetric=v66PreferenceGet('diet-v66-trend-metric');
   if(['weight','calories','protein','fiber'].includes(savedMetric))p3TrendMetric=savedMetric;
-  const savedRange=localStorage.getItem('diet-v66-trend-range');
+  const savedRange=v66PreferenceGet('diet-v66-trend-range');
   if(savedRange)trendRange=savedRange==='all'?Infinity:Number(savedRange)||trendRange;
 }catch{}
 const v66RenderTrendsBase=renderTrends;
@@ -2833,8 +2837,8 @@ renderTrends=function renderTrendsV66(){
     const n=v66ConfidenceForRange(Number.isFinite(trendRange)?trendRange:180); level=n.level; title=`${n.label} nutrition evidence`; copy=`${n.loggedDays} logged days · ${n.meals} meals${n.exactRate==null?'':` · ${n.exactRate}% exact/reused`}.`;
   }
   const head=root.querySelector('.p3-page-head'); if(head)head.insertAdjacentHTML('afterend',`<div class="v66-trend-state ${esc(level)}"><div><strong>${esc(title)}</strong><span>${esc(copy)}</span></div>${v66ConfidencePill(level==='building'?'Building':level[0].toUpperCase()+level.slice(1),level)}</div>`);
-  root.querySelectorAll('[data-trend-metric]').forEach(button=>button.addEventListener('click',()=>localStorage.setItem('diet-v66-trend-metric',button.dataset.trendMetric)));
-  root.querySelectorAll('[data-trend-range]').forEach(button=>button.addEventListener('click',()=>localStorage.setItem('diet-v66-trend-range',button.dataset.trendRange)));
+  root.querySelectorAll('[data-trend-metric]').forEach(button=>button.addEventListener('click',()=>v66PreferenceSet('diet-v66-trend-metric',button.dataset.trendMetric)));
+  root.querySelectorAll('[data-trend-range]').forEach(button=>button.addEventListener('click',()=>v66PreferenceSet('diet-v66-trend-range',button.dataset.trendRange)));
   return result;
 };
 
@@ -2860,6 +2864,7 @@ refreshData=async function refreshDataV66({silent=false}={}){
   v66RefreshController=controller; v66RefreshOwner=owner; v66RefreshEpoch=epoch;
   const current=()=>cloud.client===client && cloud.user?.id===owner && dietAccountEpoch===epoch && !controller.signal.aborted;
   const task=Promise.resolve().then(async()=>{
+    if(!current())return;
     cloud.status='syncing'; updateStatus();
     try{
       const [p,d,m,mi,w,sf,sm,smi,gp,tr,wr,act,port]=await Promise.all([
@@ -2915,29 +2920,34 @@ refreshData=async function refreshDataV66({silent=false}={}){
 
 let v66RefreshOwner=null, v66RefreshEpoch=-1, v66RefreshController=null;
 let v66SubscribePromise=null;
+let v66SubscribeOwner=null, v66SubscribeEpoch=-1, v66SubscribeClient=null;
 subscribeRealtime=async function subscribeRealtimeV66(){
   const client=cloud.client, owner=cloud.user?.id, epoch=dietAccountEpoch;
   if(!client||!owner)return;
-  if(cloud.channel?.__dietOwner===owner)return;
-  if(v66SubscribePromise)return v66SubscribePromise;
-  v66SubscribePromise=(async()=>{
+  const current=()=>cloud.client===client && cloud.user?.id===owner && dietAccountEpoch===epoch;
+  if(cloud.channel?.__dietOwner===owner && cloud.channel.__dietEpoch===epoch)return;
+  if(v66SubscribePromise && v66SubscribeOwner===owner && v66SubscribeEpoch===epoch && v66SubscribeClient===client)return v66SubscribePromise;
+  v66SubscribeOwner=owner;v66SubscribeEpoch=epoch;v66SubscribeClient=client;
+  const task=Promise.resolve().then(async()=>{
+    if(!current())return;
     clearTimeout(v66RealtimeTimer);
-    const previous=cloud.channel;
-    cloud.channel=null;
+    const previous=cloud.channel, activity=cloud.v6ActivityChannel;
+    cloud.channel=null;cloud.v6ActivityChannel=null;
     if(previous)await client.removeChannel(previous).catch(()=>{});
-    if(cloud.v6ActivityChannel){await client.removeChannel(cloud.v6ActivityChannel).catch(()=>{});cloud.v6ActivityChannel=null;}
-    if(cloud.client!==client || cloud.user?.id!==owner || dietAccountEpoch!==epoch)return;
+    if(activity)await client.removeChannel(activity).catch(()=>{});
+    if(!current())return;
     let channel=client.channel(`diet-dashboard-v66-${owner}`);
     for(const table of ['profiles','daily_logs','meals','meal_items','weight_entries','saved_foods','saved_meals','saved_meal_items','saved_food_portions','goal_phases','target_recommendations','weekly_reviews','activity_daily']){
       channel=channel.on('postgres_changes',{event:'*',schema:'public',table},()=>{
-        if(cloud.client!==client || cloud.user?.id!==owner || dietAccountEpoch!==epoch)return;
+        if(!current())return;
         clearTimeout(v66RealtimeTimer);v66RealtimeTimer=setTimeout(()=>refreshData({silent:true}),300);
       });
     }
-    channel.__dietOwner=owner;
+    channel.__dietOwner=owner;channel.__dietEpoch=epoch;
     cloud.channel=channel.subscribe();
-  })().finally(()=>{v66SubscribePromise=null;});
-  return v66SubscribePromise;
+  }).finally(()=>{if(v66SubscribePromise===task)v66SubscribePromise=null;});
+  v66SubscribePromise=task;
+  return task;
 };
 
 queueMicrotask(()=>{
@@ -3140,6 +3150,8 @@ async function dietNativeStartGoogleOAuth(){
 
 async function dietNativeHandleAuthUrl(rawUrl){
   if(!rawUrl||!cloud?.client)return false;
+  const client=cloud.client, epoch=dietAccountEpoch;
+  const current=()=>cloud.client===client && dietAccountEpoch===epoch && !dietSignOutPromise;
   let url;
   try{url=new URL(rawUrl)}catch{return false}
   if(url.protocol!=='dev.thiepn.diet:'||url.hostname!=='auth-callback')return false;
@@ -3172,7 +3184,8 @@ async function dietNativeHandleAuthUrl(rawUrl){
     if(!pending || (supplied && supplied!==pending))throw new Error('This Android sign-in attempt expired. Start Google sign-in again.');
     dietNativeLastCode=code;
     const flowId=supplied||dietNativePendingFlowId();
-    const {data,error}=await cloud.client.auth.exchangeCodeForSession(code,flowId?{flowId}:undefined);
+    const {data,error}=await client.auth.exchangeCodeForSession(code,flowId?{flowId}:undefined);
+    if(!current())return true;
     if(error)throw error;
     if(!data?.session?.user)throw new Error('Google sign-in returned no session.');
     applyCloudSession(data.session);
@@ -3189,7 +3202,8 @@ async function dietNativeHandleAuthUrl(rawUrl){
     if(connectionDialog?.open)connectionDialog.close();
     showToast('Signed in with THIEPN Account');
   }catch(error){
-    cloud.error=error?.message||String(error);
+    if(!current())return true;
+    cloud.error=error?.message==='This Android sign-in attempt expired. Start Google sign-in again.' ? error.message : dietAccountError(error);
     dietNativeRememberFlowId(null);
     cloud.status='configured';
     updateStatus();
@@ -3943,9 +3957,10 @@ async function dietResumeAccount() {
 }
 async function dietSignInWithGoogle() {
   if (dietSignInPromise) return dietSignInPromise;
+  const native = typeof dietIsNativeAndroid === 'function' && dietIsNativeAndroid() && window.DietNative?.startGoogleOAuth;
   dietSignInPromise = (async()=>{
-    if (typeof dietIsNativeAndroid === 'function' && dietIsNativeAndroid() && window.DietNative?.startGoogleOAuth) return window.DietNative.startGoogleOAuth();
     await initCloud(false);
+    if (native) return window.DietNative.startGoogleOAuth();
     if (!cloud.client?.__dietAuthStorageV2) throw new Error('Account client unavailable');
     dietAssertPersistentStorage();
     dietClearBrowserOAuthRelayState();
@@ -3962,6 +3977,7 @@ async function dietSignInWithGoogle() {
   })();
   try { return await dietSignInPromise; }
   catch(error) { dietSignInPromise=null; throw error; }
+  finally { if(native)dietSignInPromise=null; }
 }
 async function dietSignOut() {
   if (dietSignOutPromise) return dietSignOutPromise;
@@ -4061,8 +4077,9 @@ function renderConnection() {
     if (connectionDialog.open) renderConnection();
   });
   connectionContent.querySelector('#accountCopyDiagnosticsBtn')?.addEventListener('click',async event=>{
-    try { await navigator.clipboard.writeText(JSON.stringify(dietAccountDiagnostics(),null,2)); event.currentTarget.textContent='Copied'; }
-    catch { event.currentTarget.textContent='Select and copy the text above'; }
+    const button=event.currentTarget;
+    try { await navigator.clipboard.writeText(JSON.stringify(dietAccountDiagnostics(),null,2)); button.textContent='Copied'; }
+    catch { button.textContent='Select and copy the text above'; }
   });
   if (signedIn && typeof dietIsNativeAndroid==='function' && dietIsNativeAndroid()) setTimeout(()=>dietNativeRenderPanel(),0);
 }

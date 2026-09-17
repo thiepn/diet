@@ -15,7 +15,7 @@ self.addEventListener('fetch',event=>{
   const request=event.request, url=new URL(request.url);
   if(request.method!=='GET'||url.origin!==self.location.origin)return;
   // Never cache an OAuth result, an auth relay, or private API responses.
-  if(['/native-auth-start.html','/native-auth-callback.html','/web-auth-callback.html'].some(path=>url.pathname.endsWith(path)) || ['code','sb_flow_id','error','error_description'].some(key=>url.searchParams.has(key)))return;
+  if(['/native-auth-start.html','/native-auth-callback.html','/web-auth-callback.html'].some(path=>url.pathname.endsWith(path)) || ['code','sb_flow_id','error','error_code','error_description'].some(key=>url.searchParams.has(key)))return;
   if(request.mode==='navigate'){event.respondWith(networkFirst(request,'./index.html'));return;}
   if(['/diet-app.js','/diet.css','/manifest.webmanifest','/.well-known/thiepn-app.json'].some(path=>url.pathname.endsWith(path))){event.respondWith(networkFirst(request));return;}
   // Only public app-shell assets enter this cache. Other same-origin endpoints bypass it.

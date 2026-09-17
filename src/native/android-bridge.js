@@ -82,6 +82,8 @@ async function dietNativeStartGoogleOAuth(){
 
 async function dietNativeHandleAuthUrl(rawUrl){
   if(!rawUrl||!cloud?.client)return false;
+  const client=cloud.client, epoch=dietAccountEpoch;
+  const current=()=>cloud.client===client && dietAccountEpoch===epoch && !dietSignOutPromise;
   let url;
   try{url=new URL(rawUrl)}catch{return false}
   if(url.protocol!=='dev.thiepn.diet:'||url.hostname!=='auth-callback')return false;
@@ -114,7 +116,8 @@ async function dietNativeHandleAuthUrl(rawUrl){
     if(!pending || (supplied && supplied!==pending))throw new Error('This Android sign-in attempt expired. Start Google sign-in again.');
     dietNativeLastCode=code;
     const flowId=supplied||dietNativePendingFlowId();
-    const {data,error}=await cloud.client.auth.exchangeCodeForSession(code,flowId?{flowId}:undefined);
+    const {data,error}=await client.auth.exchangeCodeForSession(code,flowId?{flowId}:undefined);
+    if(!current())return true;
     if(error)throw error;
     if(!data?.session?.user)throw new Error('Google sign-in returned no session.');
     applyCloudSession(data.session);
@@ -131,7 +134,8 @@ async function dietNativeHandleAuthUrl(rawUrl){
     if(connectionDialog?.open)connectionDialog.close();
     showToast('Signed in with THIEPN Account');
   }catch(error){
-    cloud.error=error?.message||String(error);
+    if(!current())return true;
+    cloud.error=error?.message==='This Android sign-in attempt expired. Start Google sign-in again.' ? error.message : dietAccountError(error);
     dietNativeRememberFlowId(null);
     cloud.status='configured';
     updateStatus();

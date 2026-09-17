@@ -43,8 +43,9 @@ function renderConnection() {
     if (connectionDialog.open) renderConnection();
   });
   connectionContent.querySelector('#accountCopyDiagnosticsBtn')?.addEventListener('click',async event=>{
-    try { await navigator.clipboard.writeText(JSON.stringify(dietAccountDiagnostics(),null,2)); event.currentTarget.textContent='Copied'; }
-    catch { event.currentTarget.textContent='Select and copy the text above'; }
+    const button=event.currentTarget;
+    try { await navigator.clipboard.writeText(JSON.stringify(dietAccountDiagnostics(),null,2)); button.textContent='Copied'; }
+    catch { button.textContent='Select and copy the text above'; }
   });
   if (signedIn && typeof dietIsNativeAndroid==='function' && dietIsNativeAndroid()) setTimeout(()=>dietNativeRenderPanel(),0);
 }

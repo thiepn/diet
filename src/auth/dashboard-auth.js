@@ -212,9 +212,10 @@ async function dietResumeAccount() {
 }
 async function dietSignInWithGoogle() {
   if (dietSignInPromise) return dietSignInPromise;
+  const native = typeof dietIsNativeAndroid === 'function' && dietIsNativeAndroid() && window.DietNative?.startGoogleOAuth;
   dietSignInPromise = (async()=>{
-    if (typeof dietIsNativeAndroid === 'function' && dietIsNativeAndroid() && window.DietNative?.startGoogleOAuth) return window.DietNative.startGoogleOAuth();
     await initCloud(false);
+    if (native) return window.DietNative.startGoogleOAuth();
     if (!cloud.client?.__dietAuthStorageV2) throw new Error('Account client unavailable');
     dietAssertPersistentStorage();
     dietClearBrowserOAuthRelayState();
@@ -231,6 +232,7 @@ async function dietSignInWithGoogle() {
   })();
   try { return await dietSignInPromise; }
   catch(error) { dietSignInPromise=null; throw error; }
+  finally { if(native)dietSignInPromise=null; }
 }
 async function dietSignOut() {
   if (dietSignOutPromise) return dietSignOutPromise;

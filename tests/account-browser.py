@@ -75,6 +75,8 @@ class Fixture:
             raise
     async def setup(self,context):
         await context.route('**/*',self.route)
+        # A mocked socket is never connected to the real Supabase server.
+        await context.route_web_socket('**/*',lambda ws:None)
         def watch(page):
             page.on('pageerror',lambda error:self.errors.append(str(error)))
             page.on('console',lambda msg:self.logs.append(msg.text) if msg.type=='warning' else None)
@@ -101,6 +103,9 @@ async def test_clean(context,f):
     page=await page_for(context);assert await page.evaluate('DietAccount.diagnostics().phase')=='signed-out';await no_private(page)
 async def test_oauth(context,f):
     page=await page_for(context);await page.evaluate('openConnection()');await page.locator('#googleSignInBtn').click()
+    # The pre-redirect page is already /diet/: wait for an authenticated return,
+    # not a URL predicate that can succeed before the navigation even starts.
+    await page.wait_for_function("typeof cloud!=='undefined' && cloud.user?.id==="+json.dumps(A),timeout=15000)
     await page.wait_for_url(lambda url:str(url).startswith(URL));await signed(page)
     assert '?' not in page.url
     assert f.oauth_calls==1 and f.token_calls==1
@@ -115,6 +120,8 @@ async def test_cookie(context,f):
     await blocked(context);page=await page_for(context);await sign_in(page)
     assert await page.evaluate('DietAccount.diagnostics().backend')=='cookie'
     await page.close();page=await page_for(context);await signed(page)
+async def test_cookie_oauth(context,f):
+    await blocked(context);await test_oauth(context,f)
 async def test_quota(context,f):
     await context.add_init_script("const ls=window.localStorage;const original=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(this===ls)throw new DOMException('fixture full','QuotaExceededError');return original.call(this,k,v);}")
     page=await page_for(context);await sign_in(page);await page.close();page=await page_for(context);await signed(page)
@@ -198,7 +205,62 @@ async def test_resume(context,f):
     await page.evaluate("window.dispatchEvent(new PageTransitionEvent('pageshow',{persisted:true})); window.dispatchEvent(new Event('online'))")
     await signed(page);assert await page.evaluate('DietAccount.diagnostics().clientCount')==1
 
-CASES=[test_clean,test_oauth,test_reopen,test_reload,test_cookie,test_quota,test_denied,test_invalid,test_refresh,test_revoked,test_data_failure,test_offline,test_duplicate_init,test_switch,test_other_cache,test_logout,test_logout_failed,test_pending_logout,test_tabs,test_cookie_tabs,test_cancel,test_missing_pkce,test_diagnostics,test_views,test_unrelated,test_resume]
+async def test_blocked_preferences(context,f):
+    await blocked(context)
+    page=await page_for(context);await sign_in(page)
+    await page.evaluate("setView('history')")
+    await page.locator('[data-v66-history-filter="exact"]').click()
+    await page.locator('[data-v66-history-filter="estimated"]').click()
+    await page.locator('[data-v66-history-filter="all"]').click()
+    await page.evaluate("setView('trends')")
+    await page.locator('[data-trend-metric="calories"]').click()
+    await page.locator('[data-trend-range="90"]').click()
+    await page.evaluate("setView('insights')")
+    assert await page.evaluate('cloud.user.id')==A
+async def test_copy_diagnostics(context,f):
+    await context.add_init_script("Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>{await new Promise(r=>setTimeout(r,10));window.fixtureCopied=text;}}})")
+    page=await page_for(context);await page.evaluate('openConnection()');await page.locator('.diet-account-diagnostics summary').click()
+    await page.locator('#accountCopyDiagnosticsBtn').click()
+    await page.wait_for_function("document.getElementById('accountCopyDiagnosticsBtn').textContent==='Copied'")
+    assert json.loads(await page.evaluate('window.fixtureCopied'))['release']=='1.0.3'
+    await page.evaluate("navigator.clipboard.writeText=async()=>{throw new Error('fixture denied')}")
+    await page.locator('#accountCopyDiagnosticsBtn').click()
+    await page.wait_for_function("document.getElementById('accountCopyDiagnosticsBtn').textContent.startsWith('Select')")
+async def test_refresh_immediate_logout(context,f):
+    page=await page_for(context);await sign_in(page)
+    await page.evaluate('async()=>{const read=refreshData({silent:true});const signout=dietSignOut();await Promise.all([read,signout]);}')
+    assert await page.evaluate('cloud.status')=='configured';await no_private(page)
+async def test_pending_realtime_switch(context,f):
+    page=await page_for(context);await sign_in(page)
+    await page.evaluate("""()=>{
+      cloud.channel.__dietEpoch=-1;
+      const original=cloud.client.removeChannel.bind(cloud.client);
+      cloud.client.removeChannel=async channel=>{await new Promise(r=>setTimeout(r,150));return original(channel)};
+      void subscribeRealtime();
+    }""")
+    await sign_in(page,B)
+    await page.wait_for_function('(uid)=>cloud.channel?.__dietOwner===uid',arg=B)
+    await asyncio.sleep(.25)
+    assert await page.evaluate('cloud.channel.__dietOwner')==B
+    assert await page.evaluate('cloud.client.getChannels().length')==1
+async def test_native_flow_guards(context,f):
+    page=await page_for(context)
+    assert await page.evaluate("dietNativeHandleAuthUrl('https://other.test/?code=ignored')") is False
+    for record in ['invalid',{'flowId':'abcdefgh','createdAt':1},{'flowId':'abcdefgh','createdAt':int(time.time()*1000)+120000}]:
+        await page.evaluate('(value)=>localStorage.setItem(DIET_NATIVE_PENDING_FLOW_KEY,JSON.stringify(value))',record)
+        assert await page.evaluate('dietNativePendingFlowId()') is None
+    await page.evaluate("dietNativeRememberFlowId('abcdefgh')")
+    await page.evaluate("dietNativeHandleAuthUrl('dev.thiepn.diet://auth-callback?code=fixture&sb_flow_id=wrongflow')")
+    assert f.token_calls==0
+    assert await page.evaluate('cloud.user') is None
+    assert 'expired' in await page.evaluate('cloud.error')
+async def test_native_retry(context,f):
+    page=await page_for(context)
+    await page.evaluate("dietIsNativeAndroid=()=>true;window.DietNative={startGoogleOAuth:async()=>{window.fixtureStarts=(window.fixtureStarts||0)+1}}")
+    await page.evaluate('dietSignInWithGoogle()');await page.evaluate('dietSignInWithGoogle()')
+    assert await page.evaluate('window.fixtureStarts')==2
+
+CASES=[test_clean,test_oauth,test_reopen,test_reload,test_cookie,test_quota,test_denied,test_invalid,test_refresh,test_revoked,test_data_failure,test_offline,test_duplicate_init,test_switch,test_other_cache,test_logout,test_logout_failed,test_pending_logout,test_tabs,test_cookie_tabs,test_cancel,test_missing_pkce,test_diagnostics,test_views,test_unrelated,test_resume,test_blocked_preferences,test_copy_diagnostics,test_refresh_immediate_logout,test_pending_realtime_switch,test_native_flow_guards,test_native_retry,test_cookie_oauth]
 async def main():
     results=[]
     async with async_playwright() as pw:
@@ -238,4 +300,5 @@ async def main():
     failed=sum(not x['passed'] for x in results)
     print(f"{len(results)-failed}/{len(results)} {args.browser} account browser tests passed.")
     raise SystemExit(bool(failed))
-asyncio.run(main())
+if __name__ == '__main__':
+    asyncio.run(main())
