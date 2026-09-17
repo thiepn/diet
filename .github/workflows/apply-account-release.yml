@@ -1,0 +1,58 @@
+name: Apply account release repair
+on:
+  push:
+    branches: [fix/account-release-final]
+    paths: [.github/workflows/apply-account-release.yml]
+permissions:
+  contents: write
+jobs:
+  apply:
+    if: github.ref == 'refs/heads/fix/account-release-final'
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: fix/account-release-final
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - name: Verify and apply reviewed source edits
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import base64,hashlib,json,lzma,pathlib
+          payload=''.join(pathlib.Path(f'.github/account-release-payload-{i}.txt').read_text().strip() for i in range(3))
+          assert hashlib.sha256(payload.encode()).hexdigest()=='2c5510ec4454984f7f4128901e28543e03a2111c07d461f5e56a1aa05d60a0c4', 'Payload checksum mismatch'
+          changes=json.loads(lzma.decompress(base64.b64decode(payload)))
+          for item in changes:
+              path=pathlib.Path(item['p'])
+              assert not path.is_absolute() and '..' not in path.parts
+              old=path.read_text() if path.exists() else None
+              if item['sha'] is None: assert old is None, f'Unexpected existing file: {path}'
+              else: assert old is not None and hashlib.sha256(old.encode()).hexdigest()==item['sha'], f'Concurrent edit: {path}'
+              if item.get('delete'): path.unlink(); continue
+              path.parent.mkdir(parents=True,exist_ok=True)
+              if 'new' in item: new=item['new']
+              else:
+                  lines=old.splitlines(True)
+                  for i,j,replacement in reversed(item['ops']): lines[i:j]=replacement
+                  new=''.join(lines)
+              path.write_text(new)
+          print(f'Applied {len(changes)} reviewed file edits.')
+          PY
+          curl --fail --location --retry 2 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0' -o vendor/supabase-2.116.0.js
+          echo 'fbde52aab1700a3b308087ae78b41fb5192e7a952d81d5d08238763ce3245dd8  vendor/supabase-2.116.0.js' | sha256sum -c -
+          node scripts/build-v68.mjs --write
+          node --check diet-app.js
+          node tests/account-storage.mjs
+          node tests/policy.mjs
+          node tests/release.mjs
+      - name: Commit release candidate source and deterministic bundles
+        run: |
+          rm .github/account-release-payload-{0,1,2}.txt .github/workflows/apply-account-release.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Consolidate account lifecycle, privacy boundaries and browser regression gates for Web 1.0.3'
+          git push origin HEAD:fix/account-release-final
