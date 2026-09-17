@@ -1,0 +1,35 @@
+name: Finalize account browser fixtures
+on:
+  push:
+    branches: [fix/account-release-final]
+    paths: [.github/workflows/finalize-account-fixtures.yml]
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: fix/account-release-final
+      - name: Correct fixture execution context
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          p=Path('tests/account-browser.py');s=p.read_text()
+          assert hashlib.sha256(s.encode()).hexdigest()=='a0d577a941159fd4e66700159a384a1a8bc9853797597efc8d9fe4469327955e'
+          s=s.replace("const ls=window.localStorage;const original=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(this===ls)throw new DOMException('fixture full','QuotaExceededError');return original.call(this,k,v);}","(()=>{let ls;try{ls=window.localStorage}catch{return;}const original=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(this===ls)throw new DOMException('fixture full','QuotaExceededError');return original.call(this,k,v);}})()")
+          s=s.replace('await page.evaluate("navigator.clipboard.writeText=async()=>{throw new Error(\'fixture denied\')}")','await page.evaluate("()=>{navigator.clipboard.writeText=async()=>{throw new Error(\'fixture denied\')}}")')
+          s=s.replace('page.screenshot(path=',"page.screenshot(animations='disabled',path=")
+          s=s.replace("        await page.evaluate('(v)=>setView(v)',view)","        await page.evaluate('(v)=>setView(v)',view)\n        assert await page.evaluate(\"(v)=>[...document.querySelectorAll('.nav-item.active')].every(b=>b.dataset.view===v)\",view)")
+          assert hashlib.sha256(s.encode()).hexdigest()=='20f2e080df34bab7c6fed23e5b71a41a40aec42b1f2aa5130ade7491f868fc9d'
+          p.write_text(s)
+          PY
+          python3 -m py_compile tests/account-browser.py
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add tests/account-browser.py
+          git commit -m 'Make quota and clipboard fixtures deterministic; assert selected navigation'
+          git push origin HEAD:fix/account-release-final
