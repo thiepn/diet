@@ -16,7 +16,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - name: Verify Web 1.0.2 static production runtime
+      - name: Verify Web 1.0.3 static production runtime
         run: node scripts/build-v68.mjs
       - name: A7 diagnostics contract
         run: |
@@ -31,8 +31,8 @@ jobs:
           if(manifest.degradedMode!=='cached-read-only')throw new Error('Diet degraded mode must preserve cached reads.');
           if(manifest.health?.networkFailureLogsOutUser!==false)throw new Error('Network failure must not become logout.');
           if(manifest.health?.writesPerformedByDashboard!==false)throw new Error('Dashboard must remain read-only.');
-          if(manifest.webRelease!=='1.0.2'||manifest.releaseChannel!=='stable')throw new Error('Stable release metadata missing.');
-          if(!index.includes('diet-app.js?v=1.0.2-static9')||!index.includes('diet.css?v=1.0.2-static9'))throw new Error('Web 1.0.2 static9 runtime is not loaded.');
+          if(manifest.webRelease!=='1.0.3'||manifest.releaseChannel!=='stable')throw new Error('Stable release metadata missing.');
+          if(!index.includes('diet-app.js?v=1.0.3-account1')||!index.includes('diet.css?v=1.0.3-account1'))throw new Error('Web 1.0.3 static9 runtime is not loaded.');
           if(!index.includes('user-scalable=no')||!index.includes('maximum-scale=1'))throw new Error('No-zoom viewport contract missing.');
           if(bundle.includes('{%')||styles.includes('{%')||bundle.startsWith('---')||styles.startsWith('---'))throw new Error('Production runtime contains unexpanded templates.');
           if(!bundle.includes('detectSessionInUrl: false')||!bundle.includes('dietReadWebOAuthCallback')||!bundle.includes('exchangeCodeForSession'))throw new Error('Explicit web PKCE session establishment is missing.');
@@ -45,5 +45,5 @@ jobs:
           for(const category of ["'network'","'authentication'","'authorization'","'rate_limit'","'service'"]){if(!operations.includes(category))throw new Error(`Missing failure category ${category}`)}
           if(operations.includes('localStorage.clear('))throw new Error('Operations must not broadly clear storage.');
           if(operations.includes('.auth.signOut('))throw new Error('Operations must not convert failures into sign-out.');
-          console.log('Diet A7 operations contract passed inside Web 1.0.2 static9 runtime.');
+          console.log('Diet A7 operations contract passed inside Web 1.0.3 static9 runtime.');
           NODE

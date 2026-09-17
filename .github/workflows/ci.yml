@@ -36,7 +36,7 @@ jobs:
           const config=fs.readFileSync('src/config.js','utf8');
           const release=fs.readFileSync('src/release.js','utf8');
           const auth=fs.readFileSync('src/auth/dashboard-auth.js','utf8');
-          const persist=fs.readFileSync('src/auth/dashboard-auth-persist.js','utf8');
+          const persist=fs.readFileSync('src/auth/dashboard-auth-persist.js','utf8')+fs.readFileSync('src/auth/dashboard-auth.js','utf8');
           const styles=fs.readFileSync('src/styles/release.css','utf8');
           const shared='hycegznamzjhwinegaai',legacy='mrrqsqawwxwebsdmrnre';
           if(backend.canonical_project_ref!==shared)throw new Error('Wrong canonical backend.');
@@ -45,8 +45,8 @@ jobs:
           if(backend.product_boundary?.logging_entrypoint!=='direct_chatgpt_conversation'||backend.product_boundary?.dashboard_manual_logging!==false||backend.product_boundary?.dashboard_quick_capture!==false)throw new Error('Dashboard product boundary regressed.');
           if(!config.includes(shared)||config.includes(legacy))throw new Error('Active config is not canonical.');
           if(!bridge.includes(`Canonical project ref: \`${shared}\``)||!bridge.includes(legacy))throw new Error('ChatGPT bridge backend contract missing.');
-          for(const symbol of ["DIET_WEB_RELEASE = '1.0.2'","DIET_RELEASE_CHANNEL = 'stable'",'renderTodayV68','window.DietRelease','dietInstallZoomLock'])if(!release.includes(symbol))throw new Error(`Stable release symbol missing: ${symbol}`);
-          if(!auth.includes('Continue with Google')||!auth.includes('dietSignInWithGoogle')||!auth.includes("auth.signOut({ scope: 'local' })"))throw new Error('Google-only auth contract regressed.');
+          for(const symbol of ["DIET_WEB_RELEASE = '1.0.3'","DIET_RELEASE_CHANNEL = 'stable'",'renderTodayV68','window.DietRelease','dietInstallZoomLock'])if(!release.includes(symbol))throw new Error(`Stable release symbol missing: ${symbol}`);
+          if(!fs.readFileSync('src/auth/dashboard-auth-final.js','utf8').includes('Continue with Google')||!auth.includes('dietSignInWithGoogle')||!auth.includes("auth.signOut({ scope: 'local' })"))throw new Error('Google-only auth contract regressed.');
           const activeJs=fs.readdirSync('src',{recursive:true}).filter(p=>String(p).endsWith('.js')).map(p=>fs.readFileSync(`src/${p}`,'utf8')).join('\n');
           for(const banned of ['signInWithPassword','resetPasswordForEmail','loginPassword','passwordForm','email-password'])if(activeJs.includes(banned))throw new Error(`Legacy password auth returned: ${banned}`);
           for(const symbol of ["flowType: 'pkce'",'detectSessionInUrl: false','storage: dietAuthStorage','dietMirrorPkceStorageEntry','dietRestoreBrowserPkceVerifier','__dietAuthStorageV2'])if(!persist.includes(symbol))throw new Error(`Controlled PKCE handling missing: ${symbol}`);
@@ -55,8 +55,10 @@ jobs:
           if(!styles.includes('.v53-open-indicator{display:none!important}'))throw new Error('Card-chevron hotfix missing.');
           if(!styles.includes('.today-v2>.v62-guidance')||!styles.includes('.today-v2>.v52-goal-progress')||!styles.includes('grid-column:1/-1!important'))throw new Error('Desktop Today grid-span guard missing.');
           if(!styles.includes('touch-action:pan-x pan-y'))throw new Error('Touch zoom lock missing.');
-          console.log('Diet Copilot Web 1.0.2 static9 product/backend/auth contract passed.');
+          console.log('Diet Copilot Web 1.0.3 static9 product/backend/auth contract passed.');
           NODE
+      - name: Account storage regression tests
+        run: node tests/account-storage.mjs
       - name: Nutrition and coaching regression fixtures
         run: node tests/policy.mjs
       - name: Verify committed static production bundles
@@ -92,13 +94,16 @@ jobs:
           test -f _site/diet-app.js
           test -f _site/diet.css
           test -f _site/index.html
+          test -f _site/.well-known/thiepn-app.json
+          test -f _site/vendor/supabase-2.116.0.js
+          ! grep -q auth-persistence-hotfix _site/index.html
           node --check _site/diet-app.js
           cmp diet-app.js _site/diet-app.js
           cmp diet.css _site/diet.css
           ! grep -q '{%' _site/diet-app.js
           ! grep -q '{%' _site/diet.css
-          grep -q 'diet-app.js?v=1.0.2-static9' _site/index.html
-          grep -q 'diet.css?v=1.0.2-static9' _site/index.html
+          grep -q 'diet-app.js?v=1.0.3-account1' _site/index.html
+          grep -q 'diet.css?v=1.0.3-account1' _site/index.html
           grep -q 'user-scalable=no' _site/index.html
           grep -q 'maximum-scale=1' _site/index.html
           grep -q 'detectSessionInUrl: false' _site/diet-app.js
@@ -107,4 +112,4 @@ jobs:
           grep -Fq '.v53-open-indicator{display:none!important}' _site/diet.css
           grep -Fq '.today-v2>.v62-guidance' _site/diet.css
           grep -Fq '.today-v2>.v52-goal-progress' _site/diet.css
-          grep -q "DIET_WEB_RELEASE = '1.0.2'" _site/diet-app.js
+          grep -q "DIET_WEB_RELEASE = '1.0.3'" _site/diet-app.js
