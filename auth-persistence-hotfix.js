@@ -1,11 +1,14 @@
 'use strict';
 
-// Static10b compatibility repair. This layer hardens the existing Diet auth
+// Static10c compatibility repair. This layer hardens the existing Diet auth
 // adapter without creating a second Supabase client. Long-lived sessions prefer
 // localStorage and fall back to secure first-party cookies when localStorage is
-// unavailable. Temporary PKCE state remains tab-scoped.
+// unavailable. Temporary PKCE state remains tab-scoped. After the adapter is
+// installed, Diet performs one post-bootstrap session rehydration so a session
+// stored in the cookie fallback is visible on a fresh tab before the UI settles
+// into the signed-out state.
 (() => {
-  if (window.DietAuthPersistenceHotfix?.version === 'static10b') return;
+  if (window.DietAuthPersistenceHotfix?.version === 'static10c') return;
   if (typeof dietRawAuthStorageGet !== 'function' ||
       typeof dietRawAuthStorageSet !== 'function' ||
       typeof dietRawAuthStorageRemove !== 'function' ||
@@ -16,6 +19,7 @@
   const cookiePrefix = 'diet-auth-v2-';
   const cookieChunkSize = 2800;
   const sessionMaxAge = 60 * 60 * 24 * 365;
+  let rehydratePromise = null;
 
   function isPkceKey(key) {
     return String(key).includes('code-verifier');
@@ -197,10 +201,46 @@
     return 'none';
   }
 
+  // The production bundle can perform its first auth bootstrap before this
+  // compatibility layer executes. If the session lives in the cookie fallback,
+  // that first getSession() cannot see it. Re-run the canonical bootstrap once
+  // after all startup listeners have had a chance to execute. This uses the
+  // same Supabase client authority and the now-patched storage adapter.
+  async function rehydratePersistentSession() {
+    if (rehydratePromise) return rehydratePromise;
+    rehydratePromise = (async () => {
+      if (typeof initCloud !== 'function') return false;
+      if (!persistentGet(authKey)) return false;
+      await initCloud(false);
+      if (cloud?.user) {
+        try { updateStatus(); } catch {}
+        try { render(); } catch {}
+        return true;
+      }
+      return false;
+    })().catch(error => {
+      console.warn('Diet Copilot persistent session rehydration failed', error);
+      return false;
+    });
+    return rehydratePromise;
+  }
+
+  function scheduleRehydrate() {
+    setTimeout(() => { rehydratePersistentSession(); }, 0);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', scheduleRehydrate, { once: true });
+  } else {
+    scheduleRehydrate();
+  }
+  window.addEventListener('load', scheduleRehydrate, { once: true });
+
   window.DietAuthPersistenceHotfix = Object.freeze({
-    version: 'static10b',
+    version: 'static10c',
     storage: 'localStorage-or-secure-cookie',
     backend: storageBackend,
-    verify: () => Boolean(persistentGet(authKey))
+    verify: () => Boolean(persistentGet(authKey)),
+    rehydrate: rehydratePersistentSession
   });
 })();
