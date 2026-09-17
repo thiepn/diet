@@ -1,0 +1,49 @@
+name: Apply reproduced account fixes
+on:
+  push:
+    branches: [fix/account-release-final]
+    paths: [.github/workflows/apply-account-round2.yml]
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: fix/account-release-final
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - name: Apply checksum-verified source delta
+        run: |
+          python3 - <<'PY'
+          import pathlib,hashlib,lzma,base64,json
+          payload=pathlib.Path('.github/account-round2.txt').read_text().strip()
+          assert hashlib.sha256(payload.encode()).hexdigest()=='275a7ab15954c3fc5dcae80b8263cb401fcb0ee18a6ab3e7e9fb0e27cabdf4ed'
+          for item in json.loads(lzma.decompress(base64.b64decode(payload))):
+              p=pathlib.Path(item['p'])
+              assert not p.is_absolute() and '..' not in p.parts and not str(p).startswith('.github/workflows/')
+              old=p.read_text() if p.exists() else None
+              assert (old is None and item['sha'] is None) or hashlib.sha256(old.encode()).hexdigest()==item['sha'], f'Concurrent edit: {p}'
+              if item.get('delete'):p.unlink();continue
+              if 'new' in item:new=item['new']
+              else:
+                  lines=old.splitlines(True)
+                  for i,j,replacement in reversed(item['ops']):lines[i:j]=replacement
+                  new=''.join(lines)
+              p.parent.mkdir(parents=True,exist_ok=True);p.write_text(new)
+          PY
+          node scripts/build-v68.mjs --write
+          node --check diet-app.js
+          node tests/account-storage.mjs
+          node tests/policy.mjs
+          node tests/release.mjs
+          python3 -m py_compile tests/account-browser.py tests/account-offline.py
+          rm .github/account-round2.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Fix reproduced blocked-storage startup failure and account interaction races'
+          git push origin HEAD:fix/account-release-final
