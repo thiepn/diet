@@ -1,8 +1,5 @@
 function updateStatus(){ let label='Cached', cls=''; if(cloud.status==='syncing'){label='Refreshing';cls='syncing'} else if(cloud.status==='error'){label='Error';cls='error'} else if(cloud.user){label='Live';cls='online'} else if(configured()){label='Sign in'} else if(dashboard.source==='empty'){label='Setup'} statusText.textContent=label; statusDot.className=`status-dot ${cls}`; }
 
-async function disposeCloud(){ if(cloud.client && cloud.channel){try{await cloud.client.removeChannel(cloud.channel)}catch{}} try{cloud.authSubscription?.unsubscribe?.()}catch{} try{await cloud.client?.auth?.dispose?.()}catch{} cloud.channel=null;cloud.authSubscription=null;cloud.client=null;cloud.user=null; }
-async function initCloud(showDialog=false){ cloud.error=null; if(!configured()){await disposeCloud();cloud.status='cache';updateStatus();if(showDialog)openConnection();return;} if(!window.supabase?.createClient){cloud.status='error';cloud.error='Supabase SDK failed to load';updateStatus();return;} try{await disposeCloud();cloud.client=window.supabase.createClient(cloudConfig.url,cloudConfig.key,{auth:{flowType:'pkce',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}); const {data,error}=await cloud.client.auth.getSession(); if(error)throw error; cloud.user=data.session?.user||null; cloud.status=cloud.user?'online':'configured'; const {data:listener}=cloud.client.auth.onAuthStateChange((_event,session)=>{const before=cloud.user?.id;cloud.user=session?.user||null;cloud.status=cloud.user?'online':'configured';updateStatus();if(cloud.user&&cloud.user.id!==before){refreshData({silent:true});subscribeRealtime();}if(!cloud.user&&cloud.channel){cloud.client.removeChannel(cloud.channel).catch(()=>{});cloud.channel=null;}if(connectionDialog.open)renderConnection();}); cloud.authSubscription=listener?.subscription||null; if(cloud.user){await refreshData({silent:true});await subscribeRealtime();} updateStatus(); if(showDialog)openConnection(); }catch(e){cloud.status='error';cloud.error=e.message||String(e);updateStatus();if(showDialog)openConnection();} }
-
 async function subscribeRealtime(){ if(!cloud.client||!cloud.user)return; if(cloud.channel){try{await cloud.client.removeChannel(cloud.channel)}catch{}} let ch=cloud.client.channel(`diet-dashboard-${cloud.user.id}`); ['profiles','daily_logs','meals','meal_items','weight_entries'].forEach(table=>{ch=ch.on('postgres_changes',{event:'*',schema:'public',table},()=>{clearTimeout(refreshTimer);refreshTimer=setTimeout(()=>refreshData({silent:true}),450);});}); cloud.channel=ch.subscribe(); }
 
 async function refreshData({silent=false}={}){
@@ -26,25 +23,6 @@ async function refreshData({silent=false}={}){
     try{const {data:health,error:he}=await cloud.client.rpc('diet_copilot_healthcheck');if(!he&&health){cloud.bridgeReady=Boolean(health.capabilities?.log_meal_from_ai&&health.capabilities?.log_weight_from_ai);cloud.schemaVersion=health.schema_version;}}catch{}
     render(); if(!silent)showToast('Dashboard refreshed');
   }catch(e){cloud.status='error';cloud.error=e.message||String(e);updateStatus();if(!silent)showToast(`Refresh failed: ${cloud.error}`);if(connectionDialog.open)renderConnection();}
-}
-
-function openConnection(){renderConnection();connectionDialog.showModal();}
-function renderConnection(){
-  const email=cloud.user?.email||'';
-  if(cloud.user){
-    connectionContent.innerHTML=`<div class="connection-state"><strong>THIEPN Account</strong><span>Signed in as ${esc(email)}. Diet Copilot data stays private to this account.</span></div><div class="btn-row"><button class="btn primary" id="refreshNowBtn" type="button">Refresh now</button><button class="btn ghost" id="signOutBtn" type="button">Sign out</button></div>`;
-    connectionContent.querySelector('#refreshNowBtn')?.addEventListener('click',()=>refreshData());
-    connectionContent.querySelector('#signOutBtn')?.addEventListener('click',async()=>{await cloud.client.auth.signOut({scope:'local'});cloud.user=null;cloud.status='configured';dashboard=emptyDashboard();try{localStorage.removeItem(CACHE_KEY)}catch{}renderConnection();render();});
-    return;
-  }
-  connectionContent.innerHTML=`<div class="connection-state"><strong>Sign in with THIEPN Account</strong><span>Continue with your Google account to sync Diet Copilot.</span>${cloud.error?`<br><span style="color:var(--danger)">${esc(cloud.error)}</span>`:''}</div><div class="btn-row"><button class="btn primary" id="googleSignInBtn" type="button">Continue with Google</button></div>`;
-  connectionContent.querySelector('#googleSignInBtn')?.addEventListener('click',async event=>{
-    const button=event.currentTarget;button.disabled=true;button.textContent='Redirecting…';cloud.error=null;
-    try{
-      if(typeof dietSignInWithGoogle==='function')await dietSignInWithGoogle();
-      else {const {error}=await cloud.client.auth.signInWithOAuth({provider:'google',options:{redirectTo:`${location.origin}${location.pathname}`,queryParams:{prompt:'select_account'}}});if(error)throw error;}
-    }catch(error){cloud.error=error?.message||String(error);renderConnection();}
-  });
 }
 
 function updateDateRefresh(){ if(cloud.user) refreshData({silent:true}); }

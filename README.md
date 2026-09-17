@@ -1,164 +1,60 @@
 # Diet Copilot
 
-Diet Copilot is a **ChatGPT-controlled nutrition log and diet intelligence system** with a read-only web dashboard.
+**Web 1.0.3 · V6.8.2 · account lifecycle release**
 
-```text
-You → ChatGPT → canonical Supabase backend → Dashboard
-```
+Diet Copilot is a personal nutrition log and diet-intelligence system controlled through ChatGPT. The web application is a read-only dashboard: **You → ChatGPT → the canonical Supabase backend → Today, History, Trends and Insights.**
 
-**Stable web release:** `1.0.1`  
-**Internal milestone:** `V6.8.1`
+Production: https://thiepn.dev/diet/
 
-## Product boundary
+## Fixed product scope
 
-The dashboard is not a food-entry app. Meal and weight logging, corrections, photo/label interpretation, goals, reusable foods and coaching are handled through ChatGPT. The website displays Today, History, Trends and Insights.
+Meals, corrections, weigh-ins, reusable foods and target changes are logged through ChatGPT. The dashboard deliberately has no manual food-entry form or Quick Capture. Every logged intake day counts, whether its status is Open, Partial or Complete. Missing fiber remains unknown; known fiber still contributes, with incomplete coverage distinguished. Estimates count normally. Activity calories are not automatically eaten back, and recommendations never silently change targets.
 
-The following are deliberate invariants:
+## Account behavior
 
-- no manual food-entry form on the dashboard
-- no Quick Capture workflow
-- no requirement to close a day before its data counts
-- no automatic activity-calorie eat-back
-- no silent calorie-target changes
-- hypothetical/planned food never contaminates logged intake
+Google sign-in is the only account entry point. A single Supabase client owns session restoration, PKCE callbacks, token refresh and explicit local sign-out. The persistent storage adapter is installed before that client starts, not in a later compatibility patch. It verifies writes to localStorage and uses persistent first-party cookies when localStorage cannot retain the session. Long-lived sessions are never silently kept only in sessionStorage.
 
-## Production backend
+Nutrition snapshots are tagged with their account owner. Switching account or signing out clears visible private data and cancels/fences pending reads. Network outages do not become sign-outs. Storage errors, a revoked session and a temporary connection failure have distinct recovery states.
 
-Diet Copilot uses the shared **THIEPN Account** Supabase project.
+The Account dialog includes **Connection details** and **Copy diagnostics**. Diagnostics contain release, lifecycle and storage metadata, not credentials, tokens or nutrition records. Browser policies that delete all site data, private browsing, deliberate sign-out and server-side revocation can still require another login. The app does not attempt to bypass browser privacy settings.
 
-- Canonical project ref: `hycegznamzjhwinegaai`
-- Production app: `https://thiepn.dev/diet/`
-- Retired Diet project: `mrrqsqawwxwebsdmrnre`
+The shared identity authority remains `sb-hycegznamzjhwinegaai-auth-token`. Cookies are first-party, Secure on HTTPS and SameSite=Lax; they are JavaScript-readable client storage, not HttpOnly server sessions. PKCE recovery is temporary and expires after 15 minutes.
 
-The retired project must receive no Diet Copilot reads or writes.
+## Backend and native boundary
 
-## Authentication
+The existing shared Supabase project `hycegznamzjhwinegaai` remains canonical. The retired Diet project `mrrqsqawwxwebsdmrnre` receives no active application reads or writes. This release changes no production nutrition records, auth accounts, database policies or infrastructure.
 
-Diet Copilot exposes **Google sign-in only**. Browser and Android flows use Supabase PKCE. The Android companion completes OAuth through the `dev.thiepn.diet://auth-callback/` deep link; email/password account UI is intentionally absent.
-
-Authenticated browser sessions are owner-scoped and read-only. Privileged mutations use private backend helpers with stable request IDs, idempotent retry and post-write verification.
-
-## Tracking policy
-
-**Every available logged value counts.** Day status is coverage metadata only.
-
-- Calories and protein use every day containing logged intake.
-- Weight analysis uses every available weigh-in.
-- Fiber uses every known fiber value.
-- Missing fiber remains unknown rather than becoming zero.
-- Full fiber coverage is reported separately.
-- Estimated meals count normally; uncertainty changes confidence, not inclusion.
-- Legitimately repeated identical foods remain separate records.
-
-## Intelligence
-
-The stable web product includes:
-
-- uncertainty-aware daily guidance
-- remembered foods, aliases and learned usual portions
-- verified barcode memory
-- recurring food/routine recognition
-- weight-trend confidence
-- week-over-week nutrition intelligence
-- conservative adaptive calorie recommendations
-- goal forecasting and maintenance-transition guidance
-- metric provenance and standardized confidence labels
-- integrity checking and exactly-once write semantics
-
-Recommendations never change targets automatically.
+The existing Android companion integration and `dev.thiepn.diet://auth-callback/` handoff are retained. This web release is not a claim that a newly signed APK, Google Play submission, physical Android device or Health Connect permission flow has been certified.
 
 ## Dashboard
 
-### Today
+**Today:** calories, protein, fiber, weight, goal progress, meals and contextual guidance. **History:** date ranges, expandable meals, source quality and All/Exact/Estimated filters that never change totals. **Trends:** weight and nutrition metrics with explicit evidence maturity. **Insights:** weekly overview, nutrition, weight/goal, food memory, data quality and metric provenance.
 
-Calories, protein, fiber, weight, goal progress, meals and passive contextual guidance. Core metric cards open consistent detail sheets with provenance.
+## Build and test
 
-### History
+Active source is under `src/`; retired code is under `archive/` and never enters the build. `scripts/build-v68.mjs` concatenates the explicit source list into committed `diet-app.js` and `diet.css`. GitHub Pages serves these unchanged; they are **not Jekyll templates**. `src/bootstrap.js` is last so the complete account implementation exists before startup.
 
-3D / 7D / 14D / 30D / 90D / All ranges, meal expansion, source quality, uncertainty ranges, and All / Exact / Estimated filters. Filters never change day totals.
-
-### Trends
-
-Weight / Calories / Protein / Fiber across 7D / 30D / 90D / 6M / All. Immature datasets are explicitly labeled rather than presented as established trends.
-
-### Insights
-
-One consolidated hierarchy:
-
-1. This week
-2. Nutrition
-3. Weight & goal
-4. Food intelligence
-5. Data quality
-
-## Source layout
-
-V6.8 removed the historical pile of root-level dashboard override files from the active source tree.
-
-```text
-src/
-  auth/
-  core/
-  intelligence/
-  native/
-  operations/
-  styles/
-  ui/
-  config.js
-  release.js
-
-archive/
-  legacy-dashboard/
-  legacy-build/
-  legacy-tests/
-
-scripts/
-tests/
-supabase/
-```
-
-Legacy files are retained under `archive/` for history only and cannot feed the production builder. `src/config.js` is the canonical configuration contract checked by CI; the production bundle continues to carry the same public Supabase endpoint/key through the certified core runtime.
-
-## Production bundles
-
-GitHub Pages serves exactly one local JavaScript bundle and one stylesheet:
-
-```text
-diet-app.js
-diet.css
-```
-
-They are Jekyll templates assembled from the certified source list in `scripts/build-v68.mjs`. The browser does not load the individual source fragments.
-
-The service worker uses the stable cache generation:
-
-```text
-diet-copilot-web-v1.0.1
-```
-
-Navigation and the consolidated runtime assets are network-first, with the cached read-only shell available for degraded/offline use.
-
-## Development
-
-Run the certification build first:
+The exact existing Supabase SDK is pinned locally in `vendor/supabase-2.116.0.js`, with its MIT license. The service-worker generation is `diet-copilot-web-v1.0.3-account1`. Auth callback URLs and backend responses are excluded from its caches.
 
 ```bash
-node scripts/build-v68.mjs
+node scripts/build-v68.mjs --write
+node tests/account-storage.mjs
 node tests/policy.mjs
 node tests/release.mjs
+node scripts/build-v68.mjs
 ```
 
-The GitHub Actions release pipeline additionally:
+Browser regression gates build the actual Pages `_site` and execute:
 
-- syntax-checks all active JavaScript
-- verifies the backend/product contract
-- verifies deterministic bundle expansion
-- runs the actual GitHub Pages Jekyll build
-- validates the deployed bundle artifacts
-- enforces JS/CSS size budgets
+```bash
+pip install playwright==1.57.0
+python -m playwright install --with-deps chromium firefox webkit
+python tests/account-browser.py --browser chromium --root _site --out account-results/chromium
+python tests/account-browser.py --browser firefox --root _site --out account-results/firefox
+python tests/account-browser.py --browser webkit --root _site --out account-results/webkit
+python tests/account-offline.py --root _site --out account-results/offline
+```
 
-For local browser work, serve the repository through a Jekyll-compatible build or inspect the expanded `.v68-build/` artifacts produced by the build script.
+The browser suite uses real engines and the production SDK with mocked identity/API traffic. It closes tabs and restarts disk-backed browser profiles; it does not prove persistence by copying storageState. The separate offline suite runs a real service worker against a local HTTP server. No production credentials or private records are required.
 
-## Release policy
-
-Web `1.0.1` is the stable maintenance baseline. Authentication is Google-only and uses PKCE; the Android companion is `7.0.2` with the same read-only dashboard plus Health Connect context.
+See [QA.md](QA.md) for gates and [the account audit](docs/account-platform/ACCOUNT-RELEASE-1.0.3.md) for findings and verification boundaries. Release readiness requires the current commit's checks to pass, not a historical certification label.

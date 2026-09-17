@@ -28,16 +28,16 @@ jobs:
           import fs from 'node:fs';
           const manifest=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
           const auth=fs.readFileSync('src/auth/dashboard-auth.js','utf8');
-          const persist=fs.readFileSync('src/auth/dashboard-auth-persist.js','utf8');
+          const persist=fs.readFileSync('src/auth/dashboard-auth-persist.js','utf8')+fs.readFileSync('src/auth/dashboard-auth.js','utf8');
           const config=fs.readFileSync('src/config.js','utf8');
           const expected={schemaVersion:'1.0',app:'diet',displayName:'Diet Copilot',path:'/diet/',accountContract:'1.0',sdkContract:'1.x',integrationMode:'certified-legacy',operationsVersion:'A7.1',sessionAuthority:'thiepn-account'};
           for(const [key,value] of Object.entries(expected))if(manifest[key]!==value)throw new Error(`Diet A8 manifest mismatch: ${key}`);
-          if(manifest.webRelease!=='1.0.2'||manifest.releaseChannel!=='stable'||manifest.stable!==true)throw new Error('Diet stable release metadata invalid.');
+          if(manifest.webRelease!=='1.0.3'||manifest.releaseChannel!=='stable'||manifest.stable!==true)throw new Error('Diet stable release metadata invalid.');
           if(manifest.sourceLayout!=='src'||manifest.runtimeMode!=='consolidated-stable')throw new Error('Diet source/runtime layout metadata invalid.');
           if(manifest.health?.networkFailureLogsOutUser!==false)throw new Error('Network failure must not log Diet out.');
           if(manifest.health?.writesPerformedByDashboard!==false)throw new Error('Diet dashboard must remain read-only.');
           if(!config.includes('hycegznamzjhwinegaai'))throw new Error('Canonical THIEPN project missing.');
-          if(!auth.includes('Continue with Google')||!auth.includes('dietSignInWithGoogle'))throw new Error('Declared Diet Google auth entry point regressed.');
+          if(!fs.readFileSync('src/auth/dashboard-auth-final.js','utf8').includes('Continue with Google')||!auth.includes('dietSignInWithGoogle'))throw new Error('Declared Diet Google auth entry point regressed.');
           if(JSON.stringify(manifest.authEntryPoints)!==JSON.stringify(['google']))throw new Error('Diet must declare Google-only auth.');
           const activeJs=fs.readdirSync('src',{recursive:true}).filter(p=>String(p).endsWith('.js')).map(p=>fs.readFileSync(`src/${p}`,'utf8')).join('\n');
           for(const banned of ['signInWithPassword','resetPasswordForEmail','loginPassword','passwordForm','email-password'])if(activeJs.includes(banned))throw new Error(`Legacy password auth returned: ${banned}`);
@@ -45,5 +45,5 @@ jobs:
           if(!auth.includes("auth.signOut({ scope: 'local' })"))throw new Error('Diet ordinary sign-out is not explicitly local.');
           if(persist.includes('setSession('))throw new Error('App-specific token restoration returned.');
           if(config.includes('mrrqsqawwxwebsdmrnre'))throw new Error('Retired Diet backend returned to runtime config.');
-          console.log('Diet A8 consumer contract passed for Web 1.0.2.');
+          console.log('Diet A8 consumer contract passed for Web 1.0.3.');
           NODE

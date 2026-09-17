@@ -55,5 +55,4 @@ updateStatus = function updateStatusP4() {
   p4SyncDesktopAccount();
 };
 
-document.querySelector('.desktop-account[data-open-account]')?.addEventListener('click',openConnection);
 p4SyncDesktopAccount();

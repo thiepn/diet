@@ -7,7 +7,11 @@
 
 const V66_VERSION = '6.6';
 const V66_EXACT_SOURCES = new Set(['nutrition_label','weighed','manual_exact','saved_food','saved_meal','saved_recipe']);
-let v66HistoryFilter = localStorage.getItem('diet-v66-history-filter') || 'all';
+// Optional UI preferences must never prevent account startup or navigation.
+function v66PreferenceGet(key) { try { return localStorage.getItem(key); } catch { return null; } }
+function v66PreferenceSet(key,value) { try { localStorage.setItem(key,value); } catch {} }
+const v66SavedHistoryFilter = v66PreferenceGet('diet-v66-history-filter');
+let v66HistoryFilter = ['all','exact','estimated'].includes(v66SavedHistoryFilter) ? v66SavedHistoryFilter : 'all';
 let v66RealtimeTimer = null;
 let v66RefreshPromise = null;
 
@@ -167,13 +171,13 @@ renderHistory=function renderHistoryV66(){
   const dates=datesInRange(historyRange).sort().reverse().filter(date=>v66HistoryFilter==='all'||mealsFor(date).some(v66HistoryMatches));
   app.innerHTML=`<div class="p3-view p3-history-view v66-history">${p3PageHeader('History','Browse logged days with clearer source, confidence and uncertainty information.')}<div class="v66-history-controls">${p3RangeBar(historyRange,'history',[[3,'3D'],[7,'7D'],[14,'14D'],[30,'30D'],[90,'90D'],[Infinity,'All']])}<div class="v66-filter" role="group" aria-label="Meal source quality"><button type="button" class="${v66HistoryFilter==='all'?'active':''}" data-v66-history-filter="all">All</button><button type="button" class="${v66HistoryFilter==='exact'?'active':''}" data-v66-history-filter="exact">Exact</button><button type="button" class="${v66HistoryFilter==='estimated'?'active':''}" data-v66-history-filter="estimated">Estimated</button></div></div><p class="v66-history-note">Filters change the meal list only. Day totals always remain the full logged total.</p><div class="p3-history-list">${dates.length?dates.map(v66HistoryDay).join(''):`<div class="p3-empty"><strong>No matching history</strong><span>Try another range or source filter.</span></div>`}</div></div>`;
   app.querySelectorAll('[data-history-range]').forEach(button=>button.addEventListener('click',()=>{historyRange=button.dataset.historyRange==='all'?Infinity:Number(button.dataset.historyRange);renderHistory()}));
-  app.querySelectorAll('[data-v66-history-filter]').forEach(button=>button.addEventListener('click',()=>{v66HistoryFilter=button.dataset.v66HistoryFilter;localStorage.setItem('diet-v66-history-filter',v66HistoryFilter);renderHistory()}));
+  app.querySelectorAll('[data-v66-history-filter]').forEach(button=>button.addEventListener('click',()=>{v66HistoryFilter=button.dataset.v66HistoryFilter;v66PreferenceSet('diet-v66-history-filter',v66HistoryFilter);renderHistory()}));
 };
 
 try{
-  const savedMetric=localStorage.getItem('diet-v66-trend-metric');
+  const savedMetric=v66PreferenceGet('diet-v66-trend-metric');
   if(['weight','calories','protein','fiber'].includes(savedMetric))p3TrendMetric=savedMetric;
-  const savedRange=localStorage.getItem('diet-v66-trend-range');
+  const savedRange=v66PreferenceGet('diet-v66-trend-range');
   if(savedRange)trendRange=savedRange==='all'?Infinity:Number(savedRange)||trendRange;
 }catch{}
 const v66RenderTrendsBase=renderTrends;
@@ -188,8 +192,8 @@ renderTrends=function renderTrendsV66(){
     const n=v66ConfidenceForRange(Number.isFinite(trendRange)?trendRange:180); level=n.level; title=`${n.label} nutrition evidence`; copy=`${n.loggedDays} logged days · ${n.meals} meals${n.exactRate==null?'':` · ${n.exactRate}% exact/reused`}.`;
   }
   const head=root.querySelector('.p3-page-head'); if(head)head.insertAdjacentHTML('afterend',`<div class="v66-trend-state ${esc(level)}"><div><strong>${esc(title)}</strong><span>${esc(copy)}</span></div>${v66ConfidencePill(level==='building'?'Building':level[0].toUpperCase()+level.slice(1),level)}</div>`);
-  root.querySelectorAll('[data-trend-metric]').forEach(button=>button.addEventListener('click',()=>localStorage.setItem('diet-v66-trend-metric',button.dataset.trendMetric)));
-  root.querySelectorAll('[data-trend-range]').forEach(button=>button.addEventListener('click',()=>localStorage.setItem('diet-v66-trend-range',button.dataset.trendRange)));
+  root.querySelectorAll('[data-trend-metric]').forEach(button=>button.addEventListener('click',()=>v66PreferenceSet('diet-v66-trend-metric',button.dataset.trendMetric)));
+  root.querySelectorAll('[data-trend-range]').forEach(button=>button.addEventListener('click',()=>v66PreferenceSet('diet-v66-trend-range',button.dataset.trendRange)));
   return result;
 };
 
@@ -205,27 +209,35 @@ renderToday=function renderTodayV66(){
 };
 
 refreshData=async function refreshDataV66({silent=false}={}){
-  if(v66RefreshPromise)return v66RefreshPromise;
+
   if(!cloud.client||!cloud.user){if(!silent&&typeof openConnection==='function')openConnection();return;}
   if(navigator.onLine===false){if(!silent)showToast('Offline — showing the last cached snapshot');return;}
-  v66RefreshPromise=(async()=>{
+  const owner=cloud.user.id, client=cloud.client, epoch=dietAccountEpoch;
+  if(v66RefreshPromise && v66RefreshOwner===owner && v66RefreshEpoch===epoch)return v66RefreshPromise;
+  v66RefreshController?.abort();
+  const controller=new AbortController();
+  v66RefreshController=controller; v66RefreshOwner=owner; v66RefreshEpoch=epoch;
+  const current=()=>cloud.client===client && cloud.user?.id===owner && dietAccountEpoch===epoch && !controller.signal.aborted;
+  const task=Promise.resolve().then(async()=>{
+    if(!current())return;
     cloud.status='syncing'; updateStatus();
     try{
       const [p,d,m,mi,w,sf,sm,smi,gp,tr,wr,act,port]=await Promise.all([
-        cloud.client.from('profiles').select('calorie_target,protein_target,fiber_target,goal_weight,desired_weekly_weight_change,adaptive_target_enabled,adaptive_min_complete_days,show_optional_macros,show_meal_photos,weigh_in_reminder_enabled,weigh_in_reminder_time,day_close_reminder_enabled,day_close_reminder_time,weekly_review_reminder_enabled,weekly_review_day,weekly_review_time,reminder_timezone,updated_at').maybeSingle(),
-        cloud.client.from('daily_logs').select('id,log_date,calorie_target,protein_target,status,notes,updated_at').order('log_date'),
-        cloud.client.from('meals').select('id,daily_log_id,meal_type,title,calories,protein,carbs,fat,fiber,confidence,source,original_input,notes,calories_low,calories_high,photo_url,photo_alt,eaten_at,created_at,updated_at').order('eaten_at'),
-        cloud.client.from('meal_items').select('id,meal_id,saved_food_id,name,quantity_text,calories,protein,carbs,fat,fiber,calories_low,calories_high,confidence,source,sort_order,updated_at').order('sort_order'),
-        cloud.client.from('weight_entries').select('id,entry_date,weight,notes,created_at,updated_at').order('entry_date'),
-        cloud.client.from('saved_foods').select('id,name,brand,barcode,quantity_text,calories,protein,carbs,fat,fiber,aliases,source,confidence,favorite,use_count,last_used_at,photo_url,verified_at,updated_at').order('use_count',{ascending:false}).limit(100),
-        cloud.client.from('saved_meals').select('id,name,meal_type,calories,protein,carbs,fat,fiber,aliases,favorite,use_count,last_used_at,photo_url,is_recipe,servings,serving_text,recipe_notes,updated_at').order('use_count',{ascending:false}).limit(100),
-        cloud.client.from('saved_meal_items').select('id,saved_meal_id,saved_food_id,name,quantity_text,calories,protein,carbs,fat,fiber,confidence,source,sort_order').order('sort_order'),
-        cloud.client.from('goal_phases').select('id,phase_type,name,start_date,end_date,calorie_target,protein_target,fiber_target,goal_weight,desired_weekly_weight_change,active,notes,created_at,updated_at').order('start_date',{ascending:false}),
-        cloud.client.from('target_recommendations').select('id,generated_on,lookback_days,complete_days,logged_days,weigh_in_count,avg_calories,weekly_weight_change,estimated_maintenance,desired_weekly_weight_change,current_target,raw_recommended_target,recommended_target,rationale,status,decision_payload,created_at,resolved_at').order('created_at',{ascending:false}).limit(20),
-        cloud.client.from('weekly_reviews').select('id,week_end,payload,created_at').order('week_end',{ascending:false}).limit(20),
-        cloud.client.from('activity_daily').select('activity_date,steps,active_calories,exercise_minutes,distance_km,resting_heart_rate,source,synced_at,updated_at').order('activity_date'),
-        cloud.client.from('saved_food_portions').select('id,saved_food_id,multiplier,quantity_text,use_count,last_used_at,updated_at').order('use_count',{ascending:false})
+        client.from('profiles').select('calorie_target,protein_target,fiber_target,goal_weight,desired_weekly_weight_change,adaptive_target_enabled,adaptive_min_complete_days,show_optional_macros,show_meal_photos,weigh_in_reminder_enabled,weigh_in_reminder_time,day_close_reminder_enabled,day_close_reminder_time,weekly_review_reminder_enabled,weekly_review_day,weekly_review_time,reminder_timezone,updated_at').maybeSingle().abortSignal(controller.signal),
+        client.from('daily_logs').select('id,log_date,calorie_target,protein_target,status,notes,updated_at').order('log_date').abortSignal(controller.signal),
+        client.from('meals').select('id,daily_log_id,meal_type,title,calories,protein,carbs,fat,fiber,confidence,source,original_input,notes,calories_low,calories_high,photo_url,photo_alt,eaten_at,created_at,updated_at').order('eaten_at').abortSignal(controller.signal),
+        client.from('meal_items').select('id,meal_id,saved_food_id,name,quantity_text,calories,protein,carbs,fat,fiber,calories_low,calories_high,confidence,source,sort_order,updated_at').order('sort_order').abortSignal(controller.signal),
+        client.from('weight_entries').select('id,entry_date,weight,notes,created_at,updated_at').order('entry_date').abortSignal(controller.signal),
+        client.from('saved_foods').select('id,name,brand,barcode,quantity_text,calories,protein,carbs,fat,fiber,aliases,source,confidence,favorite,use_count,last_used_at,photo_url,verified_at,updated_at').order('use_count',{ascending:false}).limit(100).abortSignal(controller.signal),
+        client.from('saved_meals').select('id,name,meal_type,calories,protein,carbs,fat,fiber,aliases,favorite,use_count,last_used_at,photo_url,is_recipe,servings,serving_text,recipe_notes,updated_at').order('use_count',{ascending:false}).limit(100).abortSignal(controller.signal),
+        client.from('saved_meal_items').select('id,saved_meal_id,saved_food_id,name,quantity_text,calories,protein,carbs,fat,fiber,confidence,source,sort_order').order('sort_order').abortSignal(controller.signal),
+        client.from('goal_phases').select('id,phase_type,name,start_date,end_date,calorie_target,protein_target,fiber_target,goal_weight,desired_weekly_weight_change,active,notes,created_at,updated_at').order('start_date',{ascending:false}).abortSignal(controller.signal),
+        client.from('target_recommendations').select('id,generated_on,lookback_days,complete_days,logged_days,weigh_in_count,avg_calories,weekly_weight_change,estimated_maintenance,desired_weekly_weight_change,current_target,raw_recommended_target,recommended_target,rationale,status,decision_payload,created_at,resolved_at').order('created_at',{ascending:false}).limit(20).abortSignal(controller.signal),
+        client.from('weekly_reviews').select('id,week_end,payload,created_at').order('week_end',{ascending:false}).limit(20).abortSignal(controller.signal),
+        client.from('activity_daily').select('activity_date,steps,active_calories,exercise_minutes,distance_km,resting_heart_rate,source,synced_at,updated_at').order('activity_date').abortSignal(controller.signal),
+        client.from('saved_food_portions').select('id,saved_food_id,multiplier,quantity_text,use_count,last_used_at,updated_at').order('use_count',{ascending:false}).abortSignal(controller.signal)
       ]);
+      if(!current())return;
       for(const r of [p,d,m,mi,w,sf,sm,smi,gp,tr,wr,act,port])if(r.error)throw r.error;
       const dailyLogs={},dateById={},itemsByMeal={},savedItemsByMeal={};
       (d.data||[]).forEach(x=>{dailyLogs[x.log_date]={id:x.id,status:x.status,calorieTarget:Number(x.calorie_target),proteinTarget:Number(x.protein_target),notes:x.notes||'',updatedAt:x.updated_at};dateById[x.id]=x.log_date;});
@@ -251,35 +263,51 @@ refreshData=async function refreshDataV66({silent=false}={}){
       if(typeof v5EnsureDashboardShape==='function')v5EnsureDashboardShape();
       if(typeof v6EnsureShape==='function')v6EnsureShape();
       saveDashboardCache(); cloud.status='online'; cloud.error=null;
-      try{const {data:health,error}=await cloud.client.rpc('diet_copilot_healthcheck');if(!error&&health){cloud.bridgeReady=Boolean(health.capabilities?.log_meal_from_ai&&health.capabilities?.log_weight_from_ai);cloud.schemaVersion=health.schema_version;}}catch{}
+      try{const {data:health,error}=await client.rpc('diet_copilot_healthcheck').abortSignal(controller.signal);if(current()&&!error&&health){cloud.bridgeReady=Boolean(health.capabilities?.log_meal_from_ai&&health.capabilities?.log_weight_from_ai);cloud.schemaVersion=health.schema_version;}}catch{}
+      if(!current())return;
       render(); if(!silent)showToast('Dashboard refreshed');
-    }catch(error){cloud.status='error';cloud.error=error.message||String(error);updateStatus();if(!silent)showToast(`Refresh failed: ${typeof p5FriendlyError==='function'?p5FriendlyError(cloud.error):cloud.error}`);if(connectionDialog?.open&&typeof renderConnection==='function')renderConnection();}
-    finally{v66RefreshPromise=null;}
-  })();
-  return v66RefreshPromise;
+    }catch(error){if(!current())return;cloud.status='error';cloud.error=error.message||String(error);updateStatus();if(!silent)showToast(`Refresh failed: ${typeof p5FriendlyError==='function'?p5FriendlyError(cloud.error):cloud.error}`);if(connectionDialog?.open&&typeof renderConnection==='function')renderConnection();}
+    finally{if(v66RefreshPromise===task)v66RefreshPromise=null;}
+  });
+  v66RefreshPromise=task;
+  return task;
 };
 
+let v66RefreshOwner=null, v66RefreshEpoch=-1, v66RefreshController=null;
+let v66SubscribePromise=null;
+let v66SubscribeOwner=null, v66SubscribeEpoch=-1, v66SubscribeClient=null;
 subscribeRealtime=async function subscribeRealtimeV66(){
-  if(!cloud.client||!cloud.user)return;
-  clearTimeout(v66RealtimeTimer);
-  if(cloud.v6ActivityChannel){try{await cloud.client.removeChannel(cloud.v6ActivityChannel)}catch{} cloud.v6ActivityChannel=null;}
-  if(cloud.channel){try{await cloud.client.removeChannel(cloud.channel)}catch{} cloud.channel=null;}
-  let channel=cloud.client.channel(`diet-dashboard-v66-${cloud.user.id}`);
-  for(const table of ['profiles','daily_logs','meals','meal_items','weight_entries','saved_foods','saved_meals','saved_meal_items','saved_food_portions','goal_phases','target_recommendations','weekly_reviews','activity_daily']){
-    channel=channel.on('postgres_changes',{event:'*',schema:'public',table},()=>{clearTimeout(v66RealtimeTimer);v66RealtimeTimer=setTimeout(()=>refreshData({silent:true}),300);});
-  }
-  cloud.channel=channel.subscribe();
+  const client=cloud.client, owner=cloud.user?.id, epoch=dietAccountEpoch;
+  if(!client||!owner)return;
+  const current=()=>cloud.client===client && cloud.user?.id===owner && dietAccountEpoch===epoch;
+  if(cloud.channel?.__dietOwner===owner && cloud.channel.__dietEpoch===epoch)return;
+  if(v66SubscribePromise && v66SubscribeOwner===owner && v66SubscribeEpoch===epoch && v66SubscribeClient===client)return v66SubscribePromise;
+  v66SubscribeOwner=owner;v66SubscribeEpoch=epoch;v66SubscribeClient=client;
+  const task=Promise.resolve().then(async()=>{
+    if(!current())return;
+    clearTimeout(v66RealtimeTimer);
+    const previous=cloud.channel, activity=cloud.v6ActivityChannel;
+    cloud.channel=null;cloud.v6ActivityChannel=null;
+    if(previous)await client.removeChannel(previous).catch(()=>{});
+    if(activity)await client.removeChannel(activity).catch(()=>{});
+    if(!current())return;
+    let channel=client.channel(`diet-dashboard-v66-${owner}`);
+    for(const table of ['profiles','daily_logs','meals','meal_items','weight_entries','saved_foods','saved_meals','saved_meal_items','saved_food_portions','goal_phases','target_recommendations','weekly_reviews','activity_daily']){
+      channel=channel.on('postgres_changes',{event:'*',schema:'public',table},()=>{
+        if(!current())return;
+        clearTimeout(v66RealtimeTimer);v66RealtimeTimer=setTimeout(()=>refreshData({silent:true}),300);
+      });
+    }
+    channel.__dietOwner=owner;channel.__dietEpoch=epoch;
+    cloud.channel=channel.subscribe();
+  }).finally(()=>{if(v66SubscribePromise===task)v66SubscribePromise=null;});
+  v66SubscribePromise=task;
+  return task;
 };
-
-if(typeof disposeCloud==='function'){
-  const v66DisposeBase=disposeCloud;
-  disposeCloud=async function disposeCloudV66(){clearTimeout(v66RealtimeTimer);return v66DisposeBase();};
-}
 
 queueMicrotask(()=>{
   document.getElementById('v6CaptureDialog')?.remove();
   app.querySelector('.today-v2 .v6-capture-card')?.remove();
   app.querySelector('.today-v2 .v6-activity')?.remove();
-  if(cloud?.user){subscribeRealtime().catch(error=>console.warn('V6.6 realtime consolidation failed',error));}
   if(typeof render==='function')render();
 });

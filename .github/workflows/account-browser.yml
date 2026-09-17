@@ -1,0 +1,64 @@
+name: Account Browser Regression
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: account-browser-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install pinned browser test tooling
+        run: |
+          pip install playwright==1.57.0
+          python -m playwright install --with-deps ${{ matrix.browser }}
+      - name: Build the actual Pages artifact
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+      - name: Account lifecycle tests against production output
+        run: python tests/account-browser.py --browser ${{ matrix.browser }} --root _site --out account-results/${{ matrix.browser }}
+      - name: Real service-worker install and offline account restoration
+        if: always() && matrix.browser == 'chromium'
+        run: python tests/account-offline.py --root _site --out account-results/chromium-offline
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: account-browser-${{ matrix.browser }}
+          path: account-results/
+          retention-days: 7
+  production-assets:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify public deployment serves this exact release
+        run: python tests/deployed-assets.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: deployed-asset-verification
+          path: deployed-assets.json
+          retention-days: 7

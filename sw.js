@@ -1,7 +1,24 @@
-const CACHE='diet-copilot-web-v1.0.2-static9';
-const CORE=['./','./index.html','./diet.css?v=1.0.2-static9','./diet-app.js?v=1.0.2-static9','./.well-known/thiepn-app.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE&&k.startsWith('diet-copilot')).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
-function fresh(r){try{return new Request(r,{cache:'no-cache'})}catch{return r}}
-function networkFirst(r,fallback=r){return fetch(fresh(r)).then(res=>{if(res?.ok)caches.open(CACHE).then(c=>c.put(fallback,res.clone()));return res}).catch(()=>caches.match(fallback))}
-self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);if(u.origin!==self.location.origin)return;if(u.pathname.endsWith('/native-auth-start.html')||u.pathname.endsWith('/native-auth-callback.html')||u.pathname.endsWith('/web-auth-callback.html'))return;if(r.mode==='navigate'){e.respondWith(networkFirst(r,'./index.html'));return}if(u.pathname.endsWith('/diet-app.js')||u.pathname.endsWith('/diet.css')||u.pathname.endsWith('/manifest.webmanifest')||u.pathname.endsWith('/.well-known/thiepn-app.json')){e.respondWith(networkFirst(r));return}e.respondWith(caches.match(r).then(x=>x||fetch(r).then(res=>{if(res?.ok)caches.open(CACHE).then(c=>c.put(r,res.clone()));return res})))})
+const CACHE='diet-copilot-web-v1.0.3-account1';
+const CORE=['./','./index.html','./diet.css?v=1.0.3-account1','./diet-app.js?v=1.0.3-account1','./vendor/supabase-2.116.0.js','./.well-known/thiepn-app.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
+self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting())));
+self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE&&key.startsWith('diet-copilot')).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
+async function networkFirst(request, fallback=request) {
+  try {
+    const response=await fetch(new Request(request,{cache:'no-cache'}));
+    if(response.ok){const cache=await caches.open(CACHE);await cache.put(fallback,response.clone());}
+    return response;
+  } catch {
+    return await caches.match(fallback) || Response.error();
+  }
+}
+self.addEventListener('fetch',event=>{
+  const request=event.request, url=new URL(request.url);
+  if(request.method!=='GET'||url.origin!==self.location.origin)return;
+  // Never cache an OAuth result, an auth relay, or private API responses.
+  if(['/native-auth-start.html','/native-auth-callback.html','/web-auth-callback.html'].some(path=>url.pathname.endsWith(path)) || ['code','sb_flow_id','error','error_code','error_description'].some(key=>url.searchParams.has(key)))return;
+  if(request.mode==='navigate'){event.respondWith(networkFirst(request,'./index.html'));return;}
+  if(['/diet-app.js','/diet.css','/manifest.webmanifest','/.well-known/thiepn-app.json'].some(path=>url.pathname.endsWith(path))){event.respondWith(networkFirst(request));return;}
+  // Only public app-shell assets enter this cache. Other same-origin endpoints bypass it.
+  if(!CORE.some(path=>new URL(path,self.registration.scope).pathname===url.pathname))return;
+  event.respondWith(caches.match(request).then(cached=>cached||networkFirst(request)));
+});

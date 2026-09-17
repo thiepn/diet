@@ -49,3 +49,12 @@ html,body,.app-frame{touch-action:pan-x pan-y}
   .v53-detail-sheet{max-height:96dvh!important}
   .v53-detail-body{overscroll-behavior:contain}
 }
+
+/* Account lifecycle and redacted support diagnostics. */
+.diet-account-diagnostics{margin-top:20px;border-top:1px solid var(--border,#e4e7eb);padding-top:14px;color:var(--muted,#626b74);font-size:12px}
+.diet-account-diagnostics summary{cursor:pointer;font-weight:600;padding:6px 0}
+.diet-account-diagnostics p{line-height:1.5}
+.diet-account-diagnostics pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;line-height:1.6;margin:10px 0;background:var(--surface,#f4f5f7);padding:12px;border-radius:10px;user-select:text}
+#connectionContent .btn-row{flex-wrap:wrap}
+#connectionContent button:disabled{cursor:wait;opacity:.65}
+#connectionContent .connection-state span{overflow-wrap:anywhere}
