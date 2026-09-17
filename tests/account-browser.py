@@ -44,7 +44,7 @@ class Fixture:
         try:
             if '/auth/v1/authorize' in url:
                 self.oauth_calls+=1
-                return await route.fulfill(status=302,headers={'location':ORIGIN+'/WORDSTRIKE/?code=fixture-code'})
+                return await route.fulfill(content_type='text/html',body='<script>location.replace('+json.dumps(ORIGIN+'/WORDSTRIKE/?code=fixture-code')+')</script>')
             if '/auth/v1/token' in url:
                 self.token_calls+=1
                 if self.token_error:return await route.fulfill(status=400,json={'code':'refresh_token_not_found','msg':'Fixture session revoked'})
@@ -276,7 +276,9 @@ async def main():
                 results.append({'test':case.__name__,'passed':True});print('PASS',case.__name__,flush=True)
             except Exception as error:
                 results.append({'test':case.__name__,'passed':False,'error':str(error),'trace':traceback.format_exc(),'pageErrors':f.errors});print('FAIL',case.__name__,str(error),flush=True)
-            finally:await context.close()
+            finally:
+                (OUT/'results.json').write_text(json.dumps({'browser':args.browser,'tests':results},indent=2))
+                await context.close()
         await browser.close()
         # Real disk-backed profile restart, not a copied storageState snapshot.
         for mode in ['localStorage','cookie']:
