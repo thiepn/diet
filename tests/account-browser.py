@@ -123,7 +123,7 @@ async def test_cookie(context,f):
 async def test_cookie_oauth(context,f):
     await blocked(context);await test_oauth(context,f)
 async def test_quota(context,f):
-    await context.add_init_script("const ls=window.localStorage;const original=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(this===ls)throw new DOMException('fixture full','QuotaExceededError');return original.call(this,k,v);}")
+    await context.add_init_script("(()=>{let ls;try{ls=window.localStorage}catch{return;}const original=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(this===ls)throw new DOMException('fixture full','QuotaExceededError');return original.call(this,k,v);}})()")
     page=await page_for(context);await sign_in(page);await page.close();page=await page_for(context);await signed(page)
 async def test_denied(context,f):
     await blocked(context);await context.add_init_script("Object.defineProperty(document,'cookie',{get(){return ''},set(v){}})")
@@ -188,15 +188,16 @@ async def test_diagnostics(context,f):
     page=await page_for(context);await sign_in(page);await page.evaluate('openConnection()');await page.locator('.diet-account-diagnostics summary').click()
     report=await page.locator('.diet-account-diagnostics pre').inner_text()
     for secret in ['access_token','refresh_token','fixture-a@example.test',A,'PRIVATE meal']:assert secret not in report
-    await page.screenshot(path=str(OUT/'account-desktop.png'))
-    await page.set_viewport_size({'width':390,'height':844});await page.screenshot(path=str(OUT/'account-mobile.png'))
+    await page.screenshot(animations='disabled',path=str(OUT/'account-desktop.png'))
+    await page.set_viewport_size({'width':390,'height':844});await page.screenshot(animations='disabled',path=str(OUT/'account-mobile.png'))
     assert await page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
 async def test_views(context,f):
     page=await page_for(context);await sign_in(page)
     for view in ['today','history','trends','insights']:
         await page.evaluate('(v)=>setView(v)',view)
+        assert await page.evaluate("(v)=>[...document.querySelectorAll('.nav-item.active')].every(b=>b.dataset.view===v)",view)
         assert await page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
-        await page.screenshot(path=str(OUT/(view+'.png')))
+        await page.screenshot(animations='disabled',path=str(OUT/(view+'.png')))
 async def test_unrelated(context,f):
     page=await page_for(context);await page.evaluate("localStorage.setItem('other-app-record','keep')");await sign_in(page);await page.evaluate('dietSignOut()')
     assert await page.evaluate("localStorage.getItem('other-app-record')")=='keep'
@@ -223,7 +224,7 @@ async def test_copy_diagnostics(context,f):
     await page.locator('#accountCopyDiagnosticsBtn').click()
     await page.wait_for_function("document.getElementById('accountCopyDiagnosticsBtn').textContent==='Copied'")
     assert json.loads(await page.evaluate('window.fixtureCopied'))['release']=='1.0.3'
-    await page.evaluate("navigator.clipboard.writeText=async()=>{throw new Error('fixture denied')}")
+    await page.evaluate("()=>{navigator.clipboard.writeText=async()=>{throw new Error('fixture denied')}}")
     await page.locator('#accountCopyDiagnosticsBtn').click()
     await page.wait_for_function("document.getElementById('accountCopyDiagnosticsBtn').textContent.startsWith('Select')")
 async def test_refresh_immediate_logout(context,f):
