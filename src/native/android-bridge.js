@@ -9,6 +9,8 @@ let dietNativeAuthUrlListener = null;
 let dietNativeSessionFingerprint = null;
 let dietNativePanelBusy = false;
 let dietNativeOAuthBusy = false;
+let dietNativeLastCode = null;
+let dietNativeInstallPromise = null;
 
 function dietNativePlugin(){
   return globalThis.Capacitor?.Plugins?.DietHealthConnect || null;
@@ -29,12 +31,16 @@ function dietNativeTime(value){
 
 function dietNativeRememberFlowId(flowId){
   try{
-    if(flowId)localStorage.setItem(DIET_NATIVE_PENDING_FLOW_KEY,flowId);
+    if(flowId)localStorage.setItem(DIET_NATIVE_PENDING_FLOW_KEY,JSON.stringify({flowId,createdAt:Date.now()}));
     else localStorage.removeItem(DIET_NATIVE_PENDING_FLOW_KEY);
   }catch{}
 }
 function dietNativePendingFlowId(){
-  try{return localStorage.getItem(DIET_NATIVE_PENDING_FLOW_KEY)||null}catch{return null}
+  try{
+    const pending=JSON.parse(localStorage.getItem(DIET_NATIVE_PENDING_FLOW_KEY)||'null');
+    if(!pending?.flowId || !pending.createdAt || Date.now()-pending.createdAt>15*60000 || pending.createdAt>Date.now()+60000){dietNativeRememberFlowId(null);return null;}
+    return pending.flowId;
+  }catch{return null;}
 }
 
 async function dietNativeStartGoogleOAuth(){
@@ -44,6 +50,7 @@ async function dietNativeStartGoogleOAuth(){
   if(!browser)throw new Error('Android browser integration is unavailable.');
   dietNativeOAuthBusy=true;
   try{
+    dietAssertPersistentStorage();
     const {data,error}=await cloud.client.auth.signInWithOAuth({
       provider:'google',
       options:{
@@ -82,11 +89,12 @@ async function dietNativeHandleAuthUrl(rawUrl){
   await dietNativeBrowserPlugin()?.close?.().catch(()=>{});
   const authError=url.searchParams.get('error_description')||url.searchParams.get('error');
   if(authError){
-    cloud.error=authError;
+    dietNativeRememberFlowId(null);
+    cloud.error=dietAccountError({code:url.searchParams.get('error')||'oauth_error'});
     cloud.status='configured';
     updateStatus();
     if(connectionDialog?.open)renderConnection();
-    showToast(`Google sign-in failed: ${authError}`);
+    showToast(cloud.error);
     return true;
   }
 
@@ -99,12 +107,17 @@ async function dietNativeHandleAuthUrl(rawUrl){
     return true;
   }
 
+  if(dietNativeLastCode===code)return true;
   try{
-    const flowId=url.searchParams.get('sb_flow_id')||dietNativePendingFlowId();
+    const pending=dietNativePendingFlowId();
+    const supplied=url.searchParams.get('sb_flow_id');
+    if(!pending || (supplied && supplied!==pending))throw new Error('This Android sign-in attempt expired. Start Google sign-in again.');
+    dietNativeLastCode=code;
+    const flowId=supplied||dietNativePendingFlowId();
     const {data,error}=await cloud.client.auth.exchangeCodeForSession(code,flowId?{flowId}:undefined);
     if(error)throw error;
-    cloud.user=data?.session?.user||null;
-    cloud.status=cloud.user?'online':'configured';
+    if(!data?.session?.user)throw new Error('Google sign-in returned no session.');
+    applyCloudSession(data.session);
     cloud.error=null;
     dietNativeRememberFlowId(null);
     dietNativeSessionFingerprint=null;
@@ -129,6 +142,11 @@ async function dietNativeHandleAuthUrl(rawUrl){
 }
 
 async function dietNativeInstallAuthDeepLink(){
+  if(dietNativeInstallPromise)return dietNativeInstallPromise;
+  dietNativeInstallPromise=dietNativeInstallAuthDeepLinkOnce().finally(()=>{dietNativeInstallPromise=null;});
+  return dietNativeInstallPromise;
+}
+async function dietNativeInstallAuthDeepLinkOnce(){
   const appPlugin=dietNativeAppPlugin();
   if(!appPlugin||dietNativeAuthUrlListener)return;
   dietNativeAuthUrlListener=await appPlugin.addListener('appUrlOpen',event=>{
@@ -238,13 +256,6 @@ async function dietNativeRenderPanel(){
   }
 }
 
-const dietNativeRenderConnectionBase=renderConnection;
-renderConnection=function renderConnectionNative(){
-  const result=dietNativeRenderConnectionBase();
-  if(dietIsNativeAndroid()&&cloud?.user)queueMicrotask(dietNativeRenderPanel);
-  return result;
-};
-
 async function dietNativeBootstrap(){
   if(!dietIsNativeAndroid()||!cloud?.client)return;
   await dietNativeInstallAuthDeepLink().catch(()=>{});
@@ -252,7 +263,7 @@ async function dietNativeBootstrap(){
   if(!dietNativeAuthSubscription){
     const {data}=cloud.client.auth.onAuthStateChange(()=>{
       dietNativeSessionFingerprint=null;
-      queueMicrotask(()=>dietNativeConfigureSession().catch(()=>{}));
+      setTimeout(()=>dietNativeConfigureSession().catch(()=>{}),0);
     });
     dietNativeAuthSubscription=data?.subscription||null;
   }

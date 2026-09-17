@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-const release='1.0.2';
+const release='1.0.3';
 const writeProduction=process.argv.includes('--write');
 const jsSources=[
   'src/core/dashboard-01.js',
@@ -9,15 +9,12 @@ const jsSources=[
   'src/ui/dashboard-p2-session.js',
   'src/ui/dashboard-p3.js',
   'src/core/dashboard-03.js',
-  'src/auth/dashboard-auth-persist.js',
-  'src/auth/dashboard-auth.js',
   'src/ui/dashboard-p4.js',
   'src/ui/dashboard-p5.js',
   'src/ui/dashboard-p6.js',
   'src/ui/dashboard-v5.js',
   'src/intelligence/dashboard-v5-2.js',
   'src/ui/dashboard-v5-3.js',
-  'src/auth/dashboard-auth-final.js',
   'src/core/dashboard-04.js',
   'src/intelligence/dashboard-v6-2.js',
   'src/intelligence/dashboard-v6-3.js',
@@ -26,7 +23,11 @@ const jsSources=[
   'src/intelligence/dashboard-v6-6.js',
   'src/release.js',
   'src/native/android-bridge.js',
-  'src/operations/dashboard-ops.js'
+  'src/operations/dashboard-ops.js',
+  'src/auth/dashboard-auth-persist.js',
+  'src/auth/dashboard-auth.js',
+  'src/auth/dashboard-auth-final.js',
+  'src/bootstrap.js'
 ];
 
 const cssSources=[
@@ -64,7 +65,7 @@ for(const file of cssSources)css+=`\n/* ===== ${file} ===== */\n${fs.readFileSyn
 for(const banned of ['function v6CaptureMarkup','data-v6-capture="','data-v6-recipe-log="','1.0-rc1']){
   if(js.includes(banned))throw new Error(`Retired runtime leaked into stable bundle: ${banned}`);
 }
-for(const required of ['renderInsightsV66','renderHistoryV66','renderTodayV68','DIET_WEB_RELEASE = \'1.0.2\'','window.DietRelease','Logged nutrition always counts','window.DietOperations']){
+for(const required of ['renderInsightsV66','renderHistoryV66','renderTodayV68','DIET_WEB_RELEASE = \'1.0.3\'','window.DietRelease','Logged nutrition always counts','window.DietOperations']){
   if(!js.includes(required))throw new Error(`Stable bundle missing ${required}`);
 }
 if(!css.includes('prefers-reduced-motion:reduce'))throw new Error('Reduced-motion styles missing.');

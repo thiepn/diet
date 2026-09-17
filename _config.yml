@@ -1,3 +1,5 @@
+include:
+  - .well-known
 exclude:
   - archive
   - docs
@@ -8,3 +10,4 @@ exclude:
   - CHANGELOG.md
   - QA.md
   - README.md
+  - vendor/README.md

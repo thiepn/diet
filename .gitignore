@@ -1,1 +1,7 @@
 .v68-build/
+_site/
+node_modules/
+account-results/
+account-test-results/
+__pycache__/
+*.pyc

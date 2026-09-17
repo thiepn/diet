@@ -1,9 +1,9 @@
 'use strict';
 
-// V6.8.1 — Diet Copilot Web 1.0.2 maintenance release.
+// V6.8.2 — Diet Copilot Web 1.0.3 maintenance release.
 // No new nutrition workflow: this layer freezes and certifies the stable web product.
-const DIET_PRODUCT_VERSION = '6.8.1';
-const DIET_WEB_RELEASE = '1.0.2';
+const DIET_PRODUCT_VERSION = '6.8.2';
+const DIET_WEB_RELEASE = '1.0.3';
 const DIET_RELEASE_CHANNEL = 'stable';
 
 function dietTodayInvariant(){
@@ -100,7 +100,7 @@ window.addEventListener('resize',()=>{
   clearTimeout(dietHorizontalOverflow.t);
   dietHorizontalOverflow.t=setTimeout(()=>{
     const overflow=dietHorizontalOverflow();
-    if(overflow>1)console.warn(`Diet Copilot Web 1.0.2 horizontal overflow detected: ${overflow}px`);
+    if(overflow>1)console.warn(`Diet Copilot Web 1.0.3 horizontal overflow detected: ${overflow}px`);
   },150);
 });
 queueMicrotask(dietTodayInvariant);

@@ -109,26 +109,6 @@ document.addEventListener('click',event=>{
 document.addEventListener('focusin',event=>{ if (event.target.matches?.('.p6-chart-hit')) p6ShowChartTooltip(event.target); });
 document.addEventListener('focusout',event=>{ if (event.target.matches?.('.p6-chart-hit')) p6HideChartTooltip(); });
 
-// Make account opening idempotent and ensure the Supabase client exists even if
-// a user clicks immediately after first paint.
-openConnection = async function openConnectionP6() {
-  if (!cloud.client && configured()) {
-    try { await initCloud(false); } catch {}
-  }
-  renderConnection();
-  if (!connectionDialog.open) connectionDialog.showModal();
-  if (typeof p5OpenDialogFocus === 'function') p5OpenDialogFocus();
-};
-
-// P4 bound the original account handler before P5/P6 existed. Replace the
-// desktop button once to remove that stale listener and use the final handler.
-const p6DesktopAccountOld = document.querySelector('.desktop-account[data-open-account]');
-if (p6DesktopAccountOld) {
-  const replacement = p6DesktopAccountOld.cloneNode(true);
-  p6DesktopAccountOld.replaceWith(replacement);
-  replacement.addEventListener('click',openConnection);
-}
-
 const p6RenderBase = render;
 render = function renderP6() {
   const result = p6RenderBase();

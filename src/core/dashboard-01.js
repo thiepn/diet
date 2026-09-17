@@ -63,23 +63,22 @@ function normalizeLegacyState(s) {
   return out;
 }
 
-function loadCachedDashboard() {
+function loadCachedDashboard(ownerId = null) {
+  if (!ownerId) return emptyDashboard();
   try {
-    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
-    if (cached?.meals && cached?.weights) return cached;
-    const legacy = JSON.parse(localStorage.getItem(LEGACY_STATE_KEY) || 'null');
-    if (legacy) {
-      const converted = normalizeLegacyState(legacy);
-      localStorage.setItem(CACHE_KEY, JSON.stringify(converted));
-      return converted;
+    const cached = JSON.parse(window.localStorage.getItem(CACHE_KEY) || 'null');
+    if (cached?.ownerId === ownerId && cached?.dashboard?.meals && cached?.dashboard?.weights) {
+      return cached.dashboard;
     }
-  } catch (e) { console.warn('Dashboard cache load failed', e); }
+  } catch {}
   return emptyDashboard();
 }
 
 function saveDashboardCache() {
-  try { localStorage.setItem(CACHE_KEY, JSON.stringify(dashboard)); }
-  catch (e) { console.warn('Dashboard cache save failed', e); }
+  if (!cloud.user?.id) return;
+  try {
+    window.localStorage.setItem(CACHE_KEY, JSON.stringify({ownerId: cloud.user.id, dashboard}));
+  } catch { /* Auth may still work through cookies when the nutrition cache is unavailable. */ }
 }
 
 // Diet Copilot is a single fixed product. The project URL/key are public client

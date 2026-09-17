@@ -77,74 +77,6 @@ function p5SyncIcon() {
   return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6v5h-5"/><path d="M4 18v-5h5"/><path d="M6.1 9A7 7 0 0 1 18.4 6.4L20 8"/><path d="M17.9 15A7 7 0 0 1 5.6 17.6L4 16"/></svg>`;
 }
 
-renderConnection = function renderConnectionP5() {
-  const email = cloud.user?.email || '';
-  const online = navigator.onLine !== false;
-  const syncText = p5FormatSyncTime(dashboard.fetchedAt);
-
-  if (cloud.user) {
-    connectionContent.innerHTML = `
-      <div class="p5-account-profile">
-        <div class="p5-account-avatar" aria-hidden="true">${p5AccountIcon()}</div>
-        <div class="p5-account-identity"><span>Signed in</span><strong title="${esc(email)}">${esc(email)}</strong><small>Your nutrition history is available on every device where you use this account.</small></div>
-      </div>
-      <div class="p5-account-status" aria-label="Account sync status">
-        <div><span>Connection</span><strong class="${online?'good':'warn'}">${online?'Online':'Offline'}</strong></div>
-        <div><span>Last synced</span><strong>${esc(syncText)}</strong></div>
-      </div>
-      ${cloud.status==='error' ? `<div class="p5-inline-alert" role="alert">${esc(p5FriendlyError(cloud.error))}</div>` : ''}
-      <div class="p5-account-actions">
-        <button class="btn primary p5-refresh-btn" id="refreshNowBtn" type="button">${p5SyncIcon()}<span>Refresh data</span></button>
-        <button class="btn ghost" id="signOutBtn" type="button">Sign out</button>
-      </div>
-      <p class="p5-account-footnote">Meals and weigh-ins are logged through ChatGPT. This dashboard only displays your history.</p>`;
-
-    connectionContent.querySelector('#refreshNowBtn')?.addEventListener('click', async event => {
-      const button = event.currentTarget;
-      button.disabled = true;
-      button.classList.add('is-busy');
-      await refreshData({silent:true});
-      renderConnection();
-      render();
-    });
-    connectionContent.querySelector('#signOutBtn')?.addEventListener('click', async () => {
-      await cloud.client.auth.signOut({ scope: 'local' });
-      cloud.user = null;
-      cloud.status = 'configured';
-      dashboard = emptyDashboard();
-      try { localStorage.removeItem(CACHE_KEY); } catch {}
-      if (connectionDialog.open) connectionDialog.close();
-      render();
-      p5RenderSystemNotice();
-      showToast('Signed out');
-    });
-    return;
-  }
-
-  connectionContent.innerHTML = `
-    <div class="p5-login-intro">
-      <div class="p5-login-icon" aria-hidden="true">${p5AccountIcon()}</div>
-      <h3>Welcome back</h3>
-      <p>Continue with your Google account to sync your Diet Copilot history on this device.</p>
-    </div>
-    ${cloud.error ? `<div class="p5-inline-alert" role="alert">${esc(p5FriendlyError(cloud.error))}</div>` : ''}
-    <button class="btn primary p5-signin-btn" id="googleSignInBtn" type="button">Continue with Google</button>
-    <p class="p5-login-footnote">Diet Copilot uses Google sign-in only.</p>`;
-
-  connectionContent.querySelector('#googleSignInBtn')?.addEventListener('click', async event => {
-    const button = event.currentTarget;
-    button.disabled = true;
-    button.textContent = 'Redirecting…';
-    cloud.error = null;
-    try {
-      await dietSignInWithGoogle();
-    } catch (error) {
-      cloud.error = error?.message || String(error);
-      renderConnection();
-    }
-  });
-};
-
 p2ErrorState = function p2ErrorStateP5(message) {
   return `<section class="today-state today-error">
     <div class="today-state-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.6 2.5 17a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0Z"/></svg></div>
@@ -177,12 +109,6 @@ function p5OpenDialogFocus() {
     target?.focus({preventScroll:true});
   });
 }
-
-const p5OpenConnectionBase = openConnection;
-openConnection = function openConnectionP5() {
-  p5OpenConnectionBase();
-  p5OpenDialogFocus();
-};
 
 connectionDialog.addEventListener('click', event => {
   if (event.target === connectionDialog) connectionDialog.close();

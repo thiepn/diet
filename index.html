@@ -2,19 +2,20 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
+<meta name="referrer" content="no-referrer" />
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#F7F8FA" />
 <meta name="color-scheme" content="light" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-<meta name="application-version" content="1.0.2" />
+<meta name="application-version" content="1.0.3" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
 <link rel="apple-touch-icon" href="icon-192.png" />
 <meta name="description" content="Diet Copilot — your personal nutrition, meal and body-weight history, logged through ChatGPT." />
 <title>Diet Copilot</title>
-<link rel="stylesheet" href="diet.css?v=1.0.2-static9" />
+<link rel="stylesheet" href="diet.css?v=1.0.3-account1" />
 </head>
 <body>
 <a class="skip-link" href="#app">Skip to content</a>
@@ -42,8 +43,7 @@
 </div>
 <dialog id="connectionDialog" class="modal"><div class="modal-card"><div class="modal-head"><div><p class="eyebrow">Diet Copilot</p><h2>Account</h2></div><button class="icon-btn" id="closeConnectionBtn" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div><div id="connectionContent"></div></div></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0"></script>
-<script src="diet-app.js?v=1.0.2-static9"></script>
-<script src="auth-persistence-hotfix.js?v=1.0.2-static10c"></script>
+<script src="vendor/supabase-2.116.0.js"></script>
+<script src="diet-app.js?v=1.0.3-account1"></script>
 </body>
 </html>

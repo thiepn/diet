@@ -1,4 +1,4 @@
-/* Diet Copilot Web 1.0.2 — stable production bundle. */
+/* Diet Copilot Web 1.0.3 — stable production bundle. */
 
 /* ===== src/core/dashboard-01.js ===== */
 'use strict';
@@ -66,23 +66,22 @@ function normalizeLegacyState(s) {
   return out;
 }
 
-function loadCachedDashboard() {
+function loadCachedDashboard(ownerId = null) {
+  if (!ownerId) return emptyDashboard();
   try {
-    const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
-    if (cached?.meals && cached?.weights) return cached;
-    const legacy = JSON.parse(localStorage.getItem(LEGACY_STATE_KEY) || 'null');
-    if (legacy) {
-      const converted = normalizeLegacyState(legacy);
-      localStorage.setItem(CACHE_KEY, JSON.stringify(converted));
-      return converted;
+    const cached = JSON.parse(window.localStorage.getItem(CACHE_KEY) || 'null');
+    if (cached?.ownerId === ownerId && cached?.dashboard?.meals && cached?.dashboard?.weights) {
+      return cached.dashboard;
     }
-  } catch (e) { console.warn('Dashboard cache load failed', e); }
+  } catch {}
   return emptyDashboard();
 }
 
 function saveDashboardCache() {
-  try { localStorage.setItem(CACHE_KEY, JSON.stringify(dashboard)); }
-  catch (e) { console.warn('Dashboard cache save failed', e); }
+  if (!cloud.user?.id) return;
+  try {
+    window.localStorage.setItem(CACHE_KEY, JSON.stringify({ownerId: cloud.user.id, dashboard}));
+  } catch { /* Auth may still work through cookies when the nutrition cache is unavailable. */ }
 }
 
 // Diet Copilot is a single fixed product. The project URL/key are public client
@@ -659,9 +658,6 @@ renderInsights = function renderInsightsP3() {
 /* ===== src/core/dashboard-03.js ===== */
 function updateStatus(){ let label='Cached', cls=''; if(cloud.status==='syncing'){label='Refreshing';cls='syncing'} else if(cloud.status==='error'){label='Error';cls='error'} else if(cloud.user){label='Live';cls='online'} else if(configured()){label='Sign in'} else if(dashboard.source==='empty'){label='Setup'} statusText.textContent=label; statusDot.className=`status-dot ${cls}`; }
 
-async function disposeCloud(){ if(cloud.client && cloud.channel){try{await cloud.client.removeChannel(cloud.channel)}catch{}} try{cloud.authSubscription?.unsubscribe?.()}catch{} try{await cloud.client?.auth?.dispose?.()}catch{} cloud.channel=null;cloud.authSubscription=null;cloud.client=null;cloud.user=null; }
-async function initCloud(showDialog=false){ cloud.error=null; if(!configured()){await disposeCloud();cloud.status='cache';updateStatus();if(showDialog)openConnection();return;} if(!window.supabase?.createClient){cloud.status='error';cloud.error='Supabase SDK failed to load';updateStatus();return;} try{await disposeCloud();cloud.client=window.supabase.createClient(cloudConfig.url,cloudConfig.key,{auth:{flowType:'pkce',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}); const {data,error}=await cloud.client.auth.getSession(); if(error)throw error; cloud.user=data.session?.user||null; cloud.status=cloud.user?'online':'configured'; const {data:listener}=cloud.client.auth.onAuthStateChange((_event,session)=>{const before=cloud.user?.id;cloud.user=session?.user||null;cloud.status=cloud.user?'online':'configured';updateStatus();if(cloud.user&&cloud.user.id!==before){refreshData({silent:true});subscribeRealtime();}if(!cloud.user&&cloud.channel){cloud.client.removeChannel(cloud.channel).catch(()=>{});cloud.channel=null;}if(connectionDialog.open)renderConnection();}); cloud.authSubscription=listener?.subscription||null; if(cloud.user){await refreshData({silent:true});await subscribeRealtime();} updateStatus(); if(showDialog)openConnection(); }catch(e){cloud.status='error';cloud.error=e.message||String(e);updateStatus();if(showDialog)openConnection();} }
-
 async function subscribeRealtime(){ if(!cloud.client||!cloud.user)return; if(cloud.channel){try{await cloud.client.removeChannel(cloud.channel)}catch{}} let ch=cloud.client.channel(`diet-dashboard-${cloud.user.id}`); ['profiles','daily_logs','meals','meal_items','weight_entries'].forEach(table=>{ch=ch.on('postgres_changes',{event:'*',schema:'public',table},()=>{clearTimeout(refreshTimer);refreshTimer=setTimeout(()=>refreshData({silent:true}),450);});}); cloud.channel=ch.subscribe(); }
 
 async function refreshData({silent=false}={}){
@@ -687,429 +683,7 @@ async function refreshData({silent=false}={}){
   }catch(e){cloud.status='error';cloud.error=e.message||String(e);updateStatus();if(!silent)showToast(`Refresh failed: ${cloud.error}`);if(connectionDialog.open)renderConnection();}
 }
 
-function openConnection(){renderConnection();connectionDialog.showModal();}
-function renderConnection(){
-  const email=cloud.user?.email||'';
-  if(cloud.user){
-    connectionContent.innerHTML=`<div class="connection-state"><strong>THIEPN Account</strong><span>Signed in as ${esc(email)}. Diet Copilot data stays private to this account.</span></div><div class="btn-row"><button class="btn primary" id="refreshNowBtn" type="button">Refresh now</button><button class="btn ghost" id="signOutBtn" type="button">Sign out</button></div>`;
-    connectionContent.querySelector('#refreshNowBtn')?.addEventListener('click',()=>refreshData());
-    connectionContent.querySelector('#signOutBtn')?.addEventListener('click',async()=>{await cloud.client.auth.signOut({scope:'local'});cloud.user=null;cloud.status='configured';dashboard=emptyDashboard();try{localStorage.removeItem(CACHE_KEY)}catch{}renderConnection();render();});
-    return;
-  }
-  connectionContent.innerHTML=`<div class="connection-state"><strong>Sign in with THIEPN Account</strong><span>Continue with your Google account to sync Diet Copilot.</span>${cloud.error?`<br><span style="color:var(--danger)">${esc(cloud.error)}</span>`:''}</div><div class="btn-row"><button class="btn primary" id="googleSignInBtn" type="button">Continue with Google</button></div>`;
-  connectionContent.querySelector('#googleSignInBtn')?.addEventListener('click',async event=>{
-    const button=event.currentTarget;button.disabled=true;button.textContent='Redirecting…';cloud.error=null;
-    try{
-      if(typeof dietSignInWithGoogle==='function')await dietSignInWithGoogle();
-      else {const {error}=await cloud.client.auth.signInWithOAuth({provider:'google',options:{redirectTo:`${location.origin}${location.pathname}`,queryParams:{prompt:'select_account'}}});if(error)throw error;}
-    }catch(error){cloud.error=error?.message||String(error);renderConnection();}
-  });
-}
-
 function updateDateRefresh(){ if(cloud.user) refreshData({silent:true}); }
-
-/* ===== src/auth/dashboard-auth-persist.js ===== */
-'use strict';
-
-// A6 final THIEPN Account bootstrap for Diet Copilot.
-// Supabase's project-scoped browser key is the single persisted auth authority
-// shared by first-party THIEPN apps on thiepn.dev. Diet Copilot must not keep a
-// second access/refresh-token copy in app-specific storage.
-const DIET_AUTH_STORAGE_KEY = 'sb-hycegznamzjhwinegaai-auth-token';
-const LEGACY_DIET_AUTH_BACKUP_KEY = 'diet-copilot-thiepn-auth-token-backup-v2';
-const LEGACY_DIET_AUTH_DB = 'diet-copilot-auth-vault';
-const DIET_OAUTH_QUERY_KEYS = ['code', 'sb_flow_id', 'error', 'error_code', 'error_description'];
-const DIET_PKCE_BACKUP_KEY = 'diet-copilot:pkce-verifier-backup-v2';
-const DIET_PKCE_BACKUP_LEGACY_KEY = 'diet-copilot:pkce-verifier-backup-v1';
-const DIET_AUTH_FALLBACK_PREFIX = 'diet-copilot:auth-fallback:';
-const DIET_PKCE_BACKUP_TTL_MS = 15 * 60 * 1000;
-
-function cleanupLegacyDietAuthArtifacts() {
-  // Targeted cleanup only. Never clear all localStorage because Diet Copilot
-  // keeps legitimate user/application state alongside auth metadata.
-  try { localStorage.removeItem(LEGACY_DIET_AUTH_BACKUP_KEY); } catch {}
-  try { sessionStorage.removeItem(DIET_PKCE_BACKUP_LEGACY_KEY); } catch {}
-  try {
-    if ('indexedDB' in window) indexedDB.deleteDatabase(LEGACY_DIET_AUTH_DB);
-  } catch {}
-}
-
-function dietRawAuthStorageGet(key) {
-  try {
-    const value = localStorage.getItem(key);
-    if (value !== null) return value;
-  } catch {}
-  try { return sessionStorage.getItem(`${DIET_AUTH_FALLBACK_PREFIX}${key}`); }
-  catch { return null; }
-}
-
-function dietRawAuthStorageSet(key, value) {
-  let stored = false;
-  try {
-    localStorage.setItem(key, value);
-    stored = true;
-  } catch {}
-  if (!stored) {
-    try {
-      sessionStorage.setItem(`${DIET_AUTH_FALLBACK_PREFIX}${key}`, value);
-      stored = true;
-    } catch {}
-  }
-  if (!stored) throw new Error('Browser storage is unavailable. Google sign-in cannot continue.');
-}
-
-function dietRawAuthStorageRemove(key) {
-  try { localStorage.removeItem(key); } catch {}
-  try { sessionStorage.removeItem(`${DIET_AUTH_FALLBACK_PREFIX}${key}`); } catch {}
-}
-
-function dietReadBrowserPkceBackup() {
-  try {
-    const raw = sessionStorage.getItem(DIET_PKCE_BACKUP_KEY);
-    if (!raw) return null;
-    const backup = JSON.parse(raw);
-    if (!backup || typeof backup !== 'object' || typeof backup.entries !== 'object') return null;
-    const createdAt = Number(backup.createdAt || 0);
-    if (!createdAt || Date.now() - createdAt > DIET_PKCE_BACKUP_TTL_MS) {
-      sessionStorage.removeItem(DIET_PKCE_BACKUP_KEY);
-      return null;
-    }
-    return backup;
-  } catch {
-    return null;
-  }
-}
-
-function dietWriteBrowserPkceBackup(backup) {
-  try {
-    sessionStorage.setItem(DIET_PKCE_BACKUP_KEY, JSON.stringify(backup));
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function dietMirrorPkceStorageEntry(key, value) {
-  if (!String(key).endsWith('-code-verifier')) return;
-  const current = dietReadBrowserPkceBackup() || { flowId: null, createdAt: Date.now(), entries: {} };
-  current.createdAt = Date.now();
-  current.entries[key] = value;
-  dietWriteBrowserPkceBackup(current);
-}
-
-// Supabase writes every auth value through this adapter. PKCE verifier writes
-// are mirrored at write-time into tab-scoped sessionStorage. If another client
-// or navigation removes a verifier before callback exchange, getItem restores
-// the exact value Supabase originally wrote.
-const dietAuthStorage = Object.freeze({
-  getItem(key) {
-    let value = dietRawAuthStorageGet(key);
-    if (value == null && String(key).endsWith('-code-verifier')) {
-      const backupValue = dietReadBrowserPkceBackup()?.entries?.[key];
-      if (typeof backupValue === 'string') {
-        dietRawAuthStorageSet(key, backupValue);
-        value = backupValue;
-      }
-    }
-    return value;
-  },
-  setItem(key, value) {
-    dietRawAuthStorageSet(key, value);
-    dietMirrorPkceStorageEntry(key, value);
-  },
-  removeItem(key) {
-    // Do not delete the tab-scoped PKCE mirror here. Supabase may remove a
-    // verifier while handling a failed/partial exchange. Diet clears the mirror
-    // only after a successful session or an explicit cancelled/failed flow.
-    dietRawAuthStorageRemove(key);
-  }
-});
-
-function dietClearBrowserPkceBackup() {
-  try { sessionStorage.removeItem(DIET_PKCE_BACKUP_KEY); } catch {}
-  try { sessionStorage.removeItem(DIET_PKCE_BACKUP_LEGACY_KEY); } catch {}
-}
-
-function dietTagBrowserPkceBackupFlow(flowId = '') {
-  if (!flowId) return;
-  const current = dietReadBrowserPkceBackup() || { flowId: null, createdAt: Date.now(), entries: {} };
-  current.flowId = flowId;
-  current.createdAt = Date.now();
-  dietWriteBrowserPkceBackup(current);
-}
-
-function dietRestoreBrowserPkceVerifier(flowIdHint = '') {
-  const backup = dietReadBrowserPkceBackup();
-  if (!backup) return flowIdHint || null;
-  for (const [key, value] of Object.entries(backup.entries || {})) {
-    if (!String(key).startsWith(`${DIET_AUTH_STORAGE_KEY}-`)) continue;
-    if (!String(key).endsWith('-code-verifier')) continue;
-    if (typeof value !== 'string') continue;
-    if (dietRawAuthStorageGet(key) == null) dietRawAuthStorageSet(key, value);
-  }
-  return (typeof backup.flowId === 'string' && backup.flowId) || flowIdHint || null;
-}
-
-function applyCloudSession(session) {
-  cloud.user = session?.user || null;
-  cloud.status = cloud.user ? 'online' : 'configured';
-  updateStatus();
-  if (connectionDialog.open) renderConnection();
-}
-
-function dietReadWebOAuthCallback() {
-  const url = new URL(location.href);
-  return {
-    url,
-    code: url.searchParams.get('code'),
-    flowId: url.searchParams.get('sb_flow_id'),
-    error: url.searchParams.get('error_description') || url.searchParams.get('error_code') || url.searchParams.get('error')
-  };
-}
-
-function dietStripWebOAuthCallback(url) {
-  try {
-    const clean = new URL(url.href);
-    for (const key of DIET_OAUTH_QUERY_KEYS) clean.searchParams.delete(key);
-    const next = `${clean.pathname}${clean.search}${clean.hash}`;
-    history.replaceState(null, '', next || clean.pathname);
-  } catch {}
-}
-
-function dietPkceVerifierMissing(error) {
-  const text = `${error?.name || ''} ${error?.message || error || ''}`;
-  return /PKCE code verifier not found|AuthPKCECodeVerifierMissingError/i.test(text);
-}
-
-cleanupLegacyDietAuthArtifacts();
-
-initCloud = async function initCloudFinal(showDialog = false) {
-  cloud.error = null;
-
-  if (!configured()) {
-    await disposeCloud();
-    cloud.status = 'cache';
-    updateStatus();
-    if (showDialog) openConnection();
-    return;
-  }
-
-  if (!window.supabase?.createClient) {
-    cloud.status = 'error';
-    cloud.error = 'Supabase SDK failed to load';
-    updateStatus();
-    return;
-  }
-
-  try {
-    if (cloud.client) await disposeCloud();
-
-    const callback = dietReadWebOAuthCallback();
-    const restoredFlowId = callback.code
-      ? dietRestoreBrowserPkceVerifier(callback.flowId || '')
-      : null;
-
-    // One canonical web client owns both normal session persistence and PKCE.
-    // The custom storage adapter mirrors verifier writes at source instead of
-    // attempting to discover them after signInWithOAuth returns.
-    cloud.client = window.supabase.createClient(cloudConfig.url, cloudConfig.key, {
-      auth: {
-        flowType: 'pkce',
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: false,
-        storageKey: DIET_AUTH_STORAGE_KEY,
-        storage: dietAuthStorage
-      }
-    });
-    cloud.client.__dietAuthStorageV2 = true;
-
-    let initialSession = null;
-
-    if (callback.error) {
-      dietStripWebOAuthCallback(callback.url);
-      dietClearBrowserPkceBackup();
-      if (typeof dietClearBrowserOAuthRelayState === 'function') dietClearBrowserOAuthRelayState();
-      throw new Error(callback.error);
-    }
-
-    if (callback.code) {
-      const effectiveFlowId = callback.flowId || restoredFlowId || null;
-      let result = await cloud.client.auth.exchangeCodeForSession(
-        callback.code,
-        effectiveFlowId ? { flowId: effectiveFlowId } : undefined
-      );
-
-      if (result.error && effectiveFlowId && dietPkceVerifierMissing(result.error)) {
-        // The adapter can restore the mirrored legacy slot on demand. This
-        // fallback is only attempted for a missing-verifier error.
-        result = await cloud.client.auth.exchangeCodeForSession(callback.code);
-      }
-
-      dietStripWebOAuthCallback(callback.url);
-      if (result.error) throw result.error;
-      if (!result.data?.session?.user) {
-        throw new Error('Google sign-in completed, but Diet Copilot did not receive a session.');
-      }
-      initialSession = result.data.session;
-      dietClearBrowserPkceBackup();
-      if (typeof dietClearBrowserOAuthRelayState === 'function') dietClearBrowserOAuthRelayState();
-    } else {
-      const { data: stored, error: storedError } = await cloud.client.auth.getSession();
-      if (storedError) throw storedError;
-      initialSession = stored.session || null;
-    }
-
-    applyCloudSession(initialSession);
-
-    const { data: listener } = cloud.client.auth.onAuthStateChange((event, nextSession) => {
-      const before = cloud.user?.id || null;
-      applyCloudSession(nextSession);
-
-      if (event === 'SIGNED_IN' && cloud.user && cloud.user.id !== before) {
-        queueMicrotask(() => {
-          refreshData({ silent: true });
-          subscribeRealtime();
-        });
-      }
-
-      if (event === 'SIGNED_OUT' && cloud.channel) {
-        cloud.client.removeChannel(cloud.channel).catch(() => {});
-        cloud.channel = null;
-      }
-    });
-    cloud.authSubscription = listener?.subscription || null;
-
-    if (cloud.user) {
-      await refreshData({ silent: true });
-      await subscribeRealtime();
-    }
-
-    updateStatus();
-    if (showDialog) openConnection();
-  } catch (error) {
-    cloud.status = 'error';
-    cloud.error = error?.message || String(error);
-    updateStatus();
-    if (showDialog) openConnection();
-  }
-};
-
-/* ===== src/auth/dashboard-auth.js ===== */
-'use strict';
-
-// Diet Copilot uses THIEPN Account, the shared Supabase identity used by other
-// first-party THIEPN apps. Diet Copilot intentionally exposes Google sign-in
-// only; password/account-management flows are not part of this product.
-const DIET_AUTH_RELAY = 'https://thiepn.dev/WORDSTRIKE/';
-const DIET_OAUTH_TARGET_KEY = 'diet-copilot:oauth-target-v2';
-const DIET_OAUTH_FLOW_KEY = 'diet-copilot:oauth-flow-v2';
-
-function dietClearBrowserOAuthRelayState() {
-  try {
-    sessionStorage.removeItem(DIET_OAUTH_TARGET_KEY);
-    sessionStorage.removeItem(DIET_OAUTH_FLOW_KEY);
-  } catch {}
-}
-
-function dietSetBrowserOAuthRelayState(target, flowId) {
-  try {
-    sessionStorage.setItem(DIET_OAUTH_TARGET_KEY, target);
-    if (flowId) sessionStorage.setItem(DIET_OAUTH_FLOW_KEY, flowId);
-    else sessionStorage.removeItem(DIET_OAUTH_FLOW_KEY);
-  } catch {}
-}
-
-async function dietSignInWithGoogle() {
-  if (typeof dietIsNativeAndroid === 'function' && dietIsNativeAndroid() && window.DietNative?.startGoogleOAuth) {
-    return window.DietNative.startGoogleOAuth();
-  }
-
-  // A legacy bootstrap client can exist if an older layer initialized before
-  // the final auth override. Never start OAuth through it: rebuild the client
-  // with Diet's controlled storage adapter first.
-  if (!cloud.client?.__dietAuthStorageV2) {
-    await initCloud(false);
-  }
-  if (!cloud.client?.__dietAuthStorageV2) {
-    throw new Error('Diet Copilot could not initialize its Google sign-in client.');
-  }
-
-  dietClearBrowserOAuthRelayState();
-  dietClearBrowserPkceBackup();
-
-  const { data, error } = await cloud.client.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: DIET_AUTH_RELAY,
-      skipBrowserRedirect: true,
-      queryParams: { prompt: 'select_account' }
-    }
-  });
-  if (error) throw error;
-  if (!data?.url) throw new Error('Google sign-in URL was not created.');
-
-  // Supabase's storage adapter has already mirrored the verifier at write-time.
-  // Add the returned flow id to that tab-scoped mirror and mark the relay target.
-  dietSetBrowserOAuthRelayState('web', data.flowId || '');
-  dietTagBrowserPkceBackupFlow(data.flowId || '');
-  location.assign(data.url);
-}
-
-renderConnection = function renderDietConnection() {
-  const email = cloud.user?.email || '';
-
-  if (cloud.user) {
-    connectionContent.innerHTML = `
-      <div class="connection-state">
-        <strong>THIEPN Account</strong>
-        <span>Signed in as ${esc(email)}. Diet Copilot data stays private to this account.</span>
-      </div>
-      <div class="btn-row">
-        <button class="btn primary" id="refreshNowBtn" type="button">Refresh now</button>
-        <button class="btn ghost" id="signOutBtn" type="button">Sign out</button>
-      </div>`;
-
-    connectionContent.querySelector('#refreshNowBtn')?.addEventListener('click', () => refreshData());
-    connectionContent.querySelector('#signOutBtn')?.addEventListener('click', async () => {
-      await cloud.client.auth.signOut({ scope: 'local' });
-      cloud.user = null;
-      cloud.status = 'configured';
-      dashboard = emptyDashboard();
-      dietClearBrowserOAuthRelayState();
-      dietClearBrowserPkceBackup();
-      try { localStorage.removeItem(CACHE_KEY); } catch {}
-      renderConnection();
-      render();
-    });
-    return;
-  }
-
-  connectionContent.innerHTML = `
-    <div class="connection-state">
-      <strong>Sign in with THIEPN Account</strong>
-      <span>Continue with your Google account to sync Diet Copilot.</span>
-    </div>
-    ${cloud.error ? `<div class="connection-state"><span style="color:var(--danger)">${esc(cloud.error)}</span></div>` : ''}
-    <div class="btn-row">
-      <button class="btn primary" id="googleSignInBtn" type="button">Continue with Google</button>
-    </div>`;
-
-  connectionContent.querySelector('#googleSignInBtn')?.addEventListener('click', async event => {
-    const button = event.currentTarget;
-    button.disabled = true;
-    button.textContent = 'Redirecting…';
-    cloud.error = null;
-    try {
-      await dietSignInWithGoogle();
-    } catch (error) {
-      cloud.error = error?.message || String(error);
-      dietClearBrowserOAuthRelayState();
-      dietClearBrowserPkceBackup();
-      renderConnection();
-    }
-  });
-};
 
 /* ===== src/ui/dashboard-p4.js ===== */
 'use strict';
@@ -1169,7 +743,6 @@ updateStatus = function updateStatusP4() {
   p4SyncDesktopAccount();
 };
 
-document.querySelector('.desktop-account[data-open-account]')?.addEventListener('click',openConnection);
 p4SyncDesktopAccount();
 
 /* ===== src/ui/dashboard-p5.js ===== */
@@ -1252,74 +825,6 @@ function p5SyncIcon() {
   return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6v5h-5"/><path d="M4 18v-5h5"/><path d="M6.1 9A7 7 0 0 1 18.4 6.4L20 8"/><path d="M17.9 15A7 7 0 0 1 5.6 17.6L4 16"/></svg>`;
 }
 
-renderConnection = function renderConnectionP5() {
-  const email = cloud.user?.email || '';
-  const online = navigator.onLine !== false;
-  const syncText = p5FormatSyncTime(dashboard.fetchedAt);
-
-  if (cloud.user) {
-    connectionContent.innerHTML = `
-      <div class="p5-account-profile">
-        <div class="p5-account-avatar" aria-hidden="true">${p5AccountIcon()}</div>
-        <div class="p5-account-identity"><span>Signed in</span><strong title="${esc(email)}">${esc(email)}</strong><small>Your nutrition history is available on every device where you use this account.</small></div>
-      </div>
-      <div class="p5-account-status" aria-label="Account sync status">
-        <div><span>Connection</span><strong class="${online?'good':'warn'}">${online?'Online':'Offline'}</strong></div>
-        <div><span>Last synced</span><strong>${esc(syncText)}</strong></div>
-      </div>
-      ${cloud.status==='error' ? `<div class="p5-inline-alert" role="alert">${esc(p5FriendlyError(cloud.error))}</div>` : ''}
-      <div class="p5-account-actions">
-        <button class="btn primary p5-refresh-btn" id="refreshNowBtn" type="button">${p5SyncIcon()}<span>Refresh data</span></button>
-        <button class="btn ghost" id="signOutBtn" type="button">Sign out</button>
-      </div>
-      <p class="p5-account-footnote">Meals and weigh-ins are logged through ChatGPT. This dashboard only displays your history.</p>`;
-
-    connectionContent.querySelector('#refreshNowBtn')?.addEventListener('click', async event => {
-      const button = event.currentTarget;
-      button.disabled = true;
-      button.classList.add('is-busy');
-      await refreshData({silent:true});
-      renderConnection();
-      render();
-    });
-    connectionContent.querySelector('#signOutBtn')?.addEventListener('click', async () => {
-      await cloud.client.auth.signOut({ scope: 'local' });
-      cloud.user = null;
-      cloud.status = 'configured';
-      dashboard = emptyDashboard();
-      try { localStorage.removeItem(CACHE_KEY); } catch {}
-      if (connectionDialog.open) connectionDialog.close();
-      render();
-      p5RenderSystemNotice();
-      showToast('Signed out');
-    });
-    return;
-  }
-
-  connectionContent.innerHTML = `
-    <div class="p5-login-intro">
-      <div class="p5-login-icon" aria-hidden="true">${p5AccountIcon()}</div>
-      <h3>Welcome back</h3>
-      <p>Continue with your Google account to sync your Diet Copilot history on this device.</p>
-    </div>
-    ${cloud.error ? `<div class="p5-inline-alert" role="alert">${esc(p5FriendlyError(cloud.error))}</div>` : ''}
-    <button class="btn primary p5-signin-btn" id="googleSignInBtn" type="button">Continue with Google</button>
-    <p class="p5-login-footnote">Diet Copilot uses Google sign-in only.</p>`;
-
-  connectionContent.querySelector('#googleSignInBtn')?.addEventListener('click', async event => {
-    const button = event.currentTarget;
-    button.disabled = true;
-    button.textContent = 'Redirecting…';
-    cloud.error = null;
-    try {
-      await dietSignInWithGoogle();
-    } catch (error) {
-      cloud.error = error?.message || String(error);
-      renderConnection();
-    }
-  });
-};
-
 p2ErrorState = function p2ErrorStateP5(message) {
   return `<section class="today-state today-error">
     <div class="today-state-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.6 2.5 17a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 3.6a2 2 0 0 0-3.4 0Z"/></svg></div>
@@ -1352,12 +857,6 @@ function p5OpenDialogFocus() {
     target?.focus({preventScroll:true});
   });
 }
-
-const p5OpenConnectionBase = openConnection;
-openConnection = function openConnectionP5() {
-  p5OpenConnectionBase();
-  p5OpenDialogFocus();
-};
 
 connectionDialog.addEventListener('click', event => {
   if (event.target === connectionDialog) connectionDialog.close();
@@ -1486,26 +985,6 @@ document.addEventListener('click',event=>{
 });
 document.addEventListener('focusin',event=>{ if (event.target.matches?.('.p6-chart-hit')) p6ShowChartTooltip(event.target); });
 document.addEventListener('focusout',event=>{ if (event.target.matches?.('.p6-chart-hit')) p6HideChartTooltip(); });
-
-// Make account opening idempotent and ensure the Supabase client exists even if
-// a user clicks immediately after first paint.
-openConnection = async function openConnectionP6() {
-  if (!cloud.client && configured()) {
-    try { await initCloud(false); } catch {}
-  }
-  renderConnection();
-  if (!connectionDialog.open) connectionDialog.showModal();
-  if (typeof p5OpenDialogFocus === 'function') p5OpenDialogFocus();
-};
-
-// P4 bound the original account handler before P5/P6 existed. Replace the
-// desktop button once to remove that stale listener and use the final handler.
-const p6DesktopAccountOld = document.querySelector('.desktop-account[data-open-account]');
-if (p6DesktopAccountOld) {
-  const replacement = p6DesktopAccountOld.cloneNode(true);
-  p6DesktopAccountOld.replaceWith(replacement);
-  replacement.addEventListener('click',openConnection);
-}
 
 const p6RenderBase = render;
 render = function renderP6() {
@@ -2317,68 +1796,6 @@ renderToday = function renderTodayV53() {
 // behaves like an installed app.
 document.addEventListener('gesturestart',event=>event.preventDefault(),{passive:false});
 
-/* ===== src/auth/dashboard-auth-final.js ===== */
-'use strict';
-
-// Final auth surface guard. All active layers are Google-only; this last layer
-// keeps that contract explicit if presentation layers are rearranged later.
-const dietRenderConnectionBeforeFinalAuth = renderConnection;
-
-renderConnection = function renderConnectionFinalAuth() {
-  const result = dietRenderConnectionBeforeFinalAuth();
-  const email = cloud.user?.email || '';
-
-  if (cloud.user) {
-    connectionContent.innerHTML = `
-      <div class="connection-state">
-        <strong>THIEPN Account</strong>
-        <span>Signed in as ${esc(email)}. Diet Copilot data stays private to this account.</span>
-      </div>
-      <div class="btn-row">
-        <button class="btn primary" id="refreshNowBtn" type="button">Refresh now</button>
-        <button class="btn ghost" id="signOutBtn" type="button">Sign out</button>
-      </div>`;
-
-    connectionContent.querySelector('#refreshNowBtn')?.addEventListener('click', () => refreshData());
-    connectionContent.querySelector('#signOutBtn')?.addEventListener('click', async () => {
-      await cloud.client.auth.signOut({ scope: 'local' });
-      cloud.user = null;
-      cloud.status = 'configured';
-      dashboard = emptyDashboard();
-      try { localStorage.removeItem(CACHE_KEY); } catch {}
-      renderConnection();
-      render();
-    });
-    return result;
-  }
-
-  connectionContent.innerHTML = `
-    <div class="connection-state">
-      <strong>Sign in with THIEPN Account</strong>
-      <span>Continue with your Google account to sync Diet Copilot.</span>
-    </div>
-    ${cloud.error ? `<div class="connection-state"><span style="color:var(--danger)">${esc(cloud.error)}</span></div>` : ''}
-    <div class="btn-row">
-      <button class="btn primary" id="googleSignInBtn" type="button">Continue with Google</button>
-    </div>`;
-
-  const button = connectionContent.querySelector('#googleSignInBtn');
-  button?.addEventListener('click', async event => {
-    const target = event.currentTarget;
-    target.disabled = true;
-    target.textContent = 'Redirecting…';
-    cloud.error = null;
-    try {
-      await dietSignInWithGoogle();
-    } catch (error) {
-      cloud.error = error?.message || String(error);
-      renderConnection();
-    }
-  });
-
-  return result;
-};
-
 /* ===== src/core/dashboard-04.js ===== */
 // Final Diet Copilot policy layer.
 // Logged nutrition always counts. Day status is coverage metadata only and must
@@ -2732,34 +2149,6 @@ if (typeof renderToday === 'function') {
     return result;
   };
 }
-
-document.querySelectorAll('.nav-item').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
-document.getElementById('statusBtn').addEventListener('click',openConnection);
-document.getElementById('refreshBtn').addEventListener('click',()=>cloud.user?refreshData():openConnection());
-document.getElementById('closeConnectionBtn').addEventListener('click',()=>connectionDialog.close());
-window.addEventListener('online',()=>{if(cloud.user)refreshData({silent:true});else updateStatus();});
-window.addEventListener('offline',updateStatus);
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&cloud.user)updateDateRefresh();});
-
-if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
-  navigator.serviceWorker.addEventListener('controllerchange',()=>{
-    // A new worker may contain backend/auth routing changes. Once it takes
-    // control, immediately replace any stale in-memory snapshot from the old
-    // deployment with a fresh canonical-backend read.
-    setTimeout(()=>{ if(cloud.user) refreshData({silent:true}); },250);
-  });
-  navigator.serviceWorker
-    .register('./sw.js', { updateViaCache: 'none' })
-    .then(reg=>reg.update())
-    .catch(e=>console.warn('Service worker registration failed',e));
-}
-
-render();
-initCloud(false).then(()=>{
-  // If there is no authenticated session, make that explicit instead of
-  // silently showing an empty dashboard that looks like missing data.
-  if(!cloud.user && configured()) setTimeout(()=>{ if(!connectionDialog.open) openConnection(); },200);
-});
 
 /* ===== src/intelligence/dashboard-v6-2.js ===== */
 'use strict';
@@ -3461,27 +2850,34 @@ renderToday=function renderTodayV66(){
 };
 
 refreshData=async function refreshDataV66({silent=false}={}){
-  if(v66RefreshPromise)return v66RefreshPromise;
+
   if(!cloud.client||!cloud.user){if(!silent&&typeof openConnection==='function')openConnection();return;}
   if(navigator.onLine===false){if(!silent)showToast('Offline — showing the last cached snapshot');return;}
-  v66RefreshPromise=(async()=>{
+  const owner=cloud.user.id, client=cloud.client, epoch=dietAccountEpoch;
+  if(v66RefreshPromise && v66RefreshOwner===owner && v66RefreshEpoch===epoch)return v66RefreshPromise;
+  v66RefreshController?.abort();
+  const controller=new AbortController();
+  v66RefreshController=controller; v66RefreshOwner=owner; v66RefreshEpoch=epoch;
+  const current=()=>cloud.client===client && cloud.user?.id===owner && dietAccountEpoch===epoch && !controller.signal.aborted;
+  const task=Promise.resolve().then(async()=>{
     cloud.status='syncing'; updateStatus();
     try{
       const [p,d,m,mi,w,sf,sm,smi,gp,tr,wr,act,port]=await Promise.all([
-        cloud.client.from('profiles').select('calorie_target,protein_target,fiber_target,goal_weight,desired_weekly_weight_change,adaptive_target_enabled,adaptive_min_complete_days,show_optional_macros,show_meal_photos,weigh_in_reminder_enabled,weigh_in_reminder_time,day_close_reminder_enabled,day_close_reminder_time,weekly_review_reminder_enabled,weekly_review_day,weekly_review_time,reminder_timezone,updated_at').maybeSingle(),
-        cloud.client.from('daily_logs').select('id,log_date,calorie_target,protein_target,status,notes,updated_at').order('log_date'),
-        cloud.client.from('meals').select('id,daily_log_id,meal_type,title,calories,protein,carbs,fat,fiber,confidence,source,original_input,notes,calories_low,calories_high,photo_url,photo_alt,eaten_at,created_at,updated_at').order('eaten_at'),
-        cloud.client.from('meal_items').select('id,meal_id,saved_food_id,name,quantity_text,calories,protein,carbs,fat,fiber,calories_low,calories_high,confidence,source,sort_order,updated_at').order('sort_order'),
-        cloud.client.from('weight_entries').select('id,entry_date,weight,notes,created_at,updated_at').order('entry_date'),
-        cloud.client.from('saved_foods').select('id,name,brand,barcode,quantity_text,calories,protein,carbs,fat,fiber,aliases,source,confidence,favorite,use_count,last_used_at,photo_url,verified_at,updated_at').order('use_count',{ascending:false}).limit(100),
-        cloud.client.from('saved_meals').select('id,name,meal_type,calories,protein,carbs,fat,fiber,aliases,favorite,use_count,last_used_at,photo_url,is_recipe,servings,serving_text,recipe_notes,updated_at').order('use_count',{ascending:false}).limit(100),
-        cloud.client.from('saved_meal_items').select('id,saved_meal_id,saved_food_id,name,quantity_text,calories,protein,carbs,fat,fiber,confidence,source,sort_order').order('sort_order'),
-        cloud.client.from('goal_phases').select('id,phase_type,name,start_date,end_date,calorie_target,protein_target,fiber_target,goal_weight,desired_weekly_weight_change,active,notes,created_at,updated_at').order('start_date',{ascending:false}),
-        cloud.client.from('target_recommendations').select('id,generated_on,lookback_days,complete_days,logged_days,weigh_in_count,avg_calories,weekly_weight_change,estimated_maintenance,desired_weekly_weight_change,current_target,raw_recommended_target,recommended_target,rationale,status,decision_payload,created_at,resolved_at').order('created_at',{ascending:false}).limit(20),
-        cloud.client.from('weekly_reviews').select('id,week_end,payload,created_at').order('week_end',{ascending:false}).limit(20),
-        cloud.client.from('activity_daily').select('activity_date,steps,active_calories,exercise_minutes,distance_km,resting_heart_rate,source,synced_at,updated_at').order('activity_date'),
-        cloud.client.from('saved_food_portions').select('id,saved_food_id,multiplier,quantity_text,use_count,last_used_at,updated_at').order('use_count',{ascending:false})
+        client.from('profiles').select('calorie_target,protein_target,fiber_target,goal_weight,desired_weekly_weight_change,adaptive_target_enabled,adaptive_min_complete_days,show_optional_macros,show_meal_photos,weigh_in_reminder_enabled,weigh_in_reminder_time,day_close_reminder_enabled,day_close_reminder_time,weekly_review_reminder_enabled,weekly_review_day,weekly_review_time,reminder_timezone,updated_at').maybeSingle().abortSignal(controller.signal),
+        client.from('daily_logs').select('id,log_date,calorie_target,protein_target,status,notes,updated_at').order('log_date').abortSignal(controller.signal),
+        client.from('meals').select('id,daily_log_id,meal_type,title,calories,protein,carbs,fat,fiber,confidence,source,original_input,notes,calories_low,calories_high,photo_url,photo_alt,eaten_at,created_at,updated_at').order('eaten_at').abortSignal(controller.signal),
+        client.from('meal_items').select('id,meal_id,saved_food_id,name,quantity_text,calories,protein,carbs,fat,fiber,calories_low,calories_high,confidence,source,sort_order,updated_at').order('sort_order').abortSignal(controller.signal),
+        client.from('weight_entries').select('id,entry_date,weight,notes,created_at,updated_at').order('entry_date').abortSignal(controller.signal),
+        client.from('saved_foods').select('id,name,brand,barcode,quantity_text,calories,protein,carbs,fat,fiber,aliases,source,confidence,favorite,use_count,last_used_at,photo_url,verified_at,updated_at').order('use_count',{ascending:false}).limit(100).abortSignal(controller.signal),
+        client.from('saved_meals').select('id,name,meal_type,calories,protein,carbs,fat,fiber,aliases,favorite,use_count,last_used_at,photo_url,is_recipe,servings,serving_text,recipe_notes,updated_at').order('use_count',{ascending:false}).limit(100).abortSignal(controller.signal),
+        client.from('saved_meal_items').select('id,saved_meal_id,saved_food_id,name,quantity_text,calories,protein,carbs,fat,fiber,confidence,source,sort_order').order('sort_order').abortSignal(controller.signal),
+        client.from('goal_phases').select('id,phase_type,name,start_date,end_date,calorie_target,protein_target,fiber_target,goal_weight,desired_weekly_weight_change,active,notes,created_at,updated_at').order('start_date',{ascending:false}).abortSignal(controller.signal),
+        client.from('target_recommendations').select('id,generated_on,lookback_days,complete_days,logged_days,weigh_in_count,avg_calories,weekly_weight_change,estimated_maintenance,desired_weekly_weight_change,current_target,raw_recommended_target,recommended_target,rationale,status,decision_payload,created_at,resolved_at').order('created_at',{ascending:false}).limit(20).abortSignal(controller.signal),
+        client.from('weekly_reviews').select('id,week_end,payload,created_at').order('week_end',{ascending:false}).limit(20).abortSignal(controller.signal),
+        client.from('activity_daily').select('activity_date,steps,active_calories,exercise_minutes,distance_km,resting_heart_rate,source,synced_at,updated_at').order('activity_date').abortSignal(controller.signal),
+        client.from('saved_food_portions').select('id,saved_food_id,multiplier,quantity_text,use_count,last_used_at,updated_at').order('use_count',{ascending:false}).abortSignal(controller.signal)
       ]);
+      if(!current())return;
       for(const r of [p,d,m,mi,w,sf,sm,smi,gp,tr,wr,act,port])if(r.error)throw r.error;
       const dailyLogs={},dateById={},itemsByMeal={},savedItemsByMeal={};
       (d.data||[]).forEach(x=>{dailyLogs[x.log_date]={id:x.id,status:x.status,calorieTarget:Number(x.calorie_target),proteinTarget:Number(x.protein_target),notes:x.notes||'',updatedAt:x.updated_at};dateById[x.id]=x.log_date;});
@@ -3507,46 +2903,57 @@ refreshData=async function refreshDataV66({silent=false}={}){
       if(typeof v5EnsureDashboardShape==='function')v5EnsureDashboardShape();
       if(typeof v6EnsureShape==='function')v6EnsureShape();
       saveDashboardCache(); cloud.status='online'; cloud.error=null;
-      try{const {data:health,error}=await cloud.client.rpc('diet_copilot_healthcheck');if(!error&&health){cloud.bridgeReady=Boolean(health.capabilities?.log_meal_from_ai&&health.capabilities?.log_weight_from_ai);cloud.schemaVersion=health.schema_version;}}catch{}
+      try{const {data:health,error}=await client.rpc('diet_copilot_healthcheck').abortSignal(controller.signal);if(current()&&!error&&health){cloud.bridgeReady=Boolean(health.capabilities?.log_meal_from_ai&&health.capabilities?.log_weight_from_ai);cloud.schemaVersion=health.schema_version;}}catch{}
+      if(!current())return;
       render(); if(!silent)showToast('Dashboard refreshed');
-    }catch(error){cloud.status='error';cloud.error=error.message||String(error);updateStatus();if(!silent)showToast(`Refresh failed: ${typeof p5FriendlyError==='function'?p5FriendlyError(cloud.error):cloud.error}`);if(connectionDialog?.open&&typeof renderConnection==='function')renderConnection();}
-    finally{v66RefreshPromise=null;}
-  })();
-  return v66RefreshPromise;
+    }catch(error){if(!current())return;cloud.status='error';cloud.error=error.message||String(error);updateStatus();if(!silent)showToast(`Refresh failed: ${typeof p5FriendlyError==='function'?p5FriendlyError(cloud.error):cloud.error}`);if(connectionDialog?.open&&typeof renderConnection==='function')renderConnection();}
+    finally{if(v66RefreshPromise===task)v66RefreshPromise=null;}
+  });
+  v66RefreshPromise=task;
+  return task;
 };
 
+let v66RefreshOwner=null, v66RefreshEpoch=-1, v66RefreshController=null;
+let v66SubscribePromise=null;
 subscribeRealtime=async function subscribeRealtimeV66(){
-  if(!cloud.client||!cloud.user)return;
-  clearTimeout(v66RealtimeTimer);
-  if(cloud.v6ActivityChannel){try{await cloud.client.removeChannel(cloud.v6ActivityChannel)}catch{} cloud.v6ActivityChannel=null;}
-  if(cloud.channel){try{await cloud.client.removeChannel(cloud.channel)}catch{} cloud.channel=null;}
-  let channel=cloud.client.channel(`diet-dashboard-v66-${cloud.user.id}`);
-  for(const table of ['profiles','daily_logs','meals','meal_items','weight_entries','saved_foods','saved_meals','saved_meal_items','saved_food_portions','goal_phases','target_recommendations','weekly_reviews','activity_daily']){
-    channel=channel.on('postgres_changes',{event:'*',schema:'public',table},()=>{clearTimeout(v66RealtimeTimer);v66RealtimeTimer=setTimeout(()=>refreshData({silent:true}),300);});
-  }
-  cloud.channel=channel.subscribe();
+  const client=cloud.client, owner=cloud.user?.id, epoch=dietAccountEpoch;
+  if(!client||!owner)return;
+  if(cloud.channel?.__dietOwner===owner)return;
+  if(v66SubscribePromise)return v66SubscribePromise;
+  v66SubscribePromise=(async()=>{
+    clearTimeout(v66RealtimeTimer);
+    const previous=cloud.channel;
+    cloud.channel=null;
+    if(previous)await client.removeChannel(previous).catch(()=>{});
+    if(cloud.v6ActivityChannel){await client.removeChannel(cloud.v6ActivityChannel).catch(()=>{});cloud.v6ActivityChannel=null;}
+    if(cloud.client!==client || cloud.user?.id!==owner || dietAccountEpoch!==epoch)return;
+    let channel=client.channel(`diet-dashboard-v66-${owner}`);
+    for(const table of ['profiles','daily_logs','meals','meal_items','weight_entries','saved_foods','saved_meals','saved_meal_items','saved_food_portions','goal_phases','target_recommendations','weekly_reviews','activity_daily']){
+      channel=channel.on('postgres_changes',{event:'*',schema:'public',table},()=>{
+        if(cloud.client!==client || cloud.user?.id!==owner || dietAccountEpoch!==epoch)return;
+        clearTimeout(v66RealtimeTimer);v66RealtimeTimer=setTimeout(()=>refreshData({silent:true}),300);
+      });
+    }
+    channel.__dietOwner=owner;
+    cloud.channel=channel.subscribe();
+  })().finally(()=>{v66SubscribePromise=null;});
+  return v66SubscribePromise;
 };
-
-if(typeof disposeCloud==='function'){
-  const v66DisposeBase=disposeCloud;
-  disposeCloud=async function disposeCloudV66(){clearTimeout(v66RealtimeTimer);return v66DisposeBase();};
-}
 
 queueMicrotask(()=>{
   document.getElementById('v6CaptureDialog')?.remove();
   app.querySelector('.today-v2 .v6-capture-card')?.remove();
   app.querySelector('.today-v2 .v6-activity')?.remove();
-  if(cloud?.user){subscribeRealtime().catch(error=>console.warn('V6.6 realtime consolidation failed',error));}
   if(typeof render==='function')render();
 });
 
 /* ===== src/release.js ===== */
 'use strict';
 
-// V6.8.1 — Diet Copilot Web 1.0.2 maintenance release.
+// V6.8.2 — Diet Copilot Web 1.0.3 maintenance release.
 // No new nutrition workflow: this layer freezes and certifies the stable web product.
-const DIET_PRODUCT_VERSION = '6.8.1';
-const DIET_WEB_RELEASE = '1.0.2';
+const DIET_PRODUCT_VERSION = '6.8.2';
+const DIET_WEB_RELEASE = '1.0.3';
 const DIET_RELEASE_CHANNEL = 'stable';
 
 function dietTodayInvariant(){
@@ -3643,7 +3050,7 @@ window.addEventListener('resize',()=>{
   clearTimeout(dietHorizontalOverflow.t);
   dietHorizontalOverflow.t=setTimeout(()=>{
     const overflow=dietHorizontalOverflow();
-    if(overflow>1)console.warn(`Diet Copilot Web 1.0.2 horizontal overflow detected: ${overflow}px`);
+    if(overflow>1)console.warn(`Diet Copilot Web 1.0.3 horizontal overflow detected: ${overflow}px`);
   },150);
 });
 queueMicrotask(dietTodayInvariant);
@@ -3660,6 +3067,8 @@ let dietNativeAuthUrlListener = null;
 let dietNativeSessionFingerprint = null;
 let dietNativePanelBusy = false;
 let dietNativeOAuthBusy = false;
+let dietNativeLastCode = null;
+let dietNativeInstallPromise = null;
 
 function dietNativePlugin(){
   return globalThis.Capacitor?.Plugins?.DietHealthConnect || null;
@@ -3680,12 +3089,16 @@ function dietNativeTime(value){
 
 function dietNativeRememberFlowId(flowId){
   try{
-    if(flowId)localStorage.setItem(DIET_NATIVE_PENDING_FLOW_KEY,flowId);
+    if(flowId)localStorage.setItem(DIET_NATIVE_PENDING_FLOW_KEY,JSON.stringify({flowId,createdAt:Date.now()}));
     else localStorage.removeItem(DIET_NATIVE_PENDING_FLOW_KEY);
   }catch{}
 }
 function dietNativePendingFlowId(){
-  try{return localStorage.getItem(DIET_NATIVE_PENDING_FLOW_KEY)||null}catch{return null}
+  try{
+    const pending=JSON.parse(localStorage.getItem(DIET_NATIVE_PENDING_FLOW_KEY)||'null');
+    if(!pending?.flowId || !pending.createdAt || Date.now()-pending.createdAt>15*60000 || pending.createdAt>Date.now()+60000){dietNativeRememberFlowId(null);return null;}
+    return pending.flowId;
+  }catch{return null;}
 }
 
 async function dietNativeStartGoogleOAuth(){
@@ -3695,6 +3108,7 @@ async function dietNativeStartGoogleOAuth(){
   if(!browser)throw new Error('Android browser integration is unavailable.');
   dietNativeOAuthBusy=true;
   try{
+    dietAssertPersistentStorage();
     const {data,error}=await cloud.client.auth.signInWithOAuth({
       provider:'google',
       options:{
@@ -3733,11 +3147,12 @@ async function dietNativeHandleAuthUrl(rawUrl){
   await dietNativeBrowserPlugin()?.close?.().catch(()=>{});
   const authError=url.searchParams.get('error_description')||url.searchParams.get('error');
   if(authError){
-    cloud.error=authError;
+    dietNativeRememberFlowId(null);
+    cloud.error=dietAccountError({code:url.searchParams.get('error')||'oauth_error'});
     cloud.status='configured';
     updateStatus();
     if(connectionDialog?.open)renderConnection();
-    showToast(`Google sign-in failed: ${authError}`);
+    showToast(cloud.error);
     return true;
   }
 
@@ -3750,12 +3165,17 @@ async function dietNativeHandleAuthUrl(rawUrl){
     return true;
   }
 
+  if(dietNativeLastCode===code)return true;
   try{
-    const flowId=url.searchParams.get('sb_flow_id')||dietNativePendingFlowId();
+    const pending=dietNativePendingFlowId();
+    const supplied=url.searchParams.get('sb_flow_id');
+    if(!pending || (supplied && supplied!==pending))throw new Error('This Android sign-in attempt expired. Start Google sign-in again.');
+    dietNativeLastCode=code;
+    const flowId=supplied||dietNativePendingFlowId();
     const {data,error}=await cloud.client.auth.exchangeCodeForSession(code,flowId?{flowId}:undefined);
     if(error)throw error;
-    cloud.user=data?.session?.user||null;
-    cloud.status=cloud.user?'online':'configured';
+    if(!data?.session?.user)throw new Error('Google sign-in returned no session.');
+    applyCloudSession(data.session);
     cloud.error=null;
     dietNativeRememberFlowId(null);
     dietNativeSessionFingerprint=null;
@@ -3780,6 +3200,11 @@ async function dietNativeHandleAuthUrl(rawUrl){
 }
 
 async function dietNativeInstallAuthDeepLink(){
+  if(dietNativeInstallPromise)return dietNativeInstallPromise;
+  dietNativeInstallPromise=dietNativeInstallAuthDeepLinkOnce().finally(()=>{dietNativeInstallPromise=null;});
+  return dietNativeInstallPromise;
+}
+async function dietNativeInstallAuthDeepLinkOnce(){
   const appPlugin=dietNativeAppPlugin();
   if(!appPlugin||dietNativeAuthUrlListener)return;
   dietNativeAuthUrlListener=await appPlugin.addListener('appUrlOpen',event=>{
@@ -3889,13 +3314,6 @@ async function dietNativeRenderPanel(){
   }
 }
 
-const dietNativeRenderConnectionBase=renderConnection;
-renderConnection=function renderConnectionNative(){
-  const result=dietNativeRenderConnectionBase();
-  if(dietIsNativeAndroid()&&cloud?.user)queueMicrotask(dietNativeRenderPanel);
-  return result;
-};
-
 async function dietNativeBootstrap(){
   if(!dietIsNativeAndroid()||!cloud?.client)return;
   await dietNativeInstallAuthDeepLink().catch(()=>{});
@@ -3903,7 +3321,7 @@ async function dietNativeBootstrap(){
   if(!dietNativeAuthSubscription){
     const {data}=cloud.client.auth.onAuthStateChange(()=>{
       dietNativeSessionFingerprint=null;
-      queueMicrotask(()=>dietNativeConfigureSession().catch(()=>{}));
+      setTimeout(()=>dietNativeConfigureSession().catch(()=>{}),0);
     });
     dietNativeAuthSubscription=data?.subscription||null;
   }
@@ -4047,3 +3465,647 @@ window.DietOperations = Object.freeze({
   createOperationId: dietOperationId,
   snapshot: dietOperationalSnapshot,
 });
+
+/* ===== src/auth/dashboard-auth-persist.js ===== */
+'use strict';
+
+// One storage adapter, installed before the only Supabase client is constructed.
+// A session is never silently downgraded to tab-only or in-memory persistence.
+const DIET_AUTH_STORAGE_KEY = 'sb-hycegznamzjhwinegaai-auth-token';
+const DIET_AUTH_FALLBACK_PREFIX = 'diet-copilot:auth-fallback:';
+const DIET_PKCE_BACKUP_KEY = 'diet-copilot:pkce-verifier-backup-v2';
+const DIET_PKCE_BACKUP_LEGACY_KEY = 'diet-copilot:pkce-verifier-backup-v1';
+const DIET_PKCE_BACKUP_TTL_MS = 15 * 60 * 1000;
+const DIET_COOKIE_PREFIX = 'diet-auth-v2-';
+const dietStorageStatus = { backend: 'none', lastError: null };
+
+function dietStorageError(code) {
+  dietStorageStatus.lastError = code;
+  const messages = {
+    blocked: 'Site storage is blocked. Allow site data for this origin to keep your account signed in.',
+    quota: 'Site storage is full. Free some site storage, then retry sign-in.',
+    verification: 'The browser did not retain the sign-in data. Check site-data settings and retry.',
+    corrupt: 'The saved sign-in is incomplete or invalid. Please sign in again.',
+  };
+  const error = new Error(messages[code] || 'Sign-in storage is temporarily unavailable. Please retry.');
+  error.name = 'DietStorageError';
+  error.code = code;
+  return error;
+}
+function dietStorageCode(error) {
+  return error?.name === 'SecurityError' ? 'blocked' : error?.name === 'QuotaExceededError' ? 'quota' : 'verification';
+}
+function dietCookieName(key) { return `${DIET_COOKIE_PREFIX}${encodeURIComponent(String(key))}`; }
+function dietCookieRead(name) {
+  const prefix = `${name}=`;
+  const entry = document.cookie.split(';').map(v=>v.trim()).find(v=>v.startsWith(prefix));
+  return entry === undefined ? null : entry.slice(prefix.length);
+}
+function dietCookieWrite(name, value, age = 31536000) {
+  const secure = location.protocol === 'https:' ? '; Secure' : '';
+  document.cookie = `${name}=${value}; Path=/; Max-Age=${age}; SameSite=Lax${secure}`;
+}
+function dietCookieManifest(key) {
+  const raw = dietCookieRead(`${dietCookieName(key)}.n`);
+  if (raw === null) return null;
+  if (/^[1-9]\d?$/.test(raw) && Number(raw) <= 24) return {raw, revision:'', count:Number(raw)};
+  const match = /^v3-([a-z0-9]+)-([1-9]\d?)$/.exec(raw);
+  if (match && Number(match[2]) <= 24) return {raw, revision:`${match[1]}.`, count:Number(match[2])};
+  throw dietStorageError('corrupt');
+}
+function dietCookieGet(key) {
+  const base = dietCookieName(key);
+  for (let retry = 0; retry < 2; retry++) {
+    const manifest = dietCookieManifest(key);
+    if (!manifest) return null;
+    let encoded = '';
+    for (let i=0;i<manifest.count;i++) {
+      const chunk = dietCookieRead(`${base}.${manifest.revision}${i}`);
+      if (chunk === null) throw dietStorageError('corrupt');
+      encoded += chunk;
+    }
+    if (dietCookieRead(`${base}.n`) !== manifest.raw) continue;
+    try { return decodeURIComponent(encoded); } catch { throw dietStorageError('corrupt'); }
+  }
+  throw dietStorageError('verification');
+}
+function dietCookieRemove(key) {
+  const prefix = `${dietCookieName(key)}.`;
+  const names = document.cookie.split(';').map(v=>v.trim().split('=')[0]).filter(n=>n.startsWith(prefix));
+  for (const name of names) dietCookieWrite(name, '', 0);
+}
+function dietCookieSet(key, text) {
+  const base = dietCookieName(key);
+  const oldNames = document.cookie.split(';').map(v=>v.trim().split('=')[0]).filter(n=>n.startsWith(`${base}.`));
+  const encoded = encodeURIComponent(text);
+  const chunks = encoded.match(/.{1,2800}/g) || [];
+  if (!chunks.length || chunks.length > 24) throw dietStorageError('quota');
+  const revision = `${Date.now().toString(36)}${Math.random().toString(36).slice(2,10)}`;
+  const written = [];
+  try {
+    // Write immutable chunks first; publish the pointer only after all writes verify.
+    chunks.forEach((chunk,i)=>{
+      const name = `${base}.${revision}.${i}`;
+      written.push(name);
+      dietCookieWrite(name,chunk);
+      if (dietCookieRead(name) !== chunk) throw dietStorageError('verification');
+    });
+    dietCookieWrite(`${base}.n`, `v3-${revision}-${chunks.length}`);
+    if (dietCookieGet(key) !== text) throw dietStorageError('verification');
+  } catch (error) {
+    for (const name of written) { try { dietCookieWrite(name,'',0); } catch {} }
+    throw error;
+  }
+  for (const name of oldNames) if (name !== `${base}.n`) dietCookieWrite(name,'',0);
+}
+function dietValidStoredSession(raw) {
+  try {
+    const session = JSON.parse(raw);
+    return Boolean(session && typeof session.access_token === 'string' && session.access_token &&
+      typeof session.refresh_token === 'string' && session.refresh_token &&
+      Number.isFinite(session.expires_at) && typeof session.user?.id === 'string' && session.user.id);
+  } catch { return false; }
+}
+function dietRawAuthStorageRemove(key) {
+  try { window.localStorage.removeItem(key); } catch {}
+  try { window.sessionStorage.removeItem(`${DIET_AUTH_FALLBACK_PREFIX}${key}`); } catch {}
+  try { dietCookieRemove(key); } catch {}
+  if (key === DIET_AUTH_STORAGE_KEY) dietStorageStatus.backend = 'none';
+}
+function dietRawAuthStorageGet(key) {
+  let local = null, localError = null, cookie = null;
+  try { local = window.localStorage.getItem(key); } catch (error) { localError = error; }
+  if (!String(key).endsWith('-code-verifier')) {
+    try { cookie = dietCookieGet(key); }
+    catch (error) {
+      if (error?.code === 'corrupt') {
+        // Do not resurrect an older localStorage token behind a broken newer cookie.
+        dietRawAuthStorageRemove(key);
+        dietStorageStatus.lastError = 'corrupt';
+        return null;
+      }
+      if (localError) throw dietStorageError(dietStorageCode(localError));
+    }
+  }
+  const raw = cookie !== null ? cookie : local;
+  if (key === DIET_AUTH_STORAGE_KEY) {
+    if (raw !== null && !dietValidStoredSession(raw)) {
+      dietRawAuthStorageRemove(key);
+      dietStorageStatus.lastError = 'corrupt';
+      return null;
+    }
+    dietStorageStatus.backend = raw === null ? 'none' : cookie !== null ? 'cookie' : 'localStorage';
+  }
+  return raw;
+}
+function dietRawAuthStorageSet(key, value) {
+  const text = String(value);
+  const pkce = String(key).endsWith('-code-verifier');
+  let localError = null;
+  // Once cookies own this key, keep using them. Never shadow a rotated cookie
+  // refresh token with an older, still-readable localStorage value.
+  let cookieOwnsKey = false;
+  if (!pkce) { try { cookieOwnsKey = dietCookieRead(`${dietCookieName(key)}.n`) !== null; } catch {} }
+  if (!cookieOwnsKey) {
+    try {
+      window.localStorage.setItem(key,text);
+      if (window.localStorage.getItem(key) !== text) throw dietStorageError('verification');
+      if (key === DIET_AUTH_STORAGE_KEY) dietStorageStatus.backend = 'localStorage';
+      dietStorageStatus.lastError = null;
+      return;
+    } catch (error) { localError = error; }
+  }
+  if (pkce) {
+    // PKCE recovery is tab-scoped and expires. It is not a session fallback.
+    if (!dietMirrorPkceStorageEntry(key,text)) throw dietStorageError(dietStorageCode(localError));
+    return;
+  }
+  try {
+    dietCookieSet(key,text);
+    try { window.localStorage.removeItem(key); } catch {}
+    if (key === DIET_AUTH_STORAGE_KEY) dietStorageStatus.backend = 'cookie';
+    dietStorageStatus.lastError = null;
+  } catch (error) { throw dietStorageError(localError ? dietStorageCode(localError) : error.code || dietStorageCode(error)); }
+}
+function dietAssertPersistentStorage() {
+  const key = `diet-copilot:persistence-probe:${Date.now()}:${Math.random()}`;
+  const text = 'persistent-storage-probe';
+  try {
+    dietRawAuthStorageSet(key,text);
+    if (dietRawAuthStorageGet(key) !== text) throw dietStorageError('verification');
+  } finally { dietRawAuthStorageRemove(key); }
+}
+function dietMigrateTransientSession() {
+  let raw = null;
+  try { raw = window.sessionStorage.getItem(`${DIET_AUTH_FALLBACK_PREFIX}${DIET_AUTH_STORAGE_KEY}`); } catch {}
+  if (!raw) return;
+  if (dietRawAuthStorageGet(DIET_AUTH_STORAGE_KEY) === null && dietValidStoredSession(raw)) dietRawAuthStorageSet(DIET_AUTH_STORAGE_KEY,raw);
+  try { window.sessionStorage.removeItem(`${DIET_AUTH_FALLBACK_PREFIX}${DIET_AUTH_STORAGE_KEY}`); } catch {}
+}
+function dietReadBrowserPkceBackup() {
+  try {
+    const raw = sessionStorage.getItem(DIET_PKCE_BACKUP_KEY);
+    if (!raw) return null;
+    const backup = JSON.parse(raw);
+    if (!backup || typeof backup !== 'object' || typeof backup.entries !== 'object') return null;
+    const createdAt = Number(backup.createdAt || 0);
+    if (!createdAt || Date.now() - createdAt > DIET_PKCE_BACKUP_TTL_MS || createdAt > Date.now() + 60000) {
+      sessionStorage.removeItem(DIET_PKCE_BACKUP_KEY);
+      return null;
+    }
+    return backup;
+  } catch {
+    return null;
+  }
+}
+
+function dietWriteBrowserPkceBackup(backup) {
+  try {
+    sessionStorage.setItem(DIET_PKCE_BACKUP_KEY, JSON.stringify(backup));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function dietMirrorPkceStorageEntry(key, value) {
+  if (!String(key).endsWith('-code-verifier')) return;
+  const current = dietReadBrowserPkceBackup() || { flowId: null, createdAt: Date.now(), entries: {} };
+  current.createdAt = Date.now();
+  current.entries[key] = value;
+  return dietWriteBrowserPkceBackup(current);
+}
+
+// Supabase writes every auth value through this adapter. PKCE verifier writes
+// are mirrored at write-time into tab-scoped sessionStorage. If another client
+// or navigation removes a verifier before callback exchange, getItem restores
+// the exact value Supabase originally wrote.
+const dietAuthStorage = Object.freeze({
+  getItem(key) {
+    let value = dietRawAuthStorageGet(key);
+    if (value == null && String(key).endsWith('-code-verifier')) {
+      const backupValue = dietReadBrowserPkceBackup()?.entries?.[key];
+      if (typeof backupValue === 'string') {
+        value = backupValue;
+      }
+    }
+    return value;
+  },
+  setItem(key, value) {
+    dietRawAuthStorageSet(key, value);
+    dietMirrorPkceStorageEntry(key, value);
+  },
+  removeItem(key) {
+    // Do not delete the tab-scoped PKCE mirror here. Supabase may remove a
+    // verifier while handling a failed/partial exchange. Diet clears the mirror
+    // only after a successful session or an explicit cancelled/failed flow.
+    dietRawAuthStorageRemove(key);
+  }
+});
+
+function dietClearBrowserPkceBackup() {
+  try { sessionStorage.removeItem(DIET_PKCE_BACKUP_KEY); } catch {}
+  try { sessionStorage.removeItem(DIET_PKCE_BACKUP_LEGACY_KEY); } catch {}
+}
+
+function dietTagBrowserPkceBackupFlow(flowId = '') {
+  if (!flowId) return;
+  const current = dietReadBrowserPkceBackup() || { flowId: null, createdAt: Date.now(), entries: {} };
+  current.flowId = flowId;
+  current.createdAt = Date.now();
+  return dietWriteBrowserPkceBackup(current);
+}
+
+function dietRestoreBrowserPkceVerifier(flowIdHint = '') {
+  const backup = dietReadBrowserPkceBackup();
+  if (!backup) return flowIdHint || null;
+  for (const [key, value] of Object.entries(backup.entries || {})) {
+    if (!String(key).startsWith(`${DIET_AUTH_STORAGE_KEY}-`)) continue;
+    if (!String(key).endsWith('-code-verifier')) continue;
+    if (typeof value !== 'string') continue;
+    if (dietRawAuthStorageGet(key) == null) dietRawAuthStorageSet(key, value);
+  }
+  return (typeof backup.flowId === 'string' && backup.flowId) || flowIdHint || null;
+}
+
+/* ===== src/auth/dashboard-auth.js ===== */
+'use strict';
+
+// Google-only THIEPN Account consumer. The shared project key stays unchanged.
+const DIET_AUTH_RELAY = 'https://thiepn.dev/WORDSTRIKE/';
+const DIET_OAUTH_TARGET_KEY = 'diet-copilot:oauth-target-v2';
+const DIET_OAUTH_FLOW_KEY = 'diet-copilot:oauth-flow-v2';
+const DIET_OAUTH_QUERY_KEYS = ['code','sb_flow_id','error','error_code','error_description'];
+let dietAuthPhase = 'initializing';
+let dietAccountEpoch = 0;
+let dietAuthInitPromise = null;
+let dietSignInPromise = null;
+let dietSignOutPromise = null;
+let dietCallbackHandled = false;
+let dietHadOAuthCallback = false;
+let dietAuthClientCount = 0;
+let dietAuthLastEvent = null;
+let dietAuthBusy = false;
+let dietDeferredAuthEvent = null;
+let dietAccountEvents = null;
+
+function dietClearBrowserOAuthRelayState() {
+  try { sessionStorage.removeItem(DIET_OAUTH_TARGET_KEY); sessionStorage.removeItem(DIET_OAUTH_FLOW_KEY); } catch {}
+}
+function dietSetBrowserOAuthRelayState(target, flowId) {
+  try {
+    sessionStorage.setItem(DIET_OAUTH_TARGET_KEY,target);
+    if (flowId) sessionStorage.setItem(DIET_OAUTH_FLOW_KEY,flowId);
+    else sessionStorage.removeItem(DIET_OAUTH_FLOW_KEY);
+  } catch { /* PKCE uses the adapter backup; the relay defaults to the web target. */ }
+}
+function dietReadWebOAuthCallback() {
+  const url = new URL(location.href);
+  return {url, code:url.searchParams.get('code'), flowId:url.searchParams.get('sb_flow_id'),
+    error:url.searchParams.get('error_code') || url.searchParams.get('error') || (url.searchParams.has('error_description') ? 'oauth_error' : null)};
+}
+function dietStripWebOAuthCallback(url) {
+  const clean = new URL(url.href);
+  for (const key of DIET_OAUTH_QUERY_KEYS) clean.searchParams.delete(key);
+  history.replaceState(null,'',`${clean.pathname}${clean.search}${clean.hash}`);
+}
+function dietPkceVerifierMissing(error) {
+  return /PKCE code verifier not found|AuthPKCECodeVerifierMissingError/i.test(`${error?.name || ''} ${error?.message || ''}`);
+}
+function dietAccountError(error) {
+  if (error?.name === 'DietStorageError') return error.message;
+  const code = error?.code || '';
+  if (code === 'access_denied') return 'Google sign-in was cancelled. You can try again.';
+  if (dietPkceVerifierMissing(error)) return 'This sign-in attempt expired or was opened in a different browser tab. Start a new Google sign-in here.';
+  if (['refresh_token_not_found','refresh_token_already_used','session_not_found','bad_jwt'].includes(code)) return 'Your saved session is no longer valid. Please sign in again.';
+  if (Number(error?.status) === 429) return 'Too many sign-in attempts. Wait a moment, then retry.';
+  if (Number(error?.status) >= 500 || ['AbortError','TimeoutError','AuthRetryableFetchError','TypeError'].includes(error?.name)) return 'The account service could not be reached. Retry when connected; your saved sign-in has not been cleared.';
+  return 'Sign-in could not be completed. Please try again.';
+}
+async function dietAccountFetch(input, options = {}) {
+  // Bound network waits without turning a timeout into a sign-out.
+  const timeout = AbortSignal.timeout(12000);
+  const signal = options.signal ? AbortSignal.any([options.signal,timeout]) : timeout;
+  return fetch(input,{...options,signal});
+}
+function dietClearPrivateViews() {
+  dietAccountEpoch++;
+  if (typeof v66RealtimeTimer !== 'undefined') clearTimeout(v66RealtimeTimer);
+  clearTimeout(refreshTimer);
+  if (typeof v66RefreshController !== 'undefined') v66RefreshController?.abort();
+  dashboard = emptyDashboard();
+  if (typeof v5EnsureDashboardShape === 'function') v5EnsureDashboardShape();
+  for (const dialog of document.querySelectorAll('dialog')) {
+    if (dialog !== connectionDialog) { if (dialog.open) dialog.close(); dialog.remove(); }
+  }
+  document.body.classList.remove('v53-detail-open');
+  const tip = document.getElementById('chartTooltip');
+  if (tip) { tip.textContent=''; tip.hidden=true; }
+}
+function applyCloudSession(session) {
+  const previous = cloud.user?.id || null;
+  const next = session?.user?.id || null;
+  if (previous !== next) {
+    dietClearPrivateViews();
+    cloud.user = session?.user || null;
+    if (next) dashboard = loadCachedDashboard(next);
+    else { try { localStorage.removeItem(CACHE_KEY); } catch {} }
+  } else { cloud.user = session?.user || null; }
+  dietAuthPhase = next ? 'authenticated' : 'signed-out';
+  cloud.status = next ? 'online' : 'configured';
+  updateStatus();
+  render();
+  if (connectionDialog.open) renderConnection();
+  return previous !== next;
+}
+async function disposeCloud() {
+  const client = cloud.client;
+  cloud.client = null;
+  try { cloud.authSubscription?.unsubscribe(); } catch {}
+  cloud.authSubscription = null;
+  if (typeof dietNativeAuthSubscription !== 'undefined') {
+    try { dietNativeAuthSubscription?.unsubscribe(); } catch {}
+    dietNativeAuthSubscription = null;
+    dietNativeSessionFingerprint = null;
+  }
+  if (client) {
+    try { await client.auth.stopAutoRefresh(); } catch {}
+    try { await client.removeAllChannels(); } catch {}
+    try { await client.auth.dispose?.(); } catch {}
+  }
+  cloud.channel = null;
+  cloud.v6ActivityChannel = null;
+}
+function dietObserveAccount(client) {
+  const {data} = client.auth.onAuthStateChange((event, session)=>{
+    dietAuthLastEvent = event;
+    // INITIAL_SESSION is resolved by the bootstrap. No Supabase calls occur
+    // under the auth event lock, and stale clients cannot mutate the active UI.
+    if (event === 'INITIAL_SESSION' || dietSignOutPromise || dietAuthPhase==='signing-out') return;
+    if (dietAuthBusy) {
+      dietDeferredAuthEvent = {client,event,session};
+      if (event === 'SIGNED_OUT' || (cloud.user && session?.user?.id !== cloud.user.id)) {
+        // Invalidate any request already started for the previous identity.
+        dietClearPrivateViews(); cloud.user=null;
+      }
+      return;
+    }
+    setTimeout(async()=>{
+      try {
+      if (client !== cloud.client || dietSignOutPromise) return;
+      const changed = applyCloudSession(session);
+      if (event === 'SIGNED_OUT') {
+        await client.removeAllChannels().catch(()=>{});
+        cloud.channel = null;
+        cloud.error = null;
+      } else if (session && changed) {
+        await Promise.all([refreshData({silent:true}),subscribeRealtime()]);
+      }
+      } catch { /* A data failure is shown by the data layer, never as a logout. */ }
+    },0);
+  });
+  cloud.authSubscription = data?.subscription || null;
+}
+async function initCloud(showDialog = false) {
+  if (dietSignOutPromise) return dietSignOutPromise;
+  if (!dietAuthInitPromise) {
+    const run = async()=>{
+      dietAuthBusy = true;
+      const epoch = dietAccountEpoch;
+      cloud.error = null;
+      if (!cloud.user) { dietAuthPhase='initializing'; cloud.status='cache'; render(); }
+      try {
+        if (!window.supabase?.createClient) throw new Error('sdk_unavailable');
+        if (!cloud.client) {
+          dietMigrateTransientSession();
+          cloud.client = window.supabase.createClient(cloudConfig.url,cloudConfig.key,{
+            auth:{flowType: 'pkce', persistSession:true, autoRefreshToken:true,
+              detectSessionInUrl: false, storageKey:DIET_AUTH_STORAGE_KEY, storage: dietAuthStorage},
+            global:{fetch:dietAccountFetch}
+          });
+          cloud.client.__dietAuthStorageV2 = true;
+          dietAuthClientCount++;
+          dietObserveAccount(cloud.client);
+        }
+        const client = cloud.client;
+        const callback = dietCallbackHandled ? {code:null,error:null} : dietReadWebOAuthCallback();
+        dietCallbackHandled = true;
+        let result;
+        if (callback.code || callback.error) {
+          dietHadOAuthCallback = true;
+          dietStripWebOAuthCallback(callback.url);
+          if (callback.error) throw Object.assign(new Error('OAuth failed'),{code:callback.error});
+          const effectiveFlowId = callback.flowId || dietRestoreBrowserPkceVerifier('') || null;
+          result = await client.auth.exchangeCodeForSession(callback.code, effectiveFlowId ? {flowId:effectiveFlowId} : undefined);
+          if (result.error && effectiveFlowId && dietPkceVerifierMissing(result.error)) {
+            result = await client.auth.exchangeCodeForSession(callback.code);
+          }
+          dietClearBrowserPkceBackup();
+          dietClearBrowserOAuthRelayState();
+        } else {
+          result = await client.auth.getSession();
+        }
+        if (client !== cloud.client || dietSignOutPromise || epoch !== dietAccountEpoch) return;
+        if (result.error) throw result.error;
+        const session = result.data?.session || null;
+        applyCloudSession(session);
+        if (!session && dietStorageStatus.lastError === 'corrupt') cloud.error = dietStorageError('corrupt').message;
+        if (session) {
+          await Promise.all([refreshData({silent:true}),subscribeRealtime()]);
+          if (typeof dietNativeBootstrap === 'function') dietNativeBootstrap().catch(()=>{});
+        }
+      } catch (error) {
+        if (dietSignOutPromise || epoch !== dietAccountEpoch) return;
+        cloud.error = error?.message === 'sdk_unavailable' ? 'The account component did not load. Reload the page to retry.' : dietAccountError(error);
+        dietAuthPhase = cloud.user ? 'authenticated' : 'unavailable';
+        cloud.status = 'error';
+        if (dietHadOAuthCallback) { dietClearBrowserPkceBackup(); dietClearBrowserOAuthRelayState(); }
+        updateStatus(); render();
+        if (connectionDialog.open) renderConnection();
+      } finally {
+        dietAuthBusy = false;
+        const pending=dietDeferredAuthEvent; dietDeferredAuthEvent=null;
+        if(pending && pending.client===cloud.client && !dietSignOutPromise){
+          const changed=applyCloudSession(pending.session);
+          if(pending.session && changed)setTimeout(()=>{refreshData({silent:true});subscribeRealtime().catch(()=>{});},0);
+          if(!pending.session){cloud.client.removeAllChannels().catch(()=>{});cloud.channel=null;}
+        }
+      }
+    };
+    dietAuthInitPromise = run().finally(()=>{dietAuthInitPromise=null;});
+  }
+  await dietAuthInitPromise;
+  if (showDialog) openConnection();
+}
+async function dietResumeAccount() {
+  if (dietSignOutPromise || dietSignInPromise || navigator.onLine === false) return;
+  await initCloud(false);
+}
+async function dietSignInWithGoogle() {
+  if (dietSignInPromise) return dietSignInPromise;
+  dietSignInPromise = (async()=>{
+    if (typeof dietIsNativeAndroid === 'function' && dietIsNativeAndroid() && window.DietNative?.startGoogleOAuth) return window.DietNative.startGoogleOAuth();
+    await initCloud(false);
+    if (!cloud.client?.__dietAuthStorageV2) throw new Error('Account client unavailable');
+    dietAssertPersistentStorage();
+    dietClearBrowserOAuthRelayState();
+    dietClearBrowserPkceBackup();
+    const {data,error} = await cloud.client.auth.signInWithOAuth({provider:'google', options:{
+      redirectTo:DIET_AUTH_RELAY, skipBrowserRedirect: true, queryParams:{prompt:'select_account'}
+    }});
+    if (error) throw error;
+    const target = new URL(data?.url || '');
+    if (target.origin !== new URL(cloudConfig.url).origin || target.pathname !== '/auth/v1/authorize') throw new Error('Invalid OAuth destination');
+    dietSetBrowserOAuthRelayState('web',data.flowId || '');
+    dietTagBrowserPkceBackupFlow(data.flowId || '');
+    location.assign(target.href);
+  })();
+  try { return await dietSignInPromise; }
+  catch(error) { dietSignInPromise=null; throw error; }
+}
+async function dietSignOut() {
+  if (dietSignOutPromise) return dietSignOutPromise;
+  // Fence old data responses and hide private content immediately, before I/O.
+  dietAuthPhase = 'signing-out';
+  dietClearPrivateViews();
+  cloud.user = null;
+  cloud.status = 'configured';
+  try { localStorage.removeItem(CACHE_KEY); } catch {}
+  render(); renderConnection();
+  dietSignOutPromise = (async()=>{
+    const client = cloud.client;
+    let remoteError = null;
+    try { if (client) { const result=await client.auth.signOut({ scope: 'local' }); remoteError=result.error; } }
+    catch(error) { remoteError=error; }
+    finally {
+      await disposeCloud();
+      dietRawAuthStorageRemove(DIET_AUTH_STORAGE_KEY);
+      for (const suffix of ['-user','-code-verifier','-flows-code-verifier']) dietRawAuthStorageRemove(DIET_AUTH_STORAGE_KEY+suffix);
+      dietClearBrowserPkceBackup(); dietClearBrowserOAuthRelayState();
+      if(typeof dietNativeRememberFlowId==='function')dietNativeRememberFlowId(null);
+      try { localStorage.removeItem('diet-copilot-thiepn-auth-token-backup-v2'); } catch {}
+      try { await dietNativePlugin()?.clearSession(); } catch {}
+      try { dietAccountEvents?.postMessage({type:'signed-out'}); } catch {}
+      dietAuthPhase='signed-out';
+      cloud.error=remoteError ? 'Signed out on this device. The account service could not confirm server-side revocation.' : null;
+      updateStatus(); render(); renderConnection();
+    }
+  })().finally(()=>{dietSignOutPromise=null;});
+  return dietSignOutPromise;
+}
+try {
+  dietAccountEvents = new BroadcastChannel('diet-account-lifecycle-v1');
+  dietAccountEvents.onmessage = event=>{
+    if (event.data?.type !== 'signed-out' || dietSignOutPromise) return;
+    dietClearPrivateViews(); cloud.user=null;
+    dietRawAuthStorageRemove(DIET_AUTH_STORAGE_KEY);
+    try { localStorage.removeItem(CACHE_KEY); } catch {}
+    disposeCloud().then(()=>{applyCloudSession(null);});
+  };
+} catch { /* The SDK also propagates normal sign-out through its shared channel. */ }
+
+function dietAccountDiagnostics() {
+  // This object is safe to copy into a bug report: no tokens, emails, user IDs,
+  // cookie contents, nutrition records, or OAuth query strings are included.
+  let stored = false;
+  try { stored=Boolean(dietRawAuthStorageGet(DIET_AUTH_STORAGE_KEY)); } catch {}
+  return {release:'1.0.3',origin:location.origin,phase:dietAuthPhase,backend:dietStorageStatus.backend,
+    storedSession:stored,storageError:dietStorageStatus.lastError,clientCount:dietAuthClientCount,
+    lastEvent:dietAuthLastEvent,online:navigator.onLine,initializing:Boolean(dietAuthInitPromise)};
+}
+window.DietAccount = Object.freeze({version:'1.0.3',diagnostics:dietAccountDiagnostics,retry:()=>initCloud(false)});
+
+/* ===== src/auth/dashboard-auth-final.js ===== */
+'use strict';
+
+// The only account renderer. Authentication, connection trouble and an absent
+// session are different states; diagnostics are always credential-free.
+function openConnection() {
+  renderConnection();
+  if (!connectionDialog.open) connectionDialog.showModal();
+  if (typeof p5OpenDialogFocus === 'function') p5OpenDialogFocus();
+}
+function renderConnection() {
+  const busy = ['initializing','signing-out'].includes(dietAuthPhase);
+  const signedIn = Boolean(cloud.user);
+  const diagnostic = dietAccountDiagnostics();
+  const storageCopy = diagnostic.backend === 'localStorage' ? 'Persistent browser storage' : diagnostic.backend === 'cookie' ? 'Persistent first-party cookies' : 'No saved session';
+  connectionContent.innerHTML = `
+    <div class="connection-state">
+      <strong>${signedIn ? 'THIEPN Account' : busy ? (dietAuthPhase==='signing-out'?'Signing out…':'Restoring your account…') : 'Sign in with THIEPN Account'}</strong>
+      <span>${signedIn ? `Signed in as ${esc(cloud.user.email || 'your Google account')}. Your nutrition data is private to this account.` : busy ? 'Please wait while the account state is resolved.' : 'Continue with Google to sync Diet Copilot.'}</span>
+    </div>
+    ${cloud.error ? `<div class="p5-inline-alert" role="alert">${esc(cloud.error)}</div>` : ''}
+    <div class="btn-row">
+      ${signedIn ? '<button class="btn primary" id="refreshNowBtn" type="button">Refresh data</button><button class="btn ghost" id="signOutBtn" type="button">Sign out</button>' : busy ? '<button class="btn primary" disabled>Please wait…</button>' : `${dietAuthPhase==='unavailable'?'<button class="btn primary" id="accountRetryBtn" type="button">Retry connection</button>':''}<button class="btn ${dietAuthPhase==='unavailable'?'ghost':'primary'}" id="googleSignInBtn" type="button">Continue with Google</button>`}
+    </div>
+    <details class="diet-account-diagnostics">
+      <summary>Account diagnostics · v1.0.3</summary>
+      <p>${esc(storageCopy)} · ${esc(dietAuthPhase)}. No credentials are included below.</p>
+      <pre>${esc(JSON.stringify(diagnostic,null,2))}</pre>
+      <button class="btn ghost" type="button" id="accountCopyDiagnosticsBtn">Copy diagnostics</button>
+    </details>`;
+  connectionContent.querySelector('#googleSignInBtn')?.addEventListener('click',async event=>{
+    const button=event.currentTarget;
+    button.disabled=true; button.textContent='Redirecting…'; cloud.error=null;
+    try { await dietSignInWithGoogle(); }
+    catch(error) { cloud.error=dietAccountError(error); renderConnection(); }
+  });
+  connectionContent.querySelector('#accountRetryBtn')?.addEventListener('click',async()=>{
+    const pending=initCloud(false); renderConnection(); await pending; renderConnection();
+  });
+  connectionContent.querySelector('#signOutBtn')?.addEventListener('click',()=>{dietSignOut();});
+  connectionContent.querySelector('#refreshNowBtn')?.addEventListener('click',async event=>{
+    event.currentTarget.disabled=true;
+    await refreshData({silent:true});
+    if (connectionDialog.open) renderConnection();
+  });
+  connectionContent.querySelector('#accountCopyDiagnosticsBtn')?.addEventListener('click',async event=>{
+    try { await navigator.clipboard.writeText(JSON.stringify(dietAccountDiagnostics(),null,2)); event.currentTarget.textContent='Copied'; }
+    catch { event.currentTarget.textContent='Select and copy the text above'; }
+  });
+  if (signedIn && typeof dietIsNativeAndroid==='function' && dietIsNativeAndroid()) setTimeout(()=>dietNativeRenderPanel(),0);
+}
+
+const dietAccountRenderBase = render;
+render = function renderWithAccountBoundary() {
+  if (dietAuthPhase === 'initializing' && !cloud.user) { app.innerHTML=p2LoadingState(); updateStatus(); return; }
+  if (dietAuthPhase === 'unavailable' && !cloud.user) {
+    app.innerHTML=`<section class="today-state today-error"><h2>Account connection unavailable</h2><p>${esc(cloud.error || 'Retry to restore your saved account.')}</p><button class="btn primary" data-account-retry>Retry connection</button><button class="btn ghost" data-account-open>Account details</button></section>`;
+    app.querySelector('[data-account-retry]')?.addEventListener('click',()=>initCloud(false));
+    app.querySelector('[data-account-open]')?.addEventListener('click',openConnection);
+    updateStatus(); return;
+  }
+  return dietAccountRenderBase();
+};
+
+/* ===== src/bootstrap.js ===== */
+'use strict';
+
+// This is the only startup entry point and must be last in the production bundle.
+document.querySelectorAll('.nav-item').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+document.getElementById('statusBtn').addEventListener('click',openConnection);
+document.getElementById('refreshBtn').addEventListener('click',()=>cloud.user?refreshData():openConnection());
+document.getElementById('closeConnectionBtn').addEventListener('click',()=>connectionDialog.close());
+window.addEventListener('online', dietResumeAccount);
+window.addEventListener('offline',updateStatus);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')dietResumeAccount();});
+window.addEventListener('pageshow', event=>{if(event.persisted){dietSignInPromise=null;dietResumeAccount();}});
+
+if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    // A new worker may contain backend/auth routing changes. Once it takes
+    // control, immediately replace any stale in-memory snapshot from the old
+    // deployment with a fresh canonical-backend read.
+    setTimeout(()=>{ if(cloud.user) refreshData({silent:true}); },250);
+  });
+  navigator.serviceWorker
+    .register('./sw.js', { updateViaCache: 'none' })
+    .then(reg=>reg.update())
+    .catch(e=>console.warn('Service worker registration failed',e));
+}
+
+
+document.querySelector('.desktop-account[data-open-account]')?.addEventListener('click',openConnection);
+render();
+initCloud(false).then(()=>{if(cloud.error && dietHadOAuthCallback)openConnection();});
