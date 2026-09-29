@@ -36,7 +36,8 @@ function cloneSettings(settings={}){
     hardExtraKcal:Number(settings.hardExtraKcal??150),
     moderateExtraKcal:Number(settings.moderateExtraKcal??75),
     lightExtraKcal:Number(settings.lightExtraKcal??25),
-    weeklyTemplate:{...Object.fromEntries(DOW.map(d=>[d,'rest'])),...(settings.weeklyTemplate??{})}
+    weeklyTemplate:{...Object.fromEntries(DOW.map(d=>[d,'rest'])),...(settings.weeklyTemplate??{})},
+    updatedAt:settings.updatedAt??settings.updated_at??null
   };
 }
 function currentDraft(model){
@@ -151,7 +152,8 @@ async function saveDistribution(){
       weeklyTemplate:d.weeklyTemplate,
       hardExtraKcal:d.hardExtraKcal,
       moderateExtraKcal:d.moderateExtraKcal,
-      lightExtraKcal:d.lightExtraKcal
+      lightExtraKcal:d.lightExtraKcal,
+      expectedUpdatedAt:d.updatedAt
     });
     draftDirty=false;
     await refresh({silent:true});
