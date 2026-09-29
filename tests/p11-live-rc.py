@@ -14,7 +14,7 @@ parser.add_argument("--out", required=True)
 args = parser.parse_args()
 out = Path(args.out)
 out.mkdir(parents=True, exist_ok=True)
-evidence = {"browser": args.browser, "checks": [], "consoleErrors": [], "pageErrors": []}
+evidence = {"browser": args.browser, "checks": [], "consoleErrors": [], "pageErrors": [], "moduleResponses": []}
 
 def save():
     (out / "results.json").write_text(json.dumps(evidence, indent=2, default=str), encoding="utf-8")
@@ -30,7 +30,12 @@ with sync_playwright() as p:
     context = browser.new_context(viewport={"width": 1280, "height": 900})
     page = context.new_page()
     page.on("console", lambda msg: evidence["consoleErrors"].append(msg.text) if msg.type == "error" else None)
-    page.on("pageerror", lambda error: evidence["pageErrors"].append(str(error)))
+    page.on("pageerror", lambda error: evidence["pageErrors"].append({"message": str(error), "stack": getattr(error, "stack", None)}))
+    page.on("response", lambda response: evidence["moduleResponses"].append({
+        "url": response.url,
+        "status": response.status,
+        "contentType": response.headers.get("content-type")
+    }) if "/diet/v2/" in response.url and (response.url.endswith(".js") or response.url.endswith(".mjs")) else None)
 
     page.goto(RC + "?p11=" + args.browser + "#today", wait_until="networkidle")
     check("RC title", "Diet Copilot 2.0" in page.title(), page.title())
