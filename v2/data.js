@@ -314,7 +314,7 @@ function renderToday(model){
 
 function renderFood(model){
   const meals=model.food.todayMeals;
-  html('foodTimeline',meals.length?meals.map(mealMarkup).join(''):emptyMarkup('No meals logged today','P2.5 is read-only. New meals still come from the canonical Diet logging workflow.'));
+  html('foodTimeline',meals.length?meals.map(mealMarkup).join(''):emptyMarkup('No meals logged today','Use search, a saved food, a recent meal, or Quick add above.'));
   text('foodTodaySummary',meals.length?`${meals.length} meal${meals.length===1?'':'s'} today`:'No meals today');
 }
 
@@ -467,6 +467,7 @@ function render(){
   renderFood(model);
   renderProgress(model);
   renderStrategy(model);
+  window.dispatchEvent(new CustomEvent('diet-v2-data-updated'));
 }
 
 function openAccount(){
