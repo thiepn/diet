@@ -125,12 +125,13 @@ export async function saveMealFromHistory(client,{mealId,name=null,requestId:exi
 }
 
 export async function saveFood(client,{
-  savedFoodId=null,name,quantityText=null,calories,protein=0,carbs=null,fat=null,fiber=null,
+  savedFoodId=null,expectedUpdatedAt=null,name,quantityText=null,calories,protein=0,carbs=null,fat=null,fiber=null,
   brand=null,barcode=null,source='manual_exact',photoUrl=null,requestId:existing
 }){
   const rid=existing??requestId('save-food');
   const data=await call(client,RPC.saveFood,{
     p_saved_food_id:savedFoodId,
+    p_expected_updated_at:expectedUpdatedAt,
     p_name:String(name??'').trim(),
     p_quantity_text:quantityText?String(quantityText).trim():null,
     p_calories:Number(calories),
