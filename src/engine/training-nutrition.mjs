@@ -76,14 +76,13 @@ function normalizeActivity(rows=[]){
 }
 function roundBalanced(targets,total,minCalories,maxCalories){
   const rounded=targets.map(v=>clamp(Math.round(v/25)*25,minCalories,maxCalories));
-  let residual=Math.round((total-rounded.reduce((s,v)=>s+v,0))/25)*25;
-  if(!residual)return rounded;
+  let residual=total-rounded.reduce((s,v)=>s+v,0);
   const order=[...rounded.keys()].sort((a,b)=>{
     const da=Math.abs(targets[a]-rounded[a]), db=Math.abs(targets[b]-rounded[b]);
     return db-da;
   });
   let guard=0;
-  while(residual!==0&&guard<100){
+  while(Math.abs(residual)>=24.999&&guard<100){
     guard++;
     let changed=false;
     for(const i of order){
@@ -93,9 +92,13 @@ function roundBalanced(targets,total,minCalories,maxCalories){
       rounded[i]=next;
       residual-=step;
       changed=true;
-      if(residual===0)break;
+      if(Math.abs(residual)<24.999)break;
     }
     if(!changed)break;
+  }
+  if(Math.abs(residual)>0.001){
+    const i=order.find(index=>rounded[index]+residual>=minCalories&&rounded[index]+residual<=maxCalories);
+    if(i!==undefined){rounded[i]+=residual;residual=0;}
   }
   return rounded;
 }
