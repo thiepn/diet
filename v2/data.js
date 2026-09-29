@@ -161,34 +161,53 @@ async function subscribeRealtime(){
   state.channel=channel.subscribe();
 }
 
+async function fetchPagedRows(table,columns,{orders=[],pageSize=1000,maxPages=50}={}){
+  const client=ensureClient();
+  const rows=[];
+  for(let page=0;page<maxPages;page++){
+    let query=client.from(table).select(columns);
+    for(const order of orders){
+      query=query.order(order.column,{ascending:order.ascending!==false,nullsFirst:Boolean(order.nullsFirst)});
+    }
+    const from=page*pageSize;
+    const to=from+pageSize-1;
+    const result=await query.range(from,to);
+    if(result.error)throw result.error;
+    const batch=result.data??[];
+    rows.push(...batch);
+    if(batch.length<pageSize)return rows;
+  }
+  throw new Error(`Diet history exceeded the safe pagination cap for ${table}. Export or archive old data before continuing.`);
+}
+
 async function fetchOwnerRows(){
   const client=ensureClient();
   const [profile,dailyLogs,meals,mealItems,weights,goalPhases,savedFoods,savedMeals,targetRecommendations,activityDaily,trainingDistribution,trainingDays]=await Promise.all([
     client.from('profiles').select('calorie_target,protein_target,goal_weight,fiber_target,desired_weekly_weight_change,adaptive_target_enabled,adaptive_min_complete_days,updated_at').maybeSingle(),
-    client.from('daily_logs').select('id,log_date,calorie_target,protein_target,status,notes,updated_at').order('log_date'),
-    client.from('meals').select('id,daily_log_id,meal_type,title,calories,protein,confidence,source,calories_low,calories_high,eaten_at,created_at,updated_at').order('eaten_at'),
-    client.from('meal_items').select('id,meal_id,saved_food_id,name,quantity_text,calories,protein,carbs,fat,fiber,calories_low,calories_high,confidence,source,sort_order,updated_at').order('sort_order'),
-    client.from('weight_entries').select('id,entry_date,weight,created_at,updated_at').order('entry_date'),
-    client.from('goal_phases').select('phase_type,start_date,end_date,calorie_target,protein_target,goal_weight,desired_weekly_weight_change,active,created_at,updated_at').order('start_date'),
-    client.from('saved_foods').select('id,name,quantity_text,calories,protein,carbs,fat,fiber,brand,barcode,favorite,use_count,last_used_at,verified_at,source,photo_url,updated_at').order('use_count',{ascending:false}),
-    client.from('saved_meals').select('id,name,meal_type,calories,protein,carbs,fat,fiber,favorite,use_count,last_used_at,is_recipe,servings,serving_text,updated_at').order('use_count',{ascending:false}),
+    fetchPagedRows('daily_logs','id,log_date,calorie_target,protein_target,status,notes,updated_at',{orders:[{column:'log_date'}]}),
+    fetchPagedRows('meals','id,daily_log_id,meal_type,title,calories,protein,confidence,source,calories_low,calories_high,eaten_at,created_at,updated_at',{orders:[{column:'eaten_at'},{column:'id'}]}),
+    fetchPagedRows('meal_items','id,meal_id,saved_food_id,name,quantity_text,calories,protein,carbs,fat,fiber,calories_low,calories_high,confidence,source,sort_order,updated_at',{orders:[{column:'meal_id'},{column:'sort_order'},{column:'id'}]}),
+    fetchPagedRows('weight_entries','id,entry_date,weight,created_at,updated_at',{orders:[{column:'entry_date'},{column:'id'}]}),
+    fetchPagedRows('goal_phases','phase_type,start_date,end_date,calorie_target,protein_target,goal_weight,desired_weekly_weight_change,active,created_at,updated_at',{orders:[{column:'start_date'},{column:'created_at'}]}),
+    fetchPagedRows('saved_foods','id,name,quantity_text,calories,protein,carbs,fat,fiber,brand,barcode,favorite,use_count,last_used_at,verified_at,source,photo_url,updated_at',{orders:[{column:'use_count',ascending:false},{column:'id'}]}),
+    fetchPagedRows('saved_meals','id,name,meal_type,calories,protein,carbs,fat,fiber,favorite,use_count,last_used_at,is_recipe,servings,serving_text,updated_at',{orders:[{column:'use_count',ascending:false},{column:'id'}]}),
     client.from('target_recommendations').select('id,generated_on,lookback_days,complete_days,logged_days,weigh_in_count,avg_calories,weekly_weight_change,estimated_maintenance,desired_weekly_weight_change,current_target,raw_recommended_target,recommended_target,rationale,status,created_at,resolved_at,decision_payload,engine_version,confidence_level,confidence_score,recommended_protein,recommended_fat,recommended_carbs,effective_date,resolution,resolved_target,applied_phase_id').order('created_at',{ascending:false}).limit(20),
     client.from('activity_daily').select('activity_date,steps,active_calories,exercise_minutes,distance_km,resting_heart_rate,source,synced_at,updated_at').order('activity_date',{ascending:false}).limit(120),
     client.from('training_distribution_settings').select('enabled,weekly_template,hard_extra_kcal,moderate_extra_kcal,light_extra_kcal,updated_at').maybeSingle(),
     client.from('training_days').select('id,training_date,day_type,status,title,duration_minutes,source,notes,created_at,updated_at').order('training_date',{ascending:false}).limit(180)
   ]);
-  for(const result of [profile,dailyLogs,meals,mealItems,weights,goalPhases,savedFoods,savedMeals,targetRecommendations,activityDaily,trainingDistribution,trainingDays]){
+  for(const result of [profile,targetRecommendations,activityDaily,trainingDistribution,trainingDays]){
     if(result.error)throw result.error;
   }
   return {
     profile:profile.data??null,
-    dailyLogs:dailyLogs.data??[],
-    meals:meals.data??[],
-    mealItems:mealItems.data??[],
-    weights:weights.data??[],
-    goalPhases:goalPhases.data??[],
-    savedFoods:savedFoods.data??[],
-    savedMeals:savedMeals.data??[],
+    dailyLogs,
+    meals,
+    mealItems,
+    weights,
+    goalPhases,
+    savedFoods,
+    savedMeals,
     targetRecommendations:targetRecommendations.data??[],
     activityDaily:activityDaily.data??[],
     trainingDistribution:trainingDistribution.data??null,
