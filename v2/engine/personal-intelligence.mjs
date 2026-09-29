@@ -130,7 +130,7 @@ export function buildPersonalIntelligence({
       value:round(proteinAdherence*100,0),unit:'%',
       tone:proteinAdherence>=0.8?'steady':proteinAdherence>=0.6?'mixed':'attention',
       confidence:confidenceFromCount(proteinEligible.length,14),evidenceDays:proteinEligible.length,
-      summary:\`Protein reached at least 90% of target on \${Math.round(proteinAdherence*proteinEligible.length)} of \${proteinEligible.length} reliable days.\`
+      summary:`Protein reached at least 90% of target on ${Math.round(proteinAdherence*proteinEligible.length)} of ${proteinEligible.length} reliable days.`
     });
   }
   if(weekendDelta!=null){
@@ -138,7 +138,7 @@ export function buildPersonalIntelligence({
       id:'weekend_intake',category:'pattern',title:'Weekend intake difference',
       value:round(weekendDelta,0),unit:'kcal/day',tone:Math.abs(weekendDelta)<150?'steady':'pattern',
       confidence:confidenceFromCount(weekend.length+weekday.length,18),evidenceDays:weekend.length+weekday.length,
-      summary:\`Reliable weekend days averaged \${weekendDelta>=0?'+':''}\${round(weekendDelta,0)} kcal versus weekdays.\`
+      summary:`Reliable weekend days averaged ${weekendDelta>=0?'+':''}${round(weekendDelta,0)} kcal versus weekdays.`
     });
   }
   if(trainingCarbDelta!=null){
@@ -146,7 +146,7 @@ export function buildPersonalIntelligence({
       id:'training_carbs',category:'training',title:'Training-day carbohydrate difference',
       value:round(trainingCarbDelta,0),unit:'g/day',tone:trainingCarbDelta>15?'steady':'neutral',
       confidence:confidenceFromCount(training.length+rest.length,14),evidenceDays:training.length+rest.length,
-      summary:\`Moderate/hard training days averaged \${trainingCarbDelta>=0?'+':''}\${round(trainingCarbDelta,0)} g carbohydrate versus rest days.\`
+      summary:`Moderate/hard training days averaged ${trainingCarbDelta>=0?'+':''}${round(trainingCarbDelta,0)} g carbohydrate versus rest days.`
     });
   }
   if(activityShift!=null){
@@ -154,7 +154,7 @@ export function buildPersonalIntelligence({
       id:'activity_shift',category:'activity',title:'Recent step baseline shift',
       value:round(activityShift*100,0),unit:'%',tone:Math.abs(activityShift)<0.15?'steady':'pattern',
       confidence:confidenceFromCount(recent7.length+prior14.length,14),evidenceDays:recent7.length+prior14.length,
-      summary:\`Recent median steps are \${activityShift>=0?'+':''}\${round(activityShift*100,0)}% versus the preceding activity baseline.\`
+      summary:`Recent median steps are ${activityShift>=0?'+':''}${round(activityShift*100,0)}% versus the preceding activity baseline.`
     });
   }
   if(activityCorrelation!=null){
@@ -162,7 +162,7 @@ export function buildPersonalIntelligence({
       id:'steps_intake_association',category:'association',title:'Steps and same-day intake',
       value:round(activityCorrelation,2),unit:'r',tone:'neutral',
       confidence:confidenceFromCount(pairedActivity.length,18),evidenceDays:pairedActivity.length,
-      summary:\`There is \${correlationLabel(activityCorrelation)} same-day association between steps and logged intake (r=\${round(activityCorrelation,2)}). This is descriptive, not causal.\`
+      summary:`There is ${correlationLabel(activityCorrelation)} same-day association between steps and logged intake (r=${round(activityCorrelation,2)}). This is descriptive, not causal.`
     });
   }
 
