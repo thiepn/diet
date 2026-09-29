@@ -19,7 +19,7 @@ async function register(){
 }
 window.addEventListener('online',()=>state.registration?.update?.().catch(()=>{}));
 window.DietV2Pwa=Object.freeze({
-  version:'1.0.0-p10',
+  version:'2.0.0-p12',
   snapshot:()=>({supported:canRegister(),ready:state.ready,error:state.error})
 });
 register();

@@ -3,24 +3,28 @@
   "app": "diet",
   "displayName": "Diet Copilot",
   "path": "/diet/",
+  "canonicalPath": "/diet/",
   "accountContract": "1.0",
   "sdkContract": "1.x",
-  "integrationMode": "certified-legacy",
-  "operationsVersion": "A7.1",
+  "integrationMode": "certified-v2-production",
+  "operationsVersion": "P12",
   "sessionAuthority": "thiepn-account",
   "degradedMode": "cached-read-only",
-  "authEntryPoints": ["google"],
-  "release": "V6.8.2",
-  "webRelease": "1.0.3",
+  "authEntryPoints": [
+    "google"
+  ],
+  "release": "2.0.0",
+  "webRelease": "2.0.0",
   "releaseChannel": "stable",
   "stable": true,
-  "productionBundle": "diet-app.js",
-  "productionStyles": "diet.css",
-  "runtimeMode": "consolidated-stable",
-  "sourceLayout": "src",
+  "productionBundle": "v2/",
+  "productionStyles": "v2/shell.css",
+  "runtimeMode": "adaptive-v2-production",
+  "legacyFallback": "/diet/legacy-v1.html",
   "health": {
     "cachedDataPreservedOnBackendFailure": true,
     "networkFailureLogsOutUser": false,
-    "writesPerformedByDashboard": false
+    "writesPerformedByDashboard": true,
+    "writesRequireExplicitConfirmation": true
   }
 }

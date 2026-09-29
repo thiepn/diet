@@ -1,37 +1,31 @@
-# Diet Copilot Web 1.0.3 — release gates
+# Diet Copilot 2.0 — P12 production release gates
 
-Date: 2026-09-17. Internal milestone: V6.8.2. Repair PR: #11.
+Date: 2026-09-29. Release: Web 2.0.0. Phase: P12 Production Promotion & Safe Cutover.
 
-This document defines the release gates. Their result is the corresponding commit's GitHub Actions run and attached JSON reports; a checked box or a version string is not evidence of a passing runtime.
+This document defines the production cutover gates. Evidence is the current commit's GitHub Actions run and attached JSON/screenshots, not a version label.
 
 ## Required automated verification
 
 | Gate | Coverage |
 | --- | --- |
-| CI | JavaScript syntax, fixed backend/product boundary, Google-only PKCE, deterministic bundles, nutrition/coaching fixtures, actual Jekyll output, size budgets |
-| Account storage | 13 unit cases for storage writes, fallback, migration, corruption and cleanup |
-| Chromium / Firefox / WebKit | 35 scenarios per engine, including tab closure and full disk-backed browser restart for localStorage and cookie-backed sessions |
-| Real service worker | Six checks: complete precache, unrelated-cache preservation, offline reload, offline new tab, callback exclusion and no runtime exceptions |
-| A7 / A8 / A9 | Operations, account consumer and platform release contracts |
-| Pages deployment | Successful deployment of the merged release |
-| Production assets | Eight public assets match the merged commit byte-for-byte, including the SDK, service worker and release manifests |
+| Deployed bytes | Canonical root shell, production manifest/service worker, all V2 runtime modules, SDK/icons and V1 rollback dependencies match the release commit byte-for-byte |
+| Chromium / Firefox / WebKit | Canonical root launches 2.0, primary routes render, account dialog works, Google authorize starts correctly, mobile navigation/food shortcuts stay one-row and no runtime errors occur |
+| OAuth relay | The shared `web-v2` relay target returns callbacks to `/diet/`, not the former RC-only `/diet/v2/` URL |
+| Compatibility alias | `/diet/v2/` remains a functional stable 2.0 alias without RC markers |
+| Legacy rollback | `/diet/legacy-v1.html` still loads the preserved V1 bundle and is not the default route |
+| Root PWA | Root worker owns `/diet/`, installs the P12 production cache and reloads Diet Copilot 2.0 offline |
+| Pages deployment | The tested commit is the commit whose bytes are publicly served |
 
-## Account regression scope
+## Safety invariants
 
-Clean startup; mocked provider navigation and explicit PKCE callback exchange; cookie-only OAuth; reload; close/reopen; full browser restart; blocked storage; storage quota; corrupted session; expired-token refresh; revoked token; backend failure; offline cached view; duplicate initialization; two-user switching; wrong-owner cached snapshot rejection; local sign-out; failed server revocation; pending-read sign-out; cross-tab sign-out through both persistent backends; cancelled OAuth; missing verifier; redacted diagnostics; clipboard fallback; desktop/mobile views; selected navigation; unrelated storage preservation; foreground resume; blocked preference storage; immediately queued refresh versus sign-out; pending realtime work during switching; native callback lifetime/matching and native entry retry.
+The canonical Supabase project remains unchanged. P12 is a frontend promotion; it does not reset or migrate nutrition records. Owner-scoped reads/writes, explicit write confirmation, deterministic nutrition calculations, offline cache ownership and the no-exercise-calorie-eat-back rule remain intact.
 
-The account suite executes the real bundled application and real Supabase SDK. Identity-provider responses and backend data are fixtures. Only the separate service-worker test allows worker interception. Browser screenshots are captured with animation disabled for stable visual inspection.
-
-## Observed backend boundary
-
-A read-only production policy inspection during this audit found RLS enabled and authenticated owner-scoped SELECT policies on the 13 inspected dashboard tables. No database migrations, policy changes, account changes, nutrition corrections or production logging operations were performed by this release audit. Historical data-integrity certifications are not repeated here as current results.
+Root and compatibility service workers have separate cache families. The production worker ignores `/diet/v2/` requests, preventing cross-scope offline-shell substitution. OAuth result URLs and callback endpoints are never cached.
 
 ## Manual verification boundaries
 
-The tests do not impersonate the user's Google account and do not reproduce every extension or site-data policy in a personal browser profile. Actual Google consent/account selection, physical Samsung Internet, installed Android companion, Health Connect and store packaging remain device/provider acceptance checks, not known code failures certified by a desktop engine test.
+Automated browsers do not impersonate the user's real Google account, Samsung Internet, Android WebView, Health Connect or Play Store installation state. Those remain provider/device acceptance checks. The browser gate does verify the canonical Supabase authorize destination and the relay destination without exchanging real credentials.
 
-Normal browser persistence cannot survive deliberate site-data deletion, private-profile destruction, explicit sign-out or server-side revocation. Account diagnostics expose the surviving backend and lifecycle state without exporting secrets.
+## Rollback
 
-## Release and rollback
-
-Merge only when all PR gates pass. After merging, require Pages success and public-asset verification. Tag the verified web commit. Preserve the existing backend and data; rollback is a reviewed frontend commit/release change, never a production database reset. Do not revive static10 compatibility scripts or temporary self-editing repair workflows.
+If P12 fails after deployment, use the preserved `/diet/legacy-v1.html` frontend immediately while reverting the production shell/service worker in a reviewed commit. Do not modify or reset the production database as part of frontend rollback.

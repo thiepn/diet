@@ -1,0 +1,81 @@
+name: P12 Production Certification
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'manifest.webmanifest'
+      - 'sw.js'
+      - 'legacy-v1.html'
+      - 'v2/**'
+      - '.well-known/thiepn-app.json'
+      - 'tests/p12-*.py'
+      - '.github/workflows/p12-production-live.yml'
+  workflow_run:
+    workflows: ['pages build and deployment']
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: p12-production
+  cancel-in-progress: true
+
+jobs:
+  release-runner:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Superseding stale P12 production certification runs."
+
+  deployed-assets:
+    if: >-
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+      - name: Verify exact public production bytes
+        env:
+          P12_PROD_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+        run: python tests/p12-deployed-production.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p12-deployed-production
+          path: p12-deployed-production.json
+          retention-days: 14
+
+  browser:
+    needs: deployed-assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install pinned browser tooling
+        run: |
+          pip install playwright==1.57.0
+          python -m playwright install --with-deps ${{ matrix.browser }}
+      - name: Certify canonical production
+        run: python tests/p12-live-production.py --browser ${{ matrix.browser }} --out p12-live/${{ matrix.browser }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p12-live-${{ matrix.browser }}
+          path: p12-live/${{ matrix.browser }}/
+          retention-days: 14

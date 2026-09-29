@@ -800,7 +800,7 @@ document.getElementById('v2AccountSignIn')?.addEventListener('click',async event
   }
 });
 document.getElementById('v2AccountSignOut')?.addEventListener('click',()=>signOutDietV2());
-document.getElementById('v2AccountProduction')?.addEventListener('click',()=>{location.href='../';});
+document.getElementById('v2AccountProduction')?.addEventListener('click',()=>{location.href='/diet/legacy-v1.html';});
 
 export function getDietV2Client(){return ensureClient();}
 export function getDietV2Model(){return state.model;}
@@ -829,7 +829,7 @@ export function getDietV2OfflineCacheInfo(){
 export function getDietV2State(){return {status:state.status,source:state.source,signedIn:Boolean(state.user),fetchedAt:state.fetchedAt};}
 
 window.DietV2Data=Object.freeze({
-  version:'2.0.0-p11-rc',
+  version:'2.0.0-p12',
   refresh,
   signInWithGoogle,
   signOut:signOutDietV2,
