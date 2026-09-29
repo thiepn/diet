@@ -23,6 +23,10 @@ create index if not exists idx_target_recommendations_user_resolved
   on public.target_recommendations(user_id,resolved_at desc)
   where resolved_at is not null;
 
+create index if not exists idx_target_recommendations_applied_phase
+  on public.target_recommendations(applied_phase_id)
+  where applied_phase_id is not null;
+
 CREATE OR REPLACE FUNCTION public.diet_app_resolve_strategy_review(p_recommendation_id uuid, p_resolution text, p_effective_date date, p_request_id text)
  RETURNS jsonb
  LANGUAGE plpgsql
