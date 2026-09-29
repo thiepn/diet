@@ -600,7 +600,7 @@ export function getDietV2OfflineCacheInfo(){
 export function getDietV2State(){return {status:state.status,source:state.source,signedIn:Boolean(state.user),fetchedAt:state.fetchedAt};}
 
 window.DietV2Data=Object.freeze({
-  version:'2.0.0-p8-ai-copilot',
+  version:'2.0.0-p9-settings-data',
   refresh,
   handleShellAction,
   snapshot:()=>({
