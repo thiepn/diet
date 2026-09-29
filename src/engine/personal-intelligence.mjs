@@ -86,7 +86,7 @@ export function buildPersonalIntelligence({
   const weekday=reliable.filter(r=>!r.weekend);
   const training=reliable.filter(r=>['moderate','hard'].includes(r.dayType));
   const rest=reliable.filter(r=>r.dayType==='rest');
-  const pairedActivity=reliable.filter(r=>r.steps!=null);
+  const pairedActivity=reliable.filter(r=>r.steps!=null&&r.date<end);
 
   const avgCalories=mean(reliable.map(r=>r.calories));
   const calorieMad=mad(reliable.map(r=>r.calories));
@@ -108,9 +108,11 @@ export function buildPersonalIntelligence({
     ?trainingCarbs-restCarbs:null;
 
   const activityCorrelation=pearson(pairedActivity.map(r=>({x:r.steps,y:r.calories})));
-  const activityRows=rows.filter(r=>r.steps!=null);
-  const recent7=activityRows.filter(r=>r.date>=addDays(end,-6));
-  const prior14=activityRows.filter(r=>r.date>=addDays(end,-20)&&r.date<addDays(end,-6));
+  const activityRows=rows.filter(r=>r.steps!=null&&r.date<end);
+  const recentStart=addDays(end,-7);
+  const priorStart=addDays(end,-21);
+  const recent7=activityRows.filter(r=>r.date>=recentStart&&r.date<end);
+  const prior14=activityRows.filter(r=>r.date>=priorStart&&r.date<recentStart);
   const recentSteps=median(recent7.map(r=>r.steps));
   const priorSteps=median(prior14.map(r=>r.steps));
   const activityShift=(recent7.length>=4&&prior14.length>=7&&recentSteps!=null&&priorSteps>0)?recentSteps/priorSteps-1:null;
