@@ -34,6 +34,7 @@ export function normalizeDietV1Rows(raw={},asOfDate=localDateKey()){
   const goalPhases=(raw.goalPhases??raw.goal_phases??[]).filter(Boolean);
   const savedFoods=(raw.savedFoods??raw.saved_foods??[]).filter(Boolean);
   const savedMeals=(raw.savedMeals??raw.saved_meals??[]).filter(Boolean);
+  const targetRecommendations=(raw.targetRecommendations??raw.target_recommendations??[]).filter(Boolean);
   const phase=activePhase(goalPhases,asOfDate);
 
   const logById=new Map();
@@ -175,6 +176,38 @@ export function normalizeDietV1Rows(raw={},asOfDate=localDateKey()){
     String(b.lastUsedAt??'').localeCompare(String(a.lastUsedAt??''))
   );
 
+  const normalizedRecommendations=targetRecommendations.map(row=>({
+    id:row.id??null,
+    generatedOn:String(row.generated_on??''),
+    lookbackDays:num(row.lookback_days),
+    completeDays:num(row.complete_days,0),
+    loggedDays:num(row.logged_days,0),
+    weighIns:num(row.weigh_in_count,0),
+    averageCalories:num(row.avg_calories),
+    weeklyWeightChange:num(row.weekly_weight_change),
+    estimatedMaintenance:num(row.estimated_maintenance),
+    desiredWeeklyWeightChange:num(row.desired_weekly_weight_change),
+    currentTarget:num(row.current_target),
+    rawTarget:num(row.raw_recommended_target),
+    recommendedTarget:num(row.recommended_target),
+    rationale:String(row.rationale??''),
+    status:String(row.status??''),
+    decision:String(row.decision_payload?.decision??''),
+    payload:row.decision_payload??{},
+    engineVersion:String(row.engine_version??''),
+    confidenceLevel:String(row.confidence_level??''),
+    confidenceScore:num(row.confidence_score),
+    recommendedProtein:num(row.recommended_protein),
+    recommendedFat:num(row.recommended_fat),
+    recommendedCarbs:num(row.recommended_carbs),
+    effectiveDate:row.effective_date??null,
+    resolution:row.resolution??null,
+    resolvedTarget:num(row.resolved_target),
+    appliedPhaseId:row.applied_phase_id??null,
+    createdAt:row.created_at??null,
+    resolvedAt:row.resolved_at??null
+  })).filter(row=>row.id).sort((a,b)=>String(b.createdAt??'').localeCompare(String(a.createdAt??'')));
+
   return {
     asOfDate,
     profile,
@@ -185,6 +218,7 @@ export function normalizeDietV1Rows(raw={},asOfDate=localDateKey()){
     normalizedWeights,
     normalizedSavedFoods,
     normalizedSavedMeals,
+    normalizedRecommendations,
     logByDate
   };
 }
@@ -225,7 +259,11 @@ export function buildDietV2ReadModel(raw={},options={}){
   const currentExpenditure=p1.estimate.current?.expenditure??null;
   const confidence=p1.estimate.confidence??{level:'building_baseline',score:0,uncertaintyKcal:null};
   const rec=p1.calorieRecommendation??{};
+  const macros=p1.macros??null;
   const currentTarget=adapted.engineInput.currentTarget??todayTarget.calories;
+  const currentEstimate=p1.estimate.current??null;
+  const openReview=normalized.normalizedRecommendations.find(r=>r.status==='pending'||r.status==='advisory')??null;
+  const lastResolvedReview=normalized.normalizedRecommendations.find(r=>r.resolvedAt)??null;
 
   const progressIntake=normalized.daily.map(day=>({
     date:day.date,
@@ -284,14 +322,33 @@ export function buildDietV2ReadModel(raw={},options={}){
       targetRateKgPerWeek:adapted.engineInput.targetRateKgPerWeek,
       currentTarget:round(currentTarget,0),
       estimatedExpenditure:currentExpenditure==null?null:round(currentExpenditure,0),
+      expenditureRangeLow:p1.estimate.current?.rangeLow??null,
+      expenditureRangeHigh:p1.estimate.current?.rangeHigh??null,
       confidenceLevel:confidence.level,
       confidenceScore:confidence.score,
       uncertaintyKcal:confidence.uncertaintyKcal??null,
+      reliableIntakeDays:confidence.reliableIntakeDays??0,
+      weighIns:confidence.weighIns??0,
+      weightSpanDays:confidence.spanDays??0,
+      observedWeeklyRate:currentEstimate?.weeklyWeightRate??null,
+      averageIntake:currentEstimate?.avgIntake??null,
       decision:rec.decision??'need_more_data',
       recommendedTarget:rec.recommendedTarget??currentTarget??null,
       rawTarget:rec.rawTarget??null,
+      targetDelta:(rec.recommendedTarget==null||currentTarget==null)?null:round(rec.recommendedTarget-currentTarget,0),
+      appliedStep:rec.appliedStep??null,
       reason:rec.reason??'More data is needed before changing the plan.',
-      remainingKg:rec.remainingKg??null
+      remainingKg:rec.remainingKg??null,
+      macros:macros?{
+        calories:macros.calories,
+        protein:macros.proteinGrams,
+        fat:macros.fatGrams,
+        carbs:macros.carbGrams
+      }:null,
+      engineVersion:p1.version,
+      openReview,
+      lastResolvedReview,
+      reviewHistory:normalized.normalizedRecommendations
     },
     meta:{
       adapter:adapted.meta,
@@ -301,7 +358,8 @@ export function buildDietV2ReadModel(raw={},options={}){
         meals:normalized.normalizedMeals.length,
         weights:normalized.normalizedWeights.length,
         savedFoods:normalized.normalizedSavedFoods.length,
-        savedMeals:normalized.normalizedSavedMeals.length
+        savedMeals:normalized.normalizedSavedMeals.length,
+        strategyReviews:normalized.normalizedRecommendations.length
       }
     }
   };
