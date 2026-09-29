@@ -298,11 +298,54 @@
 
           <article class="dc-panel dc-recommendation-shell">
             <div class="dc-panel-head">
-              <div><p class="dc-eyebrow">Recommendation</p><h3 id="strategyDecisionTitle">Need more data</h3></div>
+              <div><p class="dc-eyebrow">Adaptive review</p><h3 id="strategyDecisionTitle">Need more data</h3></div>
               <span class="dc-status-chip" id="strategyDecisionChip">Building</span>
             </div>
-            <p id="strategyDecisionReason">P1 will explain why the target should stay or change.</p>
-            <div class="dc-recommendation-target"><span>Recommended target</span><strong id="strategyRecommendedTarget">—</strong></div>
+            <p id="strategyDecisionReason">The adaptive engine will explain why the target should stay or change.</p>
+
+            <div class="dc-strategy-targets">
+              <div><span>Current</span><strong id="strategyReviewCurrent">—</strong></div>
+              <span class="dc-strategy-arrow" aria-hidden="true">→</span>
+              <div><span>Recommended</span><strong id="strategyRecommendedTarget">—</strong><small id="strategyTargetDelta"></small></div>
+            </div>
+
+            <div class="dc-strategy-evidence">
+              <div><span>Expenditure</span><strong id="strategyEvidenceTdee">—</strong><small id="strategyEvidenceRange">—</small></div>
+              <div><span>Observed rate</span><strong id="strategyObservedRate">—</strong><small id="strategyTargetRateEvidence">—</small></div>
+              <div><span>Reliable intake</span><strong id="strategyReliableDays">—</strong><small id="strategyWeighIns">—</small></div>
+              <div><span>Engine</span><strong id="strategyEngineVersion">—</strong><small id="strategyConfidenceScore">—</small></div>
+            </div>
+
+            <div class="dc-strategy-macros" id="strategyMacroGuidance">
+              <div><span>Protein</span><strong id="strategyMacroProtein">—</strong></div>
+              <div><span>Fat</span><strong id="strategyMacroFat">—</strong></div>
+              <div><span>Carbs</span><strong id="strategyMacroCarbs">—</strong></div>
+            </div>
+
+            <div class="dc-strategy-review-state" id="strategyReviewState" hidden></div>
+
+            <div class="dc-strategy-actions">
+              <button class="dc-secondary-action" id="strategyStageReview" type="button">Review recommendation</button>
+              <label class="dc-effective-date" id="strategyEffectiveDateWrap" hidden>
+                <span>Apply</span>
+                <select id="strategyEffectiveDate">
+                  <option value="today">Today</option>
+                  <option value="tomorrow">Tomorrow</option>
+                </select>
+              </label>
+              <button class="dc-secondary-action" id="strategyKeepCurrent" type="button" hidden>Keep current</button>
+              <button class="dc-primary-action" id="strategyAccept" type="button" hidden>Accept target</button>
+            </div>
+          </article>
+
+          <article class="dc-panel dc-strategy-history-panel">
+            <div class="dc-panel-head">
+              <div><p class="dc-eyebrow">History</p><h3>Strategy reviews</h3></div>
+              <span class="dc-panel-meta" id="strategyHistoryCount">No reviews yet</span>
+            </div>
+            <div class="dc-strategy-history" id="strategyHistory">
+              <div class="dc-food-empty">Completed reviews will appear here without rewriting past targets.</div>
+            </div>
           </article>
         </section>
 
@@ -443,5 +486,6 @@
   <script type="module" src="./food.js"></script>
   <script type="module" src="./meal-editor.js"></script>
   <script type="module" src="./food-management.js"></script>
+  <script type="module" src="./strategy-actions.js"></script>
 </body>
 </html>
