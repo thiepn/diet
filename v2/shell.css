@@ -620,6 +620,7 @@
     --accent:#2d6a49;--accent-strong:#1e5237;--accent-soft:#e7f1ea;--focus:#2d6a49;
     --shadow:0 8px 30px rgba(31,54,39,.07)
   }
+  html[data-theme="light"]{color-scheme:light}
   html[data-theme="light"] body{background:var(--bg)}
   html[data-theme="light"] .dc-sidebar{background:rgba(251,252,251,.96)}
   html[data-theme="light"] .dc-topbar{background:rgba(245,247,245,.88)}
@@ -634,6 +635,7 @@
     --accent:#7bbb91;--accent-strong:#a0d2af;--accent-soft:#203b2b;--focus:#7bbb91;
     --shadow:0 12px 30px rgba(0,0,0,.24)
   }
+  html[data-theme="dark"]{color-scheme:dark}
   html[data-theme="dark"] body{background:var(--bg)}
   html[data-theme="dark"] .dc-sidebar{background:rgba(17,21,18,.96)}
   html[data-theme="dark"] .dc-topbar{background:rgba(17,21,18,.88)}
