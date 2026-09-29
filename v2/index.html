@@ -145,26 +145,75 @@
             <div>
               <p class="dc-eyebrow">Food</p>
               <h2 id="foodHeading">Log food without friction</h2>
-              <p>Search, recent foods, saved meals, barcode and quick entry share one predictable surface.</p>
+              <p>Frequent foods are one tap away; search stays local and instant; exact manual entries become reusable food memory.</p>
             </div>
-            <button class="dc-primary-action" type="button" data-coming="Food entry is connected in a later phase.">
+            <button class="dc-primary-action" id="foodQuickAddHeader" type="button">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-              Add food
+              Quick add
             </button>
           </div>
 
-          <article class="dc-search-shell">
-            <button class="dc-search-button" type="button" data-coming="Food search is connected in P3." aria-label="Search foods">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
-              <span>Search foods, meals or brands</span>
-              <kbd>/</kbd>
-            </button>
-            <div class="dc-quick-actions" aria-label="Food shortcuts">
-              <button type="button" data-coming="Recent foods arrive with the Food workflow."><span aria-hidden="true">↺</span>Recent</button>
-              <button type="button" data-coming="Saved meals arrive with the Food workflow."><span aria-hidden="true">☆</span>Saved meals</button>
-              <button type="button" data-coming="Barcode scanning arrives with the Food workflow."><span aria-hidden="true">▥</span>Barcode</button>
-              <button type="button" data-coming="Natural-language logging arrives with the Copilot workflow."><span aria-hidden="true">✦</span>Describe meal</button>
+          <article class="dc-search-shell dc-food-capture">
+            <div class="dc-food-meal-types" role="group" aria-label="Meal type">
+              <button type="button" data-food-meal-type="Breakfast" aria-pressed="false">Breakfast</button>
+              <button type="button" data-food-meal-type="Lunch" aria-pressed="false">Lunch</button>
+              <button type="button" data-food-meal-type="Dinner" aria-pressed="false">Dinner</button>
+              <button type="button" data-food-meal-type="Snack" aria-pressed="false">Snack</button>
             </div>
+
+            <label class="dc-food-search" for="foodSearchInput">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+              <input id="foodSearchInput" type="search" autocomplete="off" placeholder="Search foods, meals, brands or barcode" aria-controls="foodSearchResults">
+              <kbd>/</kbd>
+            </label>
+            <div class="dc-food-search-results" id="foodSearchResults" hidden></div>
+
+            <div class="dc-quick-actions" aria-label="Food shortcuts">
+              <button type="button" id="foodShortcutRecent"><span aria-hidden="true">↺</span>Recent</button>
+              <button type="button" id="foodShortcutSaved"><span aria-hidden="true">☆</span>Saved meals</button>
+              <button type="button" id="foodShortcutBarcode"><span aria-hidden="true">▥</span>Barcode</button>
+              <button type="button" id="foodShortcutQuick"><span aria-hidden="true">+</span>Quick add</button>
+            </div>
+
+            <form class="dc-quick-add-form" id="foodQuickAddForm" hidden>
+              <div class="dc-form-grid">
+                <label class="dc-field"><span>Food</span><input id="quickFoodName" name="name" maxlength="160" required placeholder="e.g. Greek yogurt"></label>
+                <label class="dc-field"><span>Quantity</span><input name="quantity" maxlength="120" placeholder="e.g. 250 g"></label>
+                <label class="dc-field"><span>Calories</span><input name="calories" type="number" min="0" max="10000" step="1" inputmode="decimal" required placeholder="0"></label>
+                <label class="dc-field"><span>Protein</span><input name="protein" type="number" min="0" max="1000" step="0.1" inputmode="decimal" placeholder="0"></label>
+              </div>
+              <div class="dc-form-actions">
+                <span>Exact entries are saved to your existing Diet food memory.</span>
+                <button class="dc-primary-action" type="submit">Add now</button>
+              </div>
+            </form>
+
+            <div class="dc-write-status" id="foodWriteStatus" role="status" aria-live="polite" hidden></div>
+          </article>
+
+          <div class="dc-food-grid">
+            <article class="dc-panel" id="foodQuickFoodsPanel">
+              <div class="dc-panel-head">
+                <div><p class="dc-eyebrow">Fastest</p><h3>Frequent foods</h3></div>
+                <span class="dc-status-chip">1 tap</span>
+              </div>
+              <div class="dc-log-options" id="foodQuickFoods"><div class="dc-food-empty">Loading saved foods…</div></div>
+            </article>
+
+            <article class="dc-panel" id="foodSavedMealsPanel">
+              <div class="dc-panel-head">
+                <div><p class="dc-eyebrow">Saved</p><h3>Meals & recipes</h3></div>
+              </div>
+              <div class="dc-log-options" id="foodSavedMeals"><div class="dc-food-empty">Loading saved meals…</div></div>
+            </article>
+          </div>
+
+          <article class="dc-panel dc-food-recent-panel">
+            <div class="dc-panel-head">
+              <div><p class="dc-eyebrow">Repeat</p><h3>Recent meals</h3></div>
+              <span class="dc-panel-meta">Exact copy</span>
+            </div>
+            <div class="dc-log-options" id="foodRecentMeals"><div class="dc-food-empty">Loading recent meals…</div></div>
           </article>
 
           <article class="dc-panel">
@@ -173,7 +222,7 @@
               <span class="dc-panel-meta" id="foodTodaySummary">Connecting…</span>
             </div>
             <div class="dc-meal-list" id="foodTimeline">
-              <div class="dc-empty-state"><div><strong>Connecting meal history</strong><p>Food remains read-only in P2.5.</p></div></div>
+              <div class="dc-empty-state"><div><strong>Connecting meal history</strong><p>Use the fast logging controls above once your account is ready.</p></div></div>
             </div>
           </article>
         </section>
@@ -307,5 +356,6 @@
   <script src="../vendor/supabase-2.116.0.js"></script>
   <script type="module" src="./shell.js"></script>
   <script type="module" src="./data.js"></script>
+  <script type="module" src="./food.js"></script>
 </body>
 </html>
