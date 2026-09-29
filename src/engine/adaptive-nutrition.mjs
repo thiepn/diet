@@ -7,6 +7,9 @@ export const DEFAULT_CONFIG = Object.freeze({
   expenditureWindowDays: 20,
   minimumWeightSpanDays: 14,
   minimumReliableIntakeDays: 10,
+  minimumEffectiveIntakeDays: 4,
+  mediumConfidenceEffectiveIntakeDays: 8,
+  highConfidenceEffectiveIntakeDays: 12,
   targetReliableIntakeDays: 16,
   targetWeighInsPerWeek: 3,
   energyDensityKcalPerKg: 7700,
@@ -170,7 +173,7 @@ export function estimateExpenditure({weights=[],intakeDays=[],initialTdee=null,e
     const intake=weightedIntakeMean(assessed,start,point.date);
     const observedCount=t.filter(x=>x.observed).length;
     const span=dayDiff(t.at(-1).date,t[0].date);
-    if(span<cfg.minimumWeightSpanDays || intake.effectiveDays<cfg.minimumReliableIntakeDays || observedCount<4) continue;
+    if(span<cfg.minimumWeightSpanDays || intake.rows.length<cfg.minimumReliableIntakeDays || intake.effectiveDays<cfg.minimumEffectiveIntakeDays || observedCount<4) continue;
     const fit=weightedLinearFit(t.map(x=>({x:dayDiff(x.date,t[0].date),y:x.trendWeight})),span,cfg.trendHalfLifeDays);
     const weeklyRate=fit.slope*7;
     const energyChangePerDay=weeklyRate*cfg.energyDensityKcalPerKg/7;
@@ -232,7 +235,10 @@ function buildConfidence({trend,assessed,series,cfg}){
   const time=clamp(span/cfg.expenditureWindowDays,0,1);
   const stability=clamp(1-noise/0.35,0,1);
   const score=round(0.38*intake+0.30*weight+0.17*time+0.15*stability,3);
-  const level=score>=0.82?'high':score>=0.62?'medium':score>=0.42?'low':'building_baseline';
+  let level='building_baseline';
+  if(reliableWeight>=cfg.highConfidenceEffectiveIntakeDays && score>=0.82) level='high';
+  else if(reliableWeight>=cfg.mediumConfidenceEffectiveIntakeDays && score>=0.62) level='medium';
+  else if(reliableWeight>=cfg.minimumEffectiveIntakeDays && score>=0.42) level='low';
   const recentObservations=series.slice(-10).map(x=>x.observedExpenditure).filter(Number.isFinite);
   const observationSpread=recentObservations.length>=3 ? 1.4826*mad(recentObservations) : 250;
   const uncertaintyKcal=round(clamp(Math.max(50,observationSpread)+250*(1-score),50,500),0);
