@@ -133,7 +133,10 @@
               </div>
               <div class="dc-strategy-placeholder">
                 <div><span>Goal</span><strong id="todayStrategyGoal">—</strong></div>
-                <div><span>Target</span><strong id="todayStrategyTarget">—</strong></div>
+                <div><span>Average target</span><strong id="todayStrategyTarget">—</strong></div>
+                <div><span>Today</span><strong id="todayTrainingTarget">—</strong></div>
+                <div><span>Day type</span><strong id="todayTrainingType">—</strong></div>
+                <div><span>Activity</span><strong id="todayActivityContext">—</strong></div>
                 <div><span>Confidence</span><strong id="todayStrategyConfidence">—</strong></div>
               </div>
             </article>
@@ -347,6 +350,82 @@
               <div class="dc-food-empty">Completed reviews will appear here without rewriting past targets.</div>
             </div>
           </article>
+
+          <div class="dc-two-column dc-two-column--training">
+            <article class="dc-panel dc-training-panel">
+              <div class="dc-panel-head">
+                <div><p class="dc-eyebrow">Training nutrition</p><h3>Shift fuel, not weekly energy</h3></div>
+                <span class="dc-status-chip" id="trainingDistributionStatus">Off</span>
+              </div>
+              <p class="dc-panel-copy">Put more calories and carbs on harder training days while keeping the accepted seven-day calorie total unchanged.</p>
+
+              <label class="dc-toggle-row">
+                <span><strong>Training-day distribution</strong><small>P1/P5 still own the average calorie target.</small></span>
+                <input id="trainingDistributionEnabled" type="checkbox" role="switch">
+              </label>
+
+              <div class="dc-training-shifts">
+                <label><span>Hard</span><select id="trainingHardShift"><option value="50">+50</option><option value="75">+75</option><option value="100">+100</option><option value="125">+125</option><option value="150" selected>+150</option><option value="175">+175</option><option value="200">+200</option><option value="225">+225</option><option value="250">+250</option><option value="275">+275</option><option value="300">+300</option></select></label>
+                <label><span>Moderate</span><select id="trainingModerateShift"><option value="25">+25</option><option value="50">+50</option><option value="75" selected>+75</option><option value="100">+100</option><option value="125">+125</option><option value="150">+150</option><option value="175">+175</option><option value="200">+200</option><option value="225">+225</option><option value="250">+250</option></select></label>
+                <label><span>Light</span><select id="trainingLightShift"><option value="0">0</option><option value="25" selected>+25</option><option value="50">+50</option><option value="75">+75</option><option value="100">+100</option><option value="125">+125</option><option value="150">+150</option></select></label>
+              </div>
+
+              <div class="dc-training-week" id="trainingWeekPlanner" aria-label="Weekly training-day plan"></div>
+
+              <div class="dc-training-policy">
+                <div><span>Weekly base</span><strong id="trainingWeeklyBase">—</strong></div>
+                <div><span>Distributed</span><strong id="trainingWeeklyDistributed">—</strong></div>
+                <div><span>Difference</span><strong id="trainingWeeklyDifference">—</strong></div>
+              </div>
+
+              <div class="dc-strategy-actions dc-training-save-row">
+                <button class="dc-primary-action" id="trainingSaveDistribution" type="button">Save distribution</button>
+              </div>
+            </article>
+
+            <article class="dc-panel dc-activity-panel" id="strategyActivityPanel">
+              <div class="dc-panel-head">
+                <div><p class="dc-eyebrow">Activity context</p><h3>Health & movement</h3></div>
+                <span class="dc-status-chip" id="activityContextChip">Building</span>
+              </div>
+              <p class="dc-panel-copy">Steps and device activity explain unusual weeks; they do not get added back to today's calorie budget.</p>
+
+              <div class="dc-activity-grid">
+                <div><span>Steps</span><strong id="activitySteps">—</strong><small id="activityStepsBaseline">—</small></div>
+                <div><span>Active calories</span><strong id="activityCalories">—</strong><small id="activityCaloriesBaseline">—</small></div>
+                <div><span>Exercise</span><strong id="activityExercise">—</strong><small id="activityExerciseBaseline">—</small></div>
+                <div><span>Relative load</span><strong id="activityRelativeLoad">—</strong><small id="activityLastSync">—</small></div>
+              </div>
+
+              <div class="dc-activity-policy-note">
+                <strong>No exercise-calorie eat-back</strong>
+                <span>Sustained activity changes are absorbed by the adaptive expenditure engine through real intake and weight outcomes.</span>
+              </div>
+
+              <div class="dc-native-health-state" id="v2HealthConnectState">
+                <span>Health Connect</span><strong id="v2HealthConnectLabel">Android app only</strong>
+              </div>
+              <div class="dc-strategy-actions">
+                <button class="dc-secondary-action" id="v2HealthConnectConnect" type="button" hidden>Connect Health Connect</button>
+                <button class="dc-secondary-action" id="v2HealthConnectSync" type="button" hidden>Sync activity</button>
+              </div>
+            </article>
+          </div>
+
+          <article class="dc-panel dc-today-training-panel">
+            <div class="dc-panel-head">
+              <div><p class="dc-eyebrow">Today override</p><h3>What kind of training day is today?</h3></div>
+              <span class="dc-panel-meta" id="todayTrainingOverrideMeta">Using weekly template</span>
+            </div>
+            <div class="dc-training-today-form">
+              <label><span>Day type</span><select id="todayTrainingOverrideType"><option value="rest">Rest</option><option value="light">Light</option><option value="moderate">Moderate</option><option value="hard">Hard</option></select></label>
+              <label><span>Status</span><select id="todayTrainingOverrideStatus"><option value="planned">Planned</option><option value="completed">Completed</option><option value="skipped">Skipped</option></select></label>
+              <label><span>Duration</span><input id="todayTrainingDuration" type="number" min="0" max="1440" step="5" placeholder="minutes"></label>
+              <label class="dc-field--wide"><span>Label</span><input id="todayTrainingTitle" maxlength="120" placeholder="e.g. Lower body"></label>
+              <button class="dc-primary-action" id="todayTrainingSave" type="button">Save today</button>
+              <button class="dc-secondary-action" id="todayTrainingClear" type="button" hidden>Use template</button>
+            </div>
+          </article>
         </section>
 
         <section class="dc-view" data-view="more" hidden aria-labelledby="moreHeading">
@@ -360,7 +439,7 @@
 
           <div class="dc-more-grid">
             <button class="dc-more-card" type="button" data-open-food-library><span class="dc-more-icon">◎</span><span><strong>Foods & meals</strong><small>Custom foods, favorites and saved meals</small></span><span>›</span></button>
-            <button class="dc-more-card" type="button" data-coming="Integrations are connected later."><span class="dc-more-icon">⇄</span><span><strong>Integrations</strong><small>Health data and connected services</small></span><span>›</span></button>
+            <button class="dc-more-card" id="moreIntegrationsButton" type="button"><span class="dc-more-icon">⇄</span><span><strong>Integrations</strong><small>Health Connect and activity context</small></span><span>›</span></button>
             <button class="dc-more-card" type="button" data-coming="Body measurements are connected later."><span class="dc-more-icon">⌁</span><span><strong>Body measurements</strong><small>Weight and measurement history</small></span><span>›</span></button>
             <button class="dc-more-card" type="button" data-shell-action="account"><span class="dc-more-icon">◉</span><span><strong>Account</strong><small>THIEPN account and sync status</small></span><span>›</span></button>
             <button class="dc-more-card" type="button" data-coming="Appearance settings are connected later."><span class="dc-more-icon">◐</span><span><strong>Appearance</strong><small>Theme and display preferences</small></span><span>›</span></button>
@@ -487,5 +566,6 @@
   <script type="module" src="./meal-editor.js"></script>
   <script type="module" src="./food-management.js"></script>
   <script type="module" src="./strategy-actions.js"></script>
+  <script type="module" src="./training-actions.js"></script>
 </body>
 </html>
