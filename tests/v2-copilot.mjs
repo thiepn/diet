@@ -53,5 +53,9 @@ assert.match(edge,/Deno\.env\.get\("DIET_COPILOT_AI_API_KEY"\)\|\|Deno\.env\.get
 assert.doesNotMatch(edge,/SUPABASE_SERVICE_ROLE_KEY|SUPABASE_SECRET_KEYS|SUPABASE_DB_URL/,'P8 Edge Function must not receive privileged database credentials.');
 assert.doesNotMatch(edge,/\.from\(|\.rpc\(|postgres\(/,'P8 Edge Function must not query or mutate the database.');
 assert.match(edge,/cleanAction\(value\.action,context\)/,'P8 Edge Function must validate proposed actions before returning them.');
+assert.match(edge,/BASIS_KEYS=new Set/,'P8 Edge Function must use a trusted evidence-key allowlist.');
+assert.match(edge,/function cleanBasis\(basis:any,context:any\)/,'P8 Edge Function must validate evidence keys.');
+assert.match(edge,/Never provide a basis value/i,'P8 prompt must forbid model-generated evidence values.');
+assert.doesNotMatch(edge,/"basis": \[\{"label":"string","value":"string"\}\]/,'P8 Edge schema must not accept arbitrary evidence values.');
 
 console.log('Diet Copilot 2.0 P8 AI Copilot integration tests passed.');
