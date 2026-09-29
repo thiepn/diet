@@ -148,7 +148,7 @@ async function subscribeRealtime(){
     state.channel=null;
   }
   let channel=state.client.channel(`diet-v2-read-${state.user.id}`);
-  for(const table of ['profiles','daily_logs','meals','meal_items','weight_entries','goal_phases','saved_foods','saved_meals']){
+  for(const table of ['profiles','daily_logs','meals','meal_items','weight_entries','goal_phases','saved_foods','saved_meals','target_recommendations']){
     channel=channel.on('postgres_changes',{event:'*',schema:'public',table},()=>{
       clearTimeout(state.realtimeTimer);
       state.realtimeTimer=setTimeout(()=>refresh({silent:true}).catch(()=>{}),450);
@@ -159,7 +159,7 @@ async function subscribeRealtime(){
 
 async function fetchOwnerRows(){
   const client=ensureClient();
-  const [profile,dailyLogs,meals,mealItems,weights,goalPhases,savedFoods,savedMeals]=await Promise.all([
+  const [profile,dailyLogs,meals,mealItems,weights,goalPhases,savedFoods,savedMeals,targetRecommendations]=await Promise.all([
     client.from('profiles').select('calorie_target,protein_target,goal_weight,fiber_target,desired_weekly_weight_change,adaptive_target_enabled,adaptive_min_complete_days,updated_at').maybeSingle(),
     client.from('daily_logs').select('id,log_date,calorie_target,protein_target,status,notes,updated_at').order('log_date'),
     client.from('meals').select('id,daily_log_id,meal_type,title,calories,protein,confidence,source,calories_low,calories_high,eaten_at,created_at,updated_at').order('eaten_at'),
@@ -167,9 +167,10 @@ async function fetchOwnerRows(){
     client.from('weight_entries').select('id,entry_date,weight,created_at,updated_at').order('entry_date'),
     client.from('goal_phases').select('phase_type,start_date,end_date,calorie_target,protein_target,goal_weight,desired_weekly_weight_change,active,created_at,updated_at').order('start_date'),
     client.from('saved_foods').select('id,name,quantity_text,calories,protein,carbs,fat,fiber,brand,barcode,favorite,use_count,last_used_at,verified_at,source,photo_url,updated_at').order('use_count',{ascending:false}),
-    client.from('saved_meals').select('id,name,meal_type,calories,protein,carbs,fat,fiber,favorite,use_count,last_used_at,is_recipe,servings,serving_text,updated_at').order('use_count',{ascending:false})
+    client.from('saved_meals').select('id,name,meal_type,calories,protein,carbs,fat,fiber,favorite,use_count,last_used_at,is_recipe,servings,serving_text,updated_at').order('use_count',{ascending:false}),
+    client.from('target_recommendations').select('id,generated_on,lookback_days,complete_days,logged_days,weigh_in_count,avg_calories,weekly_weight_change,estimated_maintenance,desired_weekly_weight_change,current_target,raw_recommended_target,recommended_target,rationale,status,created_at,resolved_at,decision_payload,engine_version,confidence_level,confidence_score,recommended_protein,recommended_fat,recommended_carbs,effective_date,resolution,resolved_target,applied_phase_id').order('created_at',{ascending:false}).limit(20)
   ]);
-  for(const result of [profile,dailyLogs,meals,mealItems,weights,goalPhases,savedFoods,savedMeals]){
+  for(const result of [profile,dailyLogs,meals,mealItems,weights,goalPhases,savedFoods,savedMeals,targetRecommendations]){
     if(result.error)throw result.error;
   }
   return {
@@ -180,7 +181,8 @@ async function fetchOwnerRows(){
     weights:weights.data??[],
     goalPhases:goalPhases.data??[],
     savedFoods:savedFoods.data??[],
-    savedMeals:savedMeals.data??[]
+    savedMeals:savedMeals.data??[],
+    targetRecommendations:targetRecommendations.data??[]
   };
 }
 
