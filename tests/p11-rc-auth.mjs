@@ -13,7 +13,7 @@ for(const id of ['v2AccountSignIn','v2AccountSignOut','v2AccountRefresh','v2Acco
 assert.match(html,/Continue with Google/);
 assert.match(html,/Open production v1/);
 
-assert.match(data,/DIET_V2_AUTH_RELAY='https:\/\/thiepn\.dev\/WORDSTRIKE\/'/);
+assert.match(data,/DIET_V2_AUTH_RELAY='https:\/\/thiepn\.dev\/wordstrike\/'/);
 assert.match(data,/DIET_V2_OAUTH_TARGET_KEY='diet-copilot:oauth-target-v2'/);
 assert.match(data,/sessionStorage\.setItem\(DIET_V2_OAUTH_TARGET_KEY,'web-v2'\)/);
 assert.match(data,/auth\.signInWithOAuth\(\{\s*provider:'google'/s);
