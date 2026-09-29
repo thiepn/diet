@@ -587,6 +587,49 @@
     </form>
   </dialog>
 
+  <button class="dc-copilot-fab" id="copilotOpen" type="button" aria-haspopup="dialog" aria-controls="copilotDialog" aria-label="Open Diet Copilot">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 13.8 8l4.7 1.7-4.7 1.8L12 16l-1.8-4.5-4.7-1.8L10.2 8 12 3.5Z"/><path d="m18.5 15 .9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9.9-2.1Z"/></svg>
+    <span>Copilot</span>
+  </button>
+
+  <dialog class="dc-copilot-dialog" id="copilotDialog" aria-labelledby="copilotHeading">
+    <div class="dc-copilot-card">
+      <header class="dc-copilot-head">
+        <div>
+          <p class="dc-eyebrow">P8 · AI Copilot</p>
+          <h2 id="copilotHeading">Ask about your nutrition</h2>
+        </div>
+        <div class="dc-copilot-head-actions">
+          <span class="dc-status-chip" id="copilotMode">Ready</span>
+          <button class="dc-icon-button" id="copilotClose" type="button" aria-label="Close Copilot">×</button>
+        </div>
+      </header>
+
+      <div class="dc-copilot-trust">
+        <strong>Trusted calculations stay deterministic.</strong>
+        <span>Copilot explains P1–P7 results. It cannot silently change targets or invent nutrition values. Remote questions use only a compact derived snapshot; chat history stays in this browser session.</span>
+      </div>
+
+      <div class="dc-copilot-quick" aria-label="Suggested Copilot questions">
+        <button type="button" data-copilot-prompt="How am I doing today?">How am I doing?</button>
+        <button type="button" data-copilot-prompt="How many calories and how much protein do I have remaining today?">What can I eat?</button>
+        <button type="button" data-copilot-prompt="Why is my current calorie target what it is?">Why this target?</button>
+        <button type="button" data-copilot-prompt="What personal patterns are currently supported by my data?">My patterns</button>
+      </div>
+
+      <div class="dc-copilot-messages" id="copilotMessages" role="log" aria-live="polite" aria-relevant="additions"></div>
+
+      <div class="dc-copilot-status" id="copilotStatus" hidden></div>
+
+      <form class="dc-copilot-form" id="copilotForm">
+        <label class="dc-sr-only" for="copilotInput">Ask Diet Copilot</label>
+        <textarea id="copilotInput" rows="1" maxlength="800" placeholder="Ask about today, your target, patterns, or a saved meal…" required></textarea>
+        <button class="dc-primary-action" id="copilotSend" type="submit">Send</button>
+      </form>
+      <p class="dc-copilot-footnote">Known saved foods/meals can be proposed for logging, but every write requires your confirmation.</p>
+    </div>
+  </dialog>
+
   <div class="dc-toast" data-toast role="status" aria-live="polite"></div>
   <script src="../vendor/supabase-2.116.0.js"></script>
   <script type="module" src="./shell.js"></script>
@@ -596,5 +639,6 @@
   <script type="module" src="./food-management.js"></script>
   <script type="module" src="./strategy-actions.js"></script>
   <script type="module" src="./training-actions.js"></script>
+  <script type="module" src="./copilot.js"></script>
 </body>
 </html>
