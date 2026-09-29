@@ -96,7 +96,7 @@ with sync_playwright() as p:
     check("Google sign-in targets canonical Supabase authorize", any(url.startswith(SUPABASE + "/auth/v1/authorize") for url in auth_requests), auth_requests)
     signin.close()
 
-    mobile = browser.new_context(viewport={"width": 390, "height": 844}, is_mobile=True)
+    mobile = browser.new_context(viewport={"width": 390, "height": 844})
     mp = mobile.new_page()
     mp.goto(RC + "#food", wait_until="networkidle")
     nav_boxes = mp.locator(".dc-bottom-nav [data-route]").evaluate_all("(els) => els.map(e => e.getBoundingClientRect()).map(r => ({top:r.top,bottom:r.bottom,left:r.left,right:r.right}))")
