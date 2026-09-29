@@ -153,4 +153,24 @@ function scenario({start='2026-08-01',days=42,startWeight=84,tdee=2800,intake=28
   assert.ok(runAdaptiveNutritionEngine(input).macros);
 }
 
+
+{
+  const e=estimateExpenditure({...scenario({tdee:2800,intake:2800})});
+  assert.ok(e.current);
+  assert.ok(e.current.expenditure>2500,'missing initial TDEE must not become zero');
+}
+
+{
+  const r=recommendCalories({expenditure:2800,currentTarget:null,goalMode:'maintain',confidence:{score:.9,level:'high'}});
+  assert.equal(r.decision,'set_initial_target');
+  assert.equal(r.recommendedTarget,2800);
+  assert.equal(recommendCalories({expenditure:null,currentTarget:null}).recommendedTarget,null);
+}
+
+{
+  assert.equal(computeMacroTargets({calories:null,bodyWeightKg:80}),null);
+  assert.equal(computeMacroTargets({calories:2600,bodyWeightKg:null}),null);
+  assert.equal(projectGoal({currentTrendWeight:null,goalWeight:80,targetRateKgPerWeek:-0.3,startDate:'2026-09-29'}),null);
+}
+
 console.log('Diet Copilot 2.0 P1 adaptive nutrition engine tests passed.');
