@@ -1,6 +1,7 @@
 import { mapLegacyDietData } from './engine/legacy-data-adapter.mjs';
 import { runAdaptiveNutritionEngine } from './engine/adaptive-nutrition.mjs';
 import { buildTrainingNutritionPlan } from './engine/training-nutrition.mjs';
+import { buildPersonalIntelligence } from './engine/personal-intelligence.mjs';
 
 function finite(value){
   return value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value));
@@ -111,6 +112,9 @@ export function normalizeDietV1Rows(raw={},asOfDate=localDateKey()){
     const dayMeals=mealsByDate.get(date)??[];
     const calories=dayMeals.reduce((s,m)=>s+m.calories,0);
     const protein=dayMeals.reduce((s,m)=>s+m.protein,0);
+    const carbs=dayMeals.reduce((sum,m)=>sum+(m.items??[]).reduce((s,i)=>s+(num(i.carbs,0)||0),0),0);
+    const fat=dayMeals.reduce((sum,m)=>sum+(m.items??[]).reduce((s,i)=>s+(num(i.fat,0)||0),0),0);
+    const fiber=dayMeals.reduce((sum,m)=>sum+(m.items??[]).reduce((s,i)=>s+(num(i.fiber,0)||0),0),0);
     const uncertaintyKcal=dayMeals.reduce((sum,m)=>{
       const low=m.caloriesLow??m.calories;
       const high=m.caloriesHigh??m.calories;
@@ -124,6 +128,9 @@ export function normalizeDietV1Rows(raw={},asOfDate=localDateKey()){
       meals:dayMeals.length,
       calories,
       protein,
+      carbs,
+      fat,
+      fiber,
       uncertainty_kcal:uncertaintyKcal
     };
   });
@@ -280,6 +287,16 @@ export function buildDietV2ReadModel(raw={},options={}){
     activity:normalized.activityDaily
   });
   const effectiveTodayTarget=p6.today?.targetCalories??todayTarget.calories;
+  const p7=buildPersonalIntelligence({
+    asOfDate,
+    daily:normalized.daily,
+    assessedIntake:p1.estimate.assessedIntake,
+    trendWeights:p1.estimate.trend,
+    activity:normalized.activityDaily,
+    trainingSettings:normalized.trainingDistribution??{},
+    trainingDays:normalized.trainingDays,
+    windowDays:28
+  });
   const currentEstimate=p1.estimate.current??null;
   const openReview=normalized.normalizedRecommendations.find(r=>r.status==='pending'||r.status==='advisory')??null;
   const lastResolvedReview=normalized.normalizedRecommendations.find(r=>r.resolvedAt)??null;
@@ -338,7 +355,8 @@ export function buildDietV2ReadModel(raw={},options={}){
       trendWeights:p1.estimate.trend.map(w=>({date:w.date,value:round(w.trendWeight,3),observed:Boolean(w.observed)})),
       expenditure:p1.estimate.series.map(x=>({date:x.date,value:round(x.expenditure,0),confidence:round(x.measurementConfidence,3)})),
       intake:progressIntake,
-      goalProjection:p1.goalProjection
+      goalProjection:p1.goalProjection,
+      intelligence:p7
     },
     strategy:{
       goalMode:adapted.engineInput.goalMode,
@@ -371,6 +389,7 @@ export function buildDietV2ReadModel(raw={},options={}){
         carbs:macros.carbGrams
       }:null,
       engineVersion:p1.version,
+      intelligenceVersion:p7.version,
       openReview,
       lastResolvedReview,
       reviewHistory:normalized.normalizedRecommendations,
@@ -386,7 +405,8 @@ export function buildDietV2ReadModel(raw={},options={}){
         activity:p6.activityContext,
         policy:p6.policy,
         trainingDays:normalized.trainingDays
-      }
+      },
+      personalIntelligence:p7
     },
     meta:{
       adapter:adapted.meta,
