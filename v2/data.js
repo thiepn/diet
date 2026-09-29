@@ -11,6 +11,10 @@ const CACHE_KEY='diet-copilot-v2-read-cache-v2';
 const LEGACY_CACHE_KEYS=['diet-copilot-v2-read-cache-v1'];
 const CACHE_VERSION=2;
 const OFFLINE_HISTORY_DAYS=400;
+const DIET_V2_AUTH_RELAY='https://thiepn.dev/WORDSTRIKE/';
+const DIET_V2_OAUTH_TARGET_KEY='diet-copilot:oauth-target-v2';
+const DIET_V2_OAUTH_FLOW_KEY='diet-copilot:oauth-flow-v2';
+const DIET_V2_OAUTH_QUERY_KEYS=['code','sb_flow_id','error','error_code','error_description'];
 const state={
   client:null,
   authSubscription:null,
@@ -102,6 +106,100 @@ function ensureClient(){
   state.authSubscription=data?.subscription??null;
   return state.client;
 }
+function oauthCallback(){
+  const url=new URL(location.href);
+  return {
+    url,
+    code:url.searchParams.get('code'),
+    flowId:url.searchParams.get('sb_flow_id'),
+    error:url.searchParams.get('error_code')||url.searchParams.get('error')||(url.searchParams.has('error_description')?'oauth_error':null),
+    description:url.searchParams.get('error_description')
+  };
+}
+function stripOAuthCallback(url){
+  const clean=new URL(url.href);
+  for(const key of DIET_V2_OAUTH_QUERY_KEYS)clean.searchParams.delete(key);
+  history.replaceState(null,'',`${clean.pathname}${clean.search}${clean.hash||'#today'}`);
+}
+function clearOAuthRelayState(){
+  try{
+    sessionStorage.removeItem(DIET_V2_OAUTH_TARGET_KEY);
+    sessionStorage.removeItem(DIET_V2_OAUTH_FLOW_KEY);
+  }catch{}
+}
+async function resolveOAuthCallback(){
+  const callback=oauthCallback();
+  if(!callback.code&&!callback.error)return false;
+  setState('authenticating');
+  render();
+  stripOAuthCallback(callback.url);
+  if(callback.error){
+    clearOAuthRelayState();
+    const error=new Error(callback.error==='access_denied'?'Google sign-in was cancelled. You can try again.':callback.description||'Google sign-in could not be completed.');
+    error.code=callback.error;
+    throw error;
+  }
+  const client=ensureClient();
+  let result=await client.auth.exchangeCodeForSession(
+    callback.code,
+    callback.flowId?{flowId:callback.flowId}:undefined
+  );
+  if(result.error&&callback.flowId&&/PKCE code verifier not found|AuthPKCECodeVerifierMissingError/i.test(String(result.error?.message??result.error))){
+    result=await client.auth.exchangeCodeForSession(callback.code);
+  }
+  clearOAuthRelayState();
+  if(result.error)throw result.error;
+  return true;
+}
+export async function signInWithGoogle(){
+  const client=ensureClient();
+  const existing=await client.auth.getSession();
+  if(existing.data?.session)return existing.data.session;
+  if(navigator.onLine===false)throw new Error('Connect to the internet before signing in.');
+  setState('authenticating');
+  render();
+  clearOAuthRelayState();
+  const {data,error}=await client.auth.signInWithOAuth({
+    provider:'google',
+    options:{
+      redirectTo:DIET_V2_AUTH_RELAY,
+      skipBrowserRedirect:true,
+      queryParams:{prompt:'select_account'}
+    }
+  });
+  if(error)throw error;
+  const target=new URL(data?.url||'');
+  if(target.origin!==new URL(SUPABASE_URL).origin||target.pathname!=='/auth/v1/authorize'){
+    throw new Error('The account service returned an unexpected sign-in destination.');
+  }
+  try{
+    sessionStorage.setItem(DIET_V2_OAUTH_TARGET_KEY,'web-v2');
+    if(data?.flowId)sessionStorage.setItem(DIET_V2_OAUTH_FLOW_KEY,data.flowId);
+    else sessionStorage.removeItem(DIET_V2_OAUTH_FLOW_KEY);
+  }catch{
+    throw new Error('This browser blocked temporary sign-in state. Allow site data and retry.');
+  }
+  location.assign(target.href);
+  return null;
+}
+export async function signOutDietV2(){
+  const client=ensureClient();
+  const ownerId=state.user?.id??null;
+  clearPrivateState();
+  setState('signed_out');
+  render();
+  try{await client.auth.signOut({scope:'local'});}catch{}
+  try{dietV2AuthStorage.removeItem(DIET_V2_AUTH_STORAGE_KEY);}catch{}
+  if(ownerId){
+    try{
+      const cached=readCache(ownerId);
+      if(cached)clearDietV2OfflineCache();
+    }catch{}
+  }
+  clearOAuthRelayState();
+  render();
+}
+
 function clearPrivateState(){
   state.requestEpoch++;
   if(state.realtimeTimer)clearTimeout(state.realtimeTimer);
@@ -360,6 +458,7 @@ function renderStatus(){
   if(!banner||!label||!detail)return;
   const map={
     initializing:['Connecting','Checking your saved account session…'],
+    authenticating:['Signing in','Completing your THIEPN Account sign-in…'],
     loading:['Refreshing','Loading your owner-scoped nutrition history…'],
     ready:['Live',state.fetchedAt?`Updated ${new Date(state.fetchedAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`:'Connected'],
     offline:['Offline cache',state.fetchedAt?`Last synced ${new Date(state.fetchedAt).toLocaleString()}`:'Showing cached data'],
@@ -550,12 +649,20 @@ function renderStrategy(model){
 }
 
 function renderAccount(){
+  const signedIn=Boolean(state.user);
+  const authBusy=state.status==='authenticating'||state.status==='initializing';
   const button=document.querySelector('[data-account-button]');
-  if(button)button.classList.toggle('is-signed-in',Boolean(state.user));
-  text('accountStateTitle',state.user?'Signed in':'Not signed in');
-  text('accountStateEmail',state.user?.email??'Use the production Diet Copilot account flow to sign in.');
+  if(button)button.classList.toggle('is-signed-in',signedIn);
+  text('accountStateTitle',signedIn?'Signed in':authBusy?'Checking account…':'Not signed in');
+  text('accountStateEmail',signedIn?(state.user?.email??'THIEPN Account'):'Continue with Google to load your private Diet data.');
   text('accountStateSource',state.source==='cloud'?'Live owner-scoped data':state.source==='cache'?'Owner-scoped cache':'No private data loaded');
   text('accountStateSync',state.fetchedAt?new Date(state.fetchedAt).toLocaleString():'Never');
+  const signIn=document.getElementById('v2AccountSignIn');
+  const signOut=document.getElementById('v2AccountSignOut');
+  const refreshButton=document.getElementById('v2AccountRefresh');
+  if(signIn){signIn.hidden=signedIn;signIn.disabled=authBusy;}
+  if(signOut){signOut.hidden=!signedIn;signOut.disabled=authBusy;}
+  if(refreshButton){refreshButton.hidden=!signedIn;refreshButton.disabled=authBusy;}
 }
 
 function renderEmptyPrivateState(){
@@ -644,8 +751,11 @@ async function init(){
   renderAccount();
   try{
     ensureClient();
+    await resolveOAuthCallback();
     await refresh({silent:true});
   }catch(error){
+    const callback=oauthCallback();
+    if(callback.code||callback.error)stripOAuthCallback(callback.url);
     setState('error',error?.message||error);
     render();
   }
@@ -673,6 +783,19 @@ document.querySelectorAll('[data-progress-range]').forEach(button=>{
 
 document.getElementById('closeV2AccountDialog')?.addEventListener('click',closeAccount);
 document.getElementById('v2AccountRefresh')?.addEventListener('click',()=>refresh().catch(()=>{}));
+document.getElementById('v2AccountSignIn')?.addEventListener('click',async event=>{
+  const button=event.currentTarget;
+  button.disabled=true;
+  button.textContent='Redirecting…';
+  try{await signInWithGoogle();}
+  catch(error){
+    setState('error',error?.message||error);
+    render();
+    button.disabled=false;
+    button.textContent='Continue with Google';
+  }
+});
+document.getElementById('v2AccountSignOut')?.addEventListener('click',()=>signOutDietV2());
 document.getElementById('v2AccountProduction')?.addEventListener('click',()=>{location.href='../';});
 
 export function getDietV2Client(){return ensureClient();}
@@ -702,8 +825,10 @@ export function getDietV2OfflineCacheInfo(){
 export function getDietV2State(){return {status:state.status,source:state.source,signedIn:Boolean(state.user),fetchedAt:state.fetchedAt};}
 
 window.DietV2Data=Object.freeze({
-  version:'2.0.0-p10-rc',
+  version:'2.0.0-p11-rc',
   refresh,
+  signInWithGoogle,
+  signOut:signOutDietV2,
   handleShellAction,
   snapshot:()=>({
     status:state.status,
