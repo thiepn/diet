@@ -128,6 +128,7 @@ function dateKey(start,index){
   const pwa=fs.readFileSync('v2/pwa.js','utf8');
   const data=fs.readFileSync('v2/data.js','utf8');
   const rootSw=fs.readFileSync('sw.js','utf8');
+  const css=fs.readFileSync('v2/shell.css','utf8');
 
   assert.equal(manifest.scope,'./');
   assert.equal(manifest.start_url,'./#today');
@@ -154,6 +155,16 @@ function dateKey(start,index){
   assert.match(data,/diet-copilot-v2-read-cache-v2/,'Bounded cache must use a migrated cache version.');
   assert.match(rootSw,/key\.startsWith\('diet-copilot-web-'\)/,'V1 service worker must clean only its own cache namespace.');
   assert.doesNotMatch(rootSw,/key\.startsWith\('diet-copilot'\)\)/,'V1 service worker must not delete V2 caches.');
+
+  const dialogs=[...html.matchAll(/<dialog\b[^>]*>/g)].map(match=>match[0]);
+  assert.ok(dialogs.length>=8,'Release candidate should expose all expected modal surfaces.');
+  for(const tag of dialogs) assert.match(tag,/aria-labelledby=/,'Every native dialog needs an accessible name: '+tag);
+  assert.doesNotMatch(html,/user-scalable\s*=\s*no/i,'V2 must not disable browser zoom.');
+  assert.doesNotMatch(html,/maximum-scale\s*=\s*1/i,'V2 must not cap accessibility zoom.');
+  assert.match(html,/dc-more-icon" aria-hidden="true"/,'Decorative More icons must be hidden from assistive technology.');
+  assert.match(css,/\.dc-quick-actions--food\{display:flex;overflow-x:auto/,'Mobile food shortcuts must remain one compact horizontal row.');
+  assert.match(css,/\.dc-bottom-nav\{[^}]*grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/,'Mobile primary navigation must remain a single five-item row.');
+  assert.match(css,/@media \(prefers-reduced-motion:reduce\)/,'System reduced-motion support must remain present.');
 }
 
 console.log('Diet Copilot 2.0 P10 adversarial release-hardening tests passed.');
