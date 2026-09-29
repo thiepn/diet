@@ -43,8 +43,8 @@ assert.match(sql,/v_uid uuid := auth\.uid\(\)/,'Every app façade must derive br
 assert.match(sql,/revoke all on function public\.diet_app_log_meal[\s\S]*grant execute on function public\.diet_app_log_meal[\s\S]*to authenticated/i,'App RPC grants must be explicit.');
 assert.doesNotMatch(sql,/grant\s+(insert|update|delete|all).*on\s+(table\s+)?public\.(meals|meal_items|daily_logs|saved_foods|saved_meals)/i,'P3 must not grant direct table writes.');
 
-assert.match(dataJs,/from\('saved_foods'\)\.select/,'Saved foods must be owner-scoped reads.');
-assert.match(dataJs,/from\('saved_meals'\)\.select/,'Saved meals must be owner-scoped reads.');
+assert.match(dataJs,/fetchPagedRows\('saved_foods'/,'Saved foods must use complete owner-scoped paginated reads.');
+assert.match(dataJs,/fetchPagedRows\('saved_meals'/,'Saved meals must use complete owner-scoped paginated reads.');
 assert.match(dataJs,/diet-v2-data-updated/,'Food workspace must update after canonical refresh.');
 
 {
