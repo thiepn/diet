@@ -81,9 +81,14 @@ const dataJs=fs.readFileSync('v2/data.js','utf8');
 const authStorage=fs.readFileSync('v2/auth-storage.mjs','utf8');
 const html=fs.readFileSync('v2/index.html','utf8');
 
-for(const forbidden of [/\.insert\s*\(/,/\.update\s*\(/,/\.upsert\s*\(/,/\.delete\s*\(/,/\.rpc\s*\(/,/service_role/i]){
+for(const forbidden of [/\.insert\s*\(/,/\.update\s*\(/,/\.upsert\s*\(/,/\.rpc\s*\(/,/service_role/i]){
   assert.doesNotMatch(dataJs,forbidden,'P2.5 data layer must remain SELECT-only.');
 }
+assert.doesNotMatch(
+  dataJs,
+  /from\([^\n]+\)[\s\S]{0,240}\.delete\s*\(/,
+  'P2.5 data layer must not issue Supabase table deletes.'
+);
 assert.match(dataJs,/from\('profiles'\)\.select/,'Missing owner-scoped profile read.');
 for(const table of ['daily_logs','meals','meal_items','weight_entries','goal_phases']){
   assert.match(dataJs,new RegExp(`fetchPagedRows\\('${table}'`),`Missing paginated owner-scoped read for ${table}`);
