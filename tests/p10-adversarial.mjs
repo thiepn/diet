@@ -127,6 +127,7 @@ function dateKey(start,index){
   const manifest=JSON.parse(fs.readFileSync('v2/manifest.webmanifest','utf8'));
   const pwa=fs.readFileSync('v2/pwa.js','utf8');
   const data=fs.readFileSync('v2/data.js','utf8');
+  const rootSw=fs.readFileSync('sw.js','utf8');
 
   assert.equal(manifest.scope,'./');
   assert.equal(manifest.start_url,'./#today');
@@ -146,6 +147,13 @@ function dateKey(start,index){
   assert.match(data,/auth\.signOut\(\{scope:'local'\}\)/);
   assert.match(data,/dietV2AuthStorage\.removeItem\(DIET_V2_AUTH_STORAGE_KEY\)/);
   assert.match(data,/clearUncertainWriteGuard\(\)/);
+  assert.match(data,/async function fetchPagedRows\(/,'Canonical long-history reads must use deterministic pagination.');
+  assert.match(data,/query\.range\(from,to\)/,'Paginated reads must request explicit API ranges.');
+  assert.match(data,/OFFLINE_HISTORY_DAYS=400/,'Offline cache must be bounded independently from complete cloud history.');
+  assert.match(data,/buildOfflineSnapshot\(raw\)/,'Offline cache must use a compact snapshot.');
+  assert.match(data,/diet-copilot-v2-read-cache-v2/,'Bounded cache must use a migrated cache version.');
+  assert.match(rootSw,/key\.startsWith\('diet-copilot-web-'\)/,'V1 service worker must clean only its own cache namespace.');
+  assert.doesNotMatch(rootSw,/key\.startsWith\('diet-copilot'\)\)/,'V1 service worker must not delete V2 caches.');
 }
 
 console.log('Diet Copilot 2.0 P10 adversarial release-hardening tests passed.');
