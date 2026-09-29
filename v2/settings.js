@@ -103,6 +103,7 @@ function renderBody(){
   if($('bodyGoalWeight'))$('bodyGoalWeight').textContent=model.strategy?.goalWeight==null?'—':fmt(model.strategy.goalWeight,1)+' kg';
   if($('bodyWeightEntries'))$('bodyWeightEntries').textContent=String(count);
   if($('bodyLastDate'))$('bodyLastDate').textContent=model.today?.latestWeightDate||'—';
+  if($('bodyExportWeights'))$('bodyExportWeights').disabled=count===0;
 }
 function renderData(){
   const state=getDietV2State();
@@ -123,6 +124,10 @@ function renderIntegration(){
   if($('moreIntegrationsSummary'))$('moreIntegrationsSummary').textContent=label;
   const plugin=globalThis.Capacitor?.Plugins?.DietHealthConnect??null;
   if($('integrationPlatform'))$('integrationPlatform').textContent=plugin?'Android native app':'Web/PWA';
+  const connect=$('integrationConnectHealth');
+  const sync=$('integrationSyncHealth');
+  if(connect)connect.hidden=!plugin||Boolean($('v2HealthConnectConnect')?.hidden);
+  if(sync)sync.hidden=!plugin||Boolean($('v2HealthConnectSync')?.hidden);
   const state=getDietV2State();
   if($('integrationSyncSource'))$('integrationSyncSource').textContent=state.source==='cloud'?'Supabase live sync':state.source==='cache'?'Offline cache':'Not connected';
 }
@@ -214,6 +219,11 @@ for(const dialogId of ['bodyWeightDialog','appearanceDialog','dataExportDialog',
 }
 window.addEventListener('diet-v2-data-updated',renderAll);
 window.addEventListener('focus',()=>{renderIntegration();renderData();});
+try{
+  globalThis.matchMedia?.('(prefers-color-scheme: dark)')?.addEventListener('change',()=>{
+    if(prefs.theme==='system')applyPrefs();
+  });
+}catch{}
 
 applyPrefs();
 renderAll();
