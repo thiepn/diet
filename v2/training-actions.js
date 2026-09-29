@@ -3,7 +3,7 @@ import {
   getDietV2Client,getDietV2Model,getDietV2State,refresh
 } from './data.js';
 import { saveTrainingDistribution,upsertTrainingDay,deleteTrainingDay } from './write-api.mjs';
-import { buildTrainingNutritionPlan } from '../src/engine/training-nutrition.mjs';
+import { buildTrainingNutritionPlan } from './engine/training-nutrition.mjs';
 
 const DOW=['mon','tue','wed','thu','fri','sat','sun'];
 const LABEL={mon:'Mon',tue:'Tue',wed:'Wed',thu:'Thu',fri:'Fri',sat:'Sat',sun:'Sun'};
