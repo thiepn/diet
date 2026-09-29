@@ -267,24 +267,24 @@ begin
   );
 end $function$;
 
-revoke all on function public.diet_app_delete_saved_food(uuid,zone,text) from public, anon, authenticated, service_role;
-grant execute on function public.diet_app_delete_saved_food(uuid,zone,text) to authenticated;
+revoke all on function public.diet_app_delete_saved_food(uuid, timestamp with time zone, text) from public, anon, authenticated, service_role;
+grant execute on function public.diet_app_delete_saved_food(uuid, timestamp with time zone, text) to authenticated;
 
-revoke all on function public.diet_app_delete_saved_meal(uuid,zone,text) from public, anon, authenticated, service_role;
-grant execute on function public.diet_app_delete_saved_meal(uuid,zone,text) to authenticated;
+revoke all on function public.diet_app_delete_saved_meal(uuid, timestamp with time zone, text) from public, anon, authenticated, service_role;
+grant execute on function public.diet_app_delete_saved_meal(uuid, timestamp with time zone, text) to authenticated;
 
-revoke all on function public.diet_app_save_food(uuid,text,text,numeric,numeric,numeric,numeric,numeric,text,text,text,text,text) from public, anon, authenticated, service_role;
-grant execute on function public.diet_app_save_food(uuid,text,text,numeric,numeric,numeric,numeric,numeric,text,text,text,text,text) to authenticated;
+revoke all on function public.diet_app_save_food(uuid, text, text, numeric, numeric, numeric, numeric, numeric, text, text, text, text, text) from public, anon, authenticated, service_role;
+grant execute on function public.diet_app_save_food(uuid, text, text, numeric, numeric, numeric, numeric, numeric, text, text, text, text, text) to authenticated;
 
-revoke all on function public.diet_app_save_meal_from_history(uuid,text,text) from public, anon, authenticated, service_role;
-grant execute on function public.diet_app_save_meal_from_history(uuid,text,text) to authenticated;
+revoke all on function public.diet_app_save_meal_from_history(uuid, text, text) from public, anon, authenticated, service_role;
+grant execute on function public.diet_app_save_meal_from_history(uuid, text, text) to authenticated;
 
-revoke all on function public.diet_app_set_saved_food_favorite(uuid,boolean,text) from public, anon, authenticated, service_role;
-grant execute on function public.diet_app_set_saved_food_favorite(uuid,boolean,text) to authenticated;
+revoke all on function public.diet_app_set_saved_food_favorite(uuid, boolean, text) from public, anon, authenticated, service_role;
+grant execute on function public.diet_app_set_saved_food_favorite(uuid, boolean, text) to authenticated;
 
-revoke all on function public.diet_app_set_saved_meal_favorite(uuid,boolean,text) from public, anon, authenticated, service_role;
-grant execute on function public.diet_app_set_saved_meal_favorite(uuid,boolean,text) to authenticated;
+revoke all on function public.diet_app_set_saved_meal_favorite(uuid, boolean, text) from public, anon, authenticated, service_role;
+grant execute on function public.diet_app_set_saved_meal_favorite(uuid, boolean, text) to authenticated;
 
-revoke all on function public.diet_app_update_meal(uuid,date,text,text,jsonb,zone,text) from public, anon, authenticated, service_role;
-grant execute on function public.diet_app_update_meal(uuid,date,text,text,jsonb,zone,text) to authenticated;
+revoke all on function public.diet_app_update_meal(uuid, date, text, text, jsonb, timestamp with time zone, text) from public, anon, authenticated, service_role;
+grant execute on function public.diet_app_update_meal(uuid, date, text, text, jsonb, timestamp with time zone, text) to authenticated;
 
