@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f5f7f5">
+  <meta name="color-scheme" content="light dark">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Diet Copilot 2.0 Preview</title>
+  <link rel="icon" href="../icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./shell.css">
+</head>
+<body>
+  <a class="skip-link" href="#mainContent">Skip to content</a>
+
+  <div class="dc-shell" data-shell>
+    <aside class="dc-sidebar" aria-label="Primary navigation">
+      <a class="dc-brand" href="#today" aria-label="Diet Copilot home">
+        <img src="../icon.svg" alt="" aria-hidden="true">
+        <span class="dc-brand-copy">
+          <strong>Diet Copilot</strong>
+          <span>Personal nutrition</span>
+        </span>
+      </a>
+
+      <nav class="dc-desktop-nav" data-primary-nav aria-label="Diet Copilot">
+        <a class="dc-nav-item" href="#today" data-route="today">
+          <span class="dc-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M9.5 20v-6h5v6"/></svg></span>
+          <span>Today</span>
+        </a>
+        <a class="dc-nav-item" href="#food" data-route="food">
+          <span class="dc-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3v7"/><path d="M4.5 3v4.5A2.5 2.5 0 0 0 7 10h0a2.5 2.5 0 0 0 2.5-2.5V3"/><path d="M7 10v11"/><path d="M16 3v18"/><path d="M16 3c2.4 1.8 3.6 4.1 3.6 6.8 0 2.1-1.2 3.2-3.6 3.2"/></svg></span>
+          <span>Food</span>
+        </a>
+        <a class="dc-nav-item" href="#progress" data-route="progress">
+          <span class="dc-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 15 3.5-4 3 2.5L19 7"/></svg></span>
+          <span>Progress</span>
+        </a>
+        <a class="dc-nav-item" href="#strategy" data-route="strategy">
+          <span class="dc-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M22 12h-3M12 22v-3M2 12h3"/></svg></span>
+          <span>Strategy</span>
+        </a>
+        <a class="dc-nav-item" href="#more" data-route="more">
+          <span class="dc-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></span>
+          <span>More</span>
+        </a>
+      </nav>
+
+      <div class="dc-sidebar-foot">
+        <span class="dc-version-badge">2.0 preview</span>
+        <p>V1 remains production.</p>
+      </div>
+    </aside>
+
+    <div class="dc-workspace">
+      <header class="dc-topbar">
+        <div class="dc-mobile-brand">
+          <img src="../icon.svg" alt="" aria-hidden="true">
+          <strong>Diet Copilot</strong>
+        </div>
+        <div class="dc-topbar-copy">
+          <p class="dc-kicker" id="routeKicker">Today</p>
+          <h1 id="routeTitle">Today</h1>
+        </div>
+        <div class="dc-topbar-actions">
+          <button class="dc-icon-button" type="button" data-shell-action="notifications" aria-label="Notifications">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+          </button>
+          <button class="dc-account-button" type="button" data-shell-action="account" aria-label="Open account">
+            <span aria-hidden="true">J</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="dc-main" id="mainContent" tabindex="-1">
+        <section class="dc-view" data-view="today" aria-labelledby="todayHeading">
+          <div class="dc-page-head">
+            <div>
+              <p class="dc-eyebrow" id="todayDate">Today</p>
+              <h2 id="todayHeading">Your day at a glance</h2>
+              <p>Calories, macros, weight trend and the current plan belong here—without making you hunt for them.</p>
+            </div>
+            <a class="dc-primary-action" href="#food">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              Add food
+            </a>
+          </div>
+
+          <div class="dc-metric-grid" aria-label="Daily summary placeholders">
+            <article class="dc-metric-card dc-metric-card--primary">
+              <div class="dc-card-heading"><span>Calories</span><span class="dc-status-chip">Not connected</span></div>
+              <div class="dc-metric-empty"><strong>—</strong><span>of — kcal</span></div>
+              <div class="dc-progress-track" aria-hidden="true"><span style="width:0%"></span></div>
+              <p>Daily intake will appear here once P2.5 connects the read model.</p>
+            </article>
+            <article class="dc-metric-card">
+              <div class="dc-card-heading"><span>Protein</span></div>
+              <div class="dc-metric-empty"><strong>—</strong><span>g remaining</span></div>
+              <p>Fast macro status with no secondary dashboard clutter.</p>
+            </article>
+            <article class="dc-metric-card">
+              <div class="dc-card-heading"><span>Trend weight</span></div>
+              <div class="dc-metric-empty"><strong>—</strong><span>kg</span></div>
+              <p>P1 trend weight will replace raw daily scale noise here.</p>
+            </article>
+            <article class="dc-metric-card">
+              <div class="dc-card-heading"><span>Expenditure</span></div>
+              <div class="dc-metric-empty"><strong>—</strong><span>kcal/day</span></div>
+              <p>Adaptive TDEE will include confidence instead of implying false precision.</p>
+            </article>
+          </div>
+
+          <div class="dc-two-column">
+            <article class="dc-panel">
+              <div class="dc-panel-head">
+                <div><p class="dc-eyebrow">Food log</p><h3>Today's meals</h3></div>
+                <a class="dc-text-action" href="#food">Open food</a>
+              </div>
+              <div class="dc-empty-state dc-empty-state--compact">
+                <span class="dc-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3v7M4.5 3v4.5A2.5 2.5 0 0 0 7 10M9.5 3v4.5A2.5 2.5 0 0 1 7 10M7 10v11M16 3v18"/></svg></span>
+                <div><strong>No 2.0 meal data connected yet</strong><p>The shell deliberately does not fabricate today's foods.</p></div>
+              </div>
+            </article>
+
+            <article class="dc-panel">
+              <div class="dc-panel-head">
+                <div><p class="dc-eyebrow">Strategy</p><h3>Current plan</h3></div>
+                <a class="dc-text-action" href="#strategy">View strategy</a>
+              </div>
+              <div class="dc-strategy-placeholder">
+                <div><span>Goal</span><strong>Not connected</strong></div>
+                <div><span>Target</span><strong>— kcal</strong></div>
+                <div><span>Confidence</span><strong>—</strong></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="dc-view" data-view="food" hidden aria-labelledby="foodHeading">
+          <div class="dc-page-head">
+            <div>
+              <p class="dc-eyebrow">Food</p>
+              <h2 id="foodHeading">Log food without friction</h2>
+              <p>Search, recent foods, saved meals, barcode and quick entry share one predictable surface.</p>
+            </div>
+            <button class="dc-primary-action" type="button" data-coming="Food entry is connected in a later phase.">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              Add food
+            </button>
+          </div>
+
+          <article class="dc-search-shell">
+            <button class="dc-search-button" type="button" data-coming="Food search is connected in P3." aria-label="Search foods">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+              <span>Search foods, meals or brands</span>
+              <kbd>/</kbd>
+            </button>
+            <div class="dc-quick-actions" aria-label="Food shortcuts">
+              <button type="button" data-coming="Recent foods arrive with the Food workflow."><span aria-hidden="true">↺</span>Recent</button>
+              <button type="button" data-coming="Saved meals arrive with the Food workflow."><span aria-hidden="true">☆</span>Saved meals</button>
+              <button type="button" data-coming="Barcode scanning arrives with the Food workflow."><span aria-hidden="true">▥</span>Barcode</button>
+              <button type="button" data-coming="Natural-language logging arrives with the Copilot workflow."><span aria-hidden="true">✦</span>Describe meal</button>
+            </div>
+          </article>
+
+          <article class="dc-panel">
+            <div class="dc-panel-head">
+              <div><p class="dc-eyebrow">Today</p><h3>Meal timeline</h3></div>
+            </div>
+            <div class="dc-empty-state">
+              <span class="dc-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span>
+              <div><strong>No entries in the 2.0 shell</strong><p>P3 will connect the real food log while preserving the existing production history.</p></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="dc-view" data-view="progress" hidden aria-labelledby="progressHeading">
+          <div class="dc-page-head">
+            <div>
+              <p class="dc-eyebrow">Progress</p>
+              <h2 id="progressHeading">See the signal, not the noise</h2>
+              <p>Weight trend, expenditure, intake and goal trajectory are the four primary views.</p>
+            </div>
+          </div>
+
+          <div class="dc-segmented" role="group" aria-label="Progress range">
+            <button type="button" aria-pressed="false" data-coming="Progress ranges arrive with chart integration.">4W</button>
+            <button type="button" class="is-selected" aria-pressed="true" data-coming="Progress ranges arrive with chart integration.">3M</button>
+            <button type="button" aria-pressed="false" data-coming="Progress ranges arrive with chart integration.">6M</button>
+            <button type="button" aria-pressed="false" data-coming="Progress ranges arrive with chart integration.">1Y</button>
+          </div>
+
+          <div class="dc-chart-grid">
+            <article class="dc-panel dc-chart-card">
+              <div class="dc-panel-head"><div><p class="dc-eyebrow">Weight</p><h3>Trend weight</h3></div><span class="dc-status-chip">P1 ready</span></div>
+              <div class="dc-chart-placeholder" aria-label="Trend weight chart placeholder"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            </article>
+            <article class="dc-panel dc-chart-card">
+              <div class="dc-panel-head"><div><p class="dc-eyebrow">Energy</p><h3>Expenditure</h3></div><span class="dc-status-chip">P1 ready</span></div>
+              <div class="dc-chart-placeholder dc-chart-placeholder--soft" aria-label="Expenditure chart placeholder"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            </article>
+            <article class="dc-panel dc-chart-card">
+              <div class="dc-panel-head"><div><p class="dc-eyebrow">Nutrition</p><h3>Intake vs target</h3></div></div>
+              <div class="dc-chart-placeholder dc-chart-placeholder--bars" aria-label="Intake chart placeholder"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            </article>
+            <article class="dc-panel dc-chart-card">
+              <div class="dc-panel-head"><div><p class="dc-eyebrow">Goal</p><h3>Trajectory</h3></div></div>
+              <div class="dc-empty-state dc-empty-state--compact"><div><strong>Waiting for strategy data</strong><p>Projection will remain explicitly approximate.</p></div></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="dc-view" data-view="strategy" hidden aria-labelledby="strategyHeading">
+          <div class="dc-page-head">
+            <div>
+              <p class="dc-eyebrow">Strategy</p>
+              <h2 id="strategyHeading">One plan, explained clearly</h2>
+              <p>Goal, pace, adaptive expenditure and recommendations live together instead of being scattered across insights.</p>
+            </div>
+          </div>
+
+          <div class="dc-two-column dc-two-column--strategy">
+            <article class="dc-panel">
+              <div class="dc-panel-head"><div><p class="dc-eyebrow">Current goal</p><h3>Goal setup</h3></div></div>
+              <div class="dc-settings-list">
+                <div><span>Mode</span><strong>Not connected</strong></div>
+                <div><span>Goal weight</span><strong>—</strong></div>
+                <div><span>Target rate</span><strong>—</strong></div>
+              </div>
+            </article>
+            <article class="dc-panel">
+              <div class="dc-panel-head"><div><p class="dc-eyebrow">Adaptive target</p><h3>Calorie strategy</h3></div><span class="dc-status-chip">P1 ready</span></div>
+              <div class="dc-settings-list">
+                <div><span>Estimated expenditure</span><strong>—</strong></div>
+                <div><span>Current target</span><strong>—</strong></div>
+                <div><span>Confidence</span><strong>—</strong></div>
+              </div>
+            </article>
+          </div>
+
+          <article class="dc-panel dc-recommendation-shell">
+            <div class="dc-panel-head"><div><p class="dc-eyebrow">Recommendation</p><h3>No decision without evidence</h3></div></div>
+            <p>P1.5 proved that low-confidence data can produce a tentative estimate without automatically changing the calorie target. This surface will make that distinction explicit.</p>
+          </article>
+        </section>
+
+        <section class="dc-view" data-view="more" hidden aria-labelledby="moreHeading">
+          <div class="dc-page-head">
+            <div>
+              <p class="dc-eyebrow">More</p>
+              <h2 id="moreHeading">Settings and secondary tools</h2>
+              <p>Anything that is not part of the daily nutrition loop stays out of the primary workflow.</p>
+            </div>
+          </div>
+
+          <div class="dc-more-grid">
+            <button class="dc-more-card" type="button" data-coming="Food management is connected later."><span class="dc-more-icon">◎</span><span><strong>Foods & meals</strong><small>Custom foods, recipes and saved meals</small></span><span>›</span></button>
+            <button class="dc-more-card" type="button" data-coming="Integrations are connected later."><span class="dc-more-icon">⇄</span><span><strong>Integrations</strong><small>Health data and connected services</small></span><span>›</span></button>
+            <button class="dc-more-card" type="button" data-coming="Body measurements are connected later."><span class="dc-more-icon">⌁</span><span><strong>Body measurements</strong><small>Weight and measurement history</small></span><span>›</span></button>
+            <button class="dc-more-card" type="button" data-shell-action="account"><span class="dc-more-icon">◉</span><span><strong>Account</strong><small>THIEPN account and sync status</small></span><span>›</span></button>
+            <button class="dc-more-card" type="button" data-coming="Appearance settings are connected later."><span class="dc-more-icon">◐</span><span><strong>Appearance</strong><small>Theme and display preferences</small></span><span>›</span></button>
+            <button class="dc-more-card" type="button" data-coming="Data controls are connected later."><span class="dc-more-icon">↓</span><span><strong>Data & export</strong><small>Export, backup and privacy controls</small></span><span>›</span></button>
+          </div>
+        </section>
+      </main>
+
+      <nav class="dc-bottom-nav" data-primary-nav aria-label="Primary navigation">
+        <a class="dc-nav-item" href="#today" data-route="today"><span class="dc-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h13v-9.5"/><path d="M9.5 20v-6h5v6"/></svg></span><small>Today</small></a>
+        <a class="dc-nav-item" href="#food" data-route="food"><span class="dc-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3v7M4.5 3v4.5A2.5 2.5 0 0 0 7 10M9.5 3v4.5A2.5 2.5 0 0 1 7 10M7 10v11M16 3v18"/></svg></span><small>Food</small></a>
+        <a class="dc-nav-item" href="#progress" data-route="progress"><span class="dc-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16m-13-4 3.5-4 3 2.5L19 7"/></svg></span><small>Progress</small></a>
+        <a class="dc-nav-item" href="#strategy" data-route="strategy"><span class="dc-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M22 12h-3M12 22v-3M2 12h3"/></svg></span><small>Strategy</small></a>
+        <a class="dc-nav-item" href="#more" data-route="more"><span class="dc-nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></span><small>More</small></a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="dc-toast" data-toast role="status" aria-live="polite"></div>
+  <script type="module" src="./shell.js"></script>
+</body>
+</html>
