@@ -481,7 +481,9 @@
     .dc-panel{padding:17px}
     .dc-search-shell{padding:13px}
     .dc-quick-actions{grid-template-columns:repeat(2,1fr)}
-    .dc-quick-actions--food{grid-template-columns:repeat(2,1fr)}
+    .dc-quick-actions--food{display:flex;overflow-x:auto;gap:7px;margin-left:-1px;margin-right:-1px;padding:1px 1px 4px;scrollbar-width:none;overscroll-behavior-inline:contain}
+    .dc-quick-actions--food::-webkit-scrollbar{display:none}
+    .dc-quick-actions--food button{flex:0 0 auto;min-width:max-content;padding:0 12px}
     .dc-page-actions{display:grid;grid-template-columns:1fr 1fr;width:100%}
     .dc-page-actions .dc-primary-action,.dc-page-actions .dc-secondary-action{width:100%}
     .dc-form-grid--meal,.dc-form-grid--food{grid-template-columns:1fr 1fr}
