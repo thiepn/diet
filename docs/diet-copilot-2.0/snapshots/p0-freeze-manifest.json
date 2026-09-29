@@ -1,0 +1,126 @@
+{
+  "captured_at": "2026-09-29",
+  "repository": "thiepn/diet",
+  "production": {
+    "branch": "main",
+    "commit": "d25728bd478e50c545855fb07c63a445575fa465",
+    "archive_branch": "archive/diet-copilot-v1.0.3-freeze-2026-09-29",
+    "web_release": "1.0.3",
+    "app_release": "V6.8.2",
+    "channel": "stable",
+    "public_url": "https://thiepn.dev/diet/"
+  },
+  "backend": {
+    "provider": "supabase",
+    "project_name": "WORDSTRIKE Leaderboard",
+    "project_ref": "hycegznamzjhwinegaai",
+    "region": "eu-west-1",
+    "status": "ACTIVE_HEALTHY",
+    "postgres_engine": "17",
+    "postgres_version": "17.6.1.127",
+    "latest_diet_migration": "20260915091937_finalize_diet_read_performance"
+  },
+  "auth_contract": {
+    "session_authority": "thiepn-account",
+    "auth_entry_points": [
+      "google"
+    ],
+    "oauth_flow": "pkce",
+    "direct_diet_table_grants": {
+      "anon": [],
+      "authenticated": [
+        "SELECT"
+      ]
+    },
+    "row_owner_predicate": "auth.uid() = user_id",
+    "dashboard_canonical_writes": false,
+    "mutation_rpc_client_roles": [],
+    "mutation_rpc_role": "service_role"
+  },
+  "data_fingerprints": {
+    "activity_daily": {
+      "rows": 0,
+      "md5": "d751713988987e9331980363e24189ce"
+    },
+    "ai_actions": {
+      "rows": 20,
+      "md5": "9f9f53c99543daf1a8f5262496ab7e70"
+    },
+    "change_log": {
+      "rows": 0,
+      "md5": "d751713988987e9331980363e24189ce"
+    },
+    "daily_logs": {
+      "rows": 18,
+      "md5": "15d72a745e94886a0fc43da187c5b604"
+    },
+    "diet_native_devices": {
+      "rows": 0,
+      "md5": "d751713988987e9331980363e24189ce"
+    },
+    "goal_phases": {
+      "rows": 2,
+      "md5": "f6850ed9c055ff8943b695c6284b8883"
+    },
+    "meal_items": {
+      "rows": 124,
+      "md5": "f998b6e57450d7421cc017245b72ff56"
+    },
+    "meals": {
+      "rows": 81,
+      "md5": "bc3966f9804c9f6d3ba614fd397841bf"
+    },
+    "profiles": {
+      "rows": 1,
+      "md5": "cb4bd34bc544b8190a38b2a6298d7b56"
+    },
+    "saved_food_portions": {
+      "rows": 8,
+      "md5": "edfbc08f3475c6453fad533df210280a"
+    },
+    "saved_foods": {
+      "rows": 8,
+      "md5": "5d0dda08ea71ae25fc74545ca3b2562e"
+    },
+    "saved_meal_items": {
+      "rows": 0,
+      "md5": "d751713988987e9331980363e24189ce"
+    },
+    "saved_meals": {
+      "rows": 0,
+      "md5": "d751713988987e9331980363e24189ce"
+    },
+    "target_recommendations": {
+      "rows": 1,
+      "md5": "2dc9a9ad27967c99b0d8188ebce6a69f"
+    },
+    "weekly_reviews": {
+      "rows": 1,
+      "md5": "0a9dec0b818a591913a92d7c760df4e0"
+    },
+    "weight_entries": {
+      "rows": 13,
+      "md5": "75dad5214db5e0c2101c4261b682f71f"
+    }
+  },
+  "identity_fingerprints": {
+    "auth_users": {
+      "rows": 11,
+      "md5": "e11915f314de056e71fd6b22ffe29503"
+    },
+    "account_profiles": {
+      "rows": 11,
+      "md5": "4651152f1b3dcde9a3f7d56d087db4b4"
+    },
+    "account_user_apps": {
+      "rows": 13,
+      "md5": "4643bd7bff1c0e04bff2079551a64848"
+    }
+  },
+  "verification": {
+    "live_p0_contract": "passed",
+    "main_matches_frozen_commit": true,
+    "archive_branch_matches_frozen_commit": true,
+    "production_database_mutated_by_p0": false
+  }
+}
