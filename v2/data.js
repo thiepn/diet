@@ -274,10 +274,14 @@ function renderStatus(){
 function mealMarkup(meal){
   const items=(meal.items??[]).slice(0,4).map(i=>`<span>${escapeHtml(i.name)}${i.quantity?` · ${escapeHtml(i.quantity)}`:''}</span>`).join('');
   const time=meal.eatenAt?new Date(meal.eatenAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'';
-  return `<article class="dc-meal-row">
+  return `<article class="dc-meal-row" data-meal-id="${escapeHtml(meal.id??'')}">
     <div class="dc-meal-main">
       <div class="dc-meal-title"><strong>${escapeHtml(meal.type)} · ${escapeHtml(meal.title)}</strong><span>${time}</span></div>
       ${items?`<div class="dc-meal-items">${items}</div>`:''}
+      <div class="dc-meal-actions">
+        <button type="button" data-edit-meal="${escapeHtml(meal.id??'')}">Edit</button>
+        <button type="button" data-save-meal-history="${escapeHtml(meal.id??'')}">Save meal</button>
+      </div>
     </div>
     <div class="dc-meal-nutrition"><strong>${fmt(meal.calories)} kcal</strong><span>${fmt(meal.protein,1)} g protein</span></div>
   </article>`;
