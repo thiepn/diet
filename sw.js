@@ -1,7 +1,7 @@
 const CACHE='diet-copilot-web-v1.0.3-account1';
 const CORE=['./','./index.html','./diet.css?v=1.0.3-account1','./diet-app.js?v=1.0.3-account1','./vendor/supabase-2.116.0.js','./.well-known/thiepn-app.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting())));
-self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE&&key.startsWith('diet-copilot')).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
+self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE&&key.startsWith('diet-copilot-web-')).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
 async function networkFirst(request, fallback=request) {
   try {
     const response=await fetch(new Request(request,{cache:'no-cache'}));
@@ -14,6 +14,10 @@ async function networkFirst(request, fallback=request) {
 self.addEventListener('fetch',event=>{
   const request=event.request, url=new URL(request.url);
   if(request.method!=='GET'||url.origin!==self.location.origin)return;
+  // V2 owns its own narrower service-worker scope. Never answer a V2 request
+  // with the V1 offline shell while control is transitioning between workers.
+  const rootScope=new URL('./',self.registration.scope).pathname;
+  if(url.pathname.startsWith(rootScope+'v2/'))return;
   // Never cache an OAuth result, an auth relay, or private API responses.
   if(['/native-auth-start.html','/native-auth-callback.html','/web-auth-callback.html'].some(path=>url.pathname.endsWith(path)) || ['code','sb_flow_id','error','error_code','error_description'].some(key=>url.searchParams.has(key)))return;
   if(request.mode==='navigate'){event.respondWith(networkFirst(request,'./index.html'));return;}
