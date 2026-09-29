@@ -71,9 +71,11 @@ function cookieOwns(key){
 
 export const dietV2AuthStorage=Object.freeze({
   getItem(key){
-    if(key===DIET_V2_AUTH_STORAGE_KEY){
+    if(key===DIET_V2_AUTH_STORAGE_KEY&&cookieOwns(key)){
       const cookie=cookieGet(key);
       if(cookie!==null)return cookie;
+      try{localStorage.removeItem(key)}catch{}
+      return null;
     }
     try{return localStorage.getItem(key)}catch{return null}
   },
