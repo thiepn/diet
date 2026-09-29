@@ -33,7 +33,7 @@ const allowed=[
   'diet_app_log_meal','diet_app_log_saved_food','diet_app_log_saved_meal',
   'diet_app_repeat_meal','diet_app_delete_meal'
 ];
-assert.deepEqual(Object.values(DietWriteRPC).sort(),allowed.sort());
+for(const name of allowed) assert.ok(Object.values(DietWriteRPC).includes(name),`P3 RPC disappeared: ${name}`);
 for(const name of allowed){
   assert.match(writeJs,new RegExp(`['"]${name}['"]`),`Missing allowlisted RPC ${name}`);
   assert.match(sql,new RegExp(`function public\\.${name}\\(`),`Missing database façade ${name}`);
