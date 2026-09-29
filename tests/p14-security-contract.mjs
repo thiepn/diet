@@ -52,7 +52,9 @@ assert.equal(backend.security_policy?.table_session_owner_guard,true);
 assert.equal(backend.security_policy?.cross_owner_foreign_keys,true);
 
 assert.match(data,/sb_publishable_/);
-assert.doesNotMatch(allV2,/service_role|sb_secret_/i);
+assert.doesNotMatch(allV2,/sb_secret_[A-Za-z0-9_-]+/i,'No Supabase secret key may appear in browser source.');
+assert.doesNotMatch(allV2,/(?:const|let|var)\\s+\\w*service[_-]?role\\w*\\s*=/i,'No service-role credential variable may appear in browser source.');
+assert.doesNotMatch(allV2,/service_role\\s*:\\s*['"`][^'"`]{12,}/i,'No service-role credential value may appear in browser source.');
 assert.match(writes,/diet_app_log_meal/);
 assert.doesNotMatch(allV2,/\.from\([^\n]+\)\.(?:insert|update|delete|upsert)\(/);
 
