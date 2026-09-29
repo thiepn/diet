@@ -7,8 +7,10 @@ export const DIET_V2_SUPABASE_URL='https://hycegznamzjhwinegaai.supabase.co';
 export const DIET_V2_SUPABASE_KEY='sb_publishable_1rZzRPzfLMaAH5pIgCwIjA_19UPMIsR';
 const SUPABASE_URL=DIET_V2_SUPABASE_URL;
 const SUPABASE_KEY=DIET_V2_SUPABASE_KEY;
-const CACHE_KEY='diet-copilot-v2-read-cache-v1';
-const CACHE_VERSION=1;
+const CACHE_KEY='diet-copilot-v2-read-cache-v2';
+const LEGACY_CACHE_KEYS=['diet-copilot-v2-read-cache-v1'];
+const CACHE_VERSION=2;
+const OFFLINE_HISTORY_DAYS=400;
 const state={
   client:null,
   authSubscription:null,
@@ -120,26 +122,66 @@ function setState(status,error=null){
   document.documentElement.dataset.dataState=status;
   renderStatus();
 }
-function readCache(ownerId){
-  if(!ownerId)return null;
+function parseCacheKey(key,ownerId){
   try{
-    const cached=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');
-    if(cached?.version===CACHE_VERSION&&cached?.ownerId===ownerId&&cached?.raw){
-      return cached;
-    }
+    const cached=JSON.parse(localStorage.getItem(key)||'null');
+    if(cached?.ownerId===ownerId&&cached?.raw)return cached;
   }catch{}
   return null;
 }
+function readCache(ownerId){
+  if(!ownerId)return null;
+  const current=parseCacheKey(CACHE_KEY,ownerId);
+  if(current?.version===CACHE_VERSION)return current;
+  for(const key of LEGACY_CACHE_KEYS){
+    const legacy=parseCacheKey(key,ownerId);
+    if(legacy)return legacy;
+  }
+  return null;
+}
+function offlineCutoff(asOfDate=localDateKey()){
+  const d=new Date(`${asOfDate}T12:00:00`);
+  d.setDate(d.getDate()-OFFLINE_HISTORY_DAYS);
+  return localDateKey(d);
+}
+function buildOfflineSnapshot(raw){
+  const cutoff=offlineCutoff();
+  const dailyLogs=(raw.dailyLogs??[]).filter(row=>String(row.log_date??'')>=cutoff);
+  const keptLogIds=new Set(dailyLogs.map(row=>String(row.id??'')).filter(Boolean));
+  const meals=(raw.meals??[]).filter(row=>{
+    const date=String(row.eaten_at??'').slice(0,10);
+    return keptLogIds.has(String(row.daily_log_id??''))||date>=cutoff;
+  });
+  const keptMealIds=new Set(meals.map(row=>String(row.id??'')).filter(Boolean));
+  return {
+    profile:raw.profile??null,
+    dailyLogs,
+    meals,
+    mealItems:(raw.mealItems??[]).filter(row=>keptMealIds.has(String(row.meal_id??''))),
+    weights:(raw.weights??[]).filter(row=>String(row.entry_date??'')>=cutoff),
+    goalPhases:raw.goalPhases??[],
+    savedFoods:(raw.savedFoods??[]).slice(0,500),
+    savedMeals:(raw.savedMeals??[]).slice(0,300),
+    targetRecommendations:(raw.targetRecommendations??[]).slice(0,20),
+    activityDaily:(raw.activityDaily??[]).slice(0,120),
+    trainingDistribution:raw.trainingDistribution??null,
+    trainingDays:(raw.trainingDays??[]).slice(0,180)
+  };
+}
 function saveCache(ownerId,raw){
-  if(!ownerId||!raw)return;
+  if(!ownerId||!raw)return false;
   try{
+    const compact=buildOfflineSnapshot(raw);
     localStorage.setItem(CACHE_KEY,JSON.stringify({
       version:CACHE_VERSION,
       ownerId,
       savedAt:new Date().toISOString(),
-      raw
+      historyDays:OFFLINE_HISTORY_DAYS,
+      raw:compact
     }));
-  }catch{}
+    for(const key of LEGACY_CACHE_KEYS)try{localStorage.removeItem(key)}catch{}
+    return true;
+  }catch{return false;}
 }
 function currentSessionOwner(session){
   return typeof session?.user?.id==='string'&&session.user.id?session.user.id:null;
@@ -631,12 +673,20 @@ export function getDietV2RawData(){
   }
 }
 export function clearDietV2OfflineCache(){
-  try{localStorage.removeItem(CACHE_KEY);return true;}catch{return false;}
+  let ok=true;
+  try{localStorage.removeItem(CACHE_KEY);}catch{ok=false;}
+  for(const key of LEGACY_CACHE_KEYS)try{localStorage.removeItem(key)}catch{ok=false;}
+  return ok;
 }
 export function getDietV2OfflineCacheInfo(){
-  if(!state.user?.id)return {present:false,savedAt:null,ownerMatched:false};
+  if(!state.user?.id)return {present:false,savedAt:null,ownerMatched:false,historyDays:OFFLINE_HISTORY_DAYS};
   const cached=readCache(state.user.id);
-  return {present:Boolean(cached),savedAt:cached?.savedAt??null,ownerMatched:Boolean(cached)};
+  return {
+    present:Boolean(cached),
+    savedAt:cached?.savedAt??null,
+    ownerMatched:Boolean(cached),
+    historyDays:Number(cached?.historyDays??OFFLINE_HISTORY_DAYS)
+  };
 }
 export function getDietV2State(){return {status:state.status,source:state.source,signedIn:Boolean(state.user),fetchedAt:state.fetchedAt};}
 
