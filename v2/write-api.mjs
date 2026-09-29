@@ -1,3 +1,5 @@
+let uncertainWrite=null;
+
 const RPC=Object.freeze({
   manual:'diet_app_log_meal',
   savedFood:'diet_app_log_saved_food',
@@ -32,7 +34,27 @@ function isTransient(error){
   const code=String(error?.code??'');
   return status>=500 || status===429 || code.startsWith('PGRST') || ['TypeError','AbortError','TimeoutError'].includes(error?.name);
 }
+function reconciliationError(){
+  const error=new Error('A previous write could not be confirmed. Refresh Diet Copilot before writing again.');
+  error.code='DIET_WRITE_RECONCILE_REQUIRED';
+  error.uncertainWrite=uncertainWrite;
+  return error;
+}
+function markUncertain(name,args,error){
+  uncertainWrite={
+    rpc:name,
+    requestId:args?.p_request_id??null,
+    at:new Date().toISOString(),
+    reason:String(error?.message??error??'unknown')
+  };
+  const wrapped=new Error('A write may have reached the server but could not be confirmed. Refresh Diet Copilot before writing again.');
+  wrapped.code='DIET_WRITE_UNCERTAIN';
+  wrapped.uncertainWrite=uncertainWrite;
+  wrapped.cause=error;
+  return wrapped;
+}
 async function call(client,name,args,{retry=true}={}){
+  if(uncertainWrite)throw reconciliationError();
   if(!client?.rpc)throw new Error('Diet account connection is unavailable.');
   const run=async()=>{
     const {data,error}=await client.rpc(name,args);
@@ -43,7 +65,11 @@ async function call(client,name,args,{retry=true}={}){
   catch(error){
     if(!retry||!isTransient(error))throw error;
     await new Promise(resolve=>setTimeout(resolve,320));
-    return run();
+    try{return await run();}
+    catch(secondError){
+      if(isTransient(secondError))throw markUncertain(name,args,secondError);
+      throw secondError;
+    }
   }
 }
 
@@ -278,5 +304,10 @@ export async function deleteTrainingDay(client,{trainingDayId,expectedUpdatedAt=
   });
   return {data,requestId:rid};
 }
+
+export function getDietWriteGuardState(){
+  return uncertainWrite?{blocked:true,...uncertainWrite}:{blocked:false};
+}
+export function clearUncertainWriteGuard(){uncertainWrite=null;}
 
 export const DietWriteRPC=RPC;
