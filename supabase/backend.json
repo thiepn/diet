@@ -91,7 +91,12 @@
     "payload_bound_idempotency": true,
     "owner_mutation_serialization": true,
     "private_write_cores": true,
-    "stale_content_automerge": false
+    "stale_content_automerge": false,
+    "certified_schema_fingerprint": true,
+    "production_schema_drift_detection": true,
+    "release_checkpointing": true,
+    "schema_drift_auto_repair": false,
+    "service_only_release_status": true
   },
   "observability_policy": {
     "release": "P13",
@@ -279,6 +284,54 @@
       "started_rows": 0,
       "advisor_security_findings": 0,
       "advisor_performance_findings": 0
+    }
+  },
+  "change_governance_policy": {
+    "release": "P20",
+    "migration_versions": [
+      "20260929221452"
+    ],
+    "schema_contract_format": "diet-p20-schema-contract-v1",
+    "certified_schema_sha256": "f5463a8b37e3a0be94c15588037405bbcca75a5f60c5401f0c937b8e5dc13752",
+    "contract_scope": {
+      "diet_public_tables": 18,
+      "private_operational_tables": 5,
+      "includes": [
+        "relations",
+        "columns",
+        "constraints",
+        "indexes",
+        "rls_policies",
+        "triggers",
+        "diet_functions",
+        "diet_cron_jobs"
+      ],
+      "excludes": [
+        "table_rows",
+        "auth_managed_schema",
+        "storage_managed_schema",
+        "unrelated_apps"
+      ]
+    },
+    "checkpoint": {
+      "table": "private.diet_release_checkpoints",
+      "release": "P20",
+      "operations_version": "P20.0",
+      "status": "clean"
+    },
+    "drift_audit": {
+      "table": "private.diet_schema_drift_audits",
+      "retention_days": 365,
+      "cron_utc": "03:37_daily",
+      "function": "private.diet_p20_run_drift_audit",
+      "auto_repair": false
+    },
+    "release_status_rpc": "public.diet_p20_release_status",
+    "release_status_service_only": true,
+    "rollback_probe": {
+      "drift_detected": true,
+      "fingerprint_restored_after_rollback": true,
+      "persisted_probe_change": false
     }
   }
 }

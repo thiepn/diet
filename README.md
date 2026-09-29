@@ -1,46 +1,45 @@
 # Diet Copilot
 
-**Web 2.0.3 · P19 concurrency and idempotency hardening**
+**Web 2.0.3 · P20 production change-governance hardening**
 
-Diet Copilot 2.0 remains live at **https://thiepn.dev/diet/**. P19 is a backend/operations release: it hardens all authenticated mutations against duplicate delivery, cross-operation request-ID reuse, and simultaneous multi-device writes without changing the browser UI or nutrition logic.
+Diet Copilot 2.0 remains live at **https://thiepn.dev/diet/**. P20 is an operations-only release that detects silent production schema drift and records certified Diet database checkpoints.
 
-## P19
+## P20
 
-All **18 authenticated write RPCs** now keep their existing public names/signatures but execute through a transactional request wrapper. Their previous implementations live as private mutation cores.
+Diet now has a deterministic SHA-256 schema contract covering its **18 public data tables**, **5 private operational tables**, columns, constraints, indexes, RLS policies, triggers, Diet functions and Diet cron jobs.
 
-Each request ID is bound to the owner, exact operation, and SHA-256 of the canonical JSON payload:
+The certified P20 fingerprint is:
 
-- same ID + same operation + same payload → exact committed-result replay;
-- same ID + changed payload → rejected;
-- same ID + changed operation → rejected;
-- failed transaction → claim rolls back with the mutation.
+`f5463a8b37e3a0be94c15588037405bbcca75a5f60c5401f0c937b8e5dc13752`
 
-P19 also takes a transaction-scoped advisory lock per owner, so different mutations from multiple devices or tabs cannot execute concurrently.
+A private daily watchdog runs at **03:37 UTC** and compares production with the latest certified release checkpoint. Audit results are retained for **365 days**.
 
-Existing `expected_updated_at` checks remain authoritative for content-bearing edits and deletes. P19 does **not** auto-merge stale content. Favorite/unfavorite controls remain explicit state setters with deterministic serialized last-write-wins behavior.
+P20 was fault-tested with a temporary unapproved schema constraint: drift was detected, rollback restored the exact fingerprint, and no probe change persisted.
 
-The private request ledger retains replay data for **35 days**, is inaccessible to browser roles, cascades on account deletion, and is pruned daily at **03:27 UTC**.
+The watchdog deliberately does **not auto-repair** production. Intentional schema changes should remain version-controlled migrations and receive a new checkpoint only after tests and advisors pass.
 
-Production certification reports **18 public wrappers, 18 private cores, 0 stuck requests**, with zero P19-specific Supabase security or performance advisor findings.
+The contract excludes Supabase-managed auth/storage schemas and unrelated THIEPN apps, avoiding false alerts in the shared Supabase project.
 
 ## Existing protection
 
 - **P13:** local-only operational telemetry and degraded-mode reliability.
-- **P14:** owner RLS, owner triggers, owner-coupled FKs and RPC authorization.
-- **P15:** verified recovery snapshots and encrypted off-site backups.
-- **P16:** consolidated owner reads, explicit owner filtering and performance budgets.
-- **P17:** authoritative owner export, local-device purge and lifecycle hardening.
-- **P18:** database integrity constraints and scheduled corruption detection.
+- **P14:** authorization/RLS hardening.
+- **P15:** verified snapshots and encrypted off-site backups.
+- **P16:** production read/performance hardening.
+- **P17:** authoritative export and lifecycle privacy.
+- **P18:** database integrity constraints and corruption detection.
+- **P19:** transactional idempotency and multi-device write serialization.
 
 ## Release
 
 - Web/PWA: **2.0.3**
-- Operations: **P19.0**
+- Operations: **P20.0**
 - Security: **P14**
 - Resilience: **P15**
 - Performance: **P16**
 - Privacy/lifecycle: **P17**
 - Data integrity: **P18**
 - Concurrency/idempotency: **P19**
+- Change governance/schema drift: **P20**
 
-See [P19 concurrency/idempotency hardening](docs/P19-CONCURRENCY-IDEMPOTENCY.md) and [QA.md](QA.md).
+See [P20 change governance](docs/P20-CHANGE-GOVERNANCE.md) and [QA.md](QA.md).

@@ -7,7 +7,7 @@
   "accountContract": "1.0",
   "sdkContract": "1.x",
   "integrationMode": "certified-legacy",
-  "operationsVersion": "P19.0",
+  "operationsVersion": "P20.0",
   "sessionAuthority": "thiepn-account",
   "degradedMode": "cached-read-only",
   "authEntryPoints": [
@@ -70,7 +70,15 @@
     "publicWriteWrapperCount": 18,
     "privateWriteCoreCount": 18,
     "staleContentAutoMerge": false,
-    "concurrencyStatusServiceOnly": true
+    "concurrencyStatusServiceOnly": true,
+    "schemaDriftWatchdog": true,
+    "schemaDriftDetected": false,
+    "schemaContractRelationCount": 23,
+    "schemaDriftAuditRetentionDays": 365,
+    "schemaDriftCronUtc": "03:37",
+    "schemaDriftAutoRepair": false,
+    "releaseCheckpointing": true,
+    "releaseStatusServiceOnly": true
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0",
@@ -85,5 +93,7 @@
   "integrityRelease": "P18",
   "integrityModel": "db-constraints-scheduled-invariant-audit-v1",
   "concurrencyRelease": "P19",
-  "concurrencyModel": "transactional-request-ledger-owner-serialization-v1"
+  "concurrencyModel": "transactional-request-ledger-owner-serialization-v1",
+  "changeGovernanceRelease": "P20",
+  "schemaContractModel": "deterministic-schema-fingerprint-certified-checkpoint-v1"
 }

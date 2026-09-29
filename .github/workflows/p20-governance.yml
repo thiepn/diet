@@ -1,0 +1,54 @@
+name: P20 Production Change Governance
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/backend.json'
+      - 'supabase/migrations/**'
+      - '.well-known/thiepn-app.json'
+      - 'tests/p20-*'
+      - 'docs/P20-*'
+      - '.github/workflows/p20-governance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: p20-production-governance
+  cancel-in-progress: true
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: P20 schema governance contract
+        run: |
+          node tests/p20-governance-contract.mjs
+          python -m py_compile tests/p20-public-release-status-probe.py
+
+  public-boundary:
+    needs: static
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify publishable client cannot read P20 release status
+        run: python tests/p20-public-release-status-probe.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p20-public-release-status
+          path: p20-public-release-status.json
+          retention-days: 14

@@ -18,7 +18,7 @@ const allBrowser=[data,settings,auth,read('v2/write-api.mjs'),read('v2/copilot.j
 
 assert.equal(app.release,'2.0.3');
 assert.equal(app.webRelease,'2.0.3');
-assert.ok(['P17.0','P18.0','P19.0'].includes(app.operationsVersion));
+assert.ok(['P17.0','P18.0','P19.0','P20.0'].includes(app.operationsVersion));
 assert.equal(app.privacyRelease,'P17');
 assert.equal(app.securityRelease,'P14');
 assert.equal(app.resilienceRelease,'P15');
