@@ -100,7 +100,7 @@ document.addEventListener('keydown',event=>{
     if(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target?.isContentEditable) return;
     if(cleanRoute()!=='food') location.hash='food';
     event.preventDefault();
-    requestAnimationFrame(()=>document.querySelector('.dc-search-button')?.focus());
+    requestAnimationFrame(()=>document.getElementById('foodSearchInput')?.focus());
   }
 });
 
