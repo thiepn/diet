@@ -1,38 +1,39 @@
-# Diet Copilot 2.0.1 — P13 production reliability gates
+# Diet Copilot 2.0.1 — P14 production security gates
 
-Date: 2026-09-29. Phase: P13 Post-Release Production Monitoring, Telemetry & Reliability Hardening.
+Date: 2026-09-29. Phase: P14 Production Security, Authorization & Database Hardening.
 
 ## Required gates
 
 | Gate | Coverage |
 | --- | --- |
-| CI | P13 syntax, telemetry privacy contract, product/backend metadata and built Pages artifact |
-| A7/P13 operations | degraded-mode behavior, explicit write safety, Realtime/foreground reliability and no broad local-data clearing |
-| A8 account consumer | Google-only PKCE, canonical project, shared persistent auth storage and P13 release metadata |
-| A9 account platform | Account Platform v1 contract with Diet consumer release 2.0.1 |
-| P13 synthetic | canonical shell, standalone manifest, P13 worker/telemetry asset, Supabase Auth health |
-| P13 live browsers | Chromium, Firefox and WebKit canonical production, System Health diagnostics, mobile layout and runtime errors |
-| Hourly monitor | lightweight public-shell/Auth health probe with JSON evidence |
+| CI | P13 telemetry privacy, P14 static security contract, release metadata and built Pages artifact |
+| A7/P14 operations | degraded-mode/write safety plus P14 database-security metadata |
+| A8 account consumer | Google-only PKCE, canonical project, shared auth storage and P14 operations metadata |
+| A9 account platform | Account Platform v1 contract with Diet Web 2.0.1 |
+| P14 public probe | publishable/anon key cannot read Diet tables or execute Diet write RPCs |
+| Supabase catalog verification | RLS, grants, owner policies/triggers, RPC ACL/search path and validated P14 constraints |
+| Transactional live probe | authenticated RPC works; cross-owner and anonymous writes fail; transaction rolls back |
+| Supabase advisors | no P14 RLS-initplan or unindexed-FK findings |
 
-## Telemetry privacy contract
+## Authorization invariants
 
-Operational telemetry is local-only. It is limited to sanitized event names, state names, operation names, timings, retry flags, connectivity, worker state and sanitized error codes. It never intentionally records nutrition values, meals, weights, email addresses, tokens, OAuth codes, request IDs or free-form user content.
+- `anon` has no Diet table privileges and no `diet_app_*` execution.
+- `authenticated` has owner-scoped SELECT only on Diet tables.
+- Browser mutations use only `diet_app_*` RPCs.
+- Public write RPCs revoke `PUBLIC`/anon, grant authenticated only, and use an empty `search_path`.
+- Every Diet-owned table has the restrictive `diet_p14_owner_guard` policy.
+- Every Diet-owned table has the `diet_p14_session_owner_guard` trigger.
+- Anonymous authenticated-role sessions are rejected.
+- A privileged function cannot write a row owned by another authenticated user.
+- Parent/child ownership is enforced with validated composite foreign keys.
+- Private Diet helpers remain unavailable to `anon` and `authenticated`.
 
-The local log retains at most 120 events for seven days. Clearing System Health history deletes the browser copy.
+## Reviewed advisor exception
 
-## Reliability invariants
+Supabase continues to flag authenticated `SECURITY DEFINER` Diet RPCs. For Diet this is intentional: these functions are the explicit write API required because direct table mutation is denied. The warning is accepted only while all compensating controls above remain green.
 
-- Network failures do not become sign-outs.
-- Cached owner-scoped data remains usable when live refresh fails.
-- An uncertain write blocks subsequent writes until canonical refresh/reconciliation.
-- Foreground resume revalidates signed-in data when the last fetch is older than one minute.
-- Realtime status is observable but does not become the authority for nutrition data.
-- Root and `/v2/` workers remain separate scopes.
-- OAuth callback/result URLs are not cached.
-- V1 rollback remains available.
+Reference: https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable
 
-## Production monitoring
+## Shared-project findings outside P14 scope
 
-The hourly synthetic monitor deliberately avoids real account credentials. It verifies the public shell/PWA and the documented Supabase Auth health endpoint using the public publishable key. Real authenticated data flows remain covered by owner-scoped application contracts and release-browser fixtures rather than production impersonation.
-
-For backend incidents, compare Supabase API/Auth error rates and connection pressure with a known-good window and review Health Check Advisors before changing database behavior.
+Other apps in the shared Supabase project can still produce advisor findings. P14 does not alter unrelated leaderboard, arcade, Notes, or account objects. The shared leaked-password warning is not used by Diet's Google-only auth flow and should be reviewed separately if password authentication becomes part of the account model.

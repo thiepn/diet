@@ -1,53 +1,54 @@
 # Diet Copilot
 
-**Web 2.0.1 · P13 production monitoring and reliability**
+**Web 2.0.1 · P14 production security hardening**
 
-Diet Copilot 2.0 is the production nutrition tracker and adaptive coaching experience at **https://thiepn.dev/diet/**. P13 keeps the P12 cutover architecture and adds privacy-safe operational monitoring without changing nutrition behavior.
+Diet Copilot 2.0 remains the production nutrition tracker at **https://thiepn.dev/diet/**. P14 is a backend/security release: the browser bundle stays at Web 2.0.1 while the canonical Supabase authorization model gains additional database-level owner enforcement.
 
-## P13 reliability layer
+## P14 security model
 
-Diet Copilot now has:
+Diet Copilot now has layered authorization:
 
-- a bounded **local-only operational telemetry** ring buffer;
-- a **System Health** panel with data, Realtime, PWA and write-safety state;
-- foreground/pageshow stale-data revalidation;
-- write success/retry/failure/uncertain-state telemetry without payloads or request IDs;
-- Realtime lifecycle diagnostics;
-- PWA registration/update diagnostics;
-- an **hourly external synthetic monitor** for the public production shell and Supabase Auth health;
-- three-engine release certification after production deployments.
+- authenticated users have **owner-scoped SELECT only** on Diet tables;
+- browser INSERT/UPDATE/DELETE remains denied;
+- all browser mutations stay inside the explicit `diet_app_*` RPC boundary;
+- `anon` has no Diet table access and no Diet write-RPC execution;
+- a P14 restrictive RLS policy constrains every Diet table to the authenticated owner;
+- a table-level session-owner trigger independently blocks anonymous writes and cross-user row writes, including mistakes inside privileged functions;
+- composite owner foreign keys prevent cross-user parent/child references;
+- public Diet RPCs keep `PUBLIC`/anon execution revoked and use an empty `search_path`;
+- private helpers remain unavailable to browser roles.
 
-The telemetry policy deliberately excludes nutrition records, meal names, weight values, account email, tokens, OAuth codes, request IDs, Copilot messages and free-form user text. No third-party analytics SDK is used.
+The authenticated `SECURITY DEFINER` RPC pattern is intentional. It is retained because direct table DML is deliberately unavailable to the browser; P14 adds independent owner enforcement underneath those RPCs instead of weakening the boundary.
 
-## Product scope
+## Reliability and privacy
 
-Diet Copilot combines fast food logging, reusable foods and meals, weight/progress history, adaptive calorie targets, training-day distribution, activity context, strategy actions, exports, and an AI Copilot explanation layer. Deterministic nutrition calculations remain authoritative. Activity is context only and is not automatically eaten back.
+P13 reliability protections remain active:
 
-Writes are owner-scoped and explicit. Food logging, corrections, reusable-food changes and strategy actions require deliberate user actions; the application does not silently change targets or nutrition records.
+- local-only sanitized operational telemetry;
+- System Health diagnostics;
+- foreground revalidation;
+- uncertain-write blocking;
+- Realtime/PWA diagnostics;
+- hourly synthetic production monitoring.
 
-## Account and data safety
+Telemetry still excludes nutrition records, meal names, weights, account email, auth tokens, OAuth codes, request IDs, Copilot messages and free-form user content.
 
-Google sign-in is the account entry point. The shared Supabase project `hycegznamzjhwinegaai` remains canonical. Private cached nutrition snapshots are owner-scoped. Account switching and sign-out clear visible private state and fence pending reads. Network failures do not become sign-outs.
-
-The shared OAuth relay returns Diet 2.0 callbacks to canonical `/diet/`. The independently frozen V1 rollback bundle retains its dedicated legacy callback route.
-
-## Production and rollback layout
+## Production and rollback
 
 - `/diet/` — canonical Diet Copilot 2.0 production surface.
 - `/diet/v2/` — stable compatibility alias.
-- `/diet/legacy-v1.html` — independently sign-in-capable V1 emergency fallback.
-- `/diet/sw.js` — P13 production service worker.
-- `/diet/v2/sw.js` — narrower compatibility-route worker.
-- `/diet/v2/telemetry.mjs` — local-only operational telemetry module.
+- `/diet/legacy-v1.html` — independently sign-in-capable V1 rollback.
+- `/diet/sw.js` — P13 production service worker, unchanged by the backend-only P14 release.
 
 ## Verification
 
 ```bash
 node tests/p13-telemetry.mjs
-python -m py_compile tests/p13-synthetic-monitor.py tests/p13-live-reliability.py
-python tests/p13-synthetic-monitor.py
+node tests/p14-security-contract.mjs
+python -m py_compile tests/p14-public-security-probe.py
+python tests/p14-public-security-probe.py
 ```
 
-GitHub Actions runs CI and account/operations contracts on pushes, release browser certification after Pages deployment, and the lightweight synthetic health monitor once per hour.
+P14 production verification also includes transactional rollback probes against the live database: valid authenticated RPC writes succeed, while cross-owner and anonymous writes are rejected.
 
-See [P13 operations](docs/P13-OPERATIONS.md) and [QA.md](QA.md).
+See [P14 security hardening](docs/P14-SECURITY-HARDENING.md), [P13 operations](docs/P13-OPERATIONS.md), and [QA.md](QA.md).

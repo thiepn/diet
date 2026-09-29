@@ -7,7 +7,7 @@
   "accountContract": "1.0",
   "sdkContract": "1.x",
   "integrationMode": "certified-legacy",
-  "operationsVersion": "P13.0",
+  "operationsVersion": "P14.0",
   "sessionAuthority": "thiepn-account",
   "degradedMode": "cached-read-only",
   "authEntryPoints": [
@@ -29,8 +29,15 @@
     "localOperationalTelemetry": true,
     "telemetryUploadsNutritionData": false,
     "syntheticProductionMonitoring": true,
-    "foregroundRevalidation": true
+    "foregroundRevalidation": true,
+    "databaseOwnerGuard": true,
+    "restrictiveOwnerRls": true,
+    "crossOwnerForeignKeys": true,
+    "directTableWrites": false,
+    "anonymousDietAccess": false
   },
   "sourceLayout": "v2",
-  "accountPlatformRelease": "1.0.0"
+  "accountPlatformRelease": "1.0.0",
+  "securityRelease": "P14",
+  "securityModel": "owner-guarded-rpc-v1"
 }

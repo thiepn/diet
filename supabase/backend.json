@@ -60,7 +60,12 @@
     "local_operational_telemetry": true,
     "production_synthetic_monitoring": true,
     "foreground_revalidation": true,
-    "realtime_status_diagnostics": true
+    "realtime_status_diagnostics": true,
+    "restrictive_owner_rls": true,
+    "session_owner_write_guard": true,
+    "cross_owner_reference_enforcement": true,
+    "anonymous_diet_rejection": true,
+    "public_security_probe": true
   },
   "observability_policy": {
     "release": "P13",
@@ -69,5 +74,21 @@
     "synthetic_monitoring": "public_shell_plus_auth_health",
     "retention_days_local": 7,
     "max_local_events": 120
+  },
+  "security_policy": {
+    "release": "P14",
+    "direct_table_read": "authenticated_owner_scoped_select_only",
+    "direct_table_mutation": "denied_to_anon_and_authenticated",
+    "write_api": "authenticated_diet_app_rpc_only",
+    "public_rpc_security": "security_definer_empty_search_path_auth_uid_bound",
+    "table_session_owner_guard": true,
+    "anonymous_diet_access": false,
+    "cross_owner_foreign_keys": true,
+    "private_helpers_exposed_to_browser": false,
+    "security_definer_advisor_exception": "intentional_reviewed_write_api",
+    "migration_versions": [
+      "20260929190638",
+      "20260929190758"
+    ]
   }
 }

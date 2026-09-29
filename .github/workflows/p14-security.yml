@@ -1,0 +1,59 @@
+name: P14 Production Security
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/backend.json'
+      - 'supabase/migrations/**'
+      - '.well-known/thiepn-app.json'
+      - 'tests/p14-*'
+      - 'docs/P14-*'
+      - '.github/workflows/p14-security.yml'
+  schedule:
+    - cron: '43 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p14-production-security
+  cancel-in-progress: true
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: P14 static security contract
+        run: |
+          node tests/p14-security-contract.mjs
+          python -m py_compile tests/p14-public-security-probe.py
+
+  public-boundary:
+    needs: static
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify publishable key cannot cross Diet security boundary
+        run: python tests/p14-public-security-probe.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p14-public-security
+          path: p14-public-security.json
+          retention-days: 14
