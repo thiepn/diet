@@ -1,7 +1,7 @@
 const CACHE='diet-copilot-web-v1.0.3-account1';
 const CORE=['./','./index.html','./diet.css?v=1.0.3-account1','./diet-app.js?v=1.0.3-account1','./vendor/supabase-2.116.0.js','./.well-known/thiepn-app.json','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting())));
-self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE&&key.startsWith('diet-copilot')).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
+self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE&&key.startsWith('diet-copilot-web-')).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
 async function networkFirst(request, fallback=request) {
   try {
     const response=await fetch(new Request(request,{cache:'no-cache'}));
