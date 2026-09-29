@@ -14,6 +14,10 @@ async function networkFirst(request, fallback=request) {
 self.addEventListener('fetch',event=>{
   const request=event.request, url=new URL(request.url);
   if(request.method!=='GET'||url.origin!==self.location.origin)return;
+  // V2 owns its own narrower service-worker scope. Never answer a V2 request
+  // with the V1 offline shell while control is transitioning between workers.
+  const rootScope=new URL('./',self.registration.scope).pathname;
+  if(url.pathname.startsWith(rootScope+'v2/'))return;
   // Never cache an OAuth result, an auth relay, or private API responses.
   if(['/native-auth-start.html','/native-auth-callback.html','/web-auth-callback.html'].some(path=>url.pathname.endsWith(path)) || ['code','sb_flow_id','error','error_code','error_description'].some(key=>url.searchParams.has(key)))return;
   if(request.mode==='navigate'){event.respondWith(networkFirst(request,'./index.html'));return;}
