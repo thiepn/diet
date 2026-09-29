@@ -43,6 +43,7 @@ jobs:
           node --check v2/engine/adaptive-nutrition.mjs
           node --check v2/engine/legacy-data-adapter.mjs
           node --check v2/engine/training-nutrition.mjs
+          node --check v2/engine/personal-intelligence.mjs
           node --check tests/v2-shell.mjs
           node --check tests/v2-read-integration.mjs
           node --check tests/v2-fast-food.mjs
@@ -50,6 +51,8 @@ jobs:
           node --check tests/v2-strategy-actions.mjs
           node --check tests/v2-training-activity.mjs
           node --check tests/training-nutrition.mjs
+          node --check tests/personal-intelligence.mjs
+          node --check tests/v2-personal-intelligence.mjs
           node --check tests/policy.mjs
           node --check src/engine/adaptive-nutrition.mjs
           node --check tests/adaptive-engine.mjs
@@ -110,6 +113,10 @@ jobs:
         run: node tests/training-nutrition.mjs
       - name: Diet Copilot 2.0 training-day nutrition and activity integration
         run: node tests/v2-training-activity.mjs
+      - name: Diet Copilot 2.0 personal intelligence engine
+        run: node tests/personal-intelligence.mjs
+      - name: Diet Copilot 2.0 personal intelligence integration
+        run: node tests/v2-personal-intelligence.mjs
       - name: Verify committed static production bundles
         run: node scripts/build-v68.mjs
       - name: Stable bundle certification
@@ -161,6 +168,7 @@ jobs:
           test -f _site/v2/engine/adaptive-nutrition.mjs
           test -f _site/v2/engine/legacy-data-adapter.mjs
           test -f _site/v2/engine/training-nutrition.mjs
+          test -f _site/v2/engine/personal-intelligence.mjs
           node --check _site/v2/shell.js
           node --check _site/v2/data.js
           node --check _site/v2/auth-storage.mjs
@@ -175,6 +183,7 @@ jobs:
           node --check _site/v2/engine/adaptive-nutrition.mjs
           node --check _site/v2/engine/legacy-data-adapter.mjs
           node --check _site/v2/engine/training-nutrition.mjs
+          node --check _site/v2/engine/personal-intelligence.mjs
           ! grep -q auth-persistence-hotfix _site/index.html
           node --check _site/diet-app.js
           cmp diet-app.js _site/diet-app.js
