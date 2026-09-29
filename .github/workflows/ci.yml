@@ -26,7 +26,11 @@ jobs:
           node --check scripts/build-v68.mjs
           node --check scripts/p1_5-shadow-validate.mjs
           node --check v2/shell.js
+          node --check v2/data.js
+          node --check v2/auth-storage.mjs
+          node --check v2/read-model.mjs
           node --check tests/v2-shell.mjs
+          node --check tests/v2-read-integration.mjs
           node --check tests/policy.mjs
           node --check src/engine/adaptive-nutrition.mjs
           node --check tests/adaptive-engine.mjs
@@ -75,6 +79,8 @@ jobs:
         run: node tests/legacy-shadow.mjs
       - name: Diet Copilot 2.0 application shell
         run: node tests/v2-shell.mjs
+      - name: Diet Copilot 2.0 read-only data integration
+        run: node tests/v2-read-integration.mjs
       - name: Verify committed static production bundles
         run: node scripts/build-v68.mjs
       - name: Stable bundle certification
@@ -113,7 +119,13 @@ jobs:
           test -f _site/v2/index.html
           test -f _site/v2/shell.css
           test -f _site/v2/shell.js
+          test -f _site/v2/data.js
+          test -f _site/v2/auth-storage.mjs
+          test -f _site/v2/read-model.mjs
           node --check _site/v2/shell.js
+          node --check _site/v2/data.js
+          node --check _site/v2/auth-storage.mjs
+          node --check _site/v2/read-model.mjs
           ! grep -q auth-persistence-hotfix _site/index.html
           node --check _site/diet-app.js
           cmp diet-app.js _site/diet-app.js
