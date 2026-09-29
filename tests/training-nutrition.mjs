@@ -80,6 +80,18 @@ import { buildWeeklyTrainingDistribution,buildActivityContext,buildTrainingNutri
 }
 
 {
+  const rows=[
+    ...Array.from({length:10},(_,i)=>({
+      activity_date:'2026-09-'+String(19+i).padStart(2,'0'),
+      steps:9000,active_calories:500,exercise_minutes:45
+    })),
+    {activity_date:'2026-09-29',steps:2500,active_calories:120,exercise_minutes:10}
+  ];
+  const context=buildActivityContext({asOfDate:'2026-09-29',activity:rows});
+  assert.equal(context.level,'in_progress','Partial current-day activity must not be labeled low against full-day baselines.');
+}
+
+{
   const lowActivity=[{activity_date:'2026-09-29',steps:20000,active_calories:1000,exercise_minutes:90}];
   const a=buildTrainingNutritionPlan({
     asOfDate:'2026-09-29',baseCalories:2000,protein:150,fat:65,
