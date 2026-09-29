@@ -163,10 +163,10 @@ async function fetchOwnerRows(){
     client.from('profiles').select('calorie_target,protein_target,goal_weight,fiber_target,desired_weekly_weight_change,adaptive_target_enabled,adaptive_min_complete_days,updated_at').maybeSingle(),
     client.from('daily_logs').select('id,log_date,calorie_target,protein_target,status,notes,updated_at').order('log_date'),
     client.from('meals').select('id,daily_log_id,meal_type,title,calories,protein,confidence,source,calories_low,calories_high,eaten_at,created_at,updated_at').order('eaten_at'),
-    client.from('meal_items').select('id,meal_id,name,quantity_text,calories,protein,calories_low,calories_high,confidence,source,sort_order,updated_at').order('sort_order'),
+    client.from('meal_items').select('id,meal_id,saved_food_id,name,quantity_text,calories,protein,carbs,fat,fiber,calories_low,calories_high,confidence,source,sort_order,updated_at').order('sort_order'),
     client.from('weight_entries').select('id,entry_date,weight,created_at,updated_at').order('entry_date'),
     client.from('goal_phases').select('phase_type,start_date,end_date,calorie_target,protein_target,goal_weight,desired_weekly_weight_change,active,created_at,updated_at').order('start_date'),
-    client.from('saved_foods').select('id,name,quantity_text,calories,protein,carbs,fat,fiber,brand,barcode,favorite,use_count,last_used_at,verified_at,updated_at').order('use_count',{ascending:false}),
+    client.from('saved_foods').select('id,name,quantity_text,calories,protein,carbs,fat,fiber,brand,barcode,favorite,use_count,last_used_at,verified_at,source,photo_url,updated_at').order('use_count',{ascending:false}),
     client.from('saved_meals').select('id,name,meal_type,calories,protein,carbs,fat,fiber,favorite,use_count,last_used_at,is_recipe,servings,serving_text,updated_at').order('use_count',{ascending:false})
   ]);
   for(const result of [profile,dailyLogs,meals,mealItems,weights,goalPhases,savedFoods,savedMeals]){
