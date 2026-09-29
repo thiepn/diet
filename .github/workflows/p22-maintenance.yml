@@ -46,6 +46,8 @@ jobs:
           python tests/p13-synthetic-monitor.py
           python tests/p21-public-failure-matrix.py
       - name: Check upstream versions
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python scripts/p22-upstream-watch.py --out p22-upstream-watch.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
