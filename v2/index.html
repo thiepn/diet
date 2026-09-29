@@ -479,12 +479,12 @@
           </div>
 
           <div class="dc-more-grid">
-            <button class="dc-more-card" type="button" data-open-food-library><span class="dc-more-icon">◎</span><span><strong>Foods & meals</strong><small>Custom foods, favorites and saved meals</small></span><span>›</span></button>
-            <button class="dc-more-card" id="moreIntegrationsButton" type="button"><span class="dc-more-icon">⇄</span><span><strong>Integrations</strong><small id="moreIntegrationsSummary">Health Connect and activity context</small></span><span>›</span></button>
-            <button class="dc-more-card" id="moreBodyButton" type="button"><span class="dc-more-icon">⌁</span><span><strong>Body & weight</strong><small id="moreBodySummary">Weight history, trend and goal</small></span><span>›</span></button>
-            <button class="dc-more-card" type="button" data-shell-action="account"><span class="dc-more-icon">◉</span><span><strong>Account</strong><small id="moreAccountSummary">THIEPN account and sync status</small></span><span>›</span></button>
-            <button class="dc-more-card" id="moreAppearanceButton" type="button"><span class="dc-more-icon">◐</span><span><strong>Appearance</strong><small id="moreAppearanceSummary">System · Comfortable</small></span><span>›</span></button>
-            <button class="dc-more-card" id="moreDataButton" type="button"><span class="dc-more-icon">↓</span><span><strong>Data & export</strong><small id="moreDataSummary">Export + privacy controls</small></span><span>›</span></button>
+            <button class="dc-more-card" type="button" data-open-food-library><span class="dc-more-icon" aria-hidden="true">◎</span><span><strong>Foods & meals</strong><small>Custom foods, favorites and saved meals</small></span><span aria-hidden="true">›</span></button>
+            <button class="dc-more-card" id="moreIntegrationsButton" type="button"><span class="dc-more-icon" aria-hidden="true">⇄</span><span><strong>Integrations</strong><small id="moreIntegrationsSummary">Health Connect and activity context</small></span><span aria-hidden="true">›</span></button>
+            <button class="dc-more-card" id="moreBodyButton" type="button"><span class="dc-more-icon" aria-hidden="true">⌁</span><span><strong>Body & weight</strong><small id="moreBodySummary">Weight history, trend and goal</small></span><span aria-hidden="true">›</span></button>
+            <button class="dc-more-card" type="button" data-shell-action="account"><span class="dc-more-icon" aria-hidden="true">◉</span><span><strong>Account</strong><small id="moreAccountSummary">THIEPN account and sync status</small></span><span aria-hidden="true">›</span></button>
+            <button class="dc-more-card" id="moreAppearanceButton" type="button"><span class="dc-more-icon" aria-hidden="true">◐</span><span><strong>Appearance</strong><small id="moreAppearanceSummary">System · Comfortable</small></span><span aria-hidden="true">›</span></button>
+            <button class="dc-more-card" id="moreDataButton" type="button"><span class="dc-more-icon" aria-hidden="true">↓</span><span><strong>Data & export</strong><small id="moreDataSummary">Export + privacy controls</small></span><span aria-hidden="true">›</span></button>
           </div>
         </section>
       </main>
@@ -610,7 +610,7 @@
     </div>
   </dialog>
 
-  <dialog class="dc-account-dialog" id="v2AccountDialog">
+  <dialog class="dc-account-dialog" id="v2AccountDialog" aria-labelledby="accountStateTitle">
     <div class="dc-account-dialog-card">
       <div class="dc-panel-head">
         <div><p class="dc-eyebrow">THIEPN account</p><h2 id="accountStateTitle">Checking account…</h2></div>
@@ -632,10 +632,10 @@
   </dialog>
 
 
-  <dialog class="dc-modal" id="mealEditorDialog">
+  <dialog class="dc-modal" id="mealEditorDialog" aria-labelledby="mealEditorHeading">
     <form class="dc-modal-card dc-modal-card--wide" id="mealEditorForm" method="dialog">
       <div class="dc-panel-head">
-        <div><p class="dc-eyebrow">Meal</p><h2>Edit logged meal</h2></div>
+        <div><p class="dc-eyebrow">Meal</p><h2 id="mealEditorHeading">Edit logged meal</h2></div>
         <button class="dc-icon-button" type="button" data-close-dialog="mealEditorDialog" aria-label="Close meal editor">×</button>
       </div>
       <input type="hidden" id="mealEditorId">
@@ -662,10 +662,10 @@
     </form>
   </dialog>
 
-  <dialog class="dc-modal" id="foodLibraryDialog">
+  <dialog class="dc-modal" id="foodLibraryDialog" aria-labelledby="foodLibraryHeading">
     <div class="dc-modal-card dc-modal-card--wide">
       <div class="dc-panel-head">
-        <div><p class="dc-eyebrow">Library</p><h2>Foods & saved meals</h2></div>
+        <div><p class="dc-eyebrow">Library</p><h2 id="foodLibraryHeading">Foods & saved meals</h2></div>
         <button class="dc-icon-button" type="button" data-close-dialog="foodLibraryDialog" aria-label="Close food library">×</button>
       </div>
       <div class="dc-library-toolbar">
@@ -679,7 +679,7 @@
     </div>
   </dialog>
 
-  <dialog class="dc-modal" id="foodEditorDialog">
+  <dialog class="dc-modal" id="foodEditorDialog" aria-labelledby="foodEditorHeading">
     <form class="dc-modal-card" id="foodEditorForm" method="dialog">
       <div class="dc-panel-head">
         <div><p class="dc-eyebrow" id="foodEditorEyebrow">Saved food</p><h2 id="foodEditorHeading">Food details</h2></div>
