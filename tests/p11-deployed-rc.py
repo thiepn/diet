@@ -6,7 +6,7 @@ from urllib.request import Request, urlopen
 BASE = "https://thiepn.dev/diet/v2/"
 ROOT = Path("v2")
 FILES = sorted(str(path.relative_to(ROOT)).replace("\\", "/") for path in ROOT.rglob("*") if path.is_file())
-REVISION = os.environ.get("GITHUB_SHA", "manual")
+REVISION = os.environ.get("P11_RC_SHA") or os.environ.get("GITHUB_SHA", "manual")
 DEADLINE = time.monotonic() + 360
 
 def digest(data):
