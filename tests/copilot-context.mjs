@@ -86,6 +86,20 @@ assert.equal(JSON.stringify(context).includes('must-not-leak'),false,'P8 context
 }
 
 {
+  const reply=buildLocalCopilotReply('Can I eat a pizza slice?',context);
+  assert.ok(reply);
+  assert.equal(reply.action,null,'A comparison question must not become a logging proposal.');
+  assert.match(reply.answer,/would fit|more than today/i);
+}
+
+{
+  const reply=buildLocalCopilotReply('Log my usual breakfast but modified',context);
+  assert.ok(reply);
+  assert.equal(reply.action.type,'navigate_food','Modified saved meals must not log the unchanged canonical item.');
+  assert.match(reply.answer,/will not log the unmodified version/i);
+}
+
+{
   const reply=buildLocalCopilotReply('I ate a completely unknown dragonfruit pastry',context);
   assert.ok(reply);
   assert.equal(reply.action.type,'navigate_food');
