@@ -24,6 +24,7 @@ assert.doesNotMatch(html,/data-coming="Body measurements are connected later\."/
 assert.doesNotMatch(html,/data-coming="Appearance settings are connected later\."/,'Appearance More card must not remain a placeholder.');
 assert.doesNotMatch(html,/data-coming="Data controls are connected later\."/,'Data/export More card must not remain a placeholder.');
 assert.match(html,/type="module" src="\.\/settings\.js"/,'P9 settings module must be loaded.');
+assert.match(html,/diet-copilot-v2-ui-preferences-v1/,'P9 appearance preferences must preload before CSS to avoid theme flash.');
 
 for(const cls of [
   '.dc-p9-dialog','.dc-p9-stat-grid','.dc-p9-setting-group','.dc-choice-row',
@@ -34,12 +35,17 @@ assert.match(css,/:root\[data-theme="light"\]/,'Forced light theme override miss
 assert.match(css,/:root\[data-theme="dark"\]/,'Forced dark theme override missing.');
 assert.match(css,/data-density="compact"/,'Compact density override missing.');
 assert.match(css,/data-motion="reduce"/,'Reduced-motion override missing.');
+assert.match(css,/html\[data-theme="light"\]\{color-scheme:light\}/,'Forced light theme must set native control color scheme.');
+assert.match(css,/html\[data-theme="dark"\]\{color-scheme:dark\}/,'Forced dark theme must set native control color scheme.');
 
 assert.match(settings,/PREF_KEY='diet-copilot-v2-ui-preferences-v1'/,'P9 preferences need a versioned local key.');
 assert.match(settings,/buildDietJsonBackup/,'P9 JSON backup helper must be used.');
 assert.match(settings,/buildNutritionCsv/,'P9 nutrition CSV helper must be used.');
 assert.match(settings,/buildWeightCsv/,'P9 weight CSV helper must be used.');
 assert.match(settings,/clearDietV2OfflineCache/,'P9 cache control must use the V2 cache API.');
+assert.match(settings,/setAttribute\('aria-pressed',selected\?'true':'false'\)/,'Appearance choices must expose selection state to assistive technology.');
+assert.match(settings,/connect\.hidden=!plugin/,'Unavailable native Health Connect controls must be hidden on web/PWA.');
+assert.match(settings,/bodyExportWeights'\)\)\$\('bodyExportWeights'\)\.disabled=count===0/,'Weight export must disable when no weight history exists.');
 assert.match(settings,/window\.DietV2Copilot\?\.clearSession/,'P9 must reuse the P8 session clearing boundary.');
 assert.doesNotMatch(settings,/\.rpc\s*\(/,'P9 settings must not add direct RPC calls.');
 assert.doesNotMatch(settings,/service_role|sb_secret_|SUPABASE_DB_URL|access_token|refresh_token/,'P9 settings bundle must not contain privileged credentials or session-token handling.');
