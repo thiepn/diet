@@ -39,11 +39,14 @@ jobs:
           node --check v2/food-management.js
           node --check v2/open-food-facts.mjs
           node --check v2/strategy-actions.js
+          node --check v2/training-actions.js
           node --check tests/v2-shell.mjs
           node --check tests/v2-read-integration.mjs
           node --check tests/v2-fast-food.mjs
           node --check tests/v2-food-database.mjs
           node --check tests/v2-strategy-actions.mjs
+          node --check tests/v2-training-activity.mjs
+          node --check tests/training-nutrition.mjs
           node --check tests/policy.mjs
           node --check src/engine/adaptive-nutrition.mjs
           node --check tests/adaptive-engine.mjs
@@ -100,6 +103,10 @@ jobs:
         run: node tests/v2-food-database.mjs
       - name: Diet Copilot 2.0 adaptive coaching and strategy actions
         run: node tests/v2-strategy-actions.mjs
+      - name: Diet Copilot 2.0 training nutrition engine
+        run: node tests/training-nutrition.mjs
+      - name: Diet Copilot 2.0 training-day nutrition and activity integration
+        run: node tests/v2-training-activity.mjs
       - name: Verify committed static production bundles
         run: node scripts/build-v68.mjs
       - name: Stable bundle certification
@@ -147,6 +154,8 @@ jobs:
           test -f _site/v2/food-management.js
           test -f _site/v2/open-food-facts.mjs
           test -f _site/v2/strategy-actions.js
+          test -f _site/v2/training-actions.js
+          test -f _site/src/engine/training-nutrition.mjs
           node --check _site/v2/shell.js
           node --check _site/v2/data.js
           node --check _site/v2/auth-storage.mjs
@@ -157,6 +166,8 @@ jobs:
           node --check _site/v2/food-management.js
           node --check _site/v2/open-food-facts.mjs
           node --check _site/v2/strategy-actions.js
+          node --check _site/v2/training-actions.js
+          node --check _site/src/engine/training-nutrition.mjs
           ! grep -q auth-persistence-hotfix _site/index.html
           node --check _site/diet-app.js
           cmp diet-app.js _site/diet-app.js
