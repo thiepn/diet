@@ -263,7 +263,18 @@ export async function refresh({silent=false}={}){
   if(!silent)setState('loading');
 
   const sessionResult=await client.auth.getSession();
-  if(sessionResult.error)throw sessionResult.error;
+  if(sessionResult.error){
+    if(isDefinitiveAuthFailure(sessionResult.error)){
+      try{await client.auth.signOut({scope:'local'});}catch{}
+      try{dietV2AuthStorage.removeItem(DIET_V2_AUTH_STORAGE_KEY);}catch{}
+      if(epoch!==state.requestEpoch)return;
+      clearPrivateState();
+      setState('signed_out');
+      render();
+      return;
+    }
+    throw sessionResult.error;
+  }
   const session=sessionResult.data?.session??null;
   const ownerId=currentSessionOwner(session);
   if(!ownerId){
