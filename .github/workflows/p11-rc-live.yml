@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/p11-rc-live.yml'
+      - 'tests/p11-live-rc.py'
+      - 'tests/p11-deployed-rc.py'
   workflow_run:
     workflows: ['pages build and deployment']
     types: [completed]
@@ -17,6 +19,7 @@ concurrency:
 jobs:
   deployed-assets:
     if: >-
+      github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
