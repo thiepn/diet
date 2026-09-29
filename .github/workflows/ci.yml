@@ -24,6 +24,7 @@ jobs:
           set -euo pipefail
           find src -type f -name '*.js' -print0 | xargs -0 -n1 node --check
           node --check scripts/build-v68.mjs
+          node --check scripts/p1_5-shadow-validate.mjs
           node --check tests/policy.mjs
           node --check src/engine/adaptive-nutrition.mjs
           node --check tests/adaptive-engine.mjs
