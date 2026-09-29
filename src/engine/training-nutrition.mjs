@@ -39,7 +39,8 @@ function normalizeSettings(settings={}){
     hardExtraKcal:clamp(num(settings.hardExtraKcal??settings.hard_extra_kcal,150),0,300),
     moderateExtraKcal:clamp(num(settings.moderateExtraKcal??settings.moderate_extra_kcal,75),0,250),
     lightExtraKcal:clamp(num(settings.lightExtraKcal??settings.light_extra_kcal,25),0,150),
-    weeklyTemplate:normalizeTemplate(settings.weeklyTemplate??settings.weekly_template)
+    weeklyTemplate:normalizeTemplate(settings.weeklyTemplate??settings.weekly_template),
+    updatedAt:settings.updatedAt??settings.updated_at??null
   };
 }
 function requestedExtra(type,settings){
