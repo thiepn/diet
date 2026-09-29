@@ -38,7 +38,7 @@ assert.match(data,/version:'2\.0\.0-p12'/);
 assert.doesNotMatch(data,/service_role|sb_secret_|SUPABASE_DB_URL/);
 
 assert.match(writeApi,/p_request_id/);
-assert.match(writeApi,/diet_app_log_manual_meal/);
+assert.match(writeApi,/diet_app_log_meal/);
 assert.match(writeApi,/diet_app_update_meal/);
 assert.match(writeApi,/diet_app_resolve_strategy_review/);
 assert.match(rootSw,/diet-copilot-prod-v2-p12-1/);
