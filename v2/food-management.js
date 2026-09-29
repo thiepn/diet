@@ -107,6 +107,7 @@ function payload(){
   if(!name||calories==null||!Number.isFinite(calories)||calories<0)throw new Error('Name and valid calories are required.');
   return {
     savedFoodId:$('foodEditorId').value||null,
+    expectedUpdatedAt:$('foodEditorUpdatedAt').value||null,
     name,
     quantityText:$('foodEditorQuantity').value.trim()||null,
     calories,
