@@ -6,8 +6,12 @@
   <meta name="theme-color" content="#f5f7f5">
   <meta name="color-scheme" content="light dark">
   <meta name="robots" content="noindex,nofollow">
+  <meta name="application-name" content="Diet Copilot">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>Diet Copilot 2.0 Preview</title>
+  <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="../icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../icon-192.png">
   <script>
     try{
       const p=JSON.parse(localStorage.getItem('diet-copilot-v2-ui-preferences-v1')||'{}');
@@ -761,5 +765,6 @@
   <script type="module" src="./training-actions.js"></script>
   <script type="module" src="./copilot.js"></script>
   <script type="module" src="./settings.js"></script>
+  <script type="module" src="./pwa.js"></script>
 </body>
 </html>
