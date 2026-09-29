@@ -155,6 +155,7 @@ function dateKey(start,index){
   assert.match(data,/diet-copilot-v2-read-cache-v2/,'Bounded cache must use a migrated cache version.');
   assert.match(rootSw,/key\.startsWith\('diet-copilot-web-'\)/,'V1 service worker must clean only its own cache namespace.');
   assert.doesNotMatch(rootSw,/key\.startsWith\('diet-copilot'\)\)/,'V1 service worker must not delete V2 caches.');
+  assert.match(rootSw,/url\.pathname\.startsWith\(rootScope\+'v2\/'\)\)return/,'V1 service worker must never answer V2 navigations with the V1 offline shell.');
 
   const dialogs=[...html.matchAll(/<dialog\b[^>]*>/g)].map(match=>match[0]);
   assert.ok(dialogs.length>=8,'Release candidate should expose all expected modal surfaces.');
