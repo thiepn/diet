@@ -67,6 +67,7 @@ jobs:
           node --check tests/v2-settings.mjs
           node --check tests/p10-auth-storage.mjs
           node --check tests/p10-adversarial.mjs
+          node --check tests/p11-rc-auth.mjs
           node --check tests/policy.mjs
           node --check src/engine/adaptive-nutrition.mjs
           node --check tests/adaptive-engine.mjs
@@ -147,6 +148,8 @@ jobs:
         run: node tests/p10-auth-storage.mjs
       - name: Diet Copilot 2.0 adversarial release hardening
         run: node tests/p10-adversarial.mjs
+      - name: Diet Copilot 2.0 standalone RC auth and PWA contract
+        run: node tests/p11-rc-auth.mjs
       - name: Verify committed static production bundles
         run: node scripts/build-v68.mjs
       - name: Stable bundle certification
@@ -233,7 +236,7 @@ jobs:
           grep -q 'src="./pwa.js"' _site/v2/index.html
           grep -q '"scope": "./"' _site/v2/manifest.webmanifest
           grep -q '"display": "standalone"' _site/v2/manifest.webmanifest
-          grep -q "diet-copilot-v2-rc-p10" _site/v2/sw.js
+          grep -q "diet-copilot-v2-rc-p11-auth-1" _site/v2/sw.js
           ! grep -q auth-persistence-hotfix _site/index.html
           node --check _site/diet-app.js
           cmp diet-app.js _site/diet-app.js
