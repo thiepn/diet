@@ -1,7 +1,6 @@
 -- Diet Copilot 2.0 P4 — meal correction and food-library write façade
 -- Snapshot from the canonical Supabase project after live verification.
--- Authenticated clients retain SELECT-only table grants; mutation occurs only
--- through these explicit owner-bound functions.
+-- Authenticated clients retain SELECT-only table grants.
 
 CREATE OR REPLACE FUNCTION public.diet_app_delete_saved_food(p_saved_food_id uuid, p_expected_updated_at timestamp with time zone, p_request_id text)
  RETURNS jsonb
@@ -47,7 +46,7 @@ begin
   return v_after;
 end $function$;
 
-CREATE OR REPLACE FUNCTION public.diet_app_save_food(p_saved_food_id uuid, p_name text, p_quantity_text text, p_calories numeric, p_protein numeric, p_carbs numeric, p_fat numeric, p_fiber numeric, p_brand text, p_barcode text, p_source text, p_photo_url text, p_request_id text)
+CREATE OR REPLACE FUNCTION public.diet_app_save_food(p_saved_food_id uuid, p_expected_updated_at timestamp with time zone, p_name text, p_quantity_text text, p_calories numeric, p_protein numeric, p_carbs numeric, p_fat numeric, p_fiber numeric, p_brand text, p_barcode text, p_source text, p_photo_url text, p_request_id text)
  RETURNS jsonb
  LANGUAGE plpgsql
  SECURITY DEFINER
@@ -99,6 +98,9 @@ begin
   end if;
 
   if v_old.id is not null then
+    if p_expected_updated_at is not null and v_old.updated_at<>p_expected_updated_at then
+      raise exception 'Conflict: saved food changed since last read';
+    end if;
     if exists(select 1 from public.saved_foods f where f.user_id=v_uid and f.normalized_name=v_norm and f.id<>v_old.id) then
       raise exception 'Another saved food already uses this name';
     end if;
@@ -273,8 +275,8 @@ grant execute on function public.diet_app_delete_saved_food(uuid, timestamp with
 revoke all on function public.diet_app_delete_saved_meal(uuid, timestamp with time zone, text) from public, anon, authenticated, service_role;
 grant execute on function public.diet_app_delete_saved_meal(uuid, timestamp with time zone, text) to authenticated;
 
-revoke all on function public.diet_app_save_food(uuid, text, text, numeric, numeric, numeric, numeric, numeric, text, text, text, text, text) from public, anon, authenticated, service_role;
-grant execute on function public.diet_app_save_food(uuid, text, text, numeric, numeric, numeric, numeric, numeric, text, text, text, text, text) to authenticated;
+revoke all on function public.diet_app_save_food(uuid, timestamp with time zone, text, text, numeric, numeric, numeric, numeric, numeric, text, text, text, text, text) from public, anon, authenticated, service_role;
+grant execute on function public.diet_app_save_food(uuid, timestamp with time zone, text, text, numeric, numeric, numeric, numeric, numeric, text, text, text, text, text) to authenticated;
 
 revoke all on function public.diet_app_save_meal_from_history(uuid, text, text) from public, anon, authenticated, service_role;
 grant execute on function public.diet_app_save_meal_from_history(uuid, text, text) to authenticated;
