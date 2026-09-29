@@ -13,7 +13,10 @@ const RPC=Object.freeze({
   deleteSavedMeal:'diet_app_delete_saved_meal',
   stageStrategyReview:'diet_app_stage_strategy_review',
   resolveStrategyReview:'diet_app_resolve_strategy_review',
-  revertStrategyReview:'diet_app_revert_strategy_review'
+  revertStrategyReview:'diet_app_revert_strategy_review',
+  saveTrainingDistribution:'diet_app_save_training_distribution',
+  upsertTrainingDay:'diet_app_upsert_training_day',
+  deleteTrainingDay:'diet_app_delete_training_day'
 });
 
 function requestId(kind){
@@ -225,6 +228,50 @@ export async function revertStrategyReview(client,{recommendationId,requestId:ex
   const rid=existing??requestId('strategy-revert');
   const data=await call(client,RPC.revertStrategyReview,{
     p_recommendation_id:recommendationId,
+    p_request_id:rid
+  });
+  return {data,requestId:rid};
+}
+
+export async function saveTrainingDistribution(client,{
+  enabled,weeklyTemplate,hardExtraKcal=150,moderateExtraKcal=75,lightExtraKcal=25,requestId:existing
+}){
+  const rid=existing??requestId('training-distribution');
+  const data=await call(client,RPC.saveTrainingDistribution,{
+    p_enabled:Boolean(enabled),
+    p_weekly_template:weeklyTemplate??{},
+    p_hard_extra_kcal:Number(hardExtraKcal),
+    p_moderate_extra_kcal:Number(moderateExtraKcal),
+    p_light_extra_kcal:Number(lightExtraKcal),
+    p_request_id:rid
+  });
+  return {data,requestId:rid};
+}
+
+export async function upsertTrainingDay(client,{
+  trainingDayId=null,date,dayType,status='planned',title=null,durationMinutes=null,notes=null,
+  expectedUpdatedAt=null,requestId:existing
+}){
+  const rid=existing??requestId('training-day');
+  const data=await call(client,RPC.upsertTrainingDay,{
+    p_training_day_id:trainingDayId,
+    p_training_date:date,
+    p_day_type:String(dayType??'rest'),
+    p_status:String(status??'planned'),
+    p_title:title==null?null:String(title),
+    p_duration_minutes:durationMinutes==null?null:Number(durationMinutes),
+    p_notes:notes==null?null:String(notes),
+    p_expected_updated_at:expectedUpdatedAt,
+    p_request_id:rid
+  });
+  return {data,requestId:rid};
+}
+
+export async function deleteTrainingDay(client,{trainingDayId,expectedUpdatedAt=null,requestId:existing}){
+  const rid=existing??requestId('training-delete');
+  const data=await call(client,RPC.deleteTrainingDay,{
+    p_training_day_id:trainingDayId,
+    p_expected_updated_at:expectedUpdatedAt,
     p_request_id:rid
   });
   return {data,requestId:rid};
