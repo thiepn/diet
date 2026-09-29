@@ -10,7 +10,10 @@ const RPC=Object.freeze({
   setSavedFoodFavorite:'diet_app_set_saved_food_favorite',
   deleteSavedFood:'diet_app_delete_saved_food',
   setSavedMealFavorite:'diet_app_set_saved_meal_favorite',
-  deleteSavedMeal:'diet_app_delete_saved_meal'
+  deleteSavedMeal:'diet_app_delete_saved_meal',
+  stageStrategyReview:'diet_app_stage_strategy_review',
+  resolveStrategyReview:'diet_app_resolve_strategy_review',
+  revertStrategyReview:'diet_app_revert_strategy_review'
 });
 
 function requestId(kind){
@@ -176,6 +179,53 @@ export async function deleteSavedMeal(client,{savedMealId,expectedUpdatedAt=null
   const rid=existing??requestId('delete-saved-meal');
   const data=await call(client,RPC.deleteSavedMeal,{
     p_saved_meal_id:savedMealId,p_expected_updated_at:expectedUpdatedAt,p_request_id:rid
+  });
+  return {data,requestId:rid};
+}
+
+export async function stageStrategyReview(client,{
+  engineVersion,generatedOn,lookbackDays=28,decision,currentTarget,recommendedTarget=null,rawTarget=null,
+  estimatedExpenditure=null,confidenceLevel,confidenceScore,reason,recommendedProtein=null,
+  recommendedFat=null,recommendedCarbs=null,payload={},requestId:existing
+}){
+  const rid=existing??requestId('strategy-stage');
+  const data=await call(client,RPC.stageStrategyReview,{
+    p_engine_version:String(engineVersion??'').trim(),
+    p_generated_on:generatedOn,
+    p_lookback_days:Number(lookbackDays),
+    p_decision:String(decision??'').trim(),
+    p_current_target:Number(currentTarget),
+    p_recommended_target:recommendedTarget==null?null:Number(recommendedTarget),
+    p_raw_target:rawTarget==null?null:Number(rawTarget),
+    p_estimated_expenditure:estimatedExpenditure==null?null:Number(estimatedExpenditure),
+    p_confidence_level:String(confidenceLevel??'').trim(),
+    p_confidence_score:Number(confidenceScore),
+    p_reason:String(reason??'').trim(),
+    p_recommended_protein:recommendedProtein==null?null:Number(recommendedProtein),
+    p_recommended_fat:recommendedFat==null?null:Number(recommendedFat),
+    p_recommended_carbs:recommendedCarbs==null?null:Number(recommendedCarbs),
+    p_payload:payload,
+    p_request_id:rid
+  });
+  return {data,requestId:rid};
+}
+
+export async function resolveStrategyReview(client,{recommendationId,resolution,effectiveDate=null,requestId:existing}){
+  const rid=existing??requestId('strategy-resolve');
+  const data=await call(client,RPC.resolveStrategyReview,{
+    p_recommendation_id:recommendationId,
+    p_resolution:resolution,
+    p_effective_date:effectiveDate,
+    p_request_id:rid
+  });
+  return {data,requestId:rid};
+}
+
+export async function revertStrategyReview(client,{recommendationId,requestId:existing}){
+  const rid=existing??requestId('strategy-revert');
+  const data=await call(client,RPC.revertStrategyReview,{
+    p_recommendation_id:recommendationId,
+    p_request_id:rid
   });
   return {data,requestId:rid};
 }
