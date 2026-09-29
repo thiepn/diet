@@ -583,6 +583,20 @@ document.getElementById('v2AccountProduction')?.addEventListener('click',()=>{lo
 
 export function getDietV2Client(){return ensureClient();}
 export function getDietV2Model(){return state.model;}
+export function getDietV2RawData(){
+  if(!state.raw)return null;
+  try{return structuredClone(state.raw);}catch{
+    try{return JSON.parse(JSON.stringify(state.raw));}catch{return null;}
+  }
+}
+export function clearDietV2OfflineCache(){
+  try{localStorage.removeItem(CACHE_KEY);return true;}catch{return false;}
+}
+export function getDietV2OfflineCacheInfo(){
+  if(!state.user?.id)return {present:false,savedAt:null,ownerMatched:false};
+  const cached=readCache(state.user.id);
+  return {present:Boolean(cached),savedAt:cached?.savedAt??null,ownerMatched:Boolean(cached)};
+}
 export function getDietV2State(){return {status:state.status,source:state.source,signedIn:Boolean(state.user),fetchedAt:state.fetchedAt};}
 
 window.DietV2Data=Object.freeze({
