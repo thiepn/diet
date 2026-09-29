@@ -126,6 +126,16 @@ export function buildPersonalIntelligence({
   }
 
   const insights=[];
+  if(calorieAdherence!=null&&calorieEligible.length>=6){
+    const hit=Math.round(calorieAdherence*calorieEligible.length);
+    insights.push({
+      id:'calorie_adherence',category:'nutrition',title:'Calorie target consistency',
+      value:round(calorieAdherence*100,0),unit:'%',
+      tone:calorieAdherence>=0.8?'steady':calorieAdherence>=0.6?'mixed':'attention',
+      confidence:confidenceFromCount(calorieEligible.length,14),evidenceDays:calorieEligible.length,
+      summary:`Calories landed within the target band on ${hit} of ${calorieEligible.length} reliable days.`
+    });
+  }
   if(proteinAdherence!=null&&proteinEligible.length>=6){
     insights.push({
       id:'protein_adherence',category:'nutrition',title:'Protein target consistency',
@@ -160,11 +170,20 @@ export function buildPersonalIntelligence({
     });
   }
   if(activityCorrelation!=null){
+    const direction=activityCorrelation>=0?'positive':'negative';
     insights.push({
       id:'steps_intake_association',category:'association',title:'Steps and same-day intake',
       value:round(activityCorrelation,2),unit:'r',tone:'neutral',
       confidence:confidenceFromCount(pairedActivity.length,18),evidenceDays:pairedActivity.length,
-      summary:`There is ${correlationLabel(activityCorrelation)} same-day association between steps and logged intake (r=${round(activityCorrelation,2)}). This is descriptive, not causal.`
+      summary:`There is ${correlationLabel(activityCorrelation)} ${direction} same-day association between steps and logged intake (r=${round(activityCorrelation,2)}). This is descriptive, not causal.`
+    });
+  }
+  if(weeklyTrendRate!=null&&trend.length>=14){
+    insights.push({
+      id:'weight_trend_rate',category:'weight',title:'Recent trend-weight pace',
+      value:round(weeklyTrendRate,2),unit:'kg/week',tone:'neutral',
+      confidence:confidenceFromCount(trend.length,21),evidenceDays:trend.length,
+      summary:`Trend weight changed at approximately ${weeklyTrendRate>=0?'+':''}${round(weeklyTrendRate,2)} kg/week across the current analysis window.`
     });
   }
 
