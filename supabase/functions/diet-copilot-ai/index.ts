@@ -3,6 +3,14 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 const MAX_BODY_BYTES=30000;
 const ALLOWED_ACTIONS=new Set(["log_saved_food","log_saved_meal","repeat_meal","navigate_food","navigate_strategy"]);
 const MEAL_TYPES=new Set(["Breakfast","Lunch","Dinner","Snack","Other"]);
+const BASIS_KEYS=new Set([
+  "today.calories","today.calorieTarget","today.caloriesRemaining","today.protein","today.proteinTarget",
+  "today.proteinRemaining","today.trendWeight","today.expenditure","strategy.currentTarget",
+  "strategy.recommendedTarget","strategy.targetDelta","strategy.confidenceLevel",
+  "intelligence.proteinTargetAdherence","intelligence.calorieTargetAdherence",
+  "intelligence.weekendDeltaCalories","intelligence.trainingCarbDelta","intelligence.activityShiftPercent",
+  "intelligence.weeklyTrendRate","intelligence.stepsIntakeCorrelation"
+]);
 
 const SYSTEM_PROMPT=`
 You are Diet Copilot P8, a concise nutrition tracking assistant embedded in a private app.
@@ -20,12 +28,16 @@ Rules:
 9. A question such as "Can I eat/have X?" is a comparison question, not permission to log X. Do not propose a logging action unless the user explicitly asks to log/add/record it or clearly says they already ate/had it.
 10. If the user says a saved meal/food was modified, different, missing something, or had extras, do not propose logging the unchanged saved item. Route to navigate_food unless the changed nutrition is already represented by another exact candidate.
 11. Strategy changes are not executable here. Explain the deterministic P1/P5 decision and optionally propose navigate_strategy.
-12. Be concise and specific. Prefer the user's actual metrics over generic advice.
+12. Do not calculate evidence display values yourself. For basis, return only trusted metric keys from this allowlist:
+today.calories, today.calorieTarget, today.caloriesRemaining, today.protein, today.proteinTarget, today.proteinRemaining, today.trendWeight, today.expenditure, strategy.currentTarget, strategy.recommendedTarget, strategy.targetDelta, strategy.confidenceLevel, intelligence.proteinTargetAdherence, intelligence.calorieTargetAdherence, intelligence.weekendDeltaCalories, intelligence.trainingCarbDelta, intelligence.activityShiftPercent, intelligence.weeklyTrendRate, intelligence.stepsIntakeCorrelation.
+For an exact candidate, basis may also use candidate:<exact candidate id>:calories or candidate:<exact candidate id>:protein.
+Never provide a basis value. The application derives the displayed value from TRUSTED_CONTEXT.
+13. Be concise and specific. Prefer the user's actual metrics over generic advice.
 
 Return JSON only:
 {
   "answer": "string",
-  "basis": [{"label":"string","value":"string"}],
+  "basis": [{"key":"trusted metric key","label":"optional short label"}],
   "caution": "string or null",
   "action": null OR {
     "type": "log_saved_food | log_saved_meal | repeat_meal | navigate_food | navigate_strategy",
@@ -76,6 +88,20 @@ function allCandidates(context:any){
   ];
   return new Map(items.filter((x:any)=>x&&x.id).map((x:any)=>[String(x.id),x]));
 }
+function cleanBasis(basis:any,context:any){
+  if(!Array.isArray(basis))return [];
+  const candidates=allCandidates(context);
+  return basis.slice(0,5).map((x:any)=>{
+    const key=text(x?.key,140);
+    if(BASIS_KEYS.has(key))return {key,label:text(x?.label,80)||undefined};
+    const match=key.match(/^candidate:([^:]+):(calories|protein)$/);
+    if(!match||!candidates.has(match[1]))return null;
+    const candidate=candidates.get(match[1]);
+    const field=match[2];
+    if(number(candidate?.[field],null)===null)return null;
+    return {key,label:text(x?.label,80)||undefined};
+  }).filter(Boolean);
+}
 function cleanAction(action:any,context:any){
   if(!action||typeof action!=="object")return null;
   const type=text(action.type,40);
@@ -102,9 +128,7 @@ function cleanReply(value:any,context:any){
   if(!value||typeof value!=="object")return null;
   const answer=text(value.answer,2200);
   if(!answer)return null;
-  const basis=Array.isArray(value.basis)?value.basis.slice(0,5).map((x:any)=>({
-    label:text(x?.label,80),value:text(x?.value,120)
-  })).filter((x:any)=>x.label&&x.value):[];
+  const basis=cleanBasis(value.basis,context);
   return {
     answer,basis,
     caution:text(value.caution,300)||null,
