@@ -413,6 +413,8 @@
   .dc-copilot-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:18px 18px 12px;border-bottom:1px solid var(--line)}
   .dc-copilot-head h2{margin-top:4px;font-size:1.15rem;letter-spacing:-.03em}
   .dc-copilot-head-actions{display:flex;align-items:center;gap:8px}
+  .dc-copilot-clear{min-height:30px;padding:0 8px;border-radius:9px;color:var(--text-faint);font-size:.64rem;font-weight:800;cursor:pointer}
+  .dc-copilot-clear:hover{background:var(--surface-muted);color:var(--text)}
   .dc-copilot-trust{display:grid;gap:3px;margin:12px 14px 0;padding:10px 11px;border-radius:11px;background:var(--accent-soft);color:var(--text-soft)}
   .dc-copilot-trust strong{font-size:.71rem;color:var(--accent-strong)}
   .dc-copilot-trust span{font-size:.65rem;line-height:1.45}
