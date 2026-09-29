@@ -25,6 +25,8 @@ jobs:
           find src -type f -name '*.js' -print0 | xargs -0 -n1 node --check
           node --check scripts/build-v68.mjs
           node --check scripts/p1_5-shadow-validate.mjs
+          node --check v2/shell.js
+          node --check tests/v2-shell.mjs
           node --check tests/policy.mjs
           node --check src/engine/adaptive-nutrition.mjs
           node --check tests/adaptive-engine.mjs
@@ -71,6 +73,8 @@ jobs:
         run: node tests/adaptive-engine.mjs
       - name: Diet Copilot 2.0 legacy adapter and shadow validation
         run: node tests/legacy-shadow.mjs
+      - name: Diet Copilot 2.0 application shell
+        run: node tests/v2-shell.mjs
       - name: Verify committed static production bundles
         run: node scripts/build-v68.mjs
       - name: Stable bundle certification
@@ -106,6 +110,10 @@ jobs:
           test -f _site/index.html
           test -f _site/.well-known/thiepn-app.json
           test -f _site/vendor/supabase-2.116.0.js
+          test -f _site/v2/index.html
+          test -f _site/v2/shell.css
+          test -f _site/v2/shell.js
+          node --check _site/v2/shell.js
           ! grep -q auth-persistence-hotfix _site/index.html
           node --check _site/diet-app.js
           cmp diet-app.js _site/diet-app.js
