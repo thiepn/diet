@@ -413,12 +413,49 @@ function renderAccount(){
   text('accountStateSync',state.fetchedAt?new Date(state.fetchedAt).toLocaleString():'Never');
 }
 
+function renderEmptyPrivateState(){
+  text('todayCaloriesValue','—');
+  text('todayCaloriesTarget','of — kcal');
+  text('todayCaloriesHint',state.status==='signed_out'?'Sign in to view your nutrition record.':'No private nutrition data is available.');
+  const progress=document.getElementById('todayCaloriesProgress');
+  if(progress)progress.style.width='0%';
+  text('todayProteinValue','—');
+  text('todayProteinHint','—');
+  text('todayTrendWeightValue','—');
+  text('todayTrendWeightUnit','kg trend');
+  text('todayTrendWeightHint','—');
+  text('todayExpenditureValue','—');
+  text('todayExpenditureUnit','kcal/day');
+  text('todayExpenditureHint','—');
+  html('todayMeals',emptyMarkup(state.status==='signed_out'?'Sign in to view meals':'No meal data available','Private meal history is hidden until an owner-matched account or cache is available.'));
+  html('foodTimeline',emptyMarkup(state.status==='signed_out'?'Sign in to view food history':'No food data available','P2.5 never displays another owner\'s cached record.'));
+  text('foodTodaySummary','No private data');
+  text('todayStrategyGoal','—');
+  text('todayStrategyTarget','—');
+  text('todayStrategyConfidence','—');
+  html('progressWeightChart',emptyMarkup('No weight data available','Sign in or reconnect to load your owner-scoped history.'));
+  html('progressExpenditureChart',emptyMarkup('No expenditure data available','The adaptive estimate remains hidden without private source data.'));
+  html('progressIntakeChart',emptyMarkup('No intake data available','Sign in or reconnect to load your owner-scoped history.'));
+  html('progressGoalTrajectory',emptyMarkup('No goal projection available','Goal data remains private until the account record is loaded.'));
+  text('strategyGoalMode','—');
+  text('strategyGoalWeight','—');
+  text('strategyTargetRate','—');
+  text('strategyTdee','—');
+  text('strategyCurrentTarget','—');
+  text('strategyConfidence','—');
+  text('strategyDecisionTitle','Need more data');
+  text('strategyDecisionReason','Sign in or reconnect before evaluating the current strategy.');
+  text('strategyRecommendedTarget','—');
+  text('strategyDecisionChip','Building');
+}
+
 function render(){
   renderStatus();
   renderAccount();
   const model=state.model;
   if(!model){
     document.documentElement.classList.add('dc-no-data');
+    renderEmptyPrivateState();
     return;
   }
   document.documentElement.classList.remove('dc-no-data');
