@@ -305,7 +305,7 @@ function renderToday(model){
   const t=model.today;
   text('todayCaloriesValue',fmt(t.calories));
   text('todayCaloriesTarget',t.calorieTarget==null?'No target':`of ${fmt(t.calorieTarget)} kcal`);
-  text('todayCaloriesHint',t.caloriesRemaining==null?'No calorie target available':t.caloriesRemaining>=0?`${fmt(t.caloriesRemaining)} kcal remaining`:`${fmt(Math.abs(t.caloriesRemaining))} kcal over target`);
+  const trainingSuffix=t.trainingDistributionEnabled&&t.trainingTargetDelta\n    ?` · ${t.trainingDayType} day ${t.trainingTargetDelta>0?'+':''}${fmt(t.trainingTargetDelta)}`\n    :'';\n  text('todayCaloriesHint',t.caloriesRemaining==null?'No calorie target available':(t.caloriesRemaining>=0?`${fmt(t.caloriesRemaining)} kcal remaining`:`${fmt(Math.abs(t.caloriesRemaining))} kcal over target`)+trainingSuffix);
   const progress=document.getElementById('todayCaloriesProgress');
   if(progress)progress.style.width=`${t.calorieProgress}%`;
 
@@ -323,6 +323,9 @@ function renderToday(model){
   html('todayMeals',t.meals.length?t.meals.map(mealMarkup).join(''):emptyMarkup('No meals logged today','Your existing Diet history is connected; new entries will appear here after they are written by the canonical logger.'));
   text('todayStrategyGoal',t.goalLabel);
   text('todayStrategyTarget',t.currentTarget==null?'—':`${fmt(t.currentTarget)} kcal`);
+  text('todayTrainingTarget',t.calorieTarget==null?'—':`${fmt(t.calorieTarget)} kcal`);
+  text('todayTrainingType',t.trainingDistributionEnabled?confidenceLabel(t.trainingDayType):'Distribution off');
+  text('todayActivityContext',t.activityContext?.level?confidenceLabel(t.activityContext.level):'Building baseline');
   text('todayStrategyConfidence',confidenceLabel(t.confidenceLevel));
 }
 
@@ -450,6 +453,9 @@ function renderEmptyPrivateState(){
   text('foodTodaySummary','No private data');
   text('todayStrategyGoal','—');
   text('todayStrategyTarget','—');
+  text('todayTrainingTarget','—');
+  text('todayTrainingType','—');
+  text('todayActivityContext','—');
   text('todayStrategyConfidence','—');
   html('progressWeightChart',emptyMarkup('No weight data available','Sign in or reconnect to load your owner-scoped history.'));
   html('progressExpenditureChart',emptyMarkup('No expenditure data available','The adaptive estimate remains hidden without private source data.'));
@@ -550,7 +556,7 @@ export function getDietV2Model(){return state.model;}
 export function getDietV2State(){return {status:state.status,source:state.source,signedIn:Boolean(state.user),fetchedAt:state.fetchedAt};}
 
 window.DietV2Data=Object.freeze({
-  version:'2.0.0-p2.5-read-only',
+  version:'2.0.0-p6-training-activity',
   refresh,
   handleShellAction,
   snapshot:()=>({
