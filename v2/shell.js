@@ -87,8 +87,10 @@ document.addEventListener('click',event=>{
   const shellAction=event.target.closest('[data-shell-action]');
   if(shellAction){
     const action=shellAction.dataset.shellAction;
-    if(action==='account') showToast('Account wiring is intentionally unchanged in P2.');
-    else if(action==='notifications') showToast('Notifications are not connected in the shell phase.');
+    const handled=window.DietV2Data?.handleShellAction?.(action);
+    if(handled)return;
+    if(action==='account') showToast('Account integration is still loading.');
+    else if(action==='refresh') showToast('Data integration is still loading.');
   }
 });
 
