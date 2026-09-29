@@ -1,6 +1,9 @@
 import {
   getDietV2Model,getDietV2RawData,getDietV2State,getDietV2OfflineCacheInfo,clearDietV2OfflineCache
 } from './data.js';
+import {
+  normalizeUiPreferences,buildDietJsonBackup,buildNutritionCsv,buildWeightCsv,DietSettingsDataP9
+} from './engine/settings-data.mjs';
 
 const PREF_KEY='diet-copilot-v2-ui-preferences-v1';
 const DEFAULT_PREFS=Object.freeze({theme:'system',density:'comfortable',motion:'system'});
@@ -10,13 +13,7 @@ function $(id){return document.getElementById(id);}
 function esc(value=''){return String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');}
 function fmt(value,digits=1){return value==null||!Number.isFinite(Number(value))?'—':Number(value).toLocaleString(undefined,{maximumFractionDigits:digits});}
 function toast(message){window.DietV2Shell?.showToast?.(message);}
-function safePrefs(value={}){
-  return {
-    theme:['system','light','dark'].includes(value.theme)?value.theme:'system',
-    density:['comfortable','compact'].includes(value.density)?value.density:'comfortable',
-    motion:['system','reduce'].includes(value.motion)?value.motion:'system'
-  };
-}
+function safePrefs(value={}){return normalizeUiPreferences(value);}
 function loadPrefs(){
   try{return safePrefs(JSON.parse(localStorage.getItem(PREF_KEY)||'{}'));}catch{return {...DEFAULT_PREFS};}
 }
@@ -57,17 +54,6 @@ function downloadBlob(name,type,text){
   document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-function csvCell(value){
-  if(value==null)return '';
-  const s=String(value);
-  return /[",\n\r]/.test(s)?'"'+s.replaceAll('"','""')+'"':s;
-}
-function csv(rows,headers){
-  return [
-    headers.join(','),
-    ...rows.map(row=>headers.map(h=>csvCell(row[h])).join(','))
-  ].join('\r\n');
-}
 function exportReady(){
   const state=getDietV2State();
   return Boolean(state.signedIn&&getDietV2Model()&&getDietV2RawData());
@@ -76,44 +62,25 @@ function exportJson(){
   const raw=getDietV2RawData();
   const model=getDietV2Model();
   if(!raw||!model){toast('No private Diet data is loaded to export.');return;}
-  const payload={
-    format:'diet-copilot-backup',
-    version:1,
-    exportedAt:new Date().toISOString(),
-    asOfDate:model.asOfDate,
-    note:'Owner-scoped Diet Copilot export. Authentication tokens are not included.',
-    data:raw
-  };
+  const payload=buildDietJsonBackup(raw,model);
+  if(!payload){toast('The Diet backup could not be prepared.');return;}
   downloadBlob(filename('backup','json'),'application/json;charset=utf-8',JSON.stringify(payload,null,2));
   toast('Private JSON backup downloaded.');
 }
 function exportNutrition(){
   const model=getDietV2Model();
   if(!model){toast('No nutrition history is loaded.');return;}
-  const rows=(model.progress?.intake??[]).map(x=>({
-    date:x.date,
-    calories:x.calories,
-    calorie_target:x.target,
-    protein_g:x.protein,
-    day_status:x.status
-  }));
-  if(!rows.length){toast('There is no nutrition history to export.');return;}
-  downloadBlob(filename('nutrition','csv'),'text/csv;charset=utf-8',
-    csv(rows,['date','calories','calorie_target','protein_g','day_status']));
+  const output=buildNutritionCsv(model);
+  if(!output){toast('There is no nutrition history to export.');return;}
+  downloadBlob(filename('nutrition','csv'),'text/csv;charset=utf-8',output);
   toast('Nutrition CSV downloaded.');
 }
 function exportWeights(){
   const model=getDietV2Model();
   if(!model){toast('No weight history is loaded.');return;}
-  const trend=new Map((model.progress?.trendWeights??[]).map(x=>[x.date,x.value]));
-  const rows=(model.progress?.rawWeights??[]).map(x=>({
-    date:x.date,
-    scale_weight_kg:x.value,
-    trend_weight_kg:trend.get(x.date)??''
-  }));
-  if(!rows.length){toast('There is no weight history to export.');return;}
-  downloadBlob(filename('weights','csv'),'text/csv;charset=utf-8',
-    csv(rows,['date','scale_weight_kg','trend_weight_kg']));
+  const output=buildWeightCsv(model);
+  if(!output){toast('There is no weight history to export.');return;}
+  downloadBlob(filename('weights','csv'),'text/csv;charset=utf-8',output);
   toast('Weight CSV downloaded.');
 }
 function renderBody(){
@@ -248,7 +215,7 @@ applyPrefs();
 renderAll();
 
 window.DietV2Settings=Object.freeze({
-  version:'1.0.0-p9',
+  version:DietSettingsDataP9.version,
   preferences:()=>({...prefs}),
   apply:applyPrefs,
   exportJson,
