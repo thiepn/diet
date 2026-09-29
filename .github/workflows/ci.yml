@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: P16 syntax
+      - name: P17 syntax
         shell: bash
         run: |
           set -euo pipefail
@@ -36,7 +36,8 @@ jobs:
           node --check tests/p14-security-contract.mjs
           node --check tests/p15-resilience-contract.mjs
           node --check tests/p16-performance-contract.mjs
-          python -m py_compile tests/p13-synthetic-monitor.py tests/p14-public-security-probe.py tests/p16-public-read-probe.py scripts/p15-verify-offsite.py
+          node --check tests/p17-privacy-lifecycle-contract.mjs
+          python -m py_compile tests/p13-synthetic-monitor.py tests/p14-public-security-probe.py tests/p16-public-read-probe.py tests/p17-public-export-probe.py scripts/p15-verify-offsite.py
 
       - name: P13 telemetry privacy regression
         run: node tests/p13-telemetry.mjs
@@ -44,10 +45,12 @@ jobs:
         run: node tests/p14-security-contract.mjs
       - name: P15 resilience regression
         run: node tests/p15-resilience-contract.mjs
-      - name: P16 performance contract
+      - name: P16 performance regression
         run: node tests/p16-performance-contract.mjs
+      - name: P17 privacy and lifecycle contract
+        run: node tests/p17-privacy-lifecycle-contract.mjs
 
-      - name: P16 release contract
+      - name: P17 release contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
@@ -57,11 +60,12 @@ jobs:
           if(backend.canonical_project_ref!=='hycegznamzjhwinegaai')throw new Error('Wrong canonical backend.');
           if(backend.security_policy?.release!=='P14')throw new Error('P14 security regressed.');
           if(backend.resilience_policy?.release!=='P15')throw new Error('P15 resilience regressed.');
-          if(backend.performance_policy?.release!=='P16'||backend.performance_policy?.normal_refresh_data_requests!==1)throw new Error('P16 performance policy invalid.');
-          if(app.webRelease!=='2.0.2'||app.operationsVersion!=='P16.0'||app.performanceRelease!=='P16')throw new Error('P16 release metadata invalid.');
-          if(app.securityRelease!=='P14'||app.resilienceRelease!=='P15')throw new Error('Prior hardening releases regressed.');
+          if(backend.performance_policy?.release!=='P16'||backend.performance_policy?.normal_refresh_data_requests!==1)throw new Error('P16 performance regressed.');
+          if(backend.privacy_policy?.release!=='P17'||backend.privacy_policy?.owner_export?.table_count!==18)throw new Error('P17 privacy policy invalid.');
+          if(app.webRelease!=='2.0.3'||app.operationsVersion!=='P17.0'||app.privacyRelease!=='P17')throw new Error('P17 release metadata invalid.');
+          if(app.securityRelease!=='P14'||app.resilienceRelease!=='P15'||app.performanceRelease!=='P16')throw new Error('Prior hardening releases regressed.');
           if(release.consumerRelease!==app.webRelease)throw new Error('Account consumer release mismatch.');
-          console.log('Diet Copilot Web 2.0.2 / P16 release contract passed.');
+          console.log('Diet Copilot Web 2.0.3 / P17 release contract passed.');
           NODE
 
       - name: Build actual GitHub Pages artifact
@@ -74,10 +78,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for f in index.html manifest.webmanifest sw.js legacy-v1.html legacy-v1-app.js v2/index.html v2/data.js v2/auth-storage.mjs v2/write-api.mjs v2/telemetry.mjs v2/shell.css vendor/supabase-2.116.0.js .well-known/thiepn-app.json; do
+          for f in index.html manifest.webmanifest sw.js legacy-v1.html legacy-v1-app.js v2/index.html v2/data.js v2/auth-storage.mjs v2/write-api.mjs v2/telemetry.mjs v2/settings.js v2/shell.css vendor/supabase-2.116.0.js .well-known/thiepn-app.json; do
             test -f "_site/$f"
           done
           grep -q 'dc-version-badge">2.0<' _site/index.html
           ! grep -q '2.0 RC' _site/index.html
-          grep -q 'id="systemHealthDialog"' _site/index.html
-          grep -q 'diet-copilot-prod-v2-p16-1' _site/sw.js
+          grep -q 'id="clearDeviceDataButton"' _site/index.html
+          grep -q 'diet-copilot-prod-v2-p17-1' _site/sw.js

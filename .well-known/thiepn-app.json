@@ -7,14 +7,14 @@
   "accountContract": "1.0",
   "sdkContract": "1.x",
   "integrationMode": "certified-legacy",
-  "operationsVersion": "P16.0",
+  "operationsVersion": "P17.0",
   "sessionAuthority": "thiepn-account",
   "degradedMode": "cached-read-only",
   "authEntryPoints": [
     "google"
   ],
-  "release": "2.0.2",
-  "webRelease": "2.0.2",
+  "release": "2.0.3",
+  "webRelease": "2.0.3",
   "releaseChannel": "stable",
   "stable": true,
   "productionBundle": "v2/data.js",
@@ -46,7 +46,15 @@
     "normalRefreshDataRequests": 1,
     "ownerFilteredFallbackReads": true,
     "ownerFilteredRealtime": true,
-    "broadRealtimeDeleteSubscription": false
+    "broadRealtimeDeleteSubscription": false,
+    "authoritativeOwnerExport": true,
+    "ownerExportTableCount": 18,
+    "localDevicePurge": true,
+    "accountDeletionCentralOnly": true,
+    "liveDietRowsCascadeOnAccountDelete": true,
+    "ownerExportIncludesCredentialDigest": false,
+    "ownerExportIncludesRecoverySnapshots": false,
+    "encryptedBackupRetentionDays": 90
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0",
@@ -55,5 +63,7 @@
   "resilienceRelease": "P15",
   "resilienceModel": "verified-snapshots-encrypted-offsite-v1",
   "performanceRelease": "P16",
-  "performanceModel": "consolidated-owner-read-v1"
+  "performanceModel": "consolidated-owner-read-v1",
+  "privacyRelease": "P17",
+  "privacyModel": "authoritative-owner-export-local-device-purge-v1"
 }

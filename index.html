@@ -586,28 +586,34 @@
         <div><p class="dc-eyebrow">Data & privacy</p><h2 id="dataExportHeading">Your Diet data</h2></div>
         <button class="dc-icon-button" type="button" data-p9-close="dataExportDialog" aria-label="Close data controls">×</button>
       </div>
-      <p class="dc-panel-copy">Exports are generated locally from the owner-scoped data already loaded in this browser. They are not uploaded anywhere by the export flow.</p>
+      <p class="dc-panel-copy">The full JSON export is fetched directly from your live owner-scoped Diet record and covers all 18 Diet tables. CSV exports are generated locally from the currently loaded history. Nothing is uploaded by the export flow.</p>
 
       <div class="dc-p9-export-grid">
-        <button class="dc-export-card" id="exportJsonButton" type="button"><strong>Full JSON backup</strong><span>Canonical loaded Diet rows for backup or migration.</span><small>.json</small></button>
-        <button class="dc-export-card" id="exportNutritionButton" type="button"><strong>Nutrition history</strong><span>Date, calories, target, protein and day status.</span><small>.csv</small></button>
-        <button class="dc-export-card" id="exportWeightsButton" type="button"><strong>Weight history</strong><span>Scale weight plus available trend weight.</span><small>.csv</small></button>
+        <button class="dc-export-card" id="exportJsonButton" type="button"><strong>Complete JSON export</strong><span>All current Diet-owned rows, with authentication and device credential secrets excluded.</span><small>.json</small></button>
+        <button class="dc-export-card" id="exportNutritionButton" type="button"><strong>Nutrition history</strong><span>Date, calories, target, protein and day status from the loaded record.</span><small>.csv</small></button>
+        <button class="dc-export-card" id="exportWeightsButton" type="button"><strong>Weight history</strong><span>Scale weight plus available trend weight from the loaded record.</span><small>.csv</small></button>
       </div>
 
       <div class="dc-settings-list dc-settings-list--p9">
         <div><span>Account</span><strong id="dataAccountState">—</strong></div>
         <div><span>Cloud source</span><strong id="dataCloudState">—</strong></div>
+        <div><span>Full export</span><strong id="dataExportScope">—</strong></div>
+        <div><span>Account deletion</span><strong id="dataDeletionState">Central THIEPN Account cascade</strong></div>
+        <div><span>Disaster-recovery copies</span><strong id="dataBackupRetention">Encrypted recovery · up to 90 days</strong></div>
         <div><span>Offline cache</span><strong id="dataCacheState">—</strong></div>
         <div><span>Copilot history</span><strong id="dataCopilotState">—</strong></div>
       </div>
 
       <section class="dc-p9-privacy-actions">
-        <div><strong>Local privacy controls</strong><small>These actions remove browser/device copies only. They do not delete your cloud nutrition record.</small></div>
+        <div><strong>Local privacy controls</strong><small>These actions remove browser/device copies only. “Clear this device” also removes local Diet sign-in state, diagnostics, Copilot session and display preferences. Cloud nutrition data is not deleted.</small></div>
         <div>
           <button class="dc-secondary-action" id="clearCopilotSessionButton" type="button">Clear Copilot chat</button>
           <button class="dc-secondary-action" id="clearOfflineCacheButton" type="button">Clear offline cache</button>
+          <button class="dc-danger-action" id="clearDeviceDataButton" type="button">Clear this device</button>
         </div>
       </section>
+
+      <p class="dc-source-note">Deleting the THIEPN Account is a central account action. It cascades through live Diet rows and in-database recovery snapshots. Encrypted disaster-recovery artifacts can persist only until their configured 90-day retention expires and are not an active account data source.</p>
     </div>
   </dialog>
 

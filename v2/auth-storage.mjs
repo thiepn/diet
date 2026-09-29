@@ -73,6 +73,36 @@ function cookieOwns(key){
   try{return readCookie(`${cookieName(key)}.n`)!==null}catch{return false}
 }
 
+export function clearDietV2AuthArtifacts(){
+  let ok=true;
+  try{cookieRemove(DIET_V2_AUTH_STORAGE_KEY)}catch{ok=false}
+  try{
+    const keys=[];
+    for(let i=0;i<localStorage.length;i++){
+      const key=localStorage.key(i);
+      if(key)keys.push(key);
+    }
+    for(const key of keys){
+      if(key===DIET_V2_AUTH_STORAGE_KEY||key.startsWith(DIET_V2_AUTH_STORAGE_KEY+'-')||key.startsWith(PKCE_FALLBACK_PREFIX)){
+        try{localStorage.removeItem(key)}catch{ok=false}
+      }
+    }
+  }catch{ok=false}
+  try{
+    const keys=[];
+    for(let i=0;i<sessionStorage.length;i++){
+      const key=sessionStorage.key(i);
+      if(key)keys.push(key);
+    }
+    for(const key of keys){
+      if(key.startsWith(PKCE_FALLBACK_PREFIX)||key===DIET_V2_AUTH_STORAGE_KEY||key.startsWith(DIET_V2_AUTH_STORAGE_KEY+'-')){
+        try{sessionStorage.removeItem(key)}catch{ok=false}
+      }
+    }
+  }catch{ok=false}
+  return ok;
+}
+
 export const dietV2AuthStorage=Object.freeze({
   getItem(key){
     if(key===DIET_V2_AUTH_STORAGE_KEY&&cookieOwns(key)){

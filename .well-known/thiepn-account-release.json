@@ -5,5 +5,5 @@
   "accountContract": "1.0",
   "sdkContract": "1.x",
   "integrationMode": "certified-legacy",
-  "consumerRelease": "2.0.2"
+  "consumerRelease": "2.0.3"
 }

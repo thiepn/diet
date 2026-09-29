@@ -76,7 +76,12 @@
     "owner_filtered_realtime": true,
     "hot_order_indexes": false,
     "static_performance_budget": true,
-    "speculative_index_cleanup": true
+    "speculative_index_cleanup": true,
+    "authoritative_owner_export": true,
+    "local_device_privacy_purge": true,
+    "central_account_deletion_cascade_verified": true,
+    "export_secret_exclusion": true,
+    "lifecycle_status_probe": true
   },
   "observability_policy": {
     "release": "P13",
@@ -157,5 +162,41 @@
     "indexes": [],
     "index_strategy": "existing_owner_indexes_plus_explicit_owner_predicates",
     "speculative_p16_indexes_retained": false
+  },
+  "privacy_policy": {
+    "release": "P17",
+    "owner_export": {
+      "rpc": "diet_app_export_owner_data",
+      "execution": "security_invoker_authenticated_owner",
+      "table_count": 18,
+      "current_production_rows": 281,
+      "browser_cache_fallback": false,
+      "auth_tokens_included": false,
+      "oauth_credentials_included": false,
+      "native_credential_digest_included": false,
+      "recovery_snapshots_included": false,
+      "operational_telemetry_included": false,
+      "local_ui_preferences_included": false
+    },
+    "local_device_purge": {
+      "cloud_data_deleted": false,
+      "offline_cache": true,
+      "auth_and_pkce_artifacts": true,
+      "oauth_relay_state": true,
+      "uncertain_write_guard": true,
+      "local_operational_telemetry": true,
+      "copilot_session": true,
+      "ui_preferences": true
+    },
+    "account_deletion": {
+      "authority": "delete_thiepn_account",
+      "browser_delete_from_diet": false,
+      "live_diet_table_cascade_count": 18,
+      "recovery_snapshots_cascade": true
+    },
+    "encrypted_offsite_backup_retention_days": 90,
+    "migration_versions": [
+      "20260929201804"
+    ]
   }
 }

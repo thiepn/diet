@@ -1,8 +1,9 @@
 import {
-  getDietV2Model,getDietV2RawData,getDietV2State,getDietV2OfflineCacheInfo,clearDietV2OfflineCache
+  getDietV2Model,getDietV2State,getDietV2OfflineCacheInfo,clearDietV2OfflineCache,
+  exportDietV2OwnerData,purgeDietV2LocalDevice
 } from './data.js';
 import {
-  normalizeUiPreferences,buildDietJsonBackup,buildNutritionCsv,buildWeightCsv,DietSettingsDataP9
+  normalizeUiPreferences,buildNutritionCsv,buildWeightCsv,DietSettingsDataP9
 } from './engine/settings-data.mjs';
 import { getDietWriteGuardState } from './write-api.mjs';
 import {
@@ -71,18 +72,26 @@ function downloadBlob(name,type,text){
   document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-function exportReady(){
+function fullExportReady(){
   const state=getDietV2State();
-  return Boolean(state.signedIn&&getDietV2Model()&&getDietV2RawData());
+  return Boolean(state.signedIn&&state.source==='cloud'&&navigator.onLine!==false);
 }
-function exportJson(){
-  const raw=getDietV2RawData();
-  const model=getDietV2Model();
-  if(!raw||!model){toast('No private Diet data is loaded to export.');return;}
-  const payload=buildDietJsonBackup(raw,model);
-  if(!payload){toast('The Diet backup could not be prepared.');return;}
-  downloadBlob(filename('backup','json'),'application/json;charset=utf-8',JSON.stringify(payload,null,2));
-  toast('Private JSON backup downloaded.');
+function localExportReady(){
+  return Boolean(getDietV2Model());
+}
+async function exportJson(){
+  if(!fullExportReady()){toast('A live signed-in connection is required for the complete Diet export.');return;}
+  const button=$('exportJsonButton');
+  if(button){button.disabled=true;button.setAttribute('aria-busy','true');}
+  try{
+    const payload=await exportDietV2OwnerData();
+    downloadBlob(filename('full-export','json'),'application/json;charset=utf-8',JSON.stringify(payload,null,2));
+    toast('Complete Diet export downloaded · '+payload.totalRows+' rows across '+payload.tableCount+' tables.');
+  }catch(error){
+    toast(error?.message||'The complete Diet export could not be prepared.');
+  }finally{
+    if(button){button.removeAttribute('aria-busy');button.disabled=!fullExportReady();}
+  }
 }
 function exportNutrition(){
   const model=getDietV2Model();
@@ -125,11 +134,15 @@ function renderData(){
   if($('dataCloudState'))$('dataCloudState').textContent=state.source==='cloud'?'Live owner-scoped sync':state.source==='cache'?'Offline owner cache':'No private data loaded';
   if($('dataCacheState'))$('dataCacheState').textContent=info.present?(info.savedAt?'Saved '+new Date(info.savedAt).toLocaleString():'Available'):'No offline cache';
   if($('dataCopilotState'))$('dataCopilotState').textContent='Session-only · not stored in Diet database';
-  for(const id of ['exportJsonButton','exportNutritionButton','exportWeightsButton']){
-    const el=$(id);if(el)el.disabled=!exportReady();
+  if($('exportJsonButton'))$('exportJsonButton').disabled=!fullExportReady();
+  for(const id of ['exportNutritionButton','exportWeightsButton']){
+    const el=$(id);if(el)el.disabled=!localExportReady();
   }
+  if($('dataExportScope'))$('dataExportScope').textContent=fullExportReady()?'Live cloud · all 18 Diet tables':'Live sign-in required';
+  if($('dataDeletionState'))$('dataDeletionState').textContent='Central THIEPN Account cascade';
+  if($('dataBackupRetention'))$('dataBackupRetention').textContent='Encrypted recovery · up to 90 days';
   if($('clearOfflineCacheButton'))$('clearOfflineCacheButton').disabled=!info.present;
-  if($('moreDataSummary'))$('moreDataSummary').textContent=info.present?'Export + offline cache controls':'Export + privacy controls';
+  if($('moreDataSummary'))$('moreDataSummary').textContent=info.present?'Full export + device privacy':'Export + privacy controls';
 }
 function renderIntegration(){
   const label=$('v2HealthConnectLabel')?.textContent?.trim()||'Health Connect status unavailable';
@@ -263,6 +276,25 @@ function clearCache(){
     toast('Offline Diet cache cleared. Cloud data was not deleted.');
   }else toast('Offline cache could not be cleared.');
 }
+async function clearDeviceData(){
+  if(!confirm('Clear Diet Copilot data from this device and sign out? Your cloud nutrition data will not be deleted.'))return;
+  const button=$('clearDeviceDataButton');
+  if(button){button.disabled=true;button.textContent='Clearing…';}
+  try{
+    window.DietV2Copilot?.clearSession?.();
+    await purgeDietV2LocalDevice();
+    clearTelemetry();
+    try{localStorage.removeItem(PREF_KEY)}catch{}
+    prefs={...DEFAULT_PREFS};
+    applyPrefs();
+    renderAll();
+    toast('Diet data cleared from this device. Cloud data was not deleted.');
+  }catch(error){
+    toast(error?.message||'Local Diet data could not be fully cleared.');
+  }finally{
+    if(button){button.disabled=false;button.textContent='Clear this device';}
+  }
+}
 function clearCopilot(){
   if(window.DietV2Copilot?.clearSession){
     window.DietV2Copilot.clearSession();
@@ -303,6 +335,7 @@ $('exportNutritionButton')?.addEventListener('click',exportNutrition);
 $('exportWeightsButton')?.addEventListener('click',exportWeights);
 $('clearOfflineCacheButton')?.addEventListener('click',clearCache);
 $('clearCopilotSessionButton')?.addEventListener('click',clearCopilot);
+$('clearDeviceDataButton')?.addEventListener('click',clearDeviceData);
 $('bodyOpenProgress')?.addEventListener('click',openProgressFromBody);
 $('bodyExportWeights')?.addEventListener('click',exportWeights);
 $('integrationOpenActivity')?.addEventListener('click',openStrategyIntegration);
@@ -326,7 +359,8 @@ applyPrefs();
 renderAll();
 
 window.DietV2Settings=Object.freeze({
-  version:DietSettingsDataP9.version,
+  version:'2.0.3-p17',
+  settingsDataVersion:DietSettingsDataP9.version,
   preferences:()=>({...prefs}),
   apply:applyPrefs,
   exportJson,

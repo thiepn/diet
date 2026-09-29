@@ -14,13 +14,13 @@ const migration=read('supabase/migrations/20260929200148_diet_p16_consolidated_r
 const explicitInvoker=read('supabase/migrations/20260929200457_diet_p16_read_contract_explicit_invoker.sql');
 const cleanup=read('supabase/migrations/20260929201015_diet_p16_remove_speculative_hot_indexes.sql');
 
-assert.equal(app.release,'2.0.2');
-assert.equal(app.webRelease,'2.0.2');
-assert.equal(app.operationsVersion,'P16.0');
+assert.ok(['2.0.2','2.0.3'].includes(app.release));
+assert.ok(['2.0.2','2.0.3'].includes(app.webRelease));
+assert.ok(['P16.0','P17.0'].includes(app.operationsVersion));
 assert.equal(app.performanceRelease,'P16');
 assert.equal(app.securityRelease,'P14');
 assert.equal(app.resilienceRelease,'P15');
-assert.equal(account.consumerRelease,'2.0.2');
+assert.equal(account.consumerRelease,app.webRelease);
 
 assert.equal(app.health?.consolidatedOwnerRead,true);
 assert.equal(app.health?.normalRefreshDataRequests,1);
@@ -58,11 +58,11 @@ assert.ok(ownerFilters>=6,'Legacy fallback must retain explicit owner predicates
 assert.match(data,/const ownerFilter=`user_id=eq\.\$\{state\.user\.id\}`/);
 assert.match(data,/for\(const event of \['INSERT','UPDATE'\]\)/);
 assert.doesNotMatch(data,/channel\.on\('postgres_changes',\{event:'\*'/);
-assert.match(data,/version:'2\.0\.1-p16'/);
+assert.match(data,/version:'2\.0\.(?:1-p16|3-p17)'/);
 
-assert.match(sw,/diet-copilot-prod-v2-p16-1/);
-assert.match(aliasSw,/diet-copilot-v2-alias-p16-1/);
-assert.match(pwa,/version:'2\.0\.2-p16'/);
+assert.match(sw,/diet-copilot-prod-v2-p(?:16|17)-1/);
+assert.match(aliasSw,/diet-copilot-v2-alias-p(?:16|17)-1/);
+assert.match(pwa,/version:'2\.0\.(?:2-p16|3-p17)'/);
 
 const budgetFiles=[
   'index.html',

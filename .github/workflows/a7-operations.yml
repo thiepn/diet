@@ -1,4 +1,4 @@
-name: A7 / P16 Operations, Security, Resilience & Performance Contract
+name: A7 / P17 Operations, Security, Resilience, Performance & Privacy Contract
 on:
   pull_request:
     branches: [main]
@@ -8,7 +8,7 @@ on:
       - 'sw.js'
       - 'supabase/backend.json'
       - 'supabase/migrations/**'
-      - 'tests/p16-*'
+      - 'tests/p17-*'
       - '.github/workflows/a7-operations.yml'
   push:
     branches: [main]
@@ -24,21 +24,22 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - name: Verify P16 operations stack
+      - name: Verify P17 operations stack
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const app=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
           const backend=JSON.parse(fs.readFileSync('supabase/backend.json','utf8'));
           const data=fs.readFileSync('v2/data.js','utf8');
+          const settings=fs.readFileSync('v2/settings.js','utf8');
           const writes=fs.readFileSync('v2/write-api.mjs','utf8');
           const telemetry=fs.readFileSync('v2/telemetry.mjs','utf8');
-          if(app.operationsVersion!=='P16.0'||app.securityRelease!=='P14'||app.resilienceRelease!=='P15'||app.performanceRelease!=='P16')throw new Error('Unexpected operations release stack.');
-          if(app.health?.consolidatedOwnerRead!==true||app.health?.normalRefreshDataRequests!==1||app.health?.ownerFilteredRealtime!==true)throw new Error('P16 read metadata missing.');
-          if(backend.performance_policy?.read_transport!=='diet_app_read_snapshot_security_invoker')throw new Error('P16 read transport regressed.');
-          if(backend.security_policy?.anonymous_diet_access!==false||backend.resilience_policy?.destructive_restore_automatic!==false)throw new Error('Prior safety layers regressed.');
-          if(!data.includes("client.rpc('diet_app_read_snapshot')")||!data.includes("state.readTransport='snapshot_rpc'"))throw new Error('Consolidated read path missing.');
+          if(app.operationsVersion!=='P17.0'||app.securityRelease!=='P14'||app.resilienceRelease!=='P15'||app.performanceRelease!=='P16'||app.privacyRelease!=='P17')throw new Error('Unexpected release stack.');
+          if(app.health?.authoritativeOwnerExport!==true||app.health?.localDevicePurge!==true||app.health?.accountDeletionCentralOnly!==true)throw new Error('P17 privacy metadata missing.');
+          if(backend.privacy_policy?.owner_export?.rpc!=='diet_app_export_owner_data'||backend.privacy_policy?.account_deletion?.browser_delete_from_diet!==false)throw new Error('P17 lifecycle boundary regressed.');
+          if(!data.includes("client.rpc('diet_app_read_snapshot')")||!data.includes("client.rpc('diet_app_export_owner_data')"))throw new Error('Read/export boundaries missing.');
+          if(settings.includes("delete_thiepn_account")||data.includes("delete_thiepn_account"))throw new Error('Central account deletion leaked into Diet browser actions.');
           if(!writes.includes('p_request_id')||!writes.includes('uncertainWrite'))throw new Error('Write reliability regressed.');
           if(telemetry.includes('sendBeacon(')||telemetry.includes('.rpc('))throw new Error('Local telemetry attempted remote transmission.');
-          console.log('Diet P16 operations stack passed.');
+          console.log('Diet P17 operations stack passed.');
           NODE

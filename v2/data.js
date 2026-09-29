@@ -1,4 +1,4 @@
-import { DIET_V2_AUTH_STORAGE_KEY, dietV2AuthStorage } from './auth-storage.mjs';
+import { DIET_V2_AUTH_STORAGE_KEY, dietV2AuthStorage, clearDietV2AuthArtifacts } from './auth-storage.mjs';
 import { buildDietV2ReadModel, localDateKey } from './read-model.mjs';
 import { isDefinitiveAuthFailure } from './engine/release-guards.mjs';
 import { clearUncertainWriteGuard, getDietWriteGuardState } from './write-api.mjs';
@@ -198,7 +198,7 @@ export async function signOutDietV2(){
   setState('signed_out');
   render();
   try{await client.auth.signOut({scope:'local'});}catch{}
-  try{dietV2AuthStorage.removeItem(DIET_V2_AUTH_STORAGE_KEY);}catch{}
+  try{clearDietV2AuthArtifacts();}catch{}
   if(ownerId){
     try{
       const cached=readCache(ownerId);
@@ -208,6 +208,54 @@ export async function signOutDietV2(){
   clearOAuthRelayState();
   render();
   recordTelemetry('auth_action',{action:'sign_out',outcome:'success'});
+}
+
+function validOwnerExport(value,ownerId){
+  if(!value||typeof value!=='object'||Array.isArray(value))return false;
+  if(value.format!=='diet-copilot-owner-export'||Number(value.version)!==2)return false;
+  if(String(value.userId??'')!==String(ownerId??''))return false;
+  if(Number(value.tableCount)!==18||!value.data||typeof value.data!=='object')return false;
+  const tables=[
+    'profiles','daily_logs','meals','meal_items','weight_entries','goal_phases',
+    'saved_foods','saved_food_portions','saved_meals','saved_meal_items',
+    'target_recommendations','activity_daily','training_distribution_settings',
+    'training_days','ai_actions','change_log','weekly_reviews','diet_native_devices'
+  ];
+  if(!tables.every(table=>Array.isArray(value.data[table])))return false;
+  if((value.data.diet_native_devices??[]).some(row=>row&&typeof row==='object'&&'credential_digest' in row))return false;
+  if(value.privacy?.authTokensIncluded!==false||value.privacy?.oauthCredentialsIncluded!==false)return false;
+  if(value.privacy?.nativeCredentialDigestIncluded!==false)return false;
+  return true;
+}
+
+export async function exportDietV2OwnerData(){
+  if(navigator.onLine===false)throw new Error('Connect to the internet for a complete Diet data export.');
+  const client=ensureClient();
+  const sessionResult=await client.auth.getSession();
+  if(sessionResult.error)throw sessionResult.error;
+  const ownerId=currentSessionOwner(sessionResult.data?.session);
+  if(!ownerId)throw new Error('Sign in before exporting your Diet data.');
+  const {data,error}=await client.rpc('diet_app_export_owner_data');
+  if(error)throw error;
+  if(!validOwnerExport(data,ownerId))throw new Error('Diet returned an invalid owner export. No file was downloaded.');
+  recordTelemetry('data_export',{status:'success',source:'cloud'});
+  return data;
+}
+
+export async function purgeDietV2LocalDevice(){
+  const client=state.client;
+  clearPrivateState();
+  state.readTransport='none';
+  setState('signed_out');
+  render();
+  try{await client?.auth?.signOut?.({scope:'local'})}catch{}
+  const cacheCleared=clearDietV2OfflineCache();
+  let authCleared=true;
+  try{authCleared=clearDietV2AuthArtifacts()}catch{authCleared=false}
+  clearOAuthRelayState();
+  clearUncertainWriteGuard();
+  render();
+  return {cacheCleared,authCleared};
 }
 
 function clearPrivateState(){
@@ -918,7 +966,7 @@ export function getDietV2State(){
 }
 
 window.DietV2Data=Object.freeze({
-  version:'2.0.1-p16',
+  version:'2.0.3-p17',
   refresh,
   signInWithGoogle,
   signOut:signOutDietV2,
