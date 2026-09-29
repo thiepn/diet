@@ -1,0 +1,109 @@
+name: P15 Encrypted Offsite Backup
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/functions/diet-p15-backup-export/**'
+      - 'ops/p15-backup-recovery-cert.pem'
+      - 'scripts/p15-verify-offsite.py'
+      - 'scripts/p15-decrypt-backup.sh'
+      - 'tests/p15-*'
+      - 'docs/P15-*'
+      - 'supabase/backend.json'
+      - '.well-known/thiepn-app.json'
+      - '.github/workflows/p15-offsite-backup.yml'
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: p15-encrypted-offsite-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Fetch P15 export with GitHub OIDC
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}"
+          test -n "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}"
+
+          oidc_url="${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=diet-p15-backup"
+          response="$(curl --fail-with-body --silent --show-error             -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}"             "${oidc_url}")"
+          token="$(python -c 'import json,sys; print(json.load(sys.stdin)["value"])' <<<"$response")"
+          echo "::add-mask::$token"
+
+          curl --fail-with-body --silent --show-error             -X POST             -H "Authorization: Bearer $token"             -H "Content-Type: application/json"             -o p15-backup.json             "https://hycegznamzjhwinegaai.supabase.co/functions/v1/diet-p15-backup-export"
+
+          python scripts/p15-verify-offsite.py p15-backup.json
+
+      - name: Encrypt and prepare evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p p15-offsite
+          stamp="$(date -u +'%Y%m%dT%H%M%SZ')"
+          artifact="p15-offsite/diet-p15-${stamp}-run-${GITHUB_RUN_ID}.cms"
+
+          plaintext_sha="$(sha256sum p15-backup.json | awk '{print $1}')"
+          summary="$(python scripts/p15-verify-offsite.py p15-backup.json)"
+
+          openssl cms -encrypt -binary -aes-256-gcm             -in p15-backup.json             -outform DER             -out "$artifact"             ops/p15-backup-recovery-cert.pem
+          openssl cms -cmsout -inform DER -in "$artifact" -noout
+
+          ciphertext_sha="$(sha256sum "$artifact" | awk '{print $1}')"
+          cert_fingerprint="$(openssl x509 -in ops/p15-backup-recovery-cert.pem -noout -fingerprint -sha256 | cut -d= -f2)"
+
+          python - "$summary" "$plaintext_sha" "$ciphertext_sha" "$cert_fingerprint" "$artifact" <<'PY'
+          import json,sys,datetime,pathlib,os
+          summary=json.loads(sys.argv[1])
+          evidence={
+            "format":"diet-p15-offsite-evidence-v1",
+            "created_at":datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "run_id":os.environ["GITHUB_RUN_ID"],
+            "run_attempt":os.environ["GITHUB_RUN_ATTEMPT"],
+            "commit":os.environ["GITHUB_SHA"],
+            "backup_file":pathlib.Path(sys.argv[5]).name,
+            "plaintext_sha256":sys.argv[2],
+            "ciphertext_sha256":sys.argv[3],
+            "certificate_sha256_fingerprint":sys.argv[4],
+            "snapshot_count":summary["snapshot_count"],
+            "total_rows":summary["total_rows"],
+            "declared_payload_bytes":summary["declared_payload_bytes"],
+            "latest_captured_at":summary["latest_captured_at"],
+            "schema_sha256":summary["schema_sha256"],
+          }
+          pathlib.Path("p15-offsite/manifest.json").write_text(json.dumps(evidence,indent=2)+"\n")
+          PY
+
+          shred -u p15-backup.json 2>/dev/null || rm -f p15-backup.json
+          test ! -e p15-backup.json
+
+      - name: Upload encrypted backup only
+        uses: actions/upload-artifact@v4
+        with:
+          name: diet-p15-offsite-${{ github.run_id }}
+          path: |
+            p15-offsite/*.cms
+            p15-offsite/manifest.json
+          if-no-files-found: error
+          retention-days: 90

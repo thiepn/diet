@@ -19,7 +19,8 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      - name: P14 syntax
+
+      - name: P15 syntax
         shell: bash
         run: |
           set -euo pipefail
@@ -33,34 +34,47 @@ jobs:
           done < <(find v2 -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
           node --check tests/p13-telemetry.mjs
           node --check tests/p14-security-contract.mjs
-          python -m py_compile tests/p13-synthetic-monitor.py tests/p14-public-security-probe.py
+          node --check tests/p15-resilience-contract.mjs
+          python -m py_compile tests/p13-synthetic-monitor.py tests/p14-public-security-probe.py scripts/p15-verify-offsite.py
+
       - name: P13 telemetry privacy regression
         run: node tests/p13-telemetry.mjs
-      - name: P14 static security contract
+
+      - name: P14 security regression
         run: node tests/p14-security-contract.mjs
-      - name: P14 product and backend contract
+
+      - name: P15 resilience contract
+        run: node tests/p15-resilience-contract.mjs
+
+      - name: P15 product and backend contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const backend=JSON.parse(fs.readFileSync('supabase/backend.json','utf8'));
           const app=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
           const release=JSON.parse(fs.readFileSync('.well-known/thiepn-account-release.json','utf8'));
+
           if(backend.canonical_project_ref!=='hycegznamzjhwinegaai')throw new Error('Wrong canonical backend.');
           if(backend.write_protocol?.require_request_id!==true||backend.write_protocol?.retry_same_request_id!==true||backend.write_protocol?.verify_after_write!==true||backend.write_protocol?.dual_write!==false)throw new Error('Reliable write protocol regressed.');
-          if(backend.product_boundary?.dashboard_manual_logging!==true||backend.product_boundary?.dashboard_quick_capture!==true||backend.product_boundary?.writes_require_explicit_confirmation!==true)throw new Error('V2 write boundary regressed.');
-          if(backend.product_boundary?.activity_calorie_eat_back!==false)throw new Error('Exercise calories must not be automatically eaten back.');
-          if(backend.observability_policy?.client_telemetry!=='local_only_sanitized_operational_metadata'||backend.observability_policy?.remote_nutrition_telemetry!==false)throw new Error('Telemetry privacy boundary regressed.');
-          if(backend.security_policy?.release!=='P14'||backend.security_policy?.direct_table_mutation!=='denied_to_anon_and_authenticated'||backend.security_policy?.anonymous_diet_access!==false)throw new Error('P14 backend security policy invalid.');
-          if(app.webRelease!=='2.0.1'||app.operationsVersion!=='P14.0'||app.securityRelease!=='P14'||app.releaseChannel!=='stable'||app.stable!==true)throw new Error('P14 release metadata invalid.');
-          if(app.runtimeMode!=='adaptive-v2-production-monitored')throw new Error('Production runtime metadata regressed.');
+          if(backend.product_boundary?.writes_require_explicit_confirmation!==true||backend.product_boundary?.activity_calorie_eat_back!==false)throw new Error('Product write/nutrition boundary regressed.');
+          if(backend.security_policy?.release!=='P14'||backend.security_policy?.anonymous_diet_access!==false)throw new Error('P14 security policy regressed.');
+          if(backend.resilience_policy?.release!=='P15'||backend.resilience_policy?.supabase_plan!=='free')throw new Error('P15 resilience policy invalid.');
+          if(backend.resilience_policy?.managed_daily_backups!==false||backend.resilience_policy?.point_in_time_recovery!==false)throw new Error('P15 must not claim unavailable managed backup features.');
+          if(backend.resilience_policy?.destructive_restore_automatic!==false)throw new Error('Automatic destructive restore is forbidden.');
+          if(backend.resilience_policy?.offsite?.plaintext_artifact_retained!==false||backend.resilience_policy?.offsite?.artifact_retention_days!==90)throw new Error('Off-site backup privacy/retention contract invalid.');
+
+          if(app.webRelease!=='2.0.1'||app.operationsVersion!=='P15.0'||app.securityRelease!=='P14'||app.resilienceRelease!=='P15')throw new Error('P15 release metadata invalid.');
+          if(app.releaseChannel!=='stable'||app.stable!==true||app.runtimeMode!=='adaptive-v2-production-monitored')throw new Error('Production runtime metadata regressed.');
           if(release.consumerRelease!==app.webRelease)throw new Error('Account platform consumer release mismatch.');
-          console.log('Diet Copilot Web 2.0.1 / P14 backend-security contract passed.');
+          console.log('Diet Copilot Web 2.0.1 / P15 resilience contract passed.');
           NODE
+
       - name: Build actual GitHub Pages artifact
         uses: actions/jekyll-build-pages@v1
         with:
           source: ./
           destination: ./_site
+
       - name: Validate production artifact
         shell: bash
         run: |

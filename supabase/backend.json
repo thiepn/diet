@@ -3,9 +3,7 @@
   "canonical_project_ref": "hycegznamzjhwinegaai",
   "canonical_region": "eu-west-1",
   "identity_project": "THIEPN Account",
-  "legacy_project_refs": [
-    "mrrqsqawwxwebsdmrnre"
-  ],
+  "legacy_project_refs": ["mrrqsqawwxwebsdmrnre"],
   "legacy_policy": "retired_no_reads_no_writes",
   "metrics_policy": {
     "nutrition_days": "all_days_with_logged_intake",
@@ -65,7 +63,12 @@
     "session_owner_write_guard": true,
     "cross_owner_reference_enforcement": true,
     "anonymous_diet_rejection": true,
-    "public_security_probe": true
+    "public_security_probe": true,
+    "verified_recovery_snapshots": true,
+    "non_destructive_restore_drill": true,
+    "encrypted_offsite_backups": true,
+    "github_oidc_backup_export": true,
+    "account_delete_respecting_snapshots": true
   },
   "observability_policy": {
     "release": "P13",
@@ -86,9 +89,39 @@
     "cross_owner_foreign_keys": true,
     "private_helpers_exposed_to_browser": false,
     "security_definer_advisor_exception": "intentional_reviewed_write_api",
-    "migration_versions": [
-      "20260929190638",
-      "20260929190758"
-    ]
+    "migration_versions": ["20260929190638","20260929190758"]
+  },
+  "resilience_policy": {
+    "release": "P15",
+    "supabase_plan": "free",
+    "managed_daily_backups": false,
+    "point_in_time_recovery": false,
+    "in_database": {
+      "schema": "private",
+      "table": "diet_recovery_snapshots",
+      "protected_tables": 18,
+      "integrity": "sha256_payload_plus_schema_fingerprint",
+      "daily_cron_utc": "02:17",
+      "daily_retention_days": 35,
+      "monthly_cron_utc": "02:47_day_1",
+      "monthly_retention_days": 370,
+      "restore_drill_retention_days": 14,
+      "post_restore_retention_days": 90
+    },
+    "snapshot_account_delete_behavior": "cascade_delete",
+    "native_credential_digest_backed_up": false,
+    "destructive_restore_automatic": false,
+    "offsite": {
+      "authentication": "github_actions_oidc",
+      "workflow": "P15 Encrypted Offsite Backup",
+      "schedule_utc": "04:17_daily",
+      "encryption": "openssl_cms_aes_256_gcm_rsa_3072_recipient",
+      "artifact_retention_days": 90,
+      "plaintext_artifact_retained": false,
+      "private_key_location": "external_offline_only",
+      "certificate_sha256_fingerprint": "98:9E:71:79:15:B9:0B:67:7B:87:BF:FE:71:40:73:46:40:37:9F:18:C0:F8:EF:E5:59:F6:DE:01:81:6D:67:97",
+      "public_key_der_sha256": "e67ad314d1ecfdc7588f6ca08c050b0b085b468ebd5395c07ca870a0df9f070d"
+    },
+    "migration_versions": ["20260929193123","20260929193253","20260929193608"]
   }
 }

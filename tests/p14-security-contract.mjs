@@ -40,7 +40,7 @@ for(const name of [
 ])assert.match(migration2,new RegExp(name));
 assert.match(migration2,/diet_p14_operator_owner_deny/);
 
-assert.equal(app.operationsVersion,'P14.0');
+assert.ok(['P14.0','P15.0'].includes(app.operationsVersion),'P14 security controls must remain valid in P15.');
 assert.equal(app.securityRelease,'P14');
 assert.equal(app.health?.databaseOwnerGuard,true);
 assert.equal(app.health?.directTableWrites,false);

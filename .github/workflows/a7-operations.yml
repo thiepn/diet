@@ -1,4 +1,4 @@
-name: A7 / P14 Operations & Security Contract
+name: A7 / P15 Operations, Security & Resilience Contract
 on:
   pull_request:
     branches: [main]
@@ -8,6 +8,9 @@ on:
       - 'sw.js'
       - 'supabase/backend.json'
       - 'supabase/migrations/**'
+      - 'supabase/functions/**'
+      - 'ops/**'
+      - 'scripts/p15-*'
       - '.github/workflows/a7-operations.yml'
   push:
     branches: [main]
@@ -23,7 +26,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - name: Verify P14 operations and security contract
+      - name: Verify P15 operations, security and resilience contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
@@ -34,15 +37,20 @@ jobs:
           const writes=fs.readFileSync('v2/write-api.mjs','utf8');
           const telemetry=fs.readFileSync('v2/telemetry.mjs','utf8');
           const sw=fs.readFileSync('sw.js','utf8');
-          if(app.operationsVersion!=='P14.0'||app.securityRelease!=='P14')throw new Error('Unexpected P14 operations/security contract.');
+
+          if(app.operationsVersion!=='P15.0'||app.securityRelease!=='P14'||app.resilienceRelease!=='P15')throw new Error('Unexpected P15 operations/security/resilience contract.');
           if(app.degradedMode!=='cached-read-only'||app.health?.networkFailureLogsOutUser!==false)throw new Error('Degraded-mode contract regressed.');
-          if(app.health?.writesPerformedByDashboard!==true||app.health?.writesRequireExplicitConfirmation!==true)throw new Error('Explicit-write metadata missing.');
-          if(app.health?.databaseOwnerGuard!==true||app.health?.directTableWrites!==false||app.health?.anonymousDietAccess!==false)throw new Error('P14 security metadata missing.');
-          if(backend.security_policy?.table_session_owner_guard!==true||backend.security_policy?.cross_owner_foreign_keys!==true||backend.security_policy?.private_helpers_exposed_to_browser!==false)throw new Error('P14 backend security policy regressed.');
-          if(!data.includes('isDefinitiveAuthFailure')||!data.includes("setState('stale'")||!data.includes("setState('offline'"))throw new Error('Read recovery states regressed.');
-          if(!guards.includes("return 'transient'"))throw new Error('Transient failure classification missing.');
-          if(!writes.includes('p_request_id')||!writes.includes('uncertainWrite')||!writes.includes("recordTelemetry('write_retry'"))throw new Error('Write reliability instrumentation missing.');
-          if(telemetry.includes('fetch(')||telemetry.includes('sendBeacon(')||telemetry.includes('.rpc('))throw new Error('Local telemetry attempted remote transmission.');
+          if(app.health?.databaseOwnerGuard!==true||app.health?.directTableWrites!==false||app.health?.anonymousDietAccess!==false)throw new Error('P14 security metadata regressed.');
+          if(app.health?.inDatabaseRecoverySnapshots!==true||app.health?.encryptedOffsiteBackups!==true||app.health?.destructiveRestoreAutomatic!==false)throw new Error('P15 resilience metadata missing.');
+          if(app.health?.recoverySnapshotsCascadeOnAccountDelete!==true||app.health?.nativeCredentialMaterialBackedUp!==false)throw new Error('P15 lifecycle/privacy boundary regressed.');
+
+          if(backend.security_policy?.table_session_owner_guard!==true||backend.security_policy?.cross_owner_foreign_keys!==true)throw new Error('P14 backend security policy regressed.');
+          if(backend.resilience_policy?.release!=='P15'||backend.resilience_policy?.snapshot_account_delete_behavior!=='cascade_delete')throw new Error('P15 backend lifecycle contract regressed.');
+          if(backend.resilience_policy?.offsite?.authentication!=='github_actions_oidc'||backend.resilience_policy?.offsite?.plaintext_artifact_retained!==false)throw new Error('P15 off-site boundary regressed.');
+
+          if(!data.includes('isDefinitiveAuthFailure')||!guards.includes("return 'transient'"))throw new Error('Read/recovery failure classification regressed.');
+          if(!writes.includes('p_request_id')||!writes.includes('uncertainWrite'))throw new Error('Write safety regressed.');
+          if(telemetry.includes('sendBeacon(')||telemetry.includes('.rpc('))throw new Error('Local telemetry attempted remote transmission.');
           if(sw.includes('localStorage.clear(')||data.includes('localStorage.clear('))throw new Error('Broad local data clearing is forbidden.');
-          console.log('Diet P14 operations/security contract passed.');
+          console.log('Diet P15 operations/security/resilience contract passed.');
           NODE

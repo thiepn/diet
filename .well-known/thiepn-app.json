@@ -7,12 +7,10 @@
   "accountContract": "1.0",
   "sdkContract": "1.x",
   "integrationMode": "certified-legacy",
-  "operationsVersion": "P14.0",
+  "operationsVersion": "P15.0",
   "sessionAuthority": "thiepn-account",
   "degradedMode": "cached-read-only",
-  "authEntryPoints": [
-    "google"
-  ],
+  "authEntryPoints": ["google"],
   "release": "2.0.1",
   "webRelease": "2.0.1",
   "releaseChannel": "stable",
@@ -34,10 +32,19 @@
     "restrictiveOwnerRls": true,
     "crossOwnerForeignKeys": true,
     "directTableWrites": false,
-    "anonymousDietAccess": false
+    "anonymousDietAccess": false,
+    "inDatabaseRecoverySnapshots": true,
+    "encryptedOffsiteBackups": true,
+    "managedSupabaseDailyBackups": false,
+    "pointInTimeRecovery": false,
+    "destructiveRestoreAutomatic": false,
+    "recoverySnapshotsCascadeOnAccountDelete": true,
+    "nativeCredentialMaterialBackedUp": false
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0",
   "securityRelease": "P14",
-  "securityModel": "owner-guarded-rpc-v1"
+  "securityModel": "owner-guarded-rpc-v1",
+  "resilienceRelease": "P15",
+  "resilienceModel": "verified-snapshots-encrypted-offsite-v1"
 }
