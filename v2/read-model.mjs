@@ -112,9 +112,14 @@ export function normalizeDietV1Rows(raw={},asOfDate=localDateKey()){
     const dayMeals=mealsByDate.get(date)??[];
     const calories=dayMeals.reduce((s,m)=>s+m.calories,0);
     const protein=dayMeals.reduce((s,m)=>s+m.protein,0);
-    const carbs=dayMeals.reduce((sum,m)=>sum+(m.items??[]).reduce((s,i)=>s+(num(i.carbs,0)||0),0),0);
-    const fat=dayMeals.reduce((sum,m)=>sum+(m.items??[]).reduce((s,i)=>s+(num(i.fat,0)||0),0),0);
-    const fiber=dayMeals.reduce((sum,m)=>sum+(m.items??[]).reduce((s,i)=>s+(num(i.fiber,0)||0),0),0);
+    const dayItems=dayMeals.flatMap(m=>m.items??[]);
+    const sumKnown=key=>{
+      const values=dayItems.map(i=>num(i[key])).filter(Number.isFinite);
+      return values.length?values.reduce((s,v)=>s+v,0):null;
+    };
+    const carbs=sumKnown('carbs');
+    const fat=sumKnown('fat');
+    const fiber=sumKnown('fiber');
     const uncertaintyKcal=dayMeals.reduce((sum,m)=>{
       const low=m.caloriesLow??m.calories;
       const high=m.caloriesHigh??m.calories;
@@ -411,6 +416,7 @@ export function buildDietV2ReadModel(raw={},options={}){
     meta:{
       adapter:adapted.meta,
       engineVersion:p1.version,
+      intelligenceVersion:p7.version,
       legacyRows:{
         daily:normalized.daily.length,
         meals:normalized.normalizedMeals.length,
