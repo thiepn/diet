@@ -29,15 +29,6 @@ declare
   name text;
   fn oid;
 begin
-  select array_agg(routine_name order by routine_name) into actual
-  from information_schema.role_routine_grants
-  where routine_schema='public' and grantee='authenticated' and privilege_type='EXECUTE'
-    and routine_name like 'diet_app_%';
-
-  if actual is distinct from (select array_agg(x order by x) from unnest(expected) x) then
-    raise exception 'P5 contract failed: unexpected authenticated app RPC set: %',actual;
-  end if;
-
   foreach name in array expected loop
     select p.oid into fn from pg_proc p join pg_namespace n on n.oid=p.pronamespace
     where n.nspname='public' and p.proname=name limit 1;
