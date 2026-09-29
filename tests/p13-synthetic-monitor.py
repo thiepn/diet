@@ -6,6 +6,25 @@ from urllib.request import Request, urlopen
 BASE="https://thiepn.dev/diet/"
 TIMEOUT=15
 results=[]
+DEADLINE=time.monotonic()+360
+
+def raw_get(url,headers=None):
+    request=Request(url,headers={"Cache-Control":"no-cache","User-Agent":"Diet-P13-release-wait",**(headers or {})})
+    with urlopen(request,timeout=TIMEOUT) as response:
+        return response.read()
+
+def wait_for_p13():
+    while True:
+        try:
+            sw=raw_get(BASE+"sw.js").decode("utf-8","replace")
+            telemetry=raw_get(BASE+"v2/telemetry.mjs").decode("utf-8","replace")
+            if "diet-copilot-prod-v2-p13-1" in sw and "local-only-sanitized-operations" in telemetry:
+                return
+        except Exception:
+            pass
+        if time.monotonic()>=DEADLINE:
+            raise SystemExit("P13 production assets did not become live before the monitoring deadline.")
+        time.sleep(10)
 
 def check(name,condition,detail=None):
     results.append({"name":name,"passed":bool(condition),"detail":detail})
@@ -23,6 +42,8 @@ def get(path,headers=None):
         if response.status!=200:
             raise AssertionError(f"{path} returned {response.status}")
         return body,elapsed,response.headers.get("content-type","")
+
+wait_for_p13()
 
 root,_,_=get("")
 html=root.decode("utf-8","replace")
