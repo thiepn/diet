@@ -94,6 +94,8 @@ assert.match(dataJs,/detectSessionInUrl:false/,'P2.5 must not create a second OA
 assert.match(dataJs,/postgres_changes/,'P2.5 should refresh from read-only realtime change notifications.');
 assert.match(dataJs,/data-progress-range/,'Progress range controls must be wired to the live read model.');
 assert.match(dataJs,/progressDays:90/,'3-month progress view should remain the default.');
+assert.match(dataJs,/function renderEmptyPrivateState\(\)/,'Private DOM must be explicitly scrubbed when owner data disappears.');
+assert.match(dataJs,/Private meal history is hidden until an owner-matched account or cache is available/,'Signed-out private meal content must be replaced, not left in the DOM.');
 assert.match(authStorage,/sb-hycegznamzjhwinegaai-auth-token/,'V2 must reuse the canonical V1 auth storage key.');
 assert.match(authStorage,/diet-auth-v2-/,'V2 must understand the V1 resilient cookie fallback.');
 
