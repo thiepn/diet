@@ -154,6 +154,7 @@ async function resolveOAuthCallback(){
 export async function signInWithGoogle(){
   const client=ensureClient();
   const existing=await client.auth.getSession();
+  if(existing.error)throw existing.error;
   if(existing.data?.session)return existing.data.session;
   if(navigator.onLine===false)throw new Error('Connect to the internet before signing in.');
   setState('authenticating');
