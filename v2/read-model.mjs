@@ -32,6 +32,8 @@ export function normalizeDietV1Rows(raw={},asOfDate=localDateKey()){
   const mealItems=(raw.mealItems??raw.meal_items??[]).filter(Boolean);
   const weights=(raw.weights??raw.weightEntries??raw.weight_entries??[]).filter(Boolean);
   const goalPhases=(raw.goalPhases??raw.goal_phases??[]).filter(Boolean);
+  const savedFoods=(raw.savedFoods??raw.saved_foods??[]).filter(Boolean);
+  const savedMeals=(raw.savedMeals??raw.saved_meals??[]).filter(Boolean);
   const phase=activePhase(goalPhases,asOfDate);
 
   const logById=new Map();
@@ -123,6 +125,48 @@ export function normalizeDietV1Rows(raw={},asOfDate=localDateKey()){
   })).filter(row=>/^\d{4}-\d{2}-\d{2}$/.test(row.date)&&row.date<=asOfDate&&row.weight!=null&&row.weight>0)
     .sort((a,b)=>a.date.localeCompare(b.date));
 
+  const normalizedSavedFoods=savedFoods.map(row=>({
+    id:row.id??null,
+    name:String(row.name??'Saved food'),
+    brand:String(row.brand??''),
+    quantity:String(row.quantity_text??''),
+    calories:num(row.calories,0),
+    protein:num(row.protein,0),
+    carbs:num(row.carbs),
+    fat:num(row.fat),
+    fiber:num(row.fiber),
+    barcode:String(row.barcode??''),
+    favorite:Boolean(row.favorite),
+    useCount:num(row.use_count,0),
+    lastUsedAt:row.last_used_at??null,
+    verified:Boolean(row.verified_at),
+  })).filter(row=>row.id&&row.name).sort((a,b)=>
+    Number(b.favorite)-Number(a.favorite) ||
+    b.useCount-a.useCount ||
+    String(b.lastUsedAt??'').localeCompare(String(a.lastUsedAt??''))
+  );
+
+  const normalizedSavedMeals=savedMeals.map(row=>({
+    id:row.id??null,
+    name:String(row.name??'Saved meal'),
+    mealType:String(row.meal_type??'Other'),
+    calories:num(row.calories,0),
+    protein:num(row.protein,0),
+    carbs:num(row.carbs),
+    fat:num(row.fat),
+    fiber:num(row.fiber),
+    favorite:Boolean(row.favorite),
+    useCount:num(row.use_count,0),
+    lastUsedAt:row.last_used_at??null,
+    isRecipe:Boolean(row.is_recipe),
+    servings:num(row.servings),
+    servingText:String(row.serving_text??''),
+  })).filter(row=>row.id&&row.name).sort((a,b)=>
+    Number(b.favorite)-Number(a.favorite) ||
+    b.useCount-a.useCount ||
+    String(b.lastUsedAt??'').localeCompare(String(a.lastUsedAt??''))
+  );
+
   return {
     asOfDate,
     profile,
@@ -131,6 +175,8 @@ export function normalizeDietV1Rows(raw={},asOfDate=localDateKey()){
     weights:normalizedWeights.map(({date,weight})=>({date,weight})),
     normalizedMeals,
     normalizedWeights,
+    normalizedSavedFoods,
+    normalizedSavedMeals,
     logByDate
   };
 }
@@ -210,7 +256,11 @@ export function buildDietV2ReadModel(raw={},options={}){
     },
     food:{
       todayMeals,
-      recentMeals
+      recentMeals,
+      savedFoods:normalized.normalizedSavedFoods,
+      savedMeals:normalized.normalizedSavedMeals,
+      quickFoods:normalized.normalizedSavedFoods.slice(0,8),
+      quickMeals:normalized.normalizedSavedMeals.slice(0,6)
     },
     progress:{
       rawWeights:normalized.normalizedWeights.map(w=>({date:w.date,value:round(w.weight,2)})),
@@ -241,7 +291,9 @@ export function buildDietV2ReadModel(raw={},options={}){
       legacyRows:{
         daily:normalized.daily.length,
         meals:normalized.normalizedMeals.length,
-        weights:normalized.normalizedWeights.length
+        weights:normalized.normalizedWeights.length,
+        savedFoods:normalized.normalizedSavedFoods.length,
+        savedMeals:normalized.normalizedSavedMeals.length
       }
     }
   };
