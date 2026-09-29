@@ -499,7 +499,10 @@ function renderToday(model){
   const t=model.today;
   text('todayCaloriesValue',fmt(t.calories));
   text('todayCaloriesTarget',t.calorieTarget==null?'No target':`of ${fmt(t.calorieTarget)} kcal`);
-  const trainingSuffix=t.trainingDistributionEnabled&&t.trainingTargetDelta\n    ?` · ${t.trainingDayType} day ${t.trainingTargetDelta>0?'+':''}${fmt(t.trainingTargetDelta)}`\n    :'';\n  text('todayCaloriesHint',t.caloriesRemaining==null?'No calorie target available':(t.caloriesRemaining>=0?`${fmt(t.caloriesRemaining)} kcal remaining`:`${fmt(Math.abs(t.caloriesRemaining))} kcal over target`)+trainingSuffix);
+  const trainingSuffix=t.trainingDistributionEnabled&&t.trainingTargetDelta
+    ?` · ${t.trainingDayType} day ${t.trainingTargetDelta>0?'+':''}${fmt(t.trainingTargetDelta)}`
+    :'';
+  text('todayCaloriesHint',t.caloriesRemaining==null?'No calorie target available':(t.caloriesRemaining>=0?`${fmt(t.caloriesRemaining)} kcal remaining`:`${fmt(Math.abs(t.caloriesRemaining))} kcal over target`)+trainingSuffix);
   const progress=document.getElementById('todayCaloriesProgress');
   if(progress)progress.style.width=`${t.calorieProgress}%`;
 
