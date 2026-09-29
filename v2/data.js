@@ -388,6 +388,22 @@ function renderIntakeChart(id,series){
   </div><div class="dc-chart-legend"><span><i class="dc-legend-intake"></i>Intake</span><span><i class="dc-legend-target"></i>Target</span></div>`;
 }
 
+function signedValue(value,digits=0,suffix=''){
+  if(value==null||!Number.isFinite(Number(value)))return '—';
+  const n=Number(value);
+  return `${n>0?'+':''}${fmt(n,digits)}${suffix}`;
+}
+function insightMarkup(insight){
+  return `<article class="dc-insight-card" data-tone="${escapeHtml(insight.tone??'neutral')}">
+    <div class="dc-insight-card-main">
+      <div class="dc-insight-card-head"><span class="dc-insight-category">${escapeHtml(insight.category??'pattern')}</span><strong>${escapeHtml(insight.title??'Pattern')}</strong></div>
+      <p>${escapeHtml(insight.summary??'')}</p>
+      <div class="dc-insight-evidence"><span>${fmt(insight.evidenceDays)} evidence day${Number(insight.evidenceDays)===1?'':'s'}</span><span>${escapeHtml(confidenceLabel(insight.confidence??'low'))} confidence</span></div>
+    </div>
+    <div class="dc-insight-value"><strong>${signedValue(insight.value,insight.unit==='r'?2:0)}</strong><span>${escapeHtml(insight.unit??'')}</span></div>
+  </article>`;
+}
+
 function rangeStartDate(days,asOfDate){
   const d=new Date(`${asOfDate}T12:00:00`);
   d.setDate(d.getDate()-Math.max(0,Number(days)-1));
@@ -407,6 +423,20 @@ function renderProgress(model){
     html('progressGoalTrajectory',`<div class="dc-trajectory"><strong>Projected around ${escapeHtml(prettyDate(projection.projectedDate))}</strong><span>${fmt(projection.weeks,1)} weeks at the selected pace</span><small>Projection, not a guarantee.</small></div>`);
   }else{
     html('progressGoalTrajectory',emptyMarkup('No goal projection yet','A compatible goal and target rate are required.'));
+  }
+
+  const intel=model.progress.intelligence;
+  if(intel){
+    text('intelligenceVersion',intel.version??'P7');
+    text('intelligenceReliableDays',intel.quality?.reliableIntakeDays==null?'—':fmt(intel.quality.reliableIntakeDays,1));
+    text('intelligenceProteinAdherence',intel.metrics?.proteinTargetAdherence==null?'—':fmt(intel.metrics.proteinTargetAdherence*100)+'%');
+    text('intelligenceCalorieAdherence',intel.metrics?.calorieTargetAdherence==null?'—':fmt(intel.metrics.calorieTargetAdherence*100)+'%');
+    text('intelligenceWeightRate',intel.metrics?.weeklyTrendRate==null?'—':signedValue(intel.metrics.weeklyTrendRate,2));
+    text('intelligenceWeekendDelta',intel.metrics?.weekendDeltaCalories==null?'—':signedValue(intel.metrics.weekendDeltaCalories,0,' kcal'));
+    text('intelligenceActivityShift',intel.metrics?.activityShift==null?'—':signedValue(intel.metrics.activityShift*100,0,'%'));
+    html('personalInsights',intel.insights?.length
+      ?intel.insights.map(insightMarkup).join('')
+      :emptyMarkup('Patterns withheld','P7 needs more reliable paired history before showing personal observations.'));
   }
 }
 
