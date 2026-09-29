@@ -50,10 +50,14 @@ export function normalizeDietV1Rows(raw={},asOfDate=localDateKey()){
     const list=itemsByMeal.get(id)??[];
     list.push({
       id:row.id??null,
+      savedFoodId:row.saved_food_id??null,
       name:String(row.name??'Food'),
       quantity:String(row.quantity_text??''),
       calories:num(row.calories,0),
       protein:num(row.protein,0),
+      carbs:num(row.carbs),
+      fat:num(row.fat),
+      fiber:num(row.fiber),
       caloriesLow:num(row.calories_low),
       caloriesHigh:num(row.calories_high),
       confidence:String(row.confidence??'medium'),
@@ -140,6 +144,9 @@ export function normalizeDietV1Rows(raw={},asOfDate=localDateKey()){
     useCount:num(row.use_count,0),
     lastUsedAt:row.last_used_at??null,
     verified:Boolean(row.verified_at),
+    source:String(row.source??'manual_exact'),
+    photoUrl:String(row.photo_url??''),
+    updatedAt:row.updated_at??null
   })).filter(row=>row.id&&row.name).sort((a,b)=>
     Number(b.favorite)-Number(a.favorite) ||
     b.useCount-a.useCount ||
@@ -161,6 +168,7 @@ export function normalizeDietV1Rows(raw={},asOfDate=localDateKey()){
     isRecipe:Boolean(row.is_recipe),
     servings:num(row.servings),
     servingText:String(row.serving_text??''),
+    updatedAt:row.updated_at??null
   })).filter(row=>row.id&&row.name).sort((a,b)=>
     Number(b.favorite)-Number(a.favorite) ||
     b.useCount-a.useCount ||
