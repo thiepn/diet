@@ -3,6 +3,10 @@ import fs from 'node:fs';
 import {
   isDefinitiveAuthFailure,classifyReadFailure,DietReleaseGuardsP10
 } from '../src/engine/release-guards.mjs';
+
+const canonicalGuard=fs.readFileSync('src/engine/release-guards.mjs','utf8');
+const browserGuard=fs.readFileSync('v2/engine/release-guards.mjs','utf8');
+assert.equal(browserGuard,canonicalGuard,'Deployable P10 release guard drifted from canonical source.');
 import {
   logSavedFood,clearUncertainWriteGuard,getDietWriteGuardState
 } from '../v2/write-api.mjs';
