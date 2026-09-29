@@ -1,0 +1,60 @@
+name: P11 Live RC Certification
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'v2/**'
+      - 'tests/p11-deployed-rc.py'
+      - 'tests/p11-live-rc.py'
+      - '.github/workflows/p11-rc-live.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: p11-live-rc
+  cancel-in-progress: true
+
+jobs:
+  deployed-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Wait for exact public RC bytes
+        run: python tests/p11-deployed-rc.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p11-deployed-rc-assets
+          path: p11-deployed-rc.json
+          retention-days: 14
+
+  browser:
+    needs: deployed-assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install pinned browser tooling
+        run: |
+          pip install playwright==1.57.0
+          python -m playwright install --with-deps ${{ matrix.browser }}
+      - name: Certify public RC
+        run: python tests/p11-live-rc.py --browser ${{ matrix.browser }} --out p11-live/${{ matrix.browser }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p11-live-${{ matrix.browser }}
+          path: p11-live/${{ matrix.browser }}/
+          retention-days: 14
