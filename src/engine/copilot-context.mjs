@@ -242,11 +242,46 @@ export function buildLocalCopilotReply(question,context){
     }
   }
 
-  const logIntent=/\b(log|add|ate|eat|had)\b/.test(q);
-  if(logIntent){
+  if(/\bcan i (eat|have)\b|\bwould .* fit\b/.test(q)){
     const saved=[...(context.candidates?.savedMeals??[]),...(context.candidates?.savedFoods??[])];
     const matches=findByWords(saved,q);
-    if(matches.length&&matches[0].score>0.9){
+    const item=matches[0]?.score>0.9?matches[0].item:null;
+    if(item&&finite(item.calories)&&finite(t.caloriesRemaining)){
+      const after=round(Number(t.caloriesRemaining)-Number(item.calories),0);
+      return {
+        answer:after>=0
+          ?'Your saved '+item.name+' is '+round(item.calories,0)+' kcal. It would fit inside today’s current target and leave about '+after+' kcal.'
+          :'Your saved '+item.name+' is '+round(item.calories,0)+' kcal, which is about '+Math.abs(after)+' kcal more than today’s remaining target.',
+        basis:[
+          {label:'Remaining now',value:round(t.caloriesRemaining,0)+' kcal'},
+          {label:item.name,value:round(item.calories,0)+' kcal'}
+        ],
+        caution:'This compares the exact saved item with today’s current target; it does not judge whether you should eat it.',
+        action:null,source:'local'
+      };
+    }
+    return {
+      answer:'I need the food’s actual nutrition before I can compare it with your remaining target.',
+      basis:finite(t.caloriesRemaining)?[{label:'Remaining today',value:round(t.caloriesRemaining,0)+' kcal'}]:[],
+      caution:'I will not estimate an unknown food into your canonical nutrition data.',
+      action:{type:'navigate_food',query:text(question,160),label:'Find the food'},source:'local'
+    };
+  }
+
+  const logIntent=/\b(log|add|record|ate|had)\b/.test(q);
+  if(logIntent){
+    const modified=/\b(modified|different|change|changed|without|extra|less|more|swap|replace)\b/.test(q);
+    if(modified){
+      return {
+        answer:'That sounds different from the exact saved item, so I will not log the unmodified version. Open Food to review the actual items or nutrition first.',
+        basis:[],caution:'Saved meals are only logged as-is unless the changed nutrition is known.',
+        action:{type:'navigate_food',query:text(question,160),label:'Review in Food'},source:'local'
+      };
+    }
+    const saved=[...(context.candidates?.savedMeals??[]),...(context.candidates?.savedFoods??[])];
+    const matches=findByWords(saved,q);
+    const ambiguous=matches.length>1&&matches[1].score>=matches[0].score-0.15;
+    if(matches.length&&matches[0].score>0.9&&!ambiguous){
       const item=matches[0].item;
       const actionType=item.type==='saved_meal'?'log_saved_meal':'log_saved_food';
       return {
