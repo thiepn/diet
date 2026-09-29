@@ -23,7 +23,7 @@ for(const cls of [
 ]) assert.ok(css.includes(cls),'Missing P7 style '+cls);
 
 assert.match(dataJs,/personalInsights/,'P7 UI renderer missing.');
-assert.match(dataJs,/association/i,'P7 renderer should preserve association framing.');
+assert.match(src,/association_not_causation/,'P7 engine must preserve non-causal association framing.');
 
 const expected=[
   'diet_app_log_meal','diet_app_log_saved_food','diet_app_log_saved_meal',
