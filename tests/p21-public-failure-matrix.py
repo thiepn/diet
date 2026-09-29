@@ -38,7 +38,7 @@ record("manifest reachable",status==200,status=status)
 
 status,auth=request(SUPABASE+"/auth/v1/health",headers={"apikey":key})
 auth_obj=json.loads(auth.decode("utf-8","replace")) if status==200 else {}
-record("Supabase Auth healthy",status==200 and auth_obj.get("name")=="GoTrue",status=status,name=auth_obj.get("name"))
+record("Supabase Auth healthy",status==200 and auth_obj.get("name")=="GoTrue",status=status,serviceName=auth_obj.get("name"))
 
 for rpc in [
     "diet_app_read_snapshot",
