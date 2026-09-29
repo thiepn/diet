@@ -234,7 +234,8 @@ export async function revertStrategyReview(client,{recommendationId,requestId:ex
 }
 
 export async function saveTrainingDistribution(client,{
-  enabled,weeklyTemplate,hardExtraKcal=150,moderateExtraKcal=75,lightExtraKcal=25,requestId:existing
+  enabled,weeklyTemplate,hardExtraKcal=150,moderateExtraKcal=75,lightExtraKcal=25,
+  expectedUpdatedAt=null,requestId:existing
 }){
   const rid=existing??requestId('training-distribution');
   const data=await call(client,RPC.saveTrainingDistribution,{
@@ -243,6 +244,7 @@ export async function saveTrainingDistribution(client,{
     p_hard_extra_kcal:Number(hardExtraKcal),
     p_moderate_extra_kcal:Number(moderateExtraKcal),
     p_light_extra_kcal:Number(lightExtraKcal),
+    p_expected_updated_at:expectedUpdatedAt,
     p_request_id:rid
   });
   return {data,requestId:rid};
