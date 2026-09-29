@@ -1,0 +1,59 @@
+name: P22 Long-Term Maintenance & Supply Chain
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supply-chain.lock.json'
+      - 'vendor/**'
+      - 'scripts/p22-*'
+      - 'tests/p22-*'
+      - '.github/dependabot.yml'
+      - '.github/workflows/**'
+      - '.well-known/thiepn-app.json'
+      - 'supabase/backend.json'
+      - 'supabase/migrations/**'
+  schedule:
+    - cron: '23 5 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p22-maintenance-supply-chain
+  cancel-in-progress: true
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Verify immutable supply-chain contract
+        run: |
+          python scripts/p22-verify-supply-chain.py --out p22-supply-chain-evidence.json
+          node tests/p22-maintenance-contract.mjs
+      - name: Verify live production baseline
+        run: |
+          python tests/p13-synthetic-monitor.py
+          python tests/p21-public-failure-matrix.py
+      - name: Check upstream versions
+        run: python scripts/p22-upstream-watch.py --out p22-upstream-watch.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: p22-maintenance-evidence
+          path: |
+            p22-supply-chain-evidence.json
+            p22-upstream-watch.json
+            p21-hourly-monitor.json
+            p21-public-failure-matrix.json
+          retention-days: 30

@@ -15,7 +15,7 @@ const edge=read('supabase/functions/diet-p15-backup-export/index.ts');
 const workflow=read('.github/workflows/p15-offsite-backup.yml');
 const decrypt=read('scripts/p15-decrypt-backup.sh');
 
-assert.ok(['P15.0','P16.0','P17.0','P18.0','P19.0','P20.0','P21.0'].includes(app.operationsVersion),'P15 resilience must remain valid through P21.');
+assert.ok(['P15.0','P16.0','P17.0','P18.0','P19.0','P20.0','P21.0','P22.0'].includes(app.operationsVersion),'P15 resilience must remain valid through P22.');
 assert.equal(app.securityRelease,'P14');
 assert.equal(app.resilienceRelease,'P15');
 assert.equal(app.health?.inDatabaseRecoverySnapshots,true);

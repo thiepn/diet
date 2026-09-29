@@ -10,17 +10,17 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 22
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
 
-      - name: P21 syntax
+      - name: P22 syntax
         shell: bash
         run: |
           set -euo pipefail
@@ -32,9 +32,11 @@ jobs:
             node --check "$tmp"
             rm -f "$tmp"
           done < <(find v2 -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
-          for f in tests/p13-telemetry.mjs tests/p14-security-contract.mjs tests/p15-resilience-contract.mjs tests/p16-performance-contract.mjs tests/p17-privacy-lifecycle-contract.mjs tests/p18-integrity-contract.mjs tests/p19-concurrency-contract.mjs tests/p20-governance-contract.mjs tests/p21-incident-contract.mjs; do node --check "$f"; done
-          python -m py_compile tests/p13-synthetic-monitor.py tests/p14-public-security-probe.py tests/p16-public-read-probe.py tests/p17-public-export-probe.py tests/p18-public-integrity-probe.py tests/p19-public-concurrency-probe.py tests/p20-public-release-status-probe.py tests/p21-public-failure-matrix.py tests/p21-live-failure.py scripts/p15-verify-offsite.py
+          for f in tests/p13-telemetry.mjs tests/p14-security-contract.mjs tests/p15-resilience-contract.mjs tests/p16-performance-contract.mjs tests/p17-privacy-lifecycle-contract.mjs tests/p18-integrity-contract.mjs tests/p19-concurrency-contract.mjs tests/p20-governance-contract.mjs tests/p21-incident-contract.mjs tests/p22-maintenance-contract.mjs; do node --check "$f"; done
+          python -m py_compile tests/p13-synthetic-monitor.py tests/p14-public-security-probe.py tests/p16-public-read-probe.py tests/p17-public-export-probe.py tests/p18-public-integrity-probe.py tests/p19-public-concurrency-probe.py tests/p20-public-release-status-probe.py tests/p21-public-failure-matrix.py tests/p21-live-failure.py scripts/p15-verify-offsite.py scripts/p22-verify-supply-chain.py scripts/p22-upstream-watch.py
 
+      - name: P22 immutable supply-chain contract
+        run: python scripts/p22-verify-supply-chain.py
       - name: P13 telemetry privacy regression
         run: node tests/p13-telemetry.mjs
       - name: P14 security regression
@@ -51,10 +53,12 @@ jobs:
         run: node tests/p19-concurrency-contract.mjs
       - name: P20 change-governance regression
         run: node tests/p20-governance-contract.mjs
-      - name: P21 failure, incident and recovery contract
+      - name: P21 failure, incident and recovery regression
         run: node tests/p21-incident-contract.mjs
+      - name: P22 long-term maintenance contract
+        run: node tests/p22-maintenance-contract.mjs
 
-      - name: P21 release contract
+      - name: P22 release contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
@@ -62,25 +66,21 @@ jobs:
           const app=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
           const release=JSON.parse(fs.readFileSync('.well-known/thiepn-account-release.json','utf8'));
           for(const [k,v] of Object.entries({
-            security_policy:'P14',
-            resilience_policy:'P15',
-            performance_policy:'P16',
-            privacy_policy:'P17',
-            integrity_policy:'P18',
-            concurrency_policy:'P19',
-            change_governance_policy:'P20',
-            incident_response_policy:'P21'
+            security_policy:'P14',resilience_policy:'P15',performance_policy:'P16',
+            privacy_policy:'P17',integrity_policy:'P18',concurrency_policy:'P19',
+            change_governance_policy:'P20',incident_response_policy:'P21',maintenance_policy:'P22'
           })) if(backend[k]?.release!==v) throw new Error('Release stack regressed: '+k);
-          if(app.webRelease!=='2.0.3'||app.release!=='2.0.3'||app.operationsVersion!=='P21.0'||app.incidentCertificationRelease!=='P21')throw new Error('P21 release metadata invalid.');
-          if(backend.incident_response_policy?.failure_certification?.status!=='pass'||backend.incident_response_policy?.failure_certification?.passed_count!==15)throw new Error('P21 certification is not fully green.');
-          if(backend.incident_response_policy?.emergency_write_freeze?.current_writes_paused!==false)throw new Error('Diet writes unexpectedly paused.');
-          if(backend.change_governance_policy?.checkpoint?.release!=='P21'||backend.change_governance_policy?.checkpoint?.status!=='clean')throw new Error('P21 schema checkpoint is not clean.');
+          if(app.webRelease!=='2.0.3'||app.release!=='2.0.3'||app.operationsVersion!=='P22.0'||app.maintenanceRelease!=='P22')throw new Error('P22 release metadata invalid.');
+          if(backend.maintenance_policy?.database?.release_status!=='pass')throw new Error('P22 maintenance status not green.');
+          if(backend.maintenance_policy?.supply_chain?.github_actions!=='immutable_commit_sha')throw new Error('P22 action pinning invalid.');
+          if(backend.maintenance_policy?.platform_upgrade?.diet_preflight_clean!==true)throw new Error('P22 upgrade readiness invalid.');
+          if(backend.change_governance_policy?.checkpoint?.release!=='P22'||backend.change_governance_policy?.checkpoint?.status!=='clean')throw new Error('P22 schema checkpoint not clean.');
           if(release.consumerRelease!==app.webRelease)throw new Error('Account consumer release mismatch.');
-          console.log('Diet Copilot Web 2.0.3 / P21 operations contract passed.');
+          console.log('Diet Copilot Web 2.0.3 / P22 operations contract passed.');
           NODE
 
       - name: Build actual GitHub Pages artifact
-        uses: actions/jekyll-build-pages@v1
+        uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1
         with:
           source: ./
           destination: ./_site

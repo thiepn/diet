@@ -133,6 +133,7 @@ Diet schedule:
 - 03:27 UTC — P19 request-ledger pruning
 - 03:37 UTC — P20 schema-drift audit
 - 03:47 UTC — P21 readiness audit
+- 04:07 UTC Sunday — P22 maintenance audit + Diet cron-history pruning
 - 04:17 UTC — GitHub Actions encrypted off-site backup
 
 If the pg_cron scheduler is not active, follow current Supabase pg_cron troubleshooting guidance rather than manually editing cron tables.

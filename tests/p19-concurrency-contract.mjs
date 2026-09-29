@@ -18,7 +18,7 @@ const browser=fs.readdirSync('v2',{recursive:true})
 assert.equal(app.release,'2.0.3');
 assert.equal(app.webRelease,'2.0.3');
 assert.equal(account.consumerRelease,'2.0.3');
-assert.ok(['P19.0','P20.0','P21.0'].includes(app.operationsVersion),'P19 concurrency controls must remain valid through P21.');
+assert.ok(['P19.0','P20.0','P21.0','P22.0'].includes(app.operationsVersion),'P19 concurrency controls must remain valid through P22.');
 assert.equal(app.concurrencyRelease,'P19');
 assert.equal(app.concurrencyModel,'transactional-request-ledger-owner-serialization-v1');
 assert.equal(app.securityRelease,'P14');

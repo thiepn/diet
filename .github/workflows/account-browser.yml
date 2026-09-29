@@ -18,23 +18,23 @@ jobs:
       matrix:
         browser: [chromium, firefox, webkit]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
       - name: Install pinned browser test tooling
         run: |
           pip install playwright==1.57.0
           python -m playwright install --with-deps ${{ matrix.browser }}
-      - uses: actions/jekyll-build-pages@v1
+      - uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1
         with:
           source: ./
           destination: ./_site
       - name: V1 account lifecycle regression
         run: python tests/account-browser.py --browser ${{ matrix.browser }} --root _site --out account-results/${{ matrix.browser }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: account-browser-v1-${{ matrix.browser }}

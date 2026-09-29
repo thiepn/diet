@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-30",
+  "policy": "reviewed-immutable-pins-v1",
+  "githubActions": {
+    "actions/checkout": {
+      "trackedTag": "v6",
+      "sha": "d23441a48e516b6c34aea4fa41551a30e30af803"
+    },
+    "actions/setup-node": {
+      "trackedTag": "v6",
+      "sha": "249970729cb0ef3589644e2896645e5dc5ba9c38"
+    },
+    "actions/setup-python": {
+      "trackedTag": "v6",
+      "sha": "ece7cb06caefa5fff74198d8649806c4678c61a1"
+    },
+    "actions/upload-artifact": {
+      "trackedTag": "v4",
+      "sha": "ea165f8d65b6e75b540449e92b4886f43607fa02"
+    },
+    "actions/jekyll-build-pages": {
+      "trackedTag": "v1",
+      "sha": "44a6e6beabd48582f863aeeb6cb2151cc1716697"
+    }
+  },
+  "vendoredRuntime": [
+    {
+      "package": "@supabase/supabase-js",
+      "version": "2.116.0",
+      "path": "vendor/supabase-2.116.0.js",
+      "sha256": "fbde52aab1700a3b308087ae78b41fb5192e7a952d81d5d08238763ce3245dd8",
+      "source": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.116.0",
+      "license": "vendor/LICENSE.supabase",
+      "updatePolicy": "manual_review_plus_cross_browser_regression"
+    }
+  ],
+  "ciTools": {
+    "playwright": {
+      "version": "1.57.0",
+      "updatePolicy": "manual_review"
+    }
+  },
+  "upstreamObserved": {
+    "checkedAt": "2026-09-30",
+    "supabaseJsLatestObserved": "2.117.2",
+    "vendoredUpdateReviewRecommended": true
+  }
+}

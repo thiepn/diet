@@ -102,7 +102,15 @@
     "incident_readiness_watchdog": true,
     "recovery_plan_certification": true,
     "service_only_incident_status": true,
-    "destructive_failure_injection": false
+    "destructive_failure_injection": false,
+    "immutable_workflow_action_pins": true,
+    "vendored_runtime_hash_lock": true,
+    "dependabot_action_updates": true,
+    "upstream_dependency_watch": true,
+    "weekly_maintenance_audit": true,
+    "scoped_cron_history_pruning": true,
+    "postgres_upgrade_preflight": true,
+    "service_only_maintenance_status": true
   },
   "observability_policy": {
     "release": "P13",
@@ -298,10 +306,10 @@
       "20260929221452"
     ],
     "schema_contract_format": "diet-p20-schema-contract-v1",
-    "certified_schema_sha256": "b933033dafd8097d60539689bfee68d383018869ed85ec292ec3cbd35b35bf92",
+    "certified_schema_sha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
     "contract_scope": {
       "diet_public_tables": 18,
-      "private_operational_tables": 7,
+      "private_operational_tables": 8,
       "includes": [
         "relations",
         "columns",
@@ -321,8 +329,8 @@
     },
     "checkpoint": {
       "table": "private.diet_release_checkpoints",
-      "release": "P21",
-      "operations_version": "P21.0",
+      "release": "P22",
+      "operations_version": "P22.0",
       "status": "clean"
     },
     "drift_audit": {
@@ -359,7 +367,7 @@
       "report_function": "private.diet_p21_readiness_report",
       "daily_cron_utc": "03:47",
       "status": "pass",
-      "expected_diet_jobs": 6,
+      "expected_diet_jobs": 7,
       "recent_cron_failures_24h": 0
     },
     "emergency_write_freeze": {
@@ -382,8 +390,60 @@
     },
     "status_rpc": "public.diet_p21_incident_status",
     "status_rpc_service_only": true,
-    "certified_schema_sha256": "b933033dafd8097d60539689bfee68d383018869ed85ec292ec3cbd35b35bf92",
+    "certified_schema_sha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
     "advisor_security_findings": 0,
     "advisor_performance_findings": 0
+  },
+  "maintenance_policy": {
+    "release": "P22",
+    "migration_versions": [
+      "20260929231309"
+    ],
+    "database": {
+      "audit_table": "private.diet_maintenance_audits",
+      "audit_function": "private.diet_p22_run_maintenance",
+      "report_function": "private.diet_p22_maintenance_report",
+      "status_rpc": "public.diet_p22_maintenance_status",
+      "status_rpc_service_only": true,
+      "audit_retention_days": 730,
+      "weekly_cron_utc": "04:07_sunday",
+      "expected_diet_jobs": 7,
+      "cron_scheduler_workers": 1,
+      "cron_history_retention_days": 90,
+      "cron_history_scope": "current_diet_job_ids_only",
+      "recent_cron_failures_7d": 0,
+      "release_status": "pass"
+    },
+    "supply_chain": {
+      "lock_file": "supply-chain.lock.json",
+      "github_actions": "immutable_commit_sha",
+      "dependabot_github_actions": "weekly_review_prs",
+      "monthly_upstream_watch": true,
+      "remote_browser_scripts": false,
+      "remote_browser_esm_imports": false,
+      "vendored_supabase_js": {
+        "version": "2.116.0",
+        "sha256": "fbde52aab1700a3b308087ae78b41fb5192e7a952d81d5d08238763ce3245dd8",
+        "latest_observed": "2.117.2",
+        "update_review_recommended": true,
+        "update_policy": "manual_review_plus_cross_browser_regression"
+      },
+      "playwright_ci_version": "1.57.0"
+    },
+    "platform_upgrade": {
+      "current_postgres": "17.6",
+      "known_security_baseline": "17.11",
+      "baseline_announced": "2026-09-25",
+      "upgrade_available": true,
+      "diet_preflight_clean": true,
+      "ltree_or_btree_gist_installed_count": 0,
+      "custom_operator_risk_count": 0,
+      "diet_legacy_pgcrypto_encryption_function_count": 0,
+      "shared_project_cross_app_review_required": true,
+      "automatic_upgrade": false
+    },
+    "advisor_security_findings": 0,
+    "advisor_performance_findings": 0,
+    "certified_schema_sha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375"
   }
 }

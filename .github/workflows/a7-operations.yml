@@ -1,4 +1,4 @@
-name: A7 / P21 Full Production Hardening Contract
+name: A7 / P22 Full Production Hardening Contract
 on:
   pull_request:
     branches: [main]
@@ -6,10 +6,12 @@ on:
       - '.well-known/thiepn-app.json'
       - 'v2/**'
       - 'sw.js'
+      - 'supply-chain.lock.json'
       - 'supabase/backend.json'
       - 'supabase/migrations/**'
-      - 'tests/p21-*'
-      - '.github/workflows/a7-operations.yml'
+      - 'scripts/p22-*'
+      - 'tests/p22-*'
+      - '.github/workflows/**'
   push:
     branches: [main]
 permissions:
@@ -18,27 +20,33 @@ jobs:
   operations:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 22
-      - name: Verify P21 operations stack
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Verify P22 operations stack
         run: |
+          python scripts/p22-verify-supply-chain.py
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const app=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
           const backend=JSON.parse(fs.readFileSync('supabase/backend.json','utf8'));
-          const migration=fs.readFileSync('supabase/migrations/20260929224046_diet_p21_failure_incident_recovery_certification.sql','utf8');
+          const migration=fs.readFileSync('supabase/migrations/20260929231309_diet_p22_long_term_operability_supply_chain_maintenance.sql','utf8');
           const browser=fs.readdirSync('v2',{recursive:true}).filter(p=>/\.(?:js|mjs)$/.test(String(p))).map(p=>fs.readFileSync('v2/'+p,'utf8')).join('\n');
 
-          if(app.operationsVersion!=='P21.0'||app.incidentCertificationRelease!=='P21')throw new Error('Unexpected P21 metadata.');
-          for(const [k,v] of Object.entries({securityRelease:'P14',resilienceRelease:'P15',performanceRelease:'P16',privacyRelease:'P17',integrityRelease:'P18',concurrencyRelease:'P19',changeGovernanceRelease:'P20'}))if(app[k]!==v)throw new Error('Prior release regressed: '+k);
-          if(app.webRelease!=='2.0.3')throw new Error('P21 must not churn browser release.');
-          if(backend.incident_response_policy?.failure_certification?.passed_count!==15||backend.incident_response_policy?.failure_certification?.failed_count!==0)throw new Error('P21 failure certification not green.');
-          if(backend.incident_response_policy?.emergency_write_freeze?.current_writes_paused!==false)throw new Error('Unexpected production write freeze.');
-          if(!migration.includes('Diet writes are temporarily paused for incident recovery')||!migration.includes('diet-p21-readiness-daily'))throw new Error('P21 write-freeze/readiness controls missing.');
-          for(const name of ['diet_p21_set_write_freeze','diet_p21_run_failure_certification','diet_p21_incident_status'])if(browser.includes(name))throw new Error('P21 operator surface leaked into browser runtime: '+name);
-          console.log('Diet P21 full production hardening contract passed.');
+          if(app.operationsVersion!=='P22.0'||app.maintenanceRelease!=='P22')throw new Error('Unexpected P22 metadata.');
+          for(const [k,v] of Object.entries({securityRelease:'P14',resilienceRelease:'P15',performanceRelease:'P16',privacyRelease:'P17',integrityRelease:'P18',concurrencyRelease:'P19',changeGovernanceRelease:'P20',incidentCertificationRelease:'P21'}))if(app[k]!==v)throw new Error('Prior release regressed: '+k);
+          if(app.webRelease!=='2.0.3')throw new Error('P22 must not churn browser release.');
+          if(backend.maintenance_policy?.database?.release_status!=='pass')throw new Error('P22 database maintenance is not green.');
+          if(backend.maintenance_policy?.database?.expected_diet_jobs!==7)throw new Error('P22 watchdog count invalid.');
+          if(backend.maintenance_policy?.supply_chain?.github_actions!=='immutable_commit_sha')throw new Error('P22 immutable Action policy missing.');
+          if(backend.maintenance_policy?.platform_upgrade?.diet_preflight_clean!==true)throw new Error('P22 Postgres upgrade preflight not clean.');
+          if(!migration.includes('diet_p22_maintenance_report')||!migration.includes('diet-p22-maintenance-weekly'))throw new Error('P22 maintenance migration incomplete.');
+          for(const name of ['diet_p22_maintenance_status','diet_p22_run_maintenance'])if(browser.includes(name))throw new Error('P22 operator surface leaked into browser runtime: '+name);
+          console.log('Diet P22 full production hardening contract passed.');
           NODE
