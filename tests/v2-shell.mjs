@@ -30,8 +30,8 @@ assert.match(css,/overflow-x:hidden/,'Horizontal overflow guard is required.');
 assert.match(html,/class="skip-link"/,'Skip link is required.');
 assert.match(html,/id="mainContent" tabindex="-1"/,'Main content must be programmatically focusable.');
 assert.match(html,/aria-live="polite"/,'Shell feedback must be announced.');
-assert.match(html,/No 2\.0 meal data connected yet/,'P2 must not fabricate meal data.');
-assert.match(html,/Not connected/,'Disconnected placeholders must be explicit.');
+assert.match(html,/Connecting meal history/,'Shell must use explicit loading states instead of fabricated meal data.');
+assert.match(html,/id="dataStatus"/,'Shell must expose a dedicated data-state surface.');
 
 assert.match(js,/const ROUTES = Object\.freeze/,'Route registry is required.');
 for(const route of routes) assert.match(js,new RegExp(`\\b${route}:`),`JS route registry missing ${route}`);
