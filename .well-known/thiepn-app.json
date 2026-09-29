@@ -7,7 +7,7 @@
   "accountContract": "1.0",
   "sdkContract": "1.x",
   "integrationMode": "certified-legacy",
-  "operationsVersion": "P17.0",
+  "operationsVersion": "P18.0",
   "sessionAuthority": "thiepn-account",
   "degradedMode": "cached-read-only",
   "authEntryPoints": [
@@ -54,7 +54,15 @@
     "liveDietRowsCascadeOnAccountDelete": true,
     "ownerExportIncludesCredentialDigest": false,
     "ownerExportIncludesRecoverySnapshots": false,
-    "encryptedBackupRetentionDays": 90
+    "encryptedBackupRetentionDays": 90,
+    "databaseNutritionIntegrityConstraints": true,
+    "databaseIntegrityConstraintCount": 9,
+    "integrityWatchdog": true,
+    "integrityCheckCount": 17,
+    "integrityAutoRepair": false,
+    "integrityAuditCronUtc": "03:17",
+    "integrityAuditRetentionDays": 180,
+    "integrityReportServiceOnly": true
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0",
@@ -65,5 +73,7 @@
   "performanceRelease": "P16",
   "performanceModel": "consolidated-owner-read-v1",
   "privacyRelease": "P17",
-  "privacyModel": "authoritative-owner-export-local-device-purge-v1"
+  "privacyModel": "authoritative-owner-export-local-device-purge-v1",
+  "integrityRelease": "P18",
+  "integrityModel": "db-constraints-scheduled-invariant-audit-v1"
 }

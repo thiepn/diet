@@ -1,20 +1,22 @@
 # Diet Copilot
 
-**Web 2.0.3 · P17 privacy and data-lifecycle hardening**
+**Web 2.0.3 · P18 production data-integrity hardening**
 
-Diet Copilot 2.0 remains live at **https://thiepn.dev/diet/**. P17 hardens owner data export, local-device privacy, and Account Platform lifecycle consistency without changing nutrition calculations.
+Diet Copilot 2.0 remains live at **https://thiepn.dev/diet/**. P18 is a backend/operations release: it adds database constraints and an automated integrity watchdog without changing browser behavior or nutrition calculations.
 
-## P17
+## P18
 
-The previous browser-generated JSON backup only represented data already loaded into the UI. P17 replaces it with an authoritative authenticated cloud export through `diet_app_export_owner_data()`.
+P18 adds nine validated PostgreSQL constraints that reject objectively invalid nutrition states before they can become stored data. They cover logged meals/items, reusable foods/meals, targets and adaptive recommendation metadata.
 
-The complete JSON export now covers all **18 Diet-owned tables** at request time. Authentication/OAuth secrets, native device credential digests, private recovery snapshots, local diagnostics, UI preferences and Copilot session history are excluded.
+A private integrity watchdog now checks **17 invariants** across ownership, aggregate totals, active phases, recommendation state, numeric validity and account-deletion cascade structure.
 
-P17 also adds **Clear this device**, which signs Diet out locally and clears the offline Diet cache, local diagnostics, Copilot session, appearance preferences, PKCE/OAuth remnants and uncertain-write state. It never deletes cloud nutrition data.
+The first production P18 release audit is **clean: 17 checks, 0 failures, 0 warnings**.
 
-Account deletion remains centrally owned by the THIEPN Account Platform. Production verification confirms all 18 live Diet tables and P15 in-database recovery snapshots use `ON DELETE CASCADE` from `auth.users`.
+The watchdog runs every day at **03:17 UTC** and stores audit results for 180 days in a private RLS-protected ledger. The operational report is available only to the service role; neither anonymous nor authenticated browser clients can execute it.
 
-Encrypted P15 off-site disaster-recovery artifacts may retain historical data for up to **90 days**. They are not an active account data source and must never be used to reactivate a deliberately deleted account.
+P18 deliberately has **no auto-repair**. If corruption is detected, the audit reports it and P15 recovery tooling remains the controlled recovery path.
+
+Two exploratory signals are deliberately excluded from corruption rules: UTC-vs-local meal timestamps and same-day goal-phase transition boundaries. Both can be valid under Diet's existing semantics.
 
 ## Existing protection
 
@@ -22,14 +24,16 @@ Encrypted P15 off-site disaster-recovery artifacts may retain historical data fo
 - **P14:** owner RLS, owner triggers, owner-coupled FKs and RPC authorization.
 - **P15:** verified recovery snapshots and encrypted off-site backups.
 - **P16:** consolidated owner reads, explicit owner filtering and performance budgets.
+- **P17:** authoritative owner export, local-device purge and lifecycle hardening.
 
 ## Release
 
 - Web/PWA: **2.0.3**
-- Operations: **P17.0**
+- Operations: **P18.0**
 - Security: **P14**
 - Resilience: **P15**
 - Performance: **P16**
 - Privacy/lifecycle: **P17**
+- Data integrity: **P18**
 
-See [P17 privacy & lifecycle hardening](docs/P17-PRIVACY-LIFECYCLE.md) and [QA.md](QA.md).
+See [P18 data-integrity hardening](docs/P18-DATA-INTEGRITY.md) and [QA.md](QA.md).

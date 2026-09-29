@@ -81,7 +81,12 @@
     "local_device_privacy_purge": true,
     "central_account_deletion_cascade_verified": true,
     "export_secret_exclusion": true,
-    "lifecycle_status_probe": true
+    "lifecycle_status_probe": true,
+    "database_nutrition_integrity_constraints": true,
+    "scheduled_integrity_watchdog": true,
+    "private_integrity_audit_ledger": true,
+    "service_only_integrity_report": true,
+    "integrity_auto_repair": false
   },
   "observability_policy": {
     "release": "P13",
@@ -198,5 +203,44 @@
     "migration_versions": [
       "20260929201804"
     ]
+  },
+  "integrity_policy": {
+    "release": "P18",
+    "migration_versions": [
+      "20260929203937"
+    ],
+    "database_constraint_count": 9,
+    "audit_check_count": 17,
+    "release_audit_status": "clean",
+    "release_audit_failure_count": 0,
+    "auto_repair": false,
+    "audit_ledger": {
+      "schema": "private",
+      "table": "diet_integrity_audits",
+      "retention_days": 180,
+      "browser_access": false
+    },
+    "watchdog": {
+      "cron_utc": "03:17_daily",
+      "function": "private.diet_p18_run_integrity_audit",
+      "report_function": "private.diet_p18_integrity_report",
+      "service_report_rpc": "public.diet_p18_integrity_report",
+      "service_only": true
+    },
+    "hard_constraints": [
+      "meals_nutrition_integrity_p18",
+      "meal_items_nutrition_integrity_p18",
+      "saved_foods_nutrition_integrity_p18",
+      "saved_meals_nutrition_integrity_p18",
+      "saved_meal_items_nutrition_integrity_p18",
+      "profiles_targets_integrity_p18",
+      "daily_logs_targets_integrity_p18",
+      "goal_phases_targets_integrity_p18",
+      "target_recommendations_integrity_p18"
+    ],
+    "false_positive_guards": {
+      "meal_date_uses_daily_log_not_utc_timestamp": true,
+      "same_day_goal_phase_boundary_not_flagged_as_overlap": true
+    }
   }
 }
