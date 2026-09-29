@@ -38,7 +38,7 @@ begin
   if v_saved_meal_id is null then raise exception 'P4 runtime failed: save meal'; end if;
 
   v_saved_food:=public.diet_app_save_food(
-    null,'P4 rollback imported food','75 g',300,15,37.5,7.5,4.5,
+    null,null,'P4 rollback imported food','75 g',300,15,37.5,7.5,4.5,
     'Fixture Brand','1234567890123','open_food_facts','https://example.com/food.jpg','app:test:p4:food-create'
   );
   v_saved_food_id:=(v_saved_food->>'saved_food_id')::uuid;
@@ -49,7 +49,7 @@ begin
   if coalesce((v_result->>'favorite')::boolean,false) is not true then raise exception 'P4 runtime failed: food favorite'; end if;
 
   v_result:=public.diet_app_save_food(
-    v_saved_food_id,'P4 rollback imported food','80 g',320,16,40,8,4.8,
+    v_saved_food_id,v_food_updated,'P4 rollback imported food','80 g',320,16,40,8,4.8,
     'Fixture Brand','1234567890123','manual_exact','https://example.com/food.jpg','app:test:p4:food-edit'
   );
   if (v_result->>'calories')::numeric<>320 then raise exception 'P4 runtime failed: food edit'; end if;
@@ -60,7 +60,7 @@ begin
 
   begin
     perform public.diet_app_save_food(
-      null,'P4 invalid barcode','100 g',100,10,null,null,null,null,'123','manual_exact',null,'app:test:p4:invalid'
+      null,null,'P4 invalid barcode','100 g',100,10,null,null,null,null,'123','manual_exact',null,'app:test:p4:invalid'
     );
   exception when others then v_failed:=true;
   end;
