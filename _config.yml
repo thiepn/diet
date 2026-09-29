@@ -4,7 +4,16 @@ exclude:
   - archive
   - docs
   - scripts
-  - src
+  - src/auth
+  - src/core
+  - src/intelligence
+  - src/native
+  - src/operations
+  - src/styles
+  - src/ui
+  - src/bootstrap.js
+  - src/config.js
+  - src/release.js
   - supabase
   - tests
   - CHANGELOG.md
