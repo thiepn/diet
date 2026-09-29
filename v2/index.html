@@ -468,11 +468,11 @@
 
           <div class="dc-more-grid">
             <button class="dc-more-card" type="button" data-open-food-library><span class="dc-more-icon">◎</span><span><strong>Foods & meals</strong><small>Custom foods, favorites and saved meals</small></span><span>›</span></button>
-            <button class="dc-more-card" id="moreIntegrationsButton" type="button"><span class="dc-more-icon">⇄</span><span><strong>Integrations</strong><small>Health Connect and activity context</small></span><span>›</span></button>
-            <button class="dc-more-card" type="button" data-coming="Body measurements are connected later."><span class="dc-more-icon">⌁</span><span><strong>Body measurements</strong><small>Weight and measurement history</small></span><span>›</span></button>
-            <button class="dc-more-card" type="button" data-shell-action="account"><span class="dc-more-icon">◉</span><span><strong>Account</strong><small>THIEPN account and sync status</small></span><span>›</span></button>
-            <button class="dc-more-card" type="button" data-coming="Appearance settings are connected later."><span class="dc-more-icon">◐</span><span><strong>Appearance</strong><small>Theme and display preferences</small></span><span>›</span></button>
-            <button class="dc-more-card" type="button" data-coming="Data controls are connected later."><span class="dc-more-icon">↓</span><span><strong>Data & export</strong><small>Export, backup and privacy controls</small></span><span>›</span></button>
+            <button class="dc-more-card" id="moreIntegrationsButton" type="button"><span class="dc-more-icon">⇄</span><span><strong>Integrations</strong><small id="moreIntegrationsSummary">Health Connect and activity context</small></span><span>›</span></button>
+            <button class="dc-more-card" id="moreBodyButton" type="button"><span class="dc-more-icon">⌁</span><span><strong>Body & weight</strong><small id="moreBodySummary">Weight history, trend and goal</small></span><span>›</span></button>
+            <button class="dc-more-card" type="button" data-shell-action="account"><span class="dc-more-icon">◉</span><span><strong>Account</strong><small id="moreAccountSummary">THIEPN account and sync status</small></span><span>›</span></button>
+            <button class="dc-more-card" id="moreAppearanceButton" type="button"><span class="dc-more-icon">◐</span><span><strong>Appearance</strong><small id="moreAppearanceSummary">System · Comfortable</small></span><span>›</span></button>
+            <button class="dc-more-card" id="moreDataButton" type="button"><span class="dc-more-icon">↓</span><span><strong>Data & export</strong><small id="moreDataSummary">Export + privacy controls</small></span><span>›</span></button>
           </div>
         </section>
       </main>
@@ -486,6 +486,117 @@
       </nav>
     </div>
   </div>
+
+  <dialog class="dc-modal dc-p9-dialog" id="integrationsDialog" aria-labelledby="integrationsHeading">
+    <div class="dc-modal-card">
+      <div class="dc-panel-head">
+        <div><p class="dc-eyebrow">Integrations</p><h2 id="integrationsHeading">Connected data</h2></div>
+        <button class="dc-icon-button" type="button" data-p9-close="integrationsDialog" aria-label="Close integrations">×</button>
+      </div>
+      <p class="dc-panel-copy">External activity provides context for unusual weeks. It never becomes exercise-calorie eat-back.</p>
+      <div class="dc-settings-list dc-settings-list--p9">
+        <div><span>Platform</span><strong id="integrationPlatform">—</strong></div>
+        <div><span>Health Connect</span><strong id="integrationHealthStatus">—</strong></div>
+        <div><span>Diet data</span><strong id="integrationSyncSource">—</strong></div>
+      </div>
+      <div class="dc-p9-actions">
+        <button class="dc-secondary-action" id="integrationConnectHealth" type="button">Connect Health Connect</button>
+        <button class="dc-secondary-action" id="integrationSyncHealth" type="button">Sync activity</button>
+        <button class="dc-primary-action" id="integrationOpenActivity" type="button">Open activity context</button>
+      </div>
+      <p class="dc-source-note">Health Connect actions are available only in the Android app. The web/PWA remains fully usable without them.</p>
+    </div>
+  </dialog>
+
+  <dialog class="dc-modal dc-p9-dialog" id="bodyWeightDialog" aria-labelledby="bodyWeightHeading">
+    <div class="dc-modal-card">
+      <div class="dc-panel-head">
+        <div><p class="dc-eyebrow">Body & weight</p><h2 id="bodyWeightHeading">Weight record</h2></div>
+        <button class="dc-icon-button" type="button" data-p9-close="bodyWeightDialog" aria-label="Close body and weight">×</button>
+      </div>
+      <p class="dc-panel-copy">Diet Copilot currently tracks scale weight and deterministic trend weight. Other body measurements are not yet part of the canonical model.</p>
+      <div class="dc-p9-stat-grid">
+        <div><span>Latest</span><strong id="bodyLatestWeight">—</strong></div>
+        <div><span>Trend</span><strong id="bodyTrendWeight">—</strong></div>
+        <div><span>Goal</span><strong id="bodyGoalWeight">—</strong></div>
+        <div><span>Weigh-ins</span><strong id="bodyWeightEntries">—</strong></div>
+      </div>
+      <div class="dc-settings-list dc-settings-list--p9">
+        <div><span>Latest weigh-in</span><strong id="bodyLastDate">—</strong></div>
+      </div>
+      <div class="dc-p9-actions">
+        <button class="dc-secondary-action" id="bodyExportWeights" type="button">Export weights CSV</button>
+        <button class="dc-primary-action" id="bodyOpenProgress" type="button">Open weight progress</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="dc-modal dc-p9-dialog" id="appearanceDialog" aria-labelledby="appearanceHeading">
+    <div class="dc-modal-card">
+      <div class="dc-panel-head">
+        <div><p class="dc-eyebrow">Appearance</p><h2 id="appearanceHeading">Display preferences</h2></div>
+        <button class="dc-icon-button" type="button" data-p9-close="appearanceDialog" aria-label="Close appearance settings">×</button>
+      </div>
+
+      <section class="dc-p9-setting-group">
+        <div><strong>Theme</strong><small>Use the device setting or force a mode for Diet Copilot.</small></div>
+        <div class="dc-choice-row" role="group" aria-label="Theme">
+          <button type="button" data-theme-choice="system">System</button>
+          <button type="button" data-theme-choice="light">Light</button>
+          <button type="button" data-theme-choice="dark">Dark</button>
+        </div>
+      </section>
+
+      <section class="dc-p9-setting-group">
+        <div><strong>Density</strong><small>Compact reduces card spacing without shrinking tap targets.</small></div>
+        <div class="dc-choice-row" role="group" aria-label="Density">
+          <button type="button" data-density-choice="comfortable">Comfortable</button>
+          <button type="button" data-density-choice="compact">Compact</button>
+        </div>
+      </section>
+
+      <section class="dc-p9-setting-group">
+        <div><strong>Motion</strong><small>Reduce app transitions regardless of the device preference.</small></div>
+        <div class="dc-choice-row" role="group" aria-label="Motion">
+          <button type="button" data-motion-choice="system">System</button>
+          <button type="button" data-motion-choice="reduce">Reduce</button>
+        </div>
+      </section>
+
+      <p class="dc-source-note">Display preferences stay on this device and are not part of your nutrition record.</p>
+    </div>
+  </dialog>
+
+  <dialog class="dc-modal dc-p9-dialog" id="dataExportDialog" aria-labelledby="dataExportHeading">
+    <div class="dc-modal-card dc-modal-card--wide">
+      <div class="dc-panel-head">
+        <div><p class="dc-eyebrow">Data & privacy</p><h2 id="dataExportHeading">Your Diet data</h2></div>
+        <button class="dc-icon-button" type="button" data-p9-close="dataExportDialog" aria-label="Close data controls">×</button>
+      </div>
+      <p class="dc-panel-copy">Exports are generated locally from the owner-scoped data already loaded in this browser. They are not uploaded anywhere by the export flow.</p>
+
+      <div class="dc-p9-export-grid">
+        <button class="dc-export-card" id="exportJsonButton" type="button"><strong>Full JSON backup</strong><span>Canonical loaded Diet rows for backup or migration.</span><small>.json</small></button>
+        <button class="dc-export-card" id="exportNutritionButton" type="button"><strong>Nutrition history</strong><span>Date, calories, target, protein and day status.</span><small>.csv</small></button>
+        <button class="dc-export-card" id="exportWeightsButton" type="button"><strong>Weight history</strong><span>Scale weight plus available trend weight.</span><small>.csv</small></button>
+      </div>
+
+      <div class="dc-settings-list dc-settings-list--p9">
+        <div><span>Account</span><strong id="dataAccountState">—</strong></div>
+        <div><span>Cloud source</span><strong id="dataCloudState">—</strong></div>
+        <div><span>Offline cache</span><strong id="dataCacheState">—</strong></div>
+        <div><span>Copilot history</span><strong id="dataCopilotState">—</strong></div>
+      </div>
+
+      <section class="dc-p9-privacy-actions">
+        <div><strong>Local privacy controls</strong><small>These actions remove browser/device copies only. They do not delete your cloud nutrition record.</small></div>
+        <div>
+          <button class="dc-secondary-action" id="clearCopilotSessionButton" type="button">Clear Copilot chat</button>
+          <button class="dc-secondary-action" id="clearOfflineCacheButton" type="button">Clear offline cache</button>
+        </div>
+      </section>
+    </div>
+  </dialog>
 
   <dialog class="dc-account-dialog" id="v2AccountDialog">
     <div class="dc-account-dialog-card">
@@ -641,5 +752,6 @@
   <script type="module" src="./strategy-actions.js"></script>
   <script type="module" src="./training-actions.js"></script>
   <script type="module" src="./copilot.js"></script>
+  <script type="module" src="./settings.js"></script>
 </body>
 </html>
