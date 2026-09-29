@@ -1,5 +1,6 @@
 import { mapLegacyDietData } from '../src/engine/legacy-data-adapter.mjs';
 import { runAdaptiveNutritionEngine } from '../src/engine/adaptive-nutrition.mjs';
+import { buildTrainingNutritionPlan } from '../src/engine/training-nutrition.mjs';
 
 function finite(value){
   return value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value));
@@ -35,6 +36,11 @@ export function normalizeDietV1Rows(raw={},asOfDate=localDateKey()){
   const savedFoods=(raw.savedFoods??raw.saved_foods??[]).filter(Boolean);
   const savedMeals=(raw.savedMeals??raw.saved_meals??[]).filter(Boolean);
   const targetRecommendations=(raw.targetRecommendations??raw.target_recommendations??[]).filter(Boolean);
+  const activityDaily=(raw.activityDaily??raw.activity_daily??[]).filter(Boolean);
+  const trainingDistribution=Array.isArray(raw.trainingDistribution??raw.training_distribution)
+    ?(raw.trainingDistribution??raw.training_distribution)[0]??null
+    :raw.trainingDistribution??raw.training_distribution??null;
+  const trainingDays=(raw.trainingDays??raw.training_days??[]).filter(Boolean);
   const phase=activePhase(goalPhases,asOfDate);
 
   const logById=new Map();
@@ -219,6 +225,9 @@ export function normalizeDietV1Rows(raw={},asOfDate=localDateKey()){
     normalizedSavedFoods,
     normalizedSavedMeals,
     normalizedRecommendations,
+    activityDaily,
+    trainingDistribution,
+    trainingDays,
     logByDate
   };
 }
@@ -261,6 +270,16 @@ export function buildDietV2ReadModel(raw={},options={}){
   const rec=p1.calorieRecommendation??{};
   const macros=p1.macros??null;
   const currentTarget=adapted.engineInput.currentTarget??todayTarget.calories;
+  const p6=buildTrainingNutritionPlan({
+    asOfDate,
+    baseCalories:currentTarget,
+    protein:todayTarget.protein??macros?.proteinGrams??0,
+    fat:macros?.fatGrams??0,
+    settings:normalized.trainingDistribution??{},
+    trainingDays:normalized.trainingDays,
+    activity:normalized.activityDaily
+  });
+  const effectiveTodayTarget=p6.today?.targetCalories??todayTarget.calories;
   const currentEstimate=p1.estimate.current??null;
   const openReview=normalized.normalizedRecommendations.find(r=>r.status==='pending'||r.status==='advisory')??null;
   const lastResolvedReview=normalized.normalizedRecommendations.find(r=>r.resolvedAt)??null;
@@ -281,9 +300,13 @@ export function buildDietV2ReadModel(raw={},options={}){
     asOfDate,
     today:{
       calories:round(todayCalories,0),
-      calorieTarget:round(todayTarget.calories,0),
-      caloriesRemaining:todayTarget.calories==null?null:round(todayTarget.calories-todayCalories,0),
-      calorieProgress:todayTarget.calories?clamp(todayCalories/todayTarget.calories*100,0,100):0,
+      calorieTarget:round(effectiveTodayTarget,0),
+      baseCalorieTarget:round(currentTarget,0),
+      trainingTargetDelta:p6.today?.deltaKcal??0,
+      trainingDayType:p6.today?.dayType??'rest',
+      trainingDistributionEnabled:Boolean(p6.distribution.enabled),
+      caloriesRemaining:effectiveTodayTarget==null?null:round(effectiveTodayTarget-todayCalories,0),
+      calorieProgress:effectiveTodayTarget?clamp(todayCalories/effectiveTodayTarget*100,0,100):0,
       protein:round(todayProtein,1),
       proteinTarget:round(todayTarget.protein,0),
       proteinRemaining:todayTarget.protein==null?null:round(todayTarget.protein-todayProtein,1),
@@ -298,7 +321,9 @@ export function buildDietV2ReadModel(raw={},options={}){
       confidenceScore:confidence.score,
       currentTarget:round(currentTarget,0),
       goalMode:adapted.engineInput.goalMode,
-      goalLabel:goalLabel(adapted.engineInput.goalMode)
+      goalLabel:goalLabel(adapted.engineInput.goalMode),
+      trainingMacros:p6.today?.macros??null,
+      activityContext:p6.activityContext
     },
     food:{
       todayMeals,
@@ -348,7 +373,20 @@ export function buildDietV2ReadModel(raw={},options={}){
       engineVersion:p1.version,
       openReview,
       lastResolvedReview,
-      reviewHistory:normalized.normalizedRecommendations
+      reviewHistory:normalized.normalizedRecommendations,
+      trainingNutrition:{
+        version:p6.version,
+        enabled:Boolean(p6.distribution.enabled),
+        weeklyBaseCalories:p6.distribution.weeklyBaseCalories,
+        weeklyDistributedCalories:p6.distribution.weeklyDistributedCalories,
+        zeroSum:Boolean(p6.distribution.zeroSum),
+        settings:p6.distribution.settings,
+        week:p6.distribution.week,
+        today:p6.today,
+        activity:p6.activityContext,
+        policy:p6.policy,
+        trainingDays:normalized.trainingDays
+      }
     },
     meta:{
       adapter:adapted.meta,
@@ -359,7 +397,9 @@ export function buildDietV2ReadModel(raw={},options={}){
         weights:normalized.normalizedWeights.length,
         savedFoods:normalized.normalizedSavedFoods.length,
         savedMeals:normalized.normalizedSavedMeals.length,
-        strategyReviews:normalized.normalizedRecommendations.length
+        strategyReviews:normalized.normalizedRecommendations.length,
+        activityDays:normalized.activityDaily.length,
+        trainingDays:normalized.trainingDays.length
       }
     }
   };
