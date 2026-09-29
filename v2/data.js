@@ -586,7 +586,7 @@ export function getDietV2Model(){return state.model;}
 export function getDietV2State(){return {status:state.status,source:state.source,signedIn:Boolean(state.user),fetchedAt:state.fetchedAt};}
 
 window.DietV2Data=Object.freeze({
-  version:'2.0.0-p6-training-activity',
+  version:'2.0.0-p8-ai-copilot',
   refresh,
   handleShellAction,
   snapshot:()=>({
