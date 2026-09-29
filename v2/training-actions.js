@@ -305,10 +305,6 @@ $('todayTrainingSave')?.addEventListener('click',saveToday);
 $('todayTrainingClear')?.addEventListener('click',clearToday);
 $('v2HealthConnectConnect')?.addEventListener('click',connectHealth);
 $('v2HealthConnectSync')?.addEventListener('click',syncHealth);
-$('moreIntegrationsButton')?.addEventListener('click',()=>{
-  location.hash='#strategy';
-  setTimeout(()=>$('strategyActivityPanel')?.scrollIntoView({behavior:'smooth',block:'center'}),120);
-});
 window.addEventListener('diet-v2-data-updated',render);
 window.addEventListener('focus',()=>renderNativeState());
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')renderNativeState();});
