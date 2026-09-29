@@ -84,8 +84,9 @@ const html=fs.readFileSync('v2/index.html','utf8');
 for(const forbidden of [/\.insert\s*\(/,/\.update\s*\(/,/\.upsert\s*\(/,/\.delete\s*\(/,/\.rpc\s*\(/,/service_role/i]){
   assert.doesNotMatch(dataJs,forbidden,'P2.5 data layer must remain SELECT-only.');
 }
-for(const table of ['profiles','daily_logs','meals','meal_items','weight_entries','goal_phases']){
-  assert.match(dataJs,new RegExp(`from\\('${table}'\\)\\.select`),`Missing owner-scoped read for ${table}`);
+assert.match(dataJs,/from\('profiles'\)\.select/,'Missing owner-scoped profile read.');
+for(const table of ['daily_logs','meals','meal_items','weight_entries','goal_phases']){
+  assert.match(dataJs,new RegExp(`fetchPagedRows\\('${table}'`),`Missing paginated owner-scoped read for ${table}`);
 }
 assert.match(dataJs,/auth\.getUser\(\)/,'Online identity must be verified with Supabase Auth before loading private data.');
 assert.match(dataJs,/ownerId===ownerId|cached\?\.ownerId===ownerId/,'Offline cache must be owner scoped.');
