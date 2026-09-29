@@ -147,10 +147,13 @@
               <h2 id="foodHeading">Log food without friction</h2>
               <p>Frequent foods are one tap away; search stays local and instant; exact manual entries become reusable food memory.</p>
             </div>
-            <button class="dc-primary-action" id="foodQuickAddHeader" type="button">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
-              Quick add
-            </button>
+            <div class="dc-page-actions">
+              <button class="dc-secondary-action" id="foodLibraryButton" type="button">Food library</button>
+              <button class="dc-primary-action" id="foodQuickAddHeader" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                Quick add
+              </button>
+            </div>
           </div>
 
           <article class="dc-search-shell dc-food-capture">
@@ -168,12 +171,14 @@
             </label>
             <div class="dc-food-search-results" id="foodSearchResults" hidden></div>
 
-            <div class="dc-quick-actions" aria-label="Food shortcuts">
+            <div class="dc-quick-actions dc-quick-actions--food" aria-label="Food shortcuts">
               <button type="button" id="foodShortcutRecent"><span aria-hidden="true">↺</span>Recent</button>
               <button type="button" id="foodShortcutSaved"><span aria-hidden="true">☆</span>Saved meals</button>
+              <button type="button" id="foodShortcutOnline"><span aria-hidden="true">⌕</span>Online</button>
               <button type="button" id="foodShortcutBarcode"><span aria-hidden="true">▥</span>Barcode</button>
               <button type="button" id="foodShortcutQuick"><span aria-hidden="true">+</span>Quick add</button>
             </div>
+            <div class="dc-online-results" id="foodOnlineResults" hidden></div>
 
             <form class="dc-quick-add-form" id="foodQuickAddForm" hidden>
               <div class="dc-form-grid">
@@ -311,7 +316,7 @@
           </div>
 
           <div class="dc-more-grid">
-            <button class="dc-more-card" type="button" data-coming="Food management is connected later."><span class="dc-more-icon">◎</span><span><strong>Foods & meals</strong><small>Custom foods, recipes and saved meals</small></span><span>›</span></button>
+            <button class="dc-more-card" type="button" data-open-food-library><span class="dc-more-icon">◎</span><span><strong>Foods & meals</strong><small>Custom foods, favorites and saved meals</small></span><span>›</span></button>
             <button class="dc-more-card" type="button" data-coming="Integrations are connected later."><span class="dc-more-icon">⇄</span><span><strong>Integrations</strong><small>Health data and connected services</small></span><span>›</span></button>
             <button class="dc-more-card" type="button" data-coming="Body measurements are connected later."><span class="dc-more-icon">⌁</span><span><strong>Body measurements</strong><small>Weight and measurement history</small></span><span>›</span></button>
             <button class="dc-more-card" type="button" data-shell-action="account"><span class="dc-more-icon">◉</span><span><strong>Account</strong><small>THIEPN account and sync status</small></span><span>›</span></button>
@@ -343,7 +348,7 @@
       <div class="dc-settings-list">
         <div><span>Data source</span><strong id="accountStateSource">—</strong></div>
         <div><span>Last sync</span><strong id="accountStateSync">—</strong></div>
-        <div><span>Access</span><strong>Read-only</strong></div>
+        <div><span>Access</span><strong>Owner-scoped reads + approved actions</strong></div>
       </div>
       <div class="dc-dialog-actions">
         <button class="dc-secondary-action" id="v2AccountRefresh" type="button">Refresh data</button>
@@ -352,10 +357,91 @@
     </div>
   </dialog>
 
+
+  <dialog class="dc-modal" id="mealEditorDialog">
+    <form class="dc-modal-card dc-modal-card--wide" id="mealEditorForm" method="dialog">
+      <div class="dc-panel-head">
+        <div><p class="dc-eyebrow">Meal</p><h2>Edit logged meal</h2></div>
+        <button class="dc-icon-button" type="button" data-close-dialog="mealEditorDialog" aria-label="Close meal editor">×</button>
+      </div>
+      <input type="hidden" id="mealEditorId">
+      <input type="hidden" id="mealEditorUpdatedAt">
+      <div class="dc-form-grid dc-form-grid--meal">
+        <label class="dc-field"><span>Title</span><input id="mealEditorTitle" maxlength="120" required></label>
+        <label class="dc-field"><span>Date</span><input id="mealEditorDate" type="date" required></label>
+        <label class="dc-field"><span>Meal</span><select id="mealEditorType"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option><option>Other</option></select></label>
+      </div>
+      <div class="dc-editor-items-head"><strong>Items</strong><button class="dc-secondary-action dc-compact-action" id="mealEditorAddItem" type="button">Add item</button></div>
+      <div class="dc-editor-items" id="mealEditorItems"></div>
+      <div class="dc-copy-row">
+        <label class="dc-field"><span>Copy to date</span><input id="mealCopyDate" type="date"></label>
+        <button class="dc-secondary-action" id="mealCopyButton" type="button">Copy meal</button>
+        <button class="dc-secondary-action" id="mealSaveReusableButton" type="button">Save as reusable meal</button>
+      </div>
+      <div class="dc-modal-actions dc-modal-actions--spread">
+        <button class="dc-danger-action" id="mealDeleteButton" type="button">Delete</button>
+        <div>
+          <button class="dc-secondary-action" type="button" data-close-dialog="mealEditorDialog">Cancel</button>
+          <button class="dc-primary-action" id="mealEditorSave" type="submit">Save changes</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="dc-modal" id="foodLibraryDialog">
+    <div class="dc-modal-card dc-modal-card--wide">
+      <div class="dc-panel-head">
+        <div><p class="dc-eyebrow">Library</p><h2>Foods & saved meals</h2></div>
+        <button class="dc-icon-button" type="button" data-close-dialog="foodLibraryDialog" aria-label="Close food library">×</button>
+      </div>
+      <div class="dc-library-toolbar">
+        <input id="foodLibraryFilter" type="search" placeholder="Filter your foods and meals">
+        <button class="dc-primary-action dc-compact-action" id="foodLibraryNew" type="button">New food</button>
+      </div>
+      <div class="dc-library-columns">
+        <section><div class="dc-panel-head"><h3>Saved foods</h3><span class="dc-panel-meta" id="foodLibraryFoodCount">0</span></div><div class="dc-library-list" id="foodLibraryFoods"></div></section>
+        <section><div class="dc-panel-head"><h3>Saved meals</h3><span class="dc-panel-meta" id="foodLibraryMealCount">0</span></div><div class="dc-library-list" id="foodLibraryMeals"></div></section>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="dc-modal" id="foodEditorDialog">
+    <form class="dc-modal-card" id="foodEditorForm" method="dialog">
+      <div class="dc-panel-head">
+        <div><p class="dc-eyebrow" id="foodEditorEyebrow">Saved food</p><h2 id="foodEditorHeading">Food details</h2></div>
+        <button class="dc-icon-button" type="button" data-close-dialog="foodEditorDialog" aria-label="Close food editor">×</button>
+      </div>
+      <input type="hidden" id="foodEditorId">
+      <input type="hidden" id="foodEditorUpdatedAt">
+      <input type="hidden" id="foodEditorSource" value="manual_exact">
+      <input type="hidden" id="foodEditorPhotoUrl">
+      <div class="dc-form-grid dc-form-grid--food">
+        <label class="dc-field dc-field--wide"><span>Name</span><input id="foodEditorName" maxlength="160" required></label>
+        <label class="dc-field"><span>Brand</span><input id="foodEditorBrand" maxlength="120"></label>
+        <label class="dc-field"><span>Barcode</span><input id="foodEditorBarcode" inputmode="numeric" maxlength="14"></label>
+        <label class="dc-field"><span>Quantity</span><input id="foodEditorQuantity" maxlength="120" placeholder="e.g. 250 g"></label>
+        <label class="dc-field"><span>Calories</span><input id="foodEditorCalories" type="number" min="0" max="10000" step="0.1" required></label>
+        <label class="dc-field"><span>Protein</span><input id="foodEditorProtein" type="number" min="0" max="1000" step="0.1"></label>
+        <label class="dc-field"><span>Carbs</span><input id="foodEditorCarbs" type="number" min="0" max="2000" step="0.1"></label>
+        <label class="dc-field"><span>Fat</span><input id="foodEditorFat" type="number" min="0" max="1000" step="0.1"></label>
+        <label class="dc-field"><span>Fiber</span><input id="foodEditorFiber" type="number" min="0" max="500" step="0.1"></label>
+      </div>
+      <label class="dc-field dc-external-grams" id="foodEditorGramsWrap" hidden><span>Serving grams</span><input id="foodEditorGrams" type="number" min="1" max="5000" step="1"></label>
+      <p class="dc-source-note" id="foodEditorSourceNote"></p>
+      <div class="dc-modal-actions">
+        <button class="dc-secondary-action" type="button" data-close-dialog="foodEditorDialog">Cancel</button>
+        <button class="dc-secondary-action" id="foodEditorSaveOnly" type="button">Save only</button>
+        <button class="dc-primary-action" id="foodEditorSaveAndLog" type="submit">Save & log</button>
+      </div>
+    </form>
+  </dialog>
+
   <div class="dc-toast" data-toast role="status" aria-live="polite"></div>
   <script src="../vendor/supabase-2.116.0.js"></script>
   <script type="module" src="./shell.js"></script>
   <script type="module" src="./data.js"></script>
   <script type="module" src="./food.js"></script>
+  <script type="module" src="./meal-editor.js"></script>
+  <script type="module" src="./food-management.js"></script>
 </body>
 </html>
