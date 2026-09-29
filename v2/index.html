@@ -269,6 +269,35 @@
               <div id="progressGoalTrajectory"><div class="dc-empty-state dc-empty-state--compact"><div><strong>Waiting for strategy data</strong><p>Projection will remain explicitly approximate.</p></div></div></div>
             </article>
           </div>
+
+          <article class="dc-panel dc-intelligence-panel">
+            <div class="dc-panel-head">
+              <div>
+                <p class="dc-eyebrow">Personal intelligence</p>
+                <h3>Your recent patterns</h3>
+              </div>
+              <span class="dc-status-chip" id="intelligenceVersion">P7</span>
+            </div>
+            <p class="dc-panel-copy">Deterministic observations from reliable nutrition, weight, training and activity data. Associations are descriptive, not causal.</p>
+
+            <div class="dc-intelligence-summary">
+              <div><span>Reliable intake</span><strong id="intelligenceReliableDays">—</strong><small>effective days</small></div>
+              <div><span>Protein adherence</span><strong id="intelligenceProteinAdherence">—</strong><small>≥90% of target</small></div>
+              <div><span>Calorie adherence</span><strong id="intelligenceCalorieAdherence">—</strong><small>within target band</small></div>
+              <div><span>Weight trend</span><strong id="intelligenceWeightRate">—</strong><small>kg/week</small></div>
+              <div><span>Weekend delta</span><strong id="intelligenceWeekendDelta">—</strong><small>vs weekdays</small></div>
+              <div><span>Activity shift</span><strong id="intelligenceActivityShift">—</strong><small>recent vs baseline</small></div>
+            </div>
+
+            <div class="dc-intelligence-insights" id="personalInsights">
+              <div class="dc-food-empty">More reliable history is needed before personal patterns appear.</div>
+            </div>
+
+            <div class="dc-intelligence-policy">
+              <strong>Calculated, not guessed</strong>
+              <span>P7 withholds observations when its minimum sample thresholds are not met. Future AI can explain these metrics, but it will not calculate them.</span>
+            </div>
+          </article>
         </section>
 
         <section class="dc-view" data-view="strategy" hidden aria-labelledby="strategyHeading">
