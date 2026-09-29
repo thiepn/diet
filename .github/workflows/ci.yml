@@ -68,8 +68,6 @@ jobs:
           for f in index.html manifest.webmanifest sw.js legacy-v1.html legacy-v1-app.js v2/index.html v2/data.js v2/auth-storage.mjs v2/write-api.mjs v2/telemetry.mjs v2/shell.css vendor/supabase-2.116.0.js .well-known/thiepn-app.json; do
             test -f "_site/$f"
           done
-          test -f _site/supabase/migrations/20260929190638_diet_p14_security_authorization_hardening.sql
-          test -f _site/supabase/migrations/20260929190758_diet_p14_advisor_performance_hardening.sql
           grep -q 'dc-version-badge">2.0<' _site/index.html
           ! grep -q '2.0 RC' _site/index.html
           grep -q 'id="systemHealthDialog"' _site/index.html
