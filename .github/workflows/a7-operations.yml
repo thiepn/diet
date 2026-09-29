@@ -1,49 +1,44 @@
-name: A7 Operations Contract
-
+name: A7 / P12 Operations Contract
 on:
   pull_request:
+    branches: [main]
+    paths:
+      - '.well-known/thiepn-app.json'
+      - 'v2/**'
+      - 'sw.js'
+      - 'legacy-v1*'
+      - 'supabase/backend.json'
+      - '.github/workflows/a7-operations.yml'
   push:
-    branches: [main, v6.8-web-v1]
-
+    branches: [main]
 permissions:
   contents: read
-
 jobs:
   operations:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - name: Verify Web 1.0.3 static production runtime
-        run: node scripts/build-v68.mjs
-      - name: A7 diagnostics contract
+      - name: Verify P12 operations contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          const operations=fs.readFileSync('src/operations/dashboard-ops.js','utf8');
-          const bundle=fs.readFileSync('diet-app.js','utf8');
-          const styles=fs.readFileSync('diet.css','utf8');
-          const manifest=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
-          const index=fs.readFileSync('index.html','utf8');
-          if(manifest.app!=='diet'||manifest.operationsVersion!=='A7.1')throw new Error('Diet A7 metadata invalid.');
-          if(manifest.degradedMode!=='cached-read-only')throw new Error('Diet degraded mode must preserve cached reads.');
-          if(manifest.health?.networkFailureLogsOutUser!==false)throw new Error('Network failure must not become logout.');
-          if(manifest.health?.writesPerformedByDashboard!==false)throw new Error('Dashboard must remain read-only.');
-          if(manifest.webRelease!=='1.0.3'||manifest.releaseChannel!=='stable')throw new Error('Stable release metadata missing.');
-          if(!index.includes('diet-app.js?v=1.0.3-account1')||!index.includes('diet.css?v=1.0.3-account1'))throw new Error('Web 1.0.3 static9 runtime is not loaded.');
-          if(!index.includes('user-scalable=no')||!index.includes('maximum-scale=1'))throw new Error('No-zoom viewport contract missing.');
-          if(bundle.includes('{%')||styles.includes('{%')||bundle.startsWith('---')||styles.startsWith('---'))throw new Error('Production runtime contains unexpanded templates.');
-          if(!bundle.includes('detectSessionInUrl: false')||!bundle.includes('dietReadWebOAuthCallback')||!bundle.includes('exchangeCodeForSession'))throw new Error('Explicit web PKCE session establishment is missing.');
-          if(!bundle.includes('storage: dietAuthStorage')||!bundle.includes('dietMirrorPkceStorageEntry')||!bundle.includes('dietRestoreBrowserPkceVerifier')||!bundle.includes('__dietAuthStorageV2'))throw new Error('Controlled web PKCE storage is missing.');
-          if(!bundle.includes('dietInstallZoomLock')||!bundle.includes('zoomLocked:snapshot.zoomLockInstalled'))throw new Error('Runtime zoom lock is missing.');
-          if(!styles.includes('.v53-open-indicator{display:none!important}'))throw new Error('Card-chevron regression returned.');
-          if(!styles.includes('.today-v2>.v62-guidance')||!styles.includes('.today-v2>.v52-goal-progress')||!styles.includes('grid-column:1/-1!important'))throw new Error('Desktop Today grid-span regression returned.');
-          if(!operations.includes('window.DietOperations')||!bundle.includes('window.DietOperations'))throw new Error('Diet diagnostics surface missing from production runtime.');
-          if(!bundle.includes('window.DietRelease')||!bundle.includes("DIET_RELEASE_CHANNEL = 'stable'"))throw new Error('Stable DietRelease surface missing.');
-          for(const category of ["'network'","'authentication'","'authorization'","'rate_limit'","'service'"]){if(!operations.includes(category))throw new Error(`Missing failure category ${category}`)}
-          if(operations.includes('localStorage.clear('))throw new Error('Operations must not broadly clear storage.');
-          if(operations.includes('.auth.signOut('))throw new Error('Operations must not convert failures into sign-out.');
-          console.log('Diet A7 operations contract passed inside Web 1.0.3 static9 runtime.');
+          const app=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
+          const data=fs.readFileSync('v2/data.js','utf8');
+          const guards=fs.readFileSync('v2/engine/release-guards.mjs','utf8');
+          const writes=fs.readFileSync('v2/write-api.mjs','utf8');
+          const sw=fs.readFileSync('sw.js','utf8');
+          if(app.operationsVersion!=='P12.1')throw new Error('Unexpected operations contract.');
+          if(app.degradedMode!=='cached-read-only'||app.health?.networkFailureLogsOutUser!==false)throw new Error('Degraded-mode contract regressed.');
+          if(app.health?.writesPerformedByDashboard!==true||app.health?.writesRequireExplicitConfirmation!==true)throw new Error('Explicit-write metadata missing.');
+          if(!data.includes('isDefinitiveAuthFailure')||!data.includes("setState('stale'")||!data.includes("setState('offline'"))throw new Error('Read recovery states regressed.');
+          if(!guards.includes("return 'transient'"))throw new Error('Transient failure classification missing.');
+          if(!writes.includes('p_request_id')||!writes.includes('uncertain'))throw new Error('Write idempotency/uncertainty guard missing.');
+          if(sw.includes('localStorage.clear(')||data.includes('localStorage.clear('))throw new Error('Broad local data clearing is forbidden.');
+          if(!sw.includes("scopePath+'v2/'"))throw new Error('Root worker must not intercept V2 alias scope.');
+          console.log('Diet P12 operations contract passed.');
           NODE

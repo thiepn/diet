@@ -6,8 +6,8 @@
   "canonicalPath": "/diet/",
   "accountContract": "1.0",
   "sdkContract": "1.x",
-  "integrationMode": "certified-v2-production",
-  "operationsVersion": "P12",
+  "integrationMode": "certified-legacy",
+  "operationsVersion": "P12.1",
   "sessionAuthority": "thiepn-account",
   "degradedMode": "cached-read-only",
   "authEntryPoints": [
@@ -17,7 +17,7 @@
   "webRelease": "2.0.0",
   "releaseChannel": "stable",
   "stable": true,
-  "productionBundle": "v2/",
+  "productionBundle": "v2/data.js",
   "productionStyles": "v2/shell.css",
   "runtimeMode": "adaptive-v2-production",
   "legacyFallback": "/diet/legacy-v1.html",
@@ -26,5 +26,7 @@
     "networkFailureLogsOutUser": false,
     "writesPerformedByDashboard": true,
     "writesRequireExplicitConfirmation": true
-  }
+  },
+  "sourceLayout": "v2",
+  "accountPlatformRelease": "1.0.0"
 }

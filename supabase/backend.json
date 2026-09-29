@@ -3,7 +3,9 @@
   "canonical_project_ref": "hycegznamzjhwinegaai",
   "canonical_region": "eu-west-1",
   "identity_project": "THIEPN Account",
-  "legacy_project_refs": ["mrrqsqawwxwebsdmrnre"],
+  "legacy_project_refs": [
+    "mrrqsqawwxwebsdmrnre"
+  ],
   "legacy_policy": "retired_no_reads_no_writes",
   "metrics_policy": {
     "nutrition_days": "all_days_with_logged_intake",
@@ -22,10 +24,13 @@
     "dual_write": false
   },
   "product_boundary": {
-    "logging_entrypoint": "direct_chatgpt_conversation",
-    "dashboard_manual_logging": false,
-    "dashboard_quick_capture": false,
-    "dashboard_role": "read_only_status_analytics_and_guidance"
+    "logging_entrypoint": "diet_copilot_v2_web",
+    "chatgpt_logging_supported": true,
+    "dashboard_manual_logging": true,
+    "dashboard_quick_capture": true,
+    "dashboard_role": "interactive_tracking_analytics_guidance_and_explicit_actions",
+    "writes_require_explicit_confirmation": true,
+    "activity_calorie_eat_back": false
   },
   "capabilities": {
     "daily_decision_engine": true,
@@ -45,6 +50,12 @@
     "history_quality_filters": true,
     "single_pass_dashboard_refresh": true,
     "unified_realtime_channel": true,
-    "today_core_only": true
+    "today_core_only": true,
+    "web_food_logging_v2": true,
+    "owner_scoped_rpc_writes": true,
+    "reusable_food_management": true,
+    "training_day_planning": true,
+    "strategy_action_workflow": true,
+    "offline_owner_cache": true
   }
 }

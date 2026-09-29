@@ -1,26 +1,26 @@
 name: A9 Account Platform v1
-
 on:
   pull_request:
+    branches: [main]
     paths:
       - '.well-known/thiepn-account-release.json'
       - '.well-known/thiepn-app.json'
       - '.github/workflows/a9-account-platform-v1.yml'
   push:
     branches: [main]
-
 permissions:
   contents: read
-
 jobs:
   release-contract:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - name: Verify Diet Platform v1 release metadata
+      - name: Verify Diet 2.0 on Account Platform v1
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
@@ -28,7 +28,7 @@ jobs:
           const release=JSON.parse(fs.readFileSync('.well-known/thiepn-account-release.json','utf8'));
           if(release.platformRelease!=='1.0.0')throw new Error('Unexpected platform release.');
           if(release.platformCommit!=='169e083f268e895cd44d8a5fe706ba5d4532bfa2')throw new Error('Unexpected platform release commit.');
-          for(const key of ['accountContract','sdkContract','integrationMode'])if(release[key]!==app[key])throw new Error(`Release contract mismatch: ${key}`);
-          if(release.consumerRelease!==app.webRelease)throw new Error('Diet Web release mismatch.');
-          console.log('Diet Platform v1 / Diet Web 1.0.3 metadata passed.');
+          for(const key of ['accountContract','sdkContract','integrationMode'])if(release[key]!==app[key])throw new Error('Release contract mismatch: '+key);
+          if(release.consumerRelease!=='2.0.0'||release.consumerRelease!==app.webRelease)throw new Error('Diet Web 2.0.0 consumer release mismatch.');
+          console.log('Diet Platform v1 / Diet Web 2.0.0 metadata passed.');
           NODE

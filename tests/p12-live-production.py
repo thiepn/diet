@@ -61,6 +61,21 @@ with sync_playwright() as p:
     check("OAuth relay targets canonical production","/diet/" in relay_paths and "/diet/v2/" not in relay_paths,nav_urls[-8:])
     relay.close()
 
+    legacy_relay=context.new_page()
+    legacy_urls=[]
+    legacy_relay.on("framenavigated",lambda frame:legacy_urls.append(frame.url) if frame==legacy_relay.main_frame else None)
+    legacy_relay.route(SUPABASE+"/auth/v1/token**",lambda route:route.fulfill(status=400,content_type="application/json",body='{"error":"invalid_grant"}'))
+    legacy_relay.goto(RELAY,wait_until="domcontentloaded")
+    legacy_relay.evaluate("""() => {
+      sessionStorage.setItem('diet-copilot:oauth-target-v2','web-v1-legacy');
+      sessionStorage.setItem('diet-copilot:oauth-flow-v2','p12-legacy-flow');
+    }""")
+    legacy_relay.goto(RELAY+"?code=p12-legacy-code&sb_flow_id=p12-legacy-flow",wait_until="domcontentloaded")
+    legacy_relay.wait_for_timeout(800)
+    legacy_paths=[urlparse(url).path for url in legacy_urls]
+    check("legacy OAuth relay preserves rollback route","/diet/legacy-v1.html" in legacy_paths,legacy_urls[-8:])
+    legacy_relay.close()
+
     signin=context.new_page()
     signin.goto(PROD+"#today",wait_until="networkidle")
     signin.locator("[data-account-button]").click()

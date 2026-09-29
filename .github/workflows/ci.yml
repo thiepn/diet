@@ -1,115 +1,70 @@
 name: CI
-
 on:
   push:
-    branches: [main, v6.8-web-v1]
+    branches: [main]
   pull_request:
-
+    branches: [main]
 permissions:
   contents: read
-
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-      - name: Setup Node
-        uses: actions/setup-node@v6
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - name: JavaScript syntax
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: P12 JavaScript and Python syntax
         shell: bash
         run: |
           set -euo pipefail
-          find src -type f -name '*.js' -print0 | xargs -0 -n1 node --check
-          node --check scripts/build-v68.mjs
-          node --check tests/policy.mjs
-          node --check tests/release.mjs
-          node --check diet-app.js
-      - name: Diet product backend and auth contract
+          node --check sw.js
+          node --check legacy-v1-app.js
+          while IFS= read -r -d '' file; do
+            tmp="$(mktemp --suffix=.mjs)"
+            cp "$file" "$tmp"
+            node --check "$tmp"
+            rm -f "$tmp"
+          done < <(find v2 -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
+          python -m py_compile tests/p12-deployed-production.py tests/p12-live-production.py
+      - name: P12 auth, production and rollback contract
+        run: node tests/p12-auth-contract.mjs
+      - name: P12 product and backend contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const backend=JSON.parse(fs.readFileSync('supabase/backend.json','utf8'));
-          const bridge=fs.readFileSync('supabase/chatgpt-bridge.md','utf8');
-          const config=fs.readFileSync('src/config.js','utf8');
-          const release=fs.readFileSync('src/release.js','utf8');
-          const auth=fs.readFileSync('src/auth/dashboard-auth.js','utf8');
-          const persist=fs.readFileSync('src/auth/dashboard-auth-persist.js','utf8')+fs.readFileSync('src/auth/dashboard-auth.js','utf8');
-          const styles=fs.readFileSync('src/styles/release.css','utf8');
-          const shared='hycegznamzjhwinegaai',legacy='mrrqsqawwxwebsdmrnre';
-          if(backend.canonical_project_ref!==shared)throw new Error('Wrong canonical backend.');
-          if(!backend.legacy_project_refs?.includes(legacy)||!String(backend.legacy_policy).includes('retired'))throw new Error('Legacy backend is not retired.');
+          const app=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
+          const release=JSON.parse(fs.readFileSync('.well-known/thiepn-account-release.json','utf8'));
+          if(backend.canonical_project_ref!=='hycegznamzjhwinegaai')throw new Error('Wrong canonical backend.');
           if(backend.write_protocol?.require_request_id!==true||backend.write_protocol?.retry_same_request_id!==true||backend.write_protocol?.verify_after_write!==true||backend.write_protocol?.dual_write!==false)throw new Error('Reliable write protocol regressed.');
-          if(backend.product_boundary?.logging_entrypoint!=='direct_chatgpt_conversation'||backend.product_boundary?.dashboard_manual_logging!==false||backend.product_boundary?.dashboard_quick_capture!==false)throw new Error('Dashboard product boundary regressed.');
-          if(!config.includes(shared)||config.includes(legacy))throw new Error('Active config is not canonical.');
-          if(!bridge.includes(`Canonical project ref: \`${shared}\``)||!bridge.includes(legacy))throw new Error('ChatGPT bridge backend contract missing.');
-          for(const symbol of ["DIET_WEB_RELEASE = '1.0.3'","DIET_RELEASE_CHANNEL = 'stable'",'renderTodayV68','window.DietRelease','dietInstallZoomLock'])if(!release.includes(symbol))throw new Error(`Stable release symbol missing: ${symbol}`);
-          if(!fs.readFileSync('src/auth/dashboard-auth-final.js','utf8').includes('Continue with Google')||!auth.includes('dietSignInWithGoogle')||!auth.includes("auth.signOut({ scope: 'local' })"))throw new Error('Google-only auth contract regressed.');
-          const activeJs=fs.readdirSync('src',{recursive:true}).filter(p=>String(p).endsWith('.js')).map(p=>fs.readFileSync(`src/${p}`,'utf8')).join('\n');
-          for(const banned of ['signInWithPassword','resetPasswordForEmail','loginPassword','passwordForm','email-password'])if(activeJs.includes(banned))throw new Error(`Legacy password auth returned: ${banned}`);
-          for(const symbol of ["flowType: 'pkce'",'detectSessionInUrl: false','storage: dietAuthStorage','dietMirrorPkceStorageEntry','dietRestoreBrowserPkceVerifier','__dietAuthStorageV2'])if(!persist.includes(symbol))throw new Error(`Controlled PKCE handling missing: ${symbol}`);
-          if(!auth.includes('data.flowId')||!auth.includes("dietSetBrowserOAuthRelayState('web'")||!auth.includes('dietTagBrowserPkceBackupFlow'))throw new Error('Web PKCE relay/recovery regressed.');
-          if(activeJs.includes('Supabase did not persist the PKCE verifier before redirect.'))throw new Error('Obsolete PKCE scan returned.');
-          if(!styles.includes('.v53-open-indicator{display:none!important}'))throw new Error('Card-chevron hotfix missing.');
-          if(!styles.includes('.today-v2>.v62-guidance')||!styles.includes('.today-v2>.v52-goal-progress')||!styles.includes('grid-column:1/-1!important'))throw new Error('Desktop Today grid-span guard missing.');
-          if(!styles.includes('touch-action:pan-x pan-y'))throw new Error('Touch zoom lock missing.');
-          console.log('Diet Copilot Web 1.0.3 static9 product/backend/auth contract passed.');
+          if(backend.product_boundary?.dashboard_manual_logging!==true||backend.product_boundary?.dashboard_quick_capture!==true||backend.product_boundary?.writes_require_explicit_confirmation!==true)throw new Error('V2 dashboard write boundary regressed.');
+          if(backend.product_boundary?.activity_calorie_eat_back!==false)throw new Error('Exercise calories must not be automatically eaten back.');
+          if(app.webRelease!=='2.0.0'||app.releaseChannel!=='stable'||app.stable!==true)throw new Error('P12 stable release metadata invalid.');
+          if(app.productionBundle!=='v2/data.js'||app.productionStyles!=='v2/shell.css'||app.runtimeMode!=='adaptive-v2-production')throw new Error('P12 production runtime metadata invalid.');
+          if(release.consumerRelease!==app.webRelease)throw new Error('Account platform consumer release mismatch.');
+          console.log('Diet Copilot 2.0 P12 product/backend contract passed.');
           NODE
-      - name: Account storage regression tests
-        run: node tests/account-storage.mjs
-      - name: Nutrition and coaching regression fixtures
-        run: node tests/policy.mjs
-      - name: Verify committed static production bundles
-        run: node scripts/build-v68.mjs
-      - name: Stable bundle certification
-        run: |
-          node --check diet-app.js
-          node --check .v68-build/diet-app.js
-          node tests/release.mjs
-          ! grep -q '{%' diet-app.js
-          ! grep -q '{%' diet.css
-          test "$(head -c 3 diet-app.js)" != '---'
-          test "$(head -c 3 diet.css)" != '---'
-      - name: Static bundle generation must be deterministic
-        run: |
-          cp .v68-build/diet-app.js /tmp/diet-app.js
-          cp .v68-build/diet.css /tmp/diet.css
-          rm -rf .v68-build
-          node scripts/build-v68.mjs
-          cmp .v68-build/diet-app.js /tmp/diet-app.js
-          cmp .v68-build/diet.css /tmp/diet.css
-          cmp diet-app.js .v68-build/diet-app.js
-          cmp diet.css .v68-build/diet.css
-      - name: Build the actual GitHub Pages site
+      - name: Build actual GitHub Pages artifact
         uses: actions/jekyll-build-pages@v1
         with:
           source: ./
           destination: ./_site
-      - name: Validate deployed stable artifacts
+      - name: Validate production artifact
         shell: bash
         run: |
           set -euo pipefail
-          test -f _site/diet-app.js
-          test -f _site/diet.css
-          test -f _site/index.html
-          test -f _site/.well-known/thiepn-app.json
-          test -f _site/vendor/supabase-2.116.0.js
-          ! grep -q auth-persistence-hotfix _site/index.html
-          node --check _site/diet-app.js
-          cmp diet-app.js _site/diet-app.js
-          cmp diet.css _site/diet.css
-          ! grep -q '{%' _site/diet-app.js
-          ! grep -q '{%' _site/diet.css
-          grep -q 'diet-app.js?v=1.0.3-account1' _site/index.html
-          grep -q 'diet.css?v=1.0.3-account1' _site/index.html
-          grep -q 'user-scalable=no' _site/index.html
-          grep -q 'maximum-scale=1' _site/index.html
-          grep -q 'detectSessionInUrl: false' _site/diet-app.js
-          grep -q 'storage: dietAuthStorage' _site/diet-app.js
-          grep -q 'dietInstallZoomLock' _site/diet-app.js
-          grep -Fq '.v53-open-indicator{display:none!important}' _site/diet.css
-          grep -Fq '.today-v2>.v62-guidance' _site/diet.css
-          grep -Fq '.today-v2>.v52-goal-progress' _site/diet.css
-          grep -q "DIET_WEB_RELEASE = '1.0.3'" _site/diet-app.js
+          for f in index.html manifest.webmanifest sw.js legacy-v1.html legacy-v1-app.js v2/index.html v2/data.js v2/auth-storage.mjs v2/write-api.mjs v2/shell.css vendor/supabase-2.116.0.js .well-known/thiepn-app.json; do
+            test -f "_site/$f"
+          done
+          grep -q 'dc-version-badge">2.0<' _site/index.html
+          ! grep -q '2.0 RC' _site/index.html
+          grep -q 'src="./v2/data.js"' _site/index.html
+          grep -q 'legacy-v1-app.js?v=1.0.3-p12-rollback' _site/legacy-v1.html
+          grep -q "dietSetBrowserOAuthRelayState('web-v1-legacy'" _site/legacy-v1-app.js
+          grep -q 'diet-copilot-prod-v2-p12-1' _site/sw.js

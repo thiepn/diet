@@ -6,10 +6,12 @@ on:
       - 'index.html'
       - 'manifest.webmanifest'
       - 'sw.js'
-      - 'legacy-v1.html'
+      - 'legacy-v1*'
       - 'v2/**'
+      - 'supabase/backend.json'
       - '.well-known/thiepn-app.json'
-      - 'tests/p12-*.py'
+      - '.well-known/thiepn-account-release.json'
+      - 'tests/p12-*'
       - '.github/workflows/p12-production-live.yml'
   workflow_run:
     workflows: ['pages build and deployment']
@@ -22,17 +24,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  release-runner:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Superseding stale P12 production certification runs."
-
-  deployed-assets:
+  static:
     if: >-
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify P12 static contracts
+        run: |
+          node tests/p12-auth-contract.mjs
+          python -m py_compile tests/p12-deployed-production.py tests/p12-live-production.py
+
+  deployed-assets:
+    needs: static
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:

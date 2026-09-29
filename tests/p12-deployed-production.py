@@ -7,7 +7,7 @@ BASE = "https://thiepn.dev/diet/"
 ROOT = Path(".")
 FILES = {
     "index.html","manifest.webmanifest","sw.js",".well-known/thiepn-app.json",
-    "legacy-v1.html","diet-app.js","diet.css","vendor/supabase-2.116.0.js",
+    "legacy-v1.html","legacy-v1-app.js","diet-app.js","diet.css","vendor/supabase-2.116.0.js",
     "icon.svg","icon-192.png","icon-512.png"
 }
 FILES.update("v2/" + str(path.relative_to("v2")).replace("\\","/") for path in Path("v2").rglob("*") if path.is_file())

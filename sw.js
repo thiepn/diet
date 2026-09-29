@@ -9,7 +9,7 @@ const CORE=[
   './v2/engine/training-nutrition.mjs','./v2/engine/personal-intelligence.mjs',
   './v2/engine/copilot-context.mjs','./v2/engine/settings-data.mjs','./v2/engine/release-guards.mjs',
   './vendor/supabase-2.116.0.js','./icon.svg','./icon-192.png','./icon-512.png',
-  './legacy-v1.html','./diet.css?v=1.0.3-account1','./diet-app.js?v=1.0.3-account1'
+  './legacy-v1.html','./legacy-v1-app.js?v=1.0.3-p12-rollback','./diet.css?v=1.0.3-account1'
 ];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>(key.startsWith('diet-copilot-web-')||key.startsWith('diet-copilot-prod-v2-'))&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
