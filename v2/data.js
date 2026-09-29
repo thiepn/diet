@@ -30,7 +30,8 @@ const state={
   progressDays:90,
   channel:null,
   realtimeTimer:null,
-  realtimeStatus:'idle'
+  realtimeStatus:'idle',
+  readTransport:'none'
 };
 
 function text(id,value){
@@ -311,25 +312,31 @@ async function subscribeRealtime(){
     state.channel=null;
   }
   state.realtimeStatus='connecting';
+  const ownerFilter=`user_id=eq.${state.user.id}`;
   let channel=state.client.channel(`diet-v2-read-${state.user.id}`);
-  for(const table of ['profiles','daily_logs','meals','meal_items','weight_entries','goal_phases','saved_foods','saved_meals','target_recommendations','activity_daily','training_distribution_settings','training_days']){
-    channel=channel.on('postgres_changes',{event:'*',schema:'public',table},()=>{
-      clearTimeout(state.realtimeTimer);
-      state.realtimeTimer=setTimeout(()=>refresh({silent:true}).catch(()=>{}),450);
-    });
+  const tables=['profiles','daily_logs','meals','meal_items','weight_entries','goal_phases','saved_foods','saved_meals','target_recommendations','activity_daily','training_distribution_settings','training_days'];
+  const onOwnedChange=()=>{
+    clearTimeout(state.realtimeTimer);
+    state.realtimeTimer=setTimeout(()=>refresh({silent:true}).catch(()=>{}),450);
+  };
+  for(const table of tables){
+    for(const event of ['INSERT','UPDATE']){
+      channel=channel.on('postgres_changes',{event,schema:'public',table,filter:ownerFilter},onOwnedChange);
+    }
   }
   state.channel=channel.subscribe(status=>{
     state.realtimeStatus=String(status||'unknown').toLowerCase();
-    recordTelemetry('realtime',{status:state.realtimeStatus,online:navigator.onLine!==false});
+    recordTelemetry('realtime',{status:state.realtimeStatus,online:navigator.onLine!==false,ownerFiltered:true});
     window.dispatchEvent(new CustomEvent('diet-v2-reliability-updated'));
   });
 }
 
-async function fetchPagedRows(table,columns,{orders=[],pageSize=1000,maxPages=50}={}){
+async function fetchPagedRows(table,columns,{ownerId,orders=[],pageSize=1000,maxPages=50}={}){
+  if(!ownerId)throw new Error('Diet owner is required for paged reads.');
   const client=ensureClient();
   const rows=[];
   for(let page=0;page<maxPages;page++){
-    let query=client.from(table).select(columns);
+    let query=client.from(table).select(columns).eq('user_id',ownerId);
     for(const order of orders){
       query=query.order(order.column,{ascending:order.ascending!==false,nullsFirst:Boolean(order.nullsFirst)});
     }
@@ -344,25 +351,40 @@ async function fetchPagedRows(table,columns,{orders=[],pageSize=1000,maxPages=50
   throw new Error(`Diet history exceeded the safe pagination cap for ${table}. Export or archive old data before continuing.`);
 }
 
-async function fetchOwnerRows(){
+function snapshotPayloadValid(value){
+  if(!value||typeof value!=='object'||Array.isArray(value))return false;
+  for(const key of ['dailyLogs','meals','mealItems','weights','goalPhases','savedFoods','savedMeals','targetRecommendations','activityDaily','trainingDays']){
+    if(!Array.isArray(value[key]))return false;
+  }
+  return true;
+}
+
+function snapshotRpcUnavailable(error){
+  const code=String(error?.code??'');
+  const message=String(error?.message??'').toLowerCase();
+  return code==='PGRST202'||message.includes('diet_app_read_snapshot')&&message.includes('could not find');
+}
+
+async function fetchOwnerRowsLegacy(ownerId){
   const client=ensureClient();
   const [profile,dailyLogs,meals,mealItems,weights,goalPhases,savedFoods,savedMeals,targetRecommendations,activityDaily,trainingDistribution,trainingDays]=await Promise.all([
-    client.from('profiles').select('calorie_target,protein_target,goal_weight,fiber_target,desired_weekly_weight_change,adaptive_target_enabled,adaptive_min_complete_days,updated_at').maybeSingle(),
-    fetchPagedRows('daily_logs','id,log_date,calorie_target,protein_target,status,notes,updated_at',{orders:[{column:'log_date'}]}),
-    fetchPagedRows('meals','id,daily_log_id,meal_type,title,calories,protein,confidence,source,calories_low,calories_high,eaten_at,created_at,updated_at',{orders:[{column:'eaten_at'},{column:'id'}]}),
-    fetchPagedRows('meal_items','id,meal_id,saved_food_id,name,quantity_text,calories,protein,carbs,fat,fiber,calories_low,calories_high,confidence,source,sort_order,updated_at',{orders:[{column:'meal_id'},{column:'sort_order'},{column:'id'}]}),
-    fetchPagedRows('weight_entries','id,entry_date,weight,created_at,updated_at',{orders:[{column:'entry_date'},{column:'id'}]}),
-    fetchPagedRows('goal_phases','phase_type,start_date,end_date,calorie_target,protein_target,goal_weight,desired_weekly_weight_change,active,created_at,updated_at',{orders:[{column:'start_date'},{column:'created_at'}]}),
-    fetchPagedRows('saved_foods','id,name,quantity_text,calories,protein,carbs,fat,fiber,brand,barcode,favorite,use_count,last_used_at,verified_at,source,photo_url,updated_at',{orders:[{column:'use_count',ascending:false},{column:'id'}]}),
-    fetchPagedRows('saved_meals','id,name,meal_type,calories,protein,carbs,fat,fiber,favorite,use_count,last_used_at,is_recipe,servings,serving_text,updated_at',{orders:[{column:'use_count',ascending:false},{column:'id'}]}),
-    client.from('target_recommendations').select('id,generated_on,lookback_days,complete_days,logged_days,weigh_in_count,avg_calories,weekly_weight_change,estimated_maintenance,desired_weekly_weight_change,current_target,raw_recommended_target,recommended_target,rationale,status,created_at,resolved_at,decision_payload,engine_version,confidence_level,confidence_score,recommended_protein,recommended_fat,recommended_carbs,effective_date,resolution,resolved_target,applied_phase_id').order('created_at',{ascending:false}).limit(20),
-    client.from('activity_daily').select('activity_date,steps,active_calories,exercise_minutes,distance_km,resting_heart_rate,source,synced_at,updated_at').order('activity_date',{ascending:false}).limit(120),
-    client.from('training_distribution_settings').select('enabled,weekly_template,hard_extra_kcal,moderate_extra_kcal,light_extra_kcal,updated_at').maybeSingle(),
-    client.from('training_days').select('id,training_date,day_type,status,title,duration_minutes,source,notes,created_at,updated_at').order('training_date',{ascending:false}).limit(180)
+    client.from('profiles').select('calorie_target,protein_target,goal_weight,fiber_target,desired_weekly_weight_change,adaptive_target_enabled,adaptive_min_complete_days,updated_at').eq('user_id',ownerId).maybeSingle(),
+    fetchPagedRows('daily_logs','id,log_date,calorie_target,protein_target,status,notes,updated_at',{ownerId,orders:[{column:'log_date'}]}),
+    fetchPagedRows('meals','id,daily_log_id,meal_type,title,calories,protein,confidence,source,calories_low,calories_high,eaten_at,created_at,updated_at',{ownerId,orders:[{column:'eaten_at'},{column:'id'}]}),
+    fetchPagedRows('meal_items','id,meal_id,saved_food_id,name,quantity_text,calories,protein,carbs,fat,fiber,calories_low,calories_high,confidence,source,sort_order,updated_at',{ownerId,orders:[{column:'meal_id'},{column:'sort_order'},{column:'id'}]}),
+    fetchPagedRows('weight_entries','id,entry_date,weight,created_at,updated_at',{ownerId,orders:[{column:'entry_date'},{column:'id'}]}),
+    fetchPagedRows('goal_phases','phase_type,start_date,end_date,calorie_target,protein_target,goal_weight,desired_weekly_weight_change,active,created_at,updated_at',{ownerId,orders:[{column:'start_date'},{column:'created_at'}]}),
+    fetchPagedRows('saved_foods','id,name,quantity_text,calories,protein,carbs,fat,fiber,brand,barcode,favorite,use_count,last_used_at,verified_at,source,photo_url,updated_at',{ownerId,orders:[{column:'favorite',ascending:false},{column:'use_count',ascending:false},{column:'last_used_at',ascending:false},{column:'id'}]}),
+    fetchPagedRows('saved_meals','id,name,meal_type,calories,protein,carbs,fat,fiber,favorite,use_count,last_used_at,is_recipe,servings,serving_text,updated_at',{ownerId,orders:[{column:'favorite',ascending:false},{column:'use_count',ascending:false},{column:'last_used_at',ascending:false},{column:'id'}]}),
+    client.from('target_recommendations').select('id,generated_on,lookback_days,complete_days,logged_days,weigh_in_count,avg_calories,weekly_weight_change,estimated_maintenance,desired_weekly_weight_change,current_target,raw_recommended_target,recommended_target,rationale,status,created_at,resolved_at,decision_payload,engine_version,confidence_level,confidence_score,recommended_protein,recommended_fat,recommended_carbs,effective_date,resolution,resolved_target,applied_phase_id').eq('user_id',ownerId).order('created_at',{ascending:false}).limit(20),
+    client.from('activity_daily').select('activity_date,steps,active_calories,exercise_minutes,distance_km,resting_heart_rate,source,synced_at,updated_at').eq('user_id',ownerId).order('activity_date',{ascending:false}).limit(120),
+    client.from('training_distribution_settings').select('enabled,weekly_template,hard_extra_kcal,moderate_extra_kcal,light_extra_kcal,updated_at').eq('user_id',ownerId).maybeSingle(),
+    client.from('training_days').select('id,training_date,day_type,status,title,duration_minutes,source,notes,created_at,updated_at').eq('user_id',ownerId).order('training_date',{ascending:false}).limit(180)
   ]);
   for(const result of [profile,targetRecommendations,activityDaily,trainingDistribution,trainingDays]){
     if(result.error)throw result.error;
   }
+  state.readTransport='legacy_owner_queries';
   return {
     profile:profile.data??null,
     dailyLogs,
@@ -377,6 +399,20 @@ async function fetchOwnerRows(){
     trainingDistribution:trainingDistribution.data??null,
     trainingDays:trainingDays.data??[]
   };
+}
+
+async function fetchOwnerRows(ownerId){
+  if(!ownerId)throw new Error('Diet owner is required for reads.');
+  const client=ensureClient();
+  const result=await client.rpc('diet_app_read_snapshot');
+  if(!result.error&&snapshotPayloadValid(result.data)){
+    state.readTransport='snapshot_rpc';
+    return result.data;
+  }
+  if(!result.error)throw new Error('Diet snapshot read returned an invalid payload.');
+  if(!snapshotRpcUnavailable(result.error))throw result.error;
+  recordTelemetry('read_snapshot_fallback',{code:String(result.error?.code??'unknown')});
+  return fetchOwnerRowsLegacy(ownerId);
 }
 
 export async function refresh({silent=false}={}){
@@ -449,7 +485,7 @@ export async function refresh({silent=false}={}){
       render();
       return;
     }
-    const raw=await fetchOwnerRows();
+    const raw=await fetchOwnerRows(ownerId);
     if(epoch!==state.requestEpoch)return;
     state.user=verified.data.user;
     state.raw=raw;
@@ -876,12 +912,13 @@ export function getDietV2State(){
     signedIn:Boolean(state.user),
     fetchedAt:state.fetchedAt,
     realtimeStatus:state.realtimeStatus,
+    readTransport:state.readTransport,
     writeBlocked:Boolean(guard?.blocked)
   };
 }
 
 window.DietV2Data=Object.freeze({
-  version:'2.0.1-p13',
+  version:'2.0.1-p16',
   refresh,
   signInWithGoogle,
   signOut:signOutDietV2,
@@ -896,6 +933,7 @@ window.DietV2Data=Object.freeze({
     progressDays:state.progressDays,
     realtime:Boolean(state.channel),
     realtimeStatus:state.realtimeStatus,
+    readTransport:state.readTransport,
     writeBlocked:Boolean(getDietWriteGuardState()?.blocked)
   })
 });

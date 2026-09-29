@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: P15 syntax
+      - name: P16 syntax
         shell: bash
         run: |
           set -euo pipefail
@@ -35,38 +35,33 @@ jobs:
           node --check tests/p13-telemetry.mjs
           node --check tests/p14-security-contract.mjs
           node --check tests/p15-resilience-contract.mjs
-          python -m py_compile tests/p13-synthetic-monitor.py tests/p14-public-security-probe.py scripts/p15-verify-offsite.py
+          node --check tests/p16-performance-contract.mjs
+          python -m py_compile tests/p13-synthetic-monitor.py tests/p14-public-security-probe.py tests/p16-public-read-probe.py scripts/p15-verify-offsite.py
 
       - name: P13 telemetry privacy regression
         run: node tests/p13-telemetry.mjs
-
       - name: P14 security regression
         run: node tests/p14-security-contract.mjs
-
-      - name: P15 resilience contract
+      - name: P15 resilience regression
         run: node tests/p15-resilience-contract.mjs
+      - name: P16 performance contract
+        run: node tests/p16-performance-contract.mjs
 
-      - name: P15 product and backend contract
+      - name: P16 release contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const backend=JSON.parse(fs.readFileSync('supabase/backend.json','utf8'));
           const app=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
           const release=JSON.parse(fs.readFileSync('.well-known/thiepn-account-release.json','utf8'));
-
           if(backend.canonical_project_ref!=='hycegznamzjhwinegaai')throw new Error('Wrong canonical backend.');
-          if(backend.write_protocol?.require_request_id!==true||backend.write_protocol?.retry_same_request_id!==true||backend.write_protocol?.verify_after_write!==true||backend.write_protocol?.dual_write!==false)throw new Error('Reliable write protocol regressed.');
-          if(backend.product_boundary?.writes_require_explicit_confirmation!==true||backend.product_boundary?.activity_calorie_eat_back!==false)throw new Error('Product write/nutrition boundary regressed.');
-          if(backend.security_policy?.release!=='P14'||backend.security_policy?.anonymous_diet_access!==false)throw new Error('P14 security policy regressed.');
-          if(backend.resilience_policy?.release!=='P15'||backend.resilience_policy?.supabase_plan!=='free')throw new Error('P15 resilience policy invalid.');
-          if(backend.resilience_policy?.managed_daily_backups!==false||backend.resilience_policy?.point_in_time_recovery!==false)throw new Error('P15 must not claim unavailable managed backup features.');
-          if(backend.resilience_policy?.destructive_restore_automatic!==false)throw new Error('Automatic destructive restore is forbidden.');
-          if(backend.resilience_policy?.offsite?.plaintext_artifact_retained!==false||backend.resilience_policy?.offsite?.artifact_retention_days!==90)throw new Error('Off-site backup privacy/retention contract invalid.');
-
-          if(app.webRelease!=='2.0.1'||app.operationsVersion!=='P15.0'||app.securityRelease!=='P14'||app.resilienceRelease!=='P15')throw new Error('P15 release metadata invalid.');
-          if(app.releaseChannel!=='stable'||app.stable!==true||app.runtimeMode!=='adaptive-v2-production-monitored')throw new Error('Production runtime metadata regressed.');
-          if(release.consumerRelease!==app.webRelease)throw new Error('Account platform consumer release mismatch.');
-          console.log('Diet Copilot Web 2.0.1 / P15 resilience contract passed.');
+          if(backend.security_policy?.release!=='P14')throw new Error('P14 security regressed.');
+          if(backend.resilience_policy?.release!=='P15')throw new Error('P15 resilience regressed.');
+          if(backend.performance_policy?.release!=='P16'||backend.performance_policy?.normal_refresh_data_requests!==1)throw new Error('P16 performance policy invalid.');
+          if(app.webRelease!=='2.0.2'||app.operationsVersion!=='P16.0'||app.performanceRelease!=='P16')throw new Error('P16 release metadata invalid.');
+          if(app.securityRelease!=='P14'||app.resilienceRelease!=='P15')throw new Error('Prior hardening releases regressed.');
+          if(release.consumerRelease!==app.webRelease)throw new Error('Account consumer release mismatch.');
+          console.log('Diet Copilot Web 2.0.2 / P16 release contract passed.');
           NODE
 
       - name: Build actual GitHub Pages artifact
@@ -85,4 +80,4 @@ jobs:
           grep -q 'dc-version-badge">2.0<' _site/index.html
           ! grep -q '2.0 RC' _site/index.html
           grep -q 'id="systemHealthDialog"' _site/index.html
-          grep -q 'diet-copilot-prod-v2-p13-1' _site/sw.js
+          grep -q 'diet-copilot-prod-v2-p16-1' _site/sw.js

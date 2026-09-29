@@ -1,0 +1,56 @@
+name: P16 Production Performance
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'v2/**'
+      - 'sw.js'
+      - 'supabase/backend.json'
+      - 'supabase/migrations/**'
+      - '.well-known/**'
+      - 'tests/p16-*'
+      - 'docs/P16-*'
+      - '.github/workflows/p16-performance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: p16-production-performance
+  cancel-in-progress: true
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: P16 performance contract
+        run: |
+          node tests/p16-performance-contract.mjs
+          python -m py_compile tests/p16-public-read-probe.py
+
+  public-boundary:
+    needs: static
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify anonymous client cannot invoke P16 private read
+        run: python tests/p16-public-read-probe.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p16-public-read
+          path: p16-public-read.json
+          retention-days: 14

@@ -3,7 +3,9 @@
   "canonical_project_ref": "hycegznamzjhwinegaai",
   "canonical_region": "eu-west-1",
   "identity_project": "THIEPN Account",
-  "legacy_project_refs": ["mrrqsqawwxwebsdmrnre"],
+  "legacy_project_refs": [
+    "mrrqsqawwxwebsdmrnre"
+  ],
   "legacy_policy": "retired_no_reads_no_writes",
   "metrics_policy": {
     "nutrition_days": "all_days_with_logged_intake",
@@ -68,7 +70,12 @@
     "non_destructive_restore_drill": true,
     "encrypted_offsite_backups": true,
     "github_oidc_backup_export": true,
-    "account_delete_respecting_snapshots": true
+    "account_delete_respecting_snapshots": true,
+    "consolidated_owner_read": true,
+    "owner_filtered_fallback_reads": true,
+    "owner_filtered_realtime": true,
+    "hot_order_indexes": true,
+    "static_performance_budget": true
   },
   "observability_policy": {
     "release": "P13",
@@ -89,7 +96,10 @@
     "cross_owner_foreign_keys": true,
     "private_helpers_exposed_to_browser": false,
     "security_definer_advisor_exception": "intentional_reviewed_write_api",
-    "migration_versions": ["20260929190638","20260929190758"]
+    "migration_versions": [
+      "20260929190638",
+      "20260929190758"
+    ]
   },
   "resilience_policy": {
     "release": "P15",
@@ -122,6 +132,30 @@
       "certificate_sha256_fingerprint": "98:9E:71:79:15:B9:0B:67:7B:87:BF:FE:71:40:73:46:40:37:9F:18:C0:F8:EF:E5:59:F6:DE:01:81:6D:67:97",
       "public_key_der_sha256": "e67ad314d1ecfdc7588f6ca08c050b0b085b468ebd5395c07ca870a0df9f070d"
     },
-    "migration_versions": ["20260929193123","20260929193253","20260929193608"]
+    "migration_versions": [
+      "20260929193123",
+      "20260929193253",
+      "20260929193608"
+    ]
+  },
+  "performance_policy": {
+    "release": "P16",
+    "read_transport": "diet_app_read_snapshot_security_invoker",
+    "normal_refresh_data_requests": 1,
+    "compatibility_fallback": "explicit_owner_filtered_multi_query",
+    "realtime": "owner_filtered_insert_update_only",
+    "delete_refresh": "explicit_post_mutation_or_foreground_revalidation",
+    "current_snapshot_rows": 281,
+    "measured_snapshot_execution_ms": 21.432,
+    "protected_by_rls": true,
+    "migration_versions": [
+      "20260929200148",
+      "20260929200457"
+    ],
+    "indexes": [
+      "meal_items_owner_sort_p16",
+      "saved_foods_owner_rank_p16",
+      "saved_meals_owner_rank_p16"
+    ]
   }
 }

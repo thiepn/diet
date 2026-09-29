@@ -26,7 +26,7 @@ async function register(){
 }
 window.addEventListener('online',()=>state.registration?.update?.().catch(error=>recordTelemetry('pwa',{status:'update_error',code:telemetryErrorCode(error)})));
 window.DietV2Pwa=Object.freeze({
-  version:'2.0.1-p13',
+  version:'2.0.2-p16',
   snapshot:()=>({supported:canRegister(),ready:state.ready,error:state.error})
 });
 register();

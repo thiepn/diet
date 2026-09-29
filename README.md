@@ -1,64 +1,31 @@
 # Diet Copilot
 
-**Web 2.0.1 · P15 production resilience**
+**Web 2.0.2 · P16 production performance hardening**
 
-Diet Copilot 2.0 remains the production nutrition tracker at **https://thiepn.dev/diet/**. P15 is a backend/operations release: the browser remains Web 2.0.1 while production gains verified recovery snapshots, restore drills and encrypted off-site backups.
+Diet Copilot 2.0 remains live at **https://thiepn.dev/diet/**. P16 changes the signed-in read transport and query efficiency without changing nutrition calculations, coaching rules, or the visible product.
 
-## P15 recovery architecture
+## P16
 
-The canonical THIEPN Account Supabase project is currently on the Free plan, so Diet does not rely on Supabase-managed daily backups or PITR.
+A normal Diet refresh previously used 12 separate Supabase reads. Web 2.0.2 now uses one owner-scoped `diet_app_read_snapshot()` RPC.
 
-P15 adds:
+The RPC is `SECURITY INVOKER`, requires an authenticated non-anonymous account, uses explicit `auth.uid()` predicates, and remains governed by P14 RLS. The old multi-query loader is retained only as a `PGRST202` compatibility fallback, with explicit `user_id` filtering on every table.
 
-- private, owner-scoped snapshots of all 18 Diet-owned tables;
-- SHA-256 payload integrity and a live schema fingerprint;
-- exact row-count, owner and parse validation on every snapshot;
-- daily snapshots retained 35 days;
-- monthly snapshots retained 370 days;
-- a non-destructive restore staging workflow;
-- a restore-plan function that never performs a destructive restore automatically;
-- encrypted off-site GitHub Actions backups retained 90 days;
-- GitHub OIDC authentication to Supabase—no long-lived Supabase key stored in GitHub;
-- AES-256-GCM CMS encryption to an RSA-3072 recovery certificate before artifact upload;
-- explicit exclusion of native device credential digests.
+Realtime INSERT/UPDATE subscriptions are owner-filtered. Broad DELETE subscriptions were removed because Supabase does not support row filters for DELETE Postgres Changes; Diet's delete actions already perform explicit refreshes and foreground revalidation remains active.
 
-Recovery snapshots reference `auth.users` with `ON DELETE CASCADE`. Explicit account deletion therefore deletes the in-database recovery snapshots too; P15 is not a hidden retention mechanism.
+P16 also adds composite indexes for meal-item ordering and saved-food/saved-meal ranking, refreshes table statistics, and enforces a 700 KB raw core asset budget.
 
-## Security and reliability layers
+## Existing protection
 
-P14 authorization hardening remains in force:
+- **P13:** local-only operational telemetry and degraded-mode reliability.
+- **P14:** owner RLS, owner triggers, owner-coupled FKs and RPC authorization.
+- **P15:** verified recovery snapshots and encrypted off-site backups.
 
-- authenticated owner-scoped reads;
-- direct browser table mutation denied;
-- mutations only through `diet_app_*` RPCs;
-- restrictive owner RLS, session-owner triggers and owner-coupled foreign keys.
+## Release
 
-P13 reliability protections also remain active:
+- Web/PWA: **2.0.2**
+- Operations: **P16.0**
+- Security: **P14**
+- Resilience: **P15**
+- Performance: **P16**
 
-- local-only sanitized operational telemetry;
-- System Health diagnostics;
-- foreground revalidation;
-- uncertain-write blocking;
-- hourly production monitoring.
-
-## Off-site backup recovery key
-
-Only the **public** recovery certificate is stored in this repository. The private key must remain offline and separate from both GitHub and Supabase. Without that key, encrypted P15 off-site artifacts cannot be decrypted.
-
-## Production and rollback
-
-- `/diet/` — canonical Diet Copilot 2.0.
-- `/diet/v2/` — stable compatibility alias.
-- `/diet/legacy-v1.html` — independently sign-in-capable V1 emergency fallback.
-- Browser/PWA runtime stays Web 2.0.1 in P15.
-
-## Verification
-
-```bash
-node tests/p13-telemetry.mjs
-node tests/p14-security-contract.mjs
-node tests/p15-resilience-contract.mjs
-python -m py_compile scripts/p15-verify-offsite.py
-```
-
-See [P15 disaster recovery](docs/P15-DISASTER-RECOVERY.md), [P14 security hardening](docs/P14-SECURITY-HARDENING.md), and [QA.md](QA.md).
+See [P16 performance hardening](docs/P16-PERFORMANCE-HARDENING.md) and [QA.md](QA.md).

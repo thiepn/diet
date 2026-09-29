@@ -7,12 +7,14 @@
   "accountContract": "1.0",
   "sdkContract": "1.x",
   "integrationMode": "certified-legacy",
-  "operationsVersion": "P15.0",
+  "operationsVersion": "P16.0",
   "sessionAuthority": "thiepn-account",
   "degradedMode": "cached-read-only",
-  "authEntryPoints": ["google"],
-  "release": "2.0.1",
-  "webRelease": "2.0.1",
+  "authEntryPoints": [
+    "google"
+  ],
+  "release": "2.0.2",
+  "webRelease": "2.0.2",
   "releaseChannel": "stable",
   "stable": true,
   "productionBundle": "v2/data.js",
@@ -39,12 +41,19 @@
     "pointInTimeRecovery": false,
     "destructiveRestoreAutomatic": false,
     "recoverySnapshotsCascadeOnAccountDelete": true,
-    "nativeCredentialMaterialBackedUp": false
+    "nativeCredentialMaterialBackedUp": false,
+    "consolidatedOwnerRead": true,
+    "normalRefreshDataRequests": 1,
+    "ownerFilteredFallbackReads": true,
+    "ownerFilteredRealtime": true,
+    "broadRealtimeDeleteSubscription": false
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0",
   "securityRelease": "P14",
   "securityModel": "owner-guarded-rpc-v1",
   "resilienceRelease": "P15",
-  "resilienceModel": "verified-snapshots-encrypted-offsite-v1"
+  "resilienceModel": "verified-snapshots-encrypted-offsite-v1",
+  "performanceRelease": "P16",
+  "performanceModel": "consolidated-owner-read-v1"
 }

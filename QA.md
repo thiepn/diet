@@ -1,45 +1,26 @@
-# Diet Copilot 2.0.1 — P15 production resilience gates
+# Diet Copilot 2.0.2 — P16 production performance gates
 
-Date: 2026-09-29. Phase: P15 Backup, Disaster Recovery & Production Data Resilience.
-
-## Required gates
+Date: 2026-09-29.
 
 | Gate | Coverage |
 | --- | --- |
-| CI | P13 privacy regression, P14 security regression, P15 resilience contract, metadata and Pages artifact |
-| A7/P15 operations | degraded-mode/write safety, P14 security, P15 recovery metadata |
-| A8 account consumer | Google-only PKCE, canonical project, P15 operations metadata |
-| A9 account platform | Account Platform v1 with Diet Web 2.0.1 |
-| P14 public security | anonymous/publishable clients remain outside Diet read/write boundary |
-| P15 database verification | snapshot hashes/schema/counts/ownership/type parsing |
-| P15 scheduled snapshot drill | daily and monthly capture paths produce verified snapshots |
-| P15 restore staging drill | full snapshot reconstructs into temporary typed tables; relationships remain intact; rollback only |
-| P15 encrypted off-site | GitHub OIDC → Edge export → local validation → CMS AES-256-GCM encryption → encrypted artifact only |
-| Advisors | no new P15 performance/security issue after explicit private-table deny policy |
+| CI | P13, P14, P15 regressions plus P16 static performance contract |
+| A7 | combined operations/security/resilience/performance invariants |
+| A8 | Google-only Account consumer contract |
+| A9 | Account Platform v1 consumer release 2.0.2 |
+| P16 static | one-request transport, fallback owner filters, Realtime ownership, cache versions, asset budget |
+| P16 public probe | publishable/anonymous client cannot execute the consolidated private read RPC |
+| Live DB | authenticated snapshot shape, invoker security, anonymous-account rejection |
+| Advisors | no new P16 security/performance defect |
 
-## Recovery invariants
+## P16 invariants
 
-- All 18 Diet-owned tables are included in a verified owner snapshot.
-- `diet_native_devices.credential_digest` is excluded.
-- Snapshot payload and current schema are fingerprinted.
-- A snapshot is not accepted unless row counts, ownership and table-type parsing all pass.
-- In-database snapshots cascade-delete when their `auth.users` identity is deleted.
-- No browser role can access the private snapshot table.
-- Destructive restore is never available to the browser or a scheduled job.
-- A restore must be staged and reviewed first.
-- No private recovery key is committed to the repository.
-- Off-site artifacts contain ciphertext and non-sensitive evidence only; plaintext JSON is deleted before upload.
-
-## Target recovery windows
-
-- Daily in-database logical-recovery RPO target: ≤ 24h while Cron remains healthy.
-- Daily encrypted off-site RPO target: approximately ≤ 26h under the configured schedules.
-- Daily in-database retention: 35 days.
-- Monthly in-database retention: 370 days.
-- Encrypted GitHub artifact retention: 90 days.
-
-These are Diet operational targets rather than guarantees from the Supabase Free plan.
-
-## Full-project loss limitation
-
-Diet snapshots preserve Diet application rows, not Google OAuth credentials, sessions, or the wider THIEPN Account ecosystem. A full shared-project recovery requires restoring/recreating the intended account identity before Diet rows can be restored. Native devices must reauthenticate after such a recovery.
+- Normal signed-in data refresh uses one RPC.
+- P14 RLS remains authoritative.
+- Compatibility fallback filters every owner table with `user_id`.
+- Realtime INSERT/UPDATE traffic is owner-filtered.
+- Broad DELETE Postgres Changes subscription is disabled.
+- Nutrition engine and read-model semantics are unchanged.
+- P15 backup/recovery behavior is unchanged.
+- Installed PWAs move to the P16 cache namespace.
+- Raw core static footprint must remain at or below 700,000 bytes.
