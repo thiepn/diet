@@ -17,6 +17,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  release-runner:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Superseding any stale in-progress P11 live certification run."
+
   deployed-assets:
     if: >-
       github.event_name == 'push' ||
