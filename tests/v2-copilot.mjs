@@ -26,6 +26,9 @@ assert.match(client,/client\.functions\.invoke\('diet-copilot-ai'/,'P8 must call
 assert.doesNotMatch(client,/\.rpc\s*\(/,'P8 client must not invent direct RPC calls.');
 assert.doesNotMatch(client,/service_role|sb_secret_|OPENAI_API_KEY|DIET_COPILOT_AI_API_KEY/,'P8 browser must not contain server credentials.');
 assert.match(client,/validateCopilotProposal\(message\.action,ctx\)/,'P8 must revalidate proposals immediately before execution.');
+assert.match(client,/multiplier!==1\?multiplier\+'×':null/,'P8 write confirmation must expose non-unit multipliers.');
+assert.match(client,/a\.mealType\|\|null/,'P8 write confirmation must expose meal type.');
+assert.match(client,/calories\*multiplier/,'P8 write confirmation must show deterministic scaled calories when available.');
 assert.match(client,/if\(action\.type==='log_saved_food'\)/,'Saved-food proposal path missing.');
 assert.match(client,/else if\(action\.type==='log_saved_meal'\)/,'Saved-meal proposal path missing.');
 assert.match(client,/else if\(action\.type==='repeat_meal'\)/,'Recent-meal proposal path missing.');
