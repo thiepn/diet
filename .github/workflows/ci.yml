@@ -27,6 +27,9 @@ jobs:
           node --check tests/policy.mjs
           node --check src/engine/adaptive-nutrition.mjs
           node --check tests/adaptive-engine.mjs
+          node --check src/engine/legacy-data-adapter.mjs
+          node --check src/engine/shadow-validation.mjs
+          node --check tests/legacy-shadow.mjs
           node --check tests/release.mjs
           node --check diet-app.js
       - name: Diet product backend and auth contract
@@ -65,6 +68,8 @@ jobs:
         run: node tests/policy.mjs
       - name: Diet Copilot 2.0 adaptive nutrition engine
         run: node tests/adaptive-engine.mjs
+      - name: Diet Copilot 2.0 legacy adapter and shadow validation
+        run: node tests/legacy-shadow.mjs
       - name: Verify committed static production bundles
         run: node scripts/build-v68.mjs
       - name: Stable bundle certification
