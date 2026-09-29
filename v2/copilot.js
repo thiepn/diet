@@ -287,6 +287,12 @@ function clearSession(){
 }
 $('copilotOpen')?.addEventListener('click',open);
 $('copilotClose')?.addEventListener('click',close);
+$('copilotClear')?.addEventListener('click',()=>{
+  clearSession();
+  setStatus('');
+  setMode('Ready','ready');
+  $('copilotInput')?.focus();
+});
 $('copilotForm')?.addEventListener('submit',submit);
 $('copilotInput')?.addEventListener('input',resizeInput);
 $('copilotInput')?.addEventListener('keydown',event=>{
