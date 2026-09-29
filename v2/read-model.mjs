@@ -1,5 +1,5 @@
-import { mapLegacyDietData } from '../src/engine/legacy-data-adapter.mjs';
-import { runAdaptiveNutritionEngine } from '../src/engine/adaptive-nutrition.mjs';
+import { mapLegacyDietData } from './engine/legacy-data-adapter.mjs';
+import { runAdaptiveNutritionEngine } from './engine/adaptive-nutrition.mjs';
 import { buildTrainingNutritionPlan } from '../src/engine/training-nutrition.mjs';
 
 function finite(value){
