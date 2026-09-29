@@ -324,7 +324,7 @@ begin
   end if;
   if length(v_reason)<1 or length(v_reason)>1000 then raise exception 'Reason must be 1 to 1000 characters'; end if;
   if p_current_target is null or abs(p_current_target-v_profile.calorie_target)>1 then raise exception 'Conflict: current calorie target changed'; end if;
-  if p_recommended_target is not null and (p_recommended_target<1200 or p_recommended_target>5000) then raise exception 'Recommended calorie target outside allowed range'; end if;
+  if p_recommended_target is not null and (p_recommended_target<1200 or p_recommended_target>6000) then raise exception 'Recommended calorie target outside allowed range'; end if;
   if p_raw_target is not null and (p_raw_target<800 or p_raw_target>6000) then raise exception 'Raw calorie target outside allowed range'; end if;
   if p_estimated_expenditure is not null and (p_estimated_expenditure<800 or p_estimated_expenditure>7000) then raise exception 'Estimated expenditure outside allowed range'; end if;
   if p_confidence_level not in ('building_baseline','low','medium','high') then raise exception 'Invalid confidence level'; end if;
