@@ -199,10 +199,9 @@ export function buildActivityContext({asOfDate,activity=[]}={}){
   const ratio=ratios.length?median(ratios):null;
   let level='building_baseline';
   if(ratio!=null){
-    if(ratio<0.65)level='low';
-    else if(ratio<1.35)level='typical';
-    else if(ratio<1.8)level='high';
-    else level='very_high';
+    if(ratio>=1.8)level='very_high';
+    else if(ratio>=1.35)level='high';
+    else level='in_progress';
   }
   const lastSynced=rows.map(x=>x.syncedAt).filter(Boolean).sort().at(-1)??null;
   return {
