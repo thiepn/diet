@@ -173,4 +173,16 @@ function scenario({start='2026-08-01',days=42,startWeight=84,tdee=2800,intake=28
   assert.equal(projectGoal({currentTrendWeight:null,goalWeight:80,targetRateKgPerWeek:-0.3,startDate:'2026-09-29'}),null);
 }
 
+
+{
+  const s=scenario({days:35,tdee:2800,intake:2600});
+  const noisy=s.intakeDays.map((d,i)=>({...d,status:'open',dayClosed:true,meals:4,uncertaintyKcal:i%2?450:300}));
+  const e=estimateExpenditure({weights:s.weights,intakeDays:noisy,initialTdee:2800});
+  assert.ok(e.current,'many plausible low-quality days should yield a tentative TDEE');
+  assert.equal(e.confidence.level,'low','limited effective intake must cap adjustment confidence');
+  const r=recommendCalories({expenditure:e.current.expenditure,currentTarget:2400,goalMode:'lose',targetRateKgPerWeek:-0.3,confidence:e.confidence});
+  assert.equal(r.decision,'hold_for_confidence');
+  assert.equal(r.recommendedTarget,2400);
+}
+
 console.log('Diet Copilot 2.0 P1 adaptive nutrition engine tests passed.');
