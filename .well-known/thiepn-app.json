@@ -7,7 +7,7 @@
   "accountContract": "1.0",
   "sdkContract": "1.x",
   "integrationMode": "certified-legacy",
-  "operationsVersion": "P18.0",
+  "operationsVersion": "P19.0",
   "sessionAuthority": "thiepn-account",
   "degradedMode": "cached-read-only",
   "authEntryPoints": [
@@ -62,7 +62,15 @@
     "integrityAutoRepair": false,
     "integrityAuditCronUtc": "03:17",
     "integrityAuditRetentionDays": 180,
-    "integrityReportServiceOnly": true
+    "integrityReportServiceOnly": true,
+    "mutationRequestLedger": true,
+    "mutationRequestRetentionDays": 35,
+    "payloadBoundIdempotency": true,
+    "ownerMutationSerialization": true,
+    "publicWriteWrapperCount": 18,
+    "privateWriteCoreCount": 18,
+    "staleContentAutoMerge": false,
+    "concurrencyStatusServiceOnly": true
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0",
@@ -75,5 +83,7 @@
   "privacyRelease": "P17",
   "privacyModel": "authoritative-owner-export-local-device-purge-v1",
   "integrityRelease": "P18",
-  "integrityModel": "db-constraints-scheduled-invariant-audit-v1"
+  "integrityModel": "db-constraints-scheduled-invariant-audit-v1",
+  "concurrencyRelease": "P19",
+  "concurrencyModel": "transactional-request-ledger-owner-serialization-v1"
 }

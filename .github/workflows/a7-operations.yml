@@ -1,4 +1,4 @@
-name: A7 / P18 Operations, Security, Resilience, Performance, Privacy & Integrity Contract
+name: A7 / P19 Operations, Security, Resilience, Performance, Privacy, Integrity & Concurrency Contract
 on:
   pull_request:
     branches: [main]
@@ -8,7 +8,7 @@ on:
       - 'sw.js'
       - 'supabase/backend.json'
       - 'supabase/migrations/**'
-      - 'tests/p18-*'
+      - 'tests/p19-*'
       - '.github/workflows/a7-operations.yml'
   push:
     branches: [main]
@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - name: Verify P18 operations stack
+      - name: Verify P19 operations stack
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
@@ -34,16 +34,16 @@ jobs:
           const settings=fs.readFileSync('v2/settings.js','utf8');
           const writes=fs.readFileSync('v2/write-api.mjs','utf8');
           const telemetry=fs.readFileSync('v2/telemetry.mjs','utf8');
-          const migration=fs.readFileSync('supabase/migrations/20260929203937_diet_p18_integrity_watchdog_and_constraints.sql','utf8');
+          const migration=fs.readFileSync('supabase/migrations/20260929214524_diet_p19_concurrency_idempotency_hardening.sql','utf8');
 
-          if(app.operationsVersion!=='P18.0'||app.securityRelease!=='P14'||app.resilienceRelease!=='P15'||app.performanceRelease!=='P16'||app.privacyRelease!=='P17'||app.integrityRelease!=='P18')throw new Error('Unexpected release stack.');
-          if(app.webRelease!=='2.0.3')throw new Error('P18 must not churn the browser release.');
-          if(app.health?.databaseNutritionIntegrityConstraints!==true||app.health?.integrityWatchdog!==true||app.health?.integrityAutoRepair!==false)throw new Error('P18 integrity metadata missing.');
-          if(backend.integrity_policy?.release!=='P18'||backend.integrity_policy?.watchdog?.service_only!==true||backend.integrity_policy?.auto_repair!==false)throw new Error('P18 backend integrity policy regressed.');
-          if(backend.integrity_policy?.release_audit_status!=='clean'||backend.integrity_policy?.release_audit_failure_count!==0)throw new Error('P18 release audit is not clean.');
-          if(!migration.includes("diet-p18-integrity-daily")||!migration.includes("17 3 * * *"))throw new Error('P18 scheduled watchdog missing.');
-          if(data.includes('diet_p18_integrity_report')||settings.includes('diet_p18_integrity_report'))throw new Error('Global integrity report leaked into browser runtime.');
-          if(!writes.includes('p_request_id')||!writes.includes('uncertainWrite'))throw new Error('Write reliability regressed.');
+          if(app.operationsVersion!=='P19.0'||app.securityRelease!=='P14'||app.resilienceRelease!=='P15'||app.performanceRelease!=='P16'||app.privacyRelease!=='P17'||app.integrityRelease!=='P18'||app.concurrencyRelease!=='P19')throw new Error('Unexpected release stack.');
+          if(app.webRelease!=='2.0.3')throw new Error('P19 must not churn the browser release.');
+          if(app.health?.payloadBoundIdempotency!==true||app.health?.ownerMutationSerialization!==true||app.health?.staleContentAutoMerge!==false)throw new Error('P19 concurrency metadata missing.');
+          if(backend.concurrency_policy?.release!=='P19'||backend.concurrency_policy?.public_write_wrappers!==18||backend.concurrency_policy?.private_write_cores!==18)throw new Error('P19 backend concurrency policy regressed.');
+          if(backend.concurrency_policy?.release_status?.started_rows!==0||backend.concurrency_policy?.auto_merge_stale_content!==false)throw new Error('P19 release status unsafe.');
+          if(!migration.includes('pg_advisory_xact_lock')||!migration.includes('Request ID collision:'))throw new Error('P19 request serialization/collision contract missing.');
+          if(data.includes('diet_p19_concurrency_status')||settings.includes('diet_p19_concurrency_status'))throw new Error('Global concurrency status leaked into browser runtime.');
+          if(!writes.includes('p_expected_updated_at')||!writes.includes('uncertainWrite'))throw new Error('Optimistic/write-reconciliation safety regressed.');
           if(telemetry.includes('sendBeacon(')||telemetry.includes('.rpc('))throw new Error('Local telemetry attempted remote transmission.');
-          console.log('Diet P18 operations stack passed.');
+          console.log('Diet P19 operations stack passed.');
           NODE

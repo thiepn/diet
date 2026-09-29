@@ -86,7 +86,12 @@
     "scheduled_integrity_watchdog": true,
     "private_integrity_audit_ledger": true,
     "service_only_integrity_report": true,
-    "integrity_auto_repair": false
+    "integrity_auto_repair": false,
+    "transactional_request_ledger": true,
+    "payload_bound_idempotency": true,
+    "owner_mutation_serialization": true,
+    "private_write_cores": true,
+    "stale_content_automerge": false
   },
   "observability_policy": {
     "release": "P13",
@@ -241,6 +246,39 @@
     "false_positive_guards": {
       "meal_date_uses_daily_log_not_utc_timestamp": true,
       "same_day_goal_phase_boundary_not_flagged_as_overlap": true
+    }
+  },
+  "concurrency_policy": {
+    "release": "P19",
+    "migration_versions": [
+      "20260929214524"
+    ],
+    "public_write_wrappers": 18,
+    "private_write_cores": 18,
+    "request_identity": "user_id_plus_request_id",
+    "request_binding": "operation_plus_sha256_canonical_jsonb_payload",
+    "exact_replay": "stored_committed_result",
+    "collision_behavior": "reject_same_id_different_operation_or_payload",
+    "owner_mutation_serialization": "pg_advisory_xact_lock",
+    "stale_content_edit_policy": "reject_via_expected_updated_at",
+    "explicit_state_setters": "serialized_last_write_wins",
+    "auto_merge_stale_content": false,
+    "ledger": {
+      "schema": "private",
+      "table": "diet_mutation_requests",
+      "browser_access": false,
+      "retention_days": 35,
+      "account_delete_behavior": "cascade_delete",
+      "p15_backup_required": false
+    },
+    "prune_cron_utc": "03:27_daily",
+    "status_rpc": "public.diet_p19_concurrency_status",
+    "status_rpc_service_only": true,
+    "release_status": {
+      "ledger_rows": 0,
+      "started_rows": 0,
+      "advisor_security_findings": 0,
+      "advisor_performance_findings": 0
     }
   }
 }

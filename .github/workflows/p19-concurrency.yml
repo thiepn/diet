@@ -1,0 +1,54 @@
+name: P19 Production Concurrency & Idempotency
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/backend.json'
+      - 'supabase/migrations/**'
+      - '.well-known/thiepn-app.json'
+      - 'tests/p19-*'
+      - 'docs/P19-*'
+      - '.github/workflows/p19-concurrency.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: p19-production-concurrency
+  cancel-in-progress: true
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: P19 concurrency and idempotency contract
+        run: |
+          node tests/p19-concurrency-contract.mjs
+          python -m py_compile tests/p19-public-concurrency-probe.py
+
+  public-boundary:
+    needs: static
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify publishable client cannot read P19 operational status
+        run: python tests/p19-public-concurrency-probe.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p19-public-concurrency
+          path: p19-public-concurrency.json
+          retention-days: 14

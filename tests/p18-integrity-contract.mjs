@@ -14,7 +14,7 @@ const browser=fs.readdirSync('v2',{recursive:true})
 assert.equal(app.release,'2.0.3');
 assert.equal(app.webRelease,'2.0.3');
 assert.equal(account.consumerRelease,'2.0.3');
-assert.equal(app.operationsVersion,'P18.0');
+assert.ok(['P18.0','P19.0'].includes(app.operationsVersion),'P18 integrity controls must remain valid through P19.');
 assert.equal(app.integrityRelease,'P18');
 assert.equal(app.integrityModel,'db-constraints-scheduled-invariant-audit-v1');
 assert.equal(app.securityRelease,'P14');
