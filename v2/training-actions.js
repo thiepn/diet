@@ -120,7 +120,7 @@ function renderTodayOverride(model){
   $('todayTrainingClear').hidden=!row;
 }
 function activityLabel(level){
-  const map={building_baseline:'Building baseline',low:'Low vs baseline',typical:'Typical',high:'High vs baseline',very_high:'Very high'};
+  const map={building_baseline:'Building baseline',in_progress:'In progress',low:'Low vs baseline',typical:'Typical',high:'High vs baseline',very_high:'Very high'};
   return map[level]??cap(level);
 }
 function renderActivity(model){
