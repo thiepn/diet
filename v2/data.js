@@ -1,5 +1,7 @@
 import { DIET_V2_AUTH_STORAGE_KEY, dietV2AuthStorage } from './auth-storage.mjs';
 import { buildDietV2ReadModel, localDateKey } from './read-model.mjs';
+import { isDefinitiveAuthFailure } from './engine/release-guards.mjs';
+import { clearUncertainWriteGuard } from './write-api.mjs';
 
 export const DIET_V2_SUPABASE_URL='https://hycegznamzjhwinegaai.supabase.co';
 export const DIET_V2_SUPABASE_KEY='sb_publishable_1rZzRPzfLMaAH5pIgCwIjA_19UPMIsR';
@@ -230,8 +232,27 @@ export async function refresh({silent=false}={}){
 
   try{
     const verified=await client.auth.getUser();
-    if(verified.error)throw verified.error;
-    if(!verified.data?.user?.id||verified.data.user.id!==ownerId)throw new Error('Account verification failed.');
+    if(verified.error){
+      if(isDefinitiveAuthFailure(verified.error)){
+        try{await client.auth.signOut({scope:'local'});}catch{}
+        try{dietV2AuthStorage.removeItem(DIET_V2_AUTH_STORAGE_KEY);}catch{}
+        if(epoch!==state.requestEpoch)return;
+        clearPrivateState();
+        setState('signed_out');
+        render();
+        return;
+      }
+      throw verified.error;
+    }
+    if(!verified.data?.user?.id||verified.data.user.id!==ownerId){
+      try{await client.auth.signOut({scope:'local'});}catch{}
+      try{dietV2AuthStorage.removeItem(DIET_V2_AUTH_STORAGE_KEY);}catch{}
+      if(epoch!==state.requestEpoch)return;
+      clearPrivateState();
+      setState('signed_out');
+      render();
+      return;
+    }
     const raw=await fetchOwnerRows();
     if(epoch!==state.requestEpoch)return;
     state.user=verified.data.user;
@@ -240,6 +261,7 @@ export async function refresh({silent=false}={}){
     state.fetchedAt=new Date().toISOString();
     state.source='cloud';
     saveCache(ownerId,raw);
+    clearUncertainWriteGuard();
     setState('ready');
     render();
     subscribeRealtime().catch(()=>{});
