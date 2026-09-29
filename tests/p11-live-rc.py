@@ -5,7 +5,7 @@ from playwright.sync_api import sync_playwright, expect
 
 RC = "https://thiepn.dev/diet/v2/"
 ROOT = "https://thiepn.dev/diet/"
-RELAY = "https://thiepn.dev/WORDSTRIKE/"
+RELAY = "https://thiepn.dev/wordstrike/"
 SUPABASE = "https://hycegznamzjhwinegaai.supabase.co"
 
 parser = argparse.ArgumentParser()
