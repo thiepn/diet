@@ -1,6 +1,6 @@
 import { mapLegacyDietData } from './engine/legacy-data-adapter.mjs';
 import { runAdaptiveNutritionEngine } from './engine/adaptive-nutrition.mjs';
-import { buildTrainingNutritionPlan } from '../src/engine/training-nutrition.mjs';
+import { buildTrainingNutritionPlan } from './engine/training-nutrition.mjs';
 
 function finite(value){
   return value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value));
