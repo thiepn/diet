@@ -197,7 +197,7 @@ async function onlineSearch({barcode=false}={}){
     externalProducts.clear();
     products.forEach(p=>externalProducts.set(p.code,p));
     results.innerHTML=products.length?
-      '<div class="dc-online-head"><strong>Open Food Facts</strong><span>Review label data before logging</span></div>'+products.map(externalCard).join(''):
+      '<div class="dc-online-head"><strong>Open Food Facts</strong><span>ODbL data · review the package label before logging</span></div>'+products.map(externalCard).join(''):
       '<div class="dc-food-empty">No usable Open Food Facts result found.</div>';
   }catch(error){
     results.innerHTML='<div class="dc-food-empty">'+esc(error?.message||'Online food search failed.')+'</div>';
