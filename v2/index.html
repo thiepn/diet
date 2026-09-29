@@ -8,6 +8,14 @@
   <meta name="robots" content="noindex,nofollow">
   <title>Diet Copilot 2.0 Preview</title>
   <link rel="icon" href="../icon.svg" type="image/svg+xml">
+  <script>
+    try{
+      const p=JSON.parse(localStorage.getItem('diet-copilot-v2-ui-preferences-v1')||'{}');
+      if(['light','dark'].includes(p.theme))document.documentElement.dataset.theme=p.theme;
+      if(['comfortable','compact'].includes(p.density))document.documentElement.dataset.density=p.density;
+      if(p.motion==='reduce')document.documentElement.dataset.motion='reduce';
+    }catch{}
+  </script>
   <link rel="stylesheet" href="./shell.css">
 </head>
 <body>
