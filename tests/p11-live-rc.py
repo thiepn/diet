@@ -16,8 +16,12 @@ out = Path(args.out)
 out.mkdir(parents=True, exist_ok=True)
 evidence = {"browser": args.browser, "checks": [], "consoleErrors": [], "pageErrors": []}
 
+def save():
+    (out / "results.json").write_text(json.dumps(evidence, indent=2, default=str), encoding="utf-8")
+
 def check(name, condition, detail=None):
     evidence["checks"].append({"name": name, "passed": bool(condition), "detail": detail})
+    save()
     assert condition, f"{name}: {detail or 'failed'}"
 
 with sync_playwright() as p:
@@ -34,6 +38,23 @@ with sync_playwright() as p:
     check("five primary routes", page.locator(".dc-bottom-nav [data-route]").count() == 5)
 
     page.locator("[data-account-button]").click()
+    page.wait_for_timeout(250)
+    account_diag = page.evaluate("""() => {
+      const dialog=document.getElementById('v2AccountDialog');
+      let snapshot=null;
+      try{snapshot=window.DietV2Data?.snapshot?.()??null}catch(error){snapshot={snapshotError:String(error)}}
+      return {
+        dataApi:Boolean(window.DietV2Data),
+        snapshot,
+        dialogOpen:Boolean(dialog?.open),
+        display:dialog?getComputedStyle(dialog).display:null,
+        dataState:document.documentElement.dataset.dataState||null
+      };
+    }""")
+    account_diag["pageErrors"]=list(evidence["pageErrors"])
+    account_diag["consoleErrors"]=list(evidence["consoleErrors"])
+    print("ACCOUNT_DIAGNOSTIC", json.dumps(account_diag, default=str))
+    check("account dialog opens", account_diag["dialogOpen"], account_diag)
     expect(page.locator("#v2AccountDialog")).to_be_visible()
     expect(page.locator("#v2AccountSignIn")).to_be_visible()
     check("clean browser sign-in CTA", "Continue with Google" in page.locator("#v2AccountSignIn").inner_text())
@@ -109,5 +130,5 @@ with sync_playwright() as p:
     check("no page runtime errors", not evidence["pageErrors"], evidence["pageErrors"])
     browser.close()
 
-(out / "results.json").write_text(json.dumps(evidence, indent=2), encoding="utf-8")
+save()
 print("PASS:", args.browser, "live RC checks")
