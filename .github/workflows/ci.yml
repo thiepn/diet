@@ -41,11 +41,13 @@ jobs:
           node --check v2/strategy-actions.js
           node --check v2/training-actions.js
           node --check v2/copilot.js
+          node --check v2/settings.js
           node --check v2/engine/adaptive-nutrition.mjs
           node --check v2/engine/legacy-data-adapter.mjs
           node --check v2/engine/training-nutrition.mjs
           node --check v2/engine/personal-intelligence.mjs
           node --check v2/engine/copilot-context.mjs
+          node --check v2/engine/settings-data.mjs
           node --check tests/v2-shell.mjs
           node --check tests/v2-read-integration.mjs
           node --check tests/v2-fast-food.mjs
@@ -57,12 +59,15 @@ jobs:
           node --check tests/v2-personal-intelligence.mjs
           node --check tests/copilot-context.mjs
           node --check tests/v2-copilot.mjs
+          node --check tests/settings-data.mjs
+          node --check tests/v2-settings.mjs
           node --check tests/policy.mjs
           node --check src/engine/adaptive-nutrition.mjs
           node --check tests/adaptive-engine.mjs
           node --check src/engine/legacy-data-adapter.mjs
           node --check src/engine/personal-intelligence.mjs
           node --check src/engine/copilot-context.mjs
+          node --check src/engine/settings-data.mjs
           node --check src/engine/shadow-validation.mjs
           node --check tests/legacy-shadow.mjs
           node --check tests/release.mjs
@@ -127,6 +132,10 @@ jobs:
         run: node tests/copilot-context.mjs
       - name: Diet Copilot 2.0 AI Copilot integration
         run: node tests/v2-copilot.mjs
+      - name: Diet Copilot 2.0 settings/export core
+        run: node tests/settings-data.mjs
+      - name: Diet Copilot 2.0 settings and data controls
+        run: node tests/v2-settings.mjs
       - name: Verify committed static production bundles
         run: node scripts/build-v68.mjs
       - name: Stable bundle certification
@@ -176,11 +185,13 @@ jobs:
           test -f _site/v2/strategy-actions.js
           test -f _site/v2/training-actions.js
           test -f _site/v2/copilot.js
+          test -f _site/v2/settings.js
           test -f _site/v2/engine/adaptive-nutrition.mjs
           test -f _site/v2/engine/legacy-data-adapter.mjs
           test -f _site/v2/engine/training-nutrition.mjs
           test -f _site/v2/engine/personal-intelligence.mjs
           test -f _site/v2/engine/copilot-context.mjs
+          test -f _site/v2/engine/settings-data.mjs
           node --check _site/v2/shell.js
           node --check _site/v2/data.js
           node --check _site/v2/auth-storage.mjs
@@ -193,11 +204,13 @@ jobs:
           node --check _site/v2/strategy-actions.js
           node --check _site/v2/training-actions.js
           node --check _site/v2/copilot.js
+          node --check _site/v2/settings.js
           node --check _site/v2/engine/adaptive-nutrition.mjs
           node --check _site/v2/engine/legacy-data-adapter.mjs
           node --check _site/v2/engine/training-nutrition.mjs
           node --check _site/v2/engine/personal-intelligence.mjs
           node --check _site/v2/engine/copilot-context.mjs
+          node --check _site/v2/engine/settings-data.mjs
           ! grep -q auth-persistence-hotfix _site/index.html
           node --check _site/diet-app.js
           cmp diet-app.js _site/diet-app.js
