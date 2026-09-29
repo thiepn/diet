@@ -91,11 +91,15 @@ assert.match(dataJs,/auth\.getUser\(\)/,'Online identity must be verified with S
 assert.match(dataJs,/ownerId===ownerId|cached\?\.ownerId===ownerId/,'Offline cache must be owner scoped.');
 assert.match(dataJs,/auth\.getSession\(\)/,'Existing THIEPN session must be reused.');
 assert.match(dataJs,/detectSessionInUrl:false/,'P2.5 must not create a second OAuth callback handler.');
+assert.match(dataJs,/postgres_changes/,'P2.5 should refresh from read-only realtime change notifications.');
+assert.match(dataJs,/data-progress-range/,'Progress range controls must be wired to the live read model.');
+assert.match(dataJs,/progressDays:90/,'3-month progress view should remain the default.');
 assert.match(authStorage,/sb-hycegznamzjhwinegaai-auth-token/,'V2 must reuse the canonical V1 auth storage key.');
 assert.match(authStorage,/diet-auth-v2-/,'V2 must understand the V1 resilient cookie fallback.');
 
 assert.match(html,/vendor\/supabase-2\.116\.0\.js/,'Pinned Supabase browser SDK must be loaded.');
 assert.match(html,/type="module" src="\.\/data\.js"/,'Read-only data integration module must be loaded.');
+for(const days of ['28','90','180','365']) assert.match(html,new RegExp(`data-progress-range="${days}"`),`Missing progress range ${days}`);
 for(const id of [
   'dataStatus','todayCaloriesValue','todayProteinValue','todayTrendWeightValue','todayExpenditureValue',
   'todayMeals','foodTimeline','progressWeightChart','progressExpenditureChart','progressIntakeChart',
