@@ -42,7 +42,7 @@ begin
 
   if length(v_type)<1 or length(v_type)>32 then raise exception 'Meal type must be 1 to 32 characters'; end if;
   if length(v_title)<1 or length(v_title)>120 then raise exception 'Title must be 1 to 120 characters'; end if;
-  if jsonb_typeof(p_items) <> 'array' then raise exception 'Items must be an array'; end if;
+  if p_items is null or jsonb_typeof(p_items) <> 'array' then raise exception 'Items must be an array'; end if;
   v_count := jsonb_array_length(p_items);
   if v_count<1 or v_count>25 then raise exception 'Meal must contain 1 to 25 items'; end if;
 
