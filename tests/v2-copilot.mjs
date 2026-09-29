@@ -13,7 +13,7 @@ assert.equal(browserEngine,sourceEngine,'Deployed P8 Copilot engine copy drifted
 
 for(const id of [
   'copilotOpen','copilotDialog','copilotHeading','copilotMode','copilotMessages',
-  'copilotStatus','copilotForm','copilotInput','copilotSend','copilotClose'
+  'copilotStatus','copilotForm','copilotInput','copilotSend','copilotClear','copilotClose'
 ]) assert.match(html,new RegExp('id="'+id+'"'),'Missing P8 UI target '+id);
 
 assert.match(html,/type="module" src="\.\/copilot\.js"/,'P8 client module must be loaded.');
@@ -33,6 +33,7 @@ assert.match(client,/if\(action\.type==='log_saved_food'\)/,'Saved-food proposal
 assert.match(client,/else if\(action\.type==='log_saved_meal'\)/,'Saved-meal proposal path missing.');
 assert.match(client,/else if\(action\.type==='repeat_meal'\)/,'Recent-meal proposal path missing.');
 assert.match(client,/sessionStorage/,'P8 conversation history should remain session-local.');
+assert.match(client,/sessionStorage\.removeItem\(HISTORY_KEY\)/,'P8 must let the user explicitly clear session-local Copilot history.');
 assert.doesNotMatch(client,/localStorage\.setItem\([^)]*copilot/i,'P8 conversation history must not persist in durable local storage.');
 
 const expected=[
