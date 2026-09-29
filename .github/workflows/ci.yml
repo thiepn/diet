@@ -57,6 +57,7 @@ jobs:
           node --check src/engine/adaptive-nutrition.mjs
           node --check tests/adaptive-engine.mjs
           node --check src/engine/legacy-data-adapter.mjs
+          node --check src/engine/personal-intelligence.mjs
           node --check src/engine/shadow-validation.mjs
           node --check tests/legacy-shadow.mjs
           node --check tests/release.mjs
