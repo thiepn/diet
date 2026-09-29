@@ -1,4 +1,4 @@
-name: P13 Hourly Production Monitor
+name: P21 Hourly Production Readiness
 on:
   schedule:
     - cron: '17 * * * *'
@@ -8,13 +8,13 @@ permissions:
   contents: read
 
 concurrency:
-  group: p13-hourly-monitor
+  group: p21-hourly-monitor
   cancel-in-progress: true
 
 jobs:
-  synthetic:
+  readiness:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v6
         with:
@@ -22,11 +22,15 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      - name: Probe production shell and Supabase Auth health
+      - name: Probe current production release
         run: python tests/p13-synthetic-monitor.py
+      - name: Probe public failure boundaries
+        run: python tests/p21-public-failure-matrix.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: p13-production-health
-          path: p13-monitor.json
+          name: p21-hourly-production-readiness
+          path: |
+            p21-hourly-monitor.json
+            p21-public-failure-matrix.json
           retention-days: 14

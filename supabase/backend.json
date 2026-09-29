@@ -96,7 +96,13 @@
     "production_schema_drift_detection": true,
     "release_checkpointing": true,
     "schema_drift_auto_repair": false,
-    "service_only_release_status": true
+    "service_only_release_status": true,
+    "controlled_failure_injection": true,
+    "emergency_write_freeze": true,
+    "incident_readiness_watchdog": true,
+    "recovery_plan_certification": true,
+    "service_only_incident_status": true,
+    "destructive_failure_injection": false
   },
   "observability_policy": {
     "release": "P13",
@@ -292,10 +298,10 @@
       "20260929221452"
     ],
     "schema_contract_format": "diet-p20-schema-contract-v1",
-    "certified_schema_sha256": "f5463a8b37e3a0be94c15588037405bbcca75a5f60c5401f0c937b8e5dc13752",
+    "certified_schema_sha256": "b933033dafd8097d60539689bfee68d383018869ed85ec292ec3cbd35b35bf92",
     "contract_scope": {
       "diet_public_tables": 18,
-      "private_operational_tables": 5,
+      "private_operational_tables": 7,
       "includes": [
         "relations",
         "columns",
@@ -315,8 +321,8 @@
     },
     "checkpoint": {
       "table": "private.diet_release_checkpoints",
-      "release": "P20",
-      "operations_version": "P20.0",
+      "release": "P21",
+      "operations_version": "P21.0",
       "status": "clean"
     },
     "drift_audit": {
@@ -333,5 +339,51 @@
       "fingerprint_restored_after_rollback": true,
       "persisted_probe_change": false
     }
+  },
+  "incident_response_policy": {
+    "release": "P21",
+    "migration_versions": [
+      "20260929224046"
+    ],
+    "failure_certification": {
+      "function": "private.diet_p21_run_failure_certification",
+      "scenario_count": 15,
+      "passed_count": 15,
+      "failed_count": 0,
+      "status": "pass",
+      "destructive_restore_executed": false,
+      "destructive_failure_injection": false
+    },
+    "readiness": {
+      "function": "private.diet_p21_run_readiness_audit",
+      "report_function": "private.diet_p21_readiness_report",
+      "daily_cron_utc": "03:47",
+      "status": "pass",
+      "expected_diet_jobs": 6,
+      "recent_cron_failures_24h": 0
+    },
+    "emergency_write_freeze": {
+      "control_table": "private.diet_incident_control",
+      "function": "private.diet_p21_set_write_freeze",
+      "enforced_at": "private.diet_p19_begin_mutation",
+      "current_writes_paused": false,
+      "browser_access": false
+    },
+    "certification_ledger": {
+      "table": "private.diet_incident_certifications",
+      "retention_days": 365,
+      "browser_access": false
+    },
+    "recovery": {
+      "latest_snapshot_verified": true,
+      "restore_plan_safe_to_stage": true,
+      "destructive_restore_automatic": false,
+      "operator_review_required": true
+    },
+    "status_rpc": "public.diet_p21_incident_status",
+    "status_rpc_service_only": true,
+    "certified_schema_sha256": "b933033dafd8097d60539689bfee68d383018869ed85ec292ec3cbd35b35bf92",
+    "advisor_security_findings": 0,
+    "advisor_performance_findings": 0
   }
 }

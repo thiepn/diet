@@ -73,9 +73,9 @@ with sync_playwright() as p:
         pw=pwa.new_page()
         pw.goto(PROD+"#today",wait_until="networkidle")
         scope=pw.evaluate("async()=> (await navigator.serviceWorker.ready).scope")
-        check("P13 production SW scope",scope.endswith("/diet/"),scope)
+        check("production SW scope",scope.endswith("/diet/"),scope)
         keys=pw.evaluate("async()=>await caches.keys()")
-        check("P13 production cache installed",any("diet-copilot-prod-v2-p13-1" in key for key in keys),keys)
+        check("current production cache installed",any("diet-copilot-prod-v2-p17-1" in key for key in keys),keys)
         pwa.set_offline(True)
         pw.reload(wait_until="domcontentloaded")
         check("P13 offline reload remains V2",pw.locator(".dc-version-badge").inner_text().strip()=="2.0")
@@ -87,4 +87,4 @@ with sync_playwright() as p:
     browser.close()
 
 save()
-print("PASS:",args.browser,"P13 reliability checks")
+print("PASS:",args.browser,"production reliability regression checks")

@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: P20 syntax
+      - name: P21 syntax
         shell: bash
         run: |
           set -euo pipefail
@@ -32,15 +32,8 @@ jobs:
             node --check "$tmp"
             rm -f "$tmp"
           done < <(find v2 -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
-          node --check tests/p13-telemetry.mjs
-          node --check tests/p14-security-contract.mjs
-          node --check tests/p15-resilience-contract.mjs
-          node --check tests/p16-performance-contract.mjs
-          node --check tests/p17-privacy-lifecycle-contract.mjs
-          node --check tests/p18-integrity-contract.mjs
-          node --check tests/p19-concurrency-contract.mjs
-          node --check tests/p20-governance-contract.mjs
-          python -m py_compile tests/p13-synthetic-monitor.py tests/p14-public-security-probe.py tests/p16-public-read-probe.py tests/p17-public-export-probe.py tests/p18-public-integrity-probe.py tests/p19-public-concurrency-probe.py tests/p20-public-release-status-probe.py scripts/p15-verify-offsite.py
+          for f in tests/p13-telemetry.mjs tests/p14-security-contract.mjs tests/p15-resilience-contract.mjs tests/p16-performance-contract.mjs tests/p17-privacy-lifecycle-contract.mjs tests/p18-integrity-contract.mjs tests/p19-concurrency-contract.mjs tests/p20-governance-contract.mjs tests/p21-incident-contract.mjs; do node --check "$f"; done
+          python -m py_compile tests/p13-synthetic-monitor.py tests/p14-public-security-probe.py tests/p16-public-read-probe.py tests/p17-public-export-probe.py tests/p18-public-integrity-probe.py tests/p19-public-concurrency-probe.py tests/p20-public-release-status-probe.py tests/p21-public-failure-matrix.py tests/p21-live-failure.py scripts/p15-verify-offsite.py
 
       - name: P13 telemetry privacy regression
         run: node tests/p13-telemetry.mjs
@@ -56,29 +49,34 @@ jobs:
         run: node tests/p18-integrity-contract.mjs
       - name: P19 concurrency regression
         run: node tests/p19-concurrency-contract.mjs
-      - name: P20 schema governance contract
+      - name: P20 change-governance regression
         run: node tests/p20-governance-contract.mjs
+      - name: P21 failure, incident and recovery contract
+        run: node tests/p21-incident-contract.mjs
 
-      - name: P20 release contract
+      - name: P21 release contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const backend=JSON.parse(fs.readFileSync('supabase/backend.json','utf8'));
           const app=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
           const release=JSON.parse(fs.readFileSync('.well-known/thiepn-account-release.json','utf8'));
-          if(backend.canonical_project_ref!=='hycegznamzjhwinegaai')throw new Error('Wrong canonical backend.');
-          if(backend.security_policy?.release!=='P14')throw new Error('P14 security regressed.');
-          if(backend.resilience_policy?.release!=='P15')throw new Error('P15 resilience regressed.');
-          if(backend.performance_policy?.release!=='P16')throw new Error('P16 performance regressed.');
-          if(backend.privacy_policy?.release!=='P17')throw new Error('P17 privacy regressed.');
-          if(backend.integrity_policy?.release!=='P18')throw new Error('P18 integrity regressed.');
-          if(backend.concurrency_policy?.release!=='P19')throw new Error('P19 concurrency regressed.');
-          if(backend.change_governance_policy?.release!=='P20')throw new Error('P20 governance policy invalid.');
-          if(backend.change_governance_policy?.checkpoint?.status!=='clean')throw new Error('P20 checkpoint not clean.');
-          if(!/^[0-9a-f]{64}$/.test(backend.change_governance_policy?.certified_schema_sha256||''))throw new Error('P20 schema fingerprint invalid.');
-          if(app.webRelease!=='2.0.3'||app.operationsVersion!=='P20.0'||app.changeGovernanceRelease!=='P20')throw new Error('P20 release metadata invalid.');
+          for(const [k,v] of Object.entries({
+            security_policy:'P14',
+            resilience_policy:'P15',
+            performance_policy:'P16',
+            privacy_policy:'P17',
+            integrity_policy:'P18',
+            concurrency_policy:'P19',
+            change_governance_policy:'P20',
+            incident_response_policy:'P21'
+          })) if(backend[k]?.release!==v) throw new Error('Release stack regressed: '+k);
+          if(app.webRelease!=='2.0.3'||app.release!=='2.0.3'||app.operationsVersion!=='P21.0'||app.incidentCertificationRelease!=='P21')throw new Error('P21 release metadata invalid.');
+          if(backend.incident_response_policy?.failure_certification?.status!=='pass'||backend.incident_response_policy?.failure_certification?.passed_count!==15)throw new Error('P21 certification is not fully green.');
+          if(backend.incident_response_policy?.emergency_write_freeze?.current_writes_paused!==false)throw new Error('Diet writes unexpectedly paused.');
+          if(backend.change_governance_policy?.checkpoint?.release!=='P21'||backend.change_governance_policy?.checkpoint?.status!=='clean')throw new Error('P21 schema checkpoint is not clean.');
           if(release.consumerRelease!==app.webRelease)throw new Error('Account consumer release mismatch.');
-          console.log('Diet Copilot Web 2.0.3 / P20 operations contract passed.');
+          console.log('Diet Copilot Web 2.0.3 / P21 operations contract passed.');
           NODE
 
       - name: Build actual GitHub Pages artifact

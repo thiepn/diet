@@ -7,7 +7,7 @@
   "accountContract": "1.0",
   "sdkContract": "1.x",
   "integrationMode": "certified-legacy",
-  "operationsVersion": "P20.0",
+  "operationsVersion": "P21.0",
   "sessionAuthority": "thiepn-account",
   "degradedMode": "cached-read-only",
   "authEntryPoints": [
@@ -73,12 +73,24 @@
     "concurrencyStatusServiceOnly": true,
     "schemaDriftWatchdog": true,
     "schemaDriftDetected": false,
-    "schemaContractRelationCount": 23,
+    "schemaContractRelationCount": 25,
     "schemaDriftAuditRetentionDays": 365,
     "schemaDriftCronUtc": "03:37",
     "schemaDriftAutoRepair": false,
     "releaseCheckpointing": true,
-    "releaseStatusServiceOnly": true
+    "releaseStatusServiceOnly": true,
+    "failureInjectionCertification": true,
+    "failureScenarioCount": 15,
+    "failurePassedCount": 15,
+    "failureFailedCount": 0,
+    "emergencyWriteFreeze": true,
+    "writesPaused": false,
+    "incidentReadinessWatchdog": true,
+    "incidentReadinessCronUtc": "03:47",
+    "incidentCertificationRetentionDays": 365,
+    "destructiveFailureInjection": false,
+    "recoveryPlanVerified": true,
+    "incidentStatusServiceOnly": true
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0",
@@ -95,5 +107,7 @@
   "concurrencyRelease": "P19",
   "concurrencyModel": "transactional-request-ledger-owner-serialization-v1",
   "changeGovernanceRelease": "P20",
-  "schemaContractModel": "deterministic-schema-fingerprint-certified-checkpoint-v1"
+  "schemaContractModel": "deterministic-schema-fingerprint-certified-checkpoint-v1",
+  "incidentCertificationRelease": "P21",
+  "incidentModel": "failure-injection-write-freeze-recovery-readiness-v1"
 }
