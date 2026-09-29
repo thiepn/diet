@@ -264,7 +264,6 @@ $('foodQuickAddHeader')?.addEventListener('click',()=>toggleQuickAdd(true));
 $('foodQuickAddForm')?.addEventListener('submit',submitQuickAdd);
 $('foodShortcutRecent')?.addEventListener('click',()=>$('foodRecentMeals')?.scrollIntoView({behavior:'smooth',block:'center'}));
 $('foodShortcutSaved')?.addEventListener('click',()=>$('foodSavedMeals')?.scrollIntoView({behavior:'smooth',block:'center'}));
-$('foodShortcutBarcode')?.addEventListener('click',()=>focusSearch({barcode:true}));
 $('foodShortcutQuick')?.addEventListener('click',()=>toggleQuickAdd(true));
 
 window.addEventListener('diet-v2-data-updated',renderFoodWorkspace);
