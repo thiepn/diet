@@ -117,6 +117,25 @@ assert.equal(JSON.stringify(context).includes('must-not-leak'),false,'P8 context
 }
 
 {
+  const remote={
+    answer:'You have plenty left.',
+    basis:[
+      {key:'today.caloriesRemaining',label:'Remaining',value:'99,999 kcal'},
+      {key:'candidate:food-1:protein',label:'Skyr protein',value:'999 g'},
+      {key:'today.inventedMetric',label:'Fake',value:'999'},
+      {key:'candidate:invented-id:calories',label:'Fake food',value:'999 kcal'}
+    ],
+    action:null
+  };
+  const safe=sanitizeCopilotResponse(remote,context);
+  assert.ok(safe);
+  assert.deepEqual(safe.basis,[
+    {key:'today.caloriesRemaining',label:'Remaining',value:'+700 kcal'},
+    {key:'candidate:food-1:protein',label:'Skyr protein',value:'30 g'}
+  ],'Displayed evidence must be resolved from trusted context, never from model-supplied values.');
+}
+
+{
   const safe=validateCopilotProposal({
     type:'log_saved_food',id:'food-1',multiplier:99,mealType:'Dinner'
   },context);
