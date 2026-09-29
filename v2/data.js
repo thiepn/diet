@@ -171,9 +171,9 @@ async function fetchOwnerRows(){
     client.from('saved_foods').select('id,name,quantity_text,calories,protein,carbs,fat,fiber,brand,barcode,favorite,use_count,last_used_at,verified_at,source,photo_url,updated_at').order('use_count',{ascending:false}),
     client.from('saved_meals').select('id,name,meal_type,calories,protein,carbs,fat,fiber,favorite,use_count,last_used_at,is_recipe,servings,serving_text,updated_at').order('use_count',{ascending:false}),
     client.from('target_recommendations').select('id,generated_on,lookback_days,complete_days,logged_days,weigh_in_count,avg_calories,weekly_weight_change,estimated_maintenance,desired_weekly_weight_change,current_target,raw_recommended_target,recommended_target,rationale,status,created_at,resolved_at,decision_payload,engine_version,confidence_level,confidence_score,recommended_protein,recommended_fat,recommended_carbs,effective_date,resolution,resolved_target,applied_phase_id').order('created_at',{ascending:false}).limit(20),
-    client.from('activity_daily').select('activity_date,steps,active_calories,exercise_minutes,distance_km,resting_heart_rate,source,synced_at,updated_at').order('activity_date').limit(120),
+    client.from('activity_daily').select('activity_date,steps,active_calories,exercise_minutes,distance_km,resting_heart_rate,source,synced_at,updated_at').order('activity_date',{ascending:false}).limit(120),
     client.from('training_distribution_settings').select('enabled,weekly_template,hard_extra_kcal,moderate_extra_kcal,light_extra_kcal,updated_at').maybeSingle(),
-    client.from('training_days').select('id,training_date,day_type,status,title,duration_minutes,source,notes,created_at,updated_at').order('training_date').limit(180)
+    client.from('training_days').select('id,training_date,day_type,status,title,duration_minutes,source,notes,created_at,updated_at').order('training_date',{ascending:false}).limit(180)
   ]);
   for(const result of [profile,dailyLogs,meals,mealItems,weights,goalPhases,savedFoods,savedMeals,targetRecommendations,activityDaily,trainingDistribution,trainingDays]){
     if(result.error)throw result.error;
