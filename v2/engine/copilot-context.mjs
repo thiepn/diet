@@ -1,6 +1,27 @@
 const VERSION='1.0.0-p8';
 const ACTIONS=Object.freeze(['log_saved_food','log_saved_meal','repeat_meal','navigate_food','navigate_strategy']);
 const MEAL_TYPES=Object.freeze(['Breakfast','Lunch','Dinner','Snack','Other']);
+const BASIS=Object.freeze({
+  'today.calories':{label:'Logged today',path:['today','calories'],unit:'kcal',digits:0},
+  'today.calorieTarget':{label:'Today target',path:['today','calorieTarget'],unit:'kcal',digits:0},
+  'today.caloriesRemaining':{label:'Remaining today',path:['today','caloriesRemaining'],unit:'kcal',digits:0,signed:true},
+  'today.protein':{label:'Protein today',path:['today','protein'],unit:'g',digits:0},
+  'today.proteinTarget':{label:'Protein target',path:['today','proteinTarget'],unit:'g',digits:0},
+  'today.proteinRemaining':{label:'Protein remaining',path:['today','proteinRemaining'],unit:'g',digits:0},
+  'today.trendWeight':{label:'Trend weight',path:['today','trendWeight'],unit:'kg',digits:2},
+  'today.expenditure':{label:'Expenditure',path:['today','expenditure'],unit:'kcal/day',digits:0},
+  'strategy.currentTarget':{label:'Current target',path:['strategy','currentTarget'],unit:'kcal',digits:0},
+  'strategy.recommendedTarget':{label:'Recommended target',path:['strategy','recommendedTarget'],unit:'kcal',digits:0},
+  'strategy.targetDelta':{label:'Target change',path:['strategy','targetDelta'],unit:'kcal',digits:0,signed:true},
+  'strategy.confidenceLevel':{label:'Strategy confidence',path:['strategy','confidenceLevel'],text:true},
+  'intelligence.proteinTargetAdherence':{label:'Protein adherence',path:['intelligence','proteinTargetAdherence'],unit:'%',digits:0},
+  'intelligence.calorieTargetAdherence':{label:'Calorie adherence',path:['intelligence','calorieTargetAdherence'],unit:'%',digits:0},
+  'intelligence.weekendDeltaCalories':{label:'Weekend delta',path:['intelligence','weekendDeltaCalories'],unit:'kcal/day',digits:0,signed:true},
+  'intelligence.trainingCarbDelta':{label:'Training carb delta',path:['intelligence','trainingCarbDelta'],unit:'g/day',digits:0,signed:true},
+  'intelligence.activityShiftPercent':{label:'Activity shift',path:['intelligence','activityShiftPercent'],unit:'%',digits:0,signed:true},
+  'intelligence.weeklyTrendRate':{label:'Trend pace',path:['intelligence','weeklyTrendRate'],unit:'kg/week',digits:2,signed:true},
+  'intelligence.stepsIntakeCorrelation':{label:'Steps/intake association',path:['intelligence','stepsIntakeCorrelation'],unit:'r',digits:2,signed:true}
+});
 
 function finite(v){return v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v));}
 function num(v,fallback=null){return finite(v)?Number(v):fallback;}
@@ -48,6 +69,40 @@ function candidateMap(context){
     for(const item of list??[]) if(item?.id) out.set(String(item.id),item);
   }
   return out;
+}
+
+function pathValue(context,path=[]){
+  let value=context;
+  for(const key of path)value=value?.[key];
+  return value;
+}
+function resolveBasisItem(spec,context){
+  const key=text(spec?.key,140);
+  let meta=BASIS[key]??null;
+  let value=null;
+  if(meta){
+    value=pathValue(context,meta.path);
+  }else{
+    const match=key.match(/^candidate:([^:]+):(calories|protein)$/);
+    if(!match)return null;
+    const item=candidateMap(context).get(match[1]);
+    if(!item)return null;
+    const field=match[2];
+    value=item[field];
+    meta={label:(item.name||'Saved item')+' '+field,unit:field==='calories'?'kcal':'g',digits:field==='calories'?0:1};
+  }
+  if(meta.text){
+    const rendered=text(value,80);
+    if(!rendered)return null;
+    return {key,label:text(spec?.label,80)||meta.label,value:rendered};
+  }
+  if(!finite(value))return null;
+  const n=round(value,meta.digits??0);
+  const prefix=meta.signed&&n>0?'+':'';
+  return {key,label:text(spec?.label,80)||meta.label,value:prefix+n+(meta.unit?' '+meta.unit:'')};
+}
+export function resolveCopilotBasis(basis,context){
+  return Array.isArray(basis)?basis.slice(0,5).map(x=>resolveBasisItem(x,context)).filter(Boolean):[];
 }
 function findByWords(items,q){
   const words=normalize(q).split(/\s+/).filter(w=>w.length>2);
@@ -161,10 +216,7 @@ export function sanitizeCopilotResponse(payload,context){
   const raw=payload&&typeof payload==='object'?payload:{};
   const answer=text(raw.answer,2200);
   if(!answer)return null;
-  const basis=Array.isArray(raw.basis)?raw.basis.slice(0,5).map(x=>({
-    label:text(x?.label,80),
-    value:text(x?.value,120)
-  })).filter(x=>x.label&&x.value):[];
+  const basis=resolveCopilotBasis(raw.basis,context);
   return {
     answer,
     basis,
@@ -196,8 +248,8 @@ export function buildLocalCopilotReply(question,context){
         ?'You have about '+remaining+' kcal remaining today'+(protein!=null?', with about '+protein+' g protein remaining to target.':'.')
         :'You are about '+Math.abs(remaining)+' kcal over today\'s target.',
       basis:[
-        {label:'Today',value:round(t.calories,0)+' / '+round(t.calorieTarget,0)+' kcal'},
-        ...(protein!=null?[{label:'Protein remaining',value:protein+' g'}]:[])
+        {key:'today.caloriesRemaining'},
+        ...(protein!=null?[{key:'today.proteinRemaining'}]:[])
       ],
       caution:null,action:null,source:'local'
     };
@@ -207,9 +259,9 @@ export function buildLocalCopilotReply(question,context){
     return {
       answer:s.reason||'The adaptive strategy engine does not currently have a specific target-change explanation.',
       basis:[
-        ...(finite(s.currentTarget)?[{label:'Current target',value:Math.round(s.currentTarget)+' kcal'}]:[]),
-        ...(finite(s.recommendedTarget)?[{label:'Recommended',value:Math.round(s.recommendedTarget)+' kcal'}]:[]),
-        ...(s.confidenceLevel?[{label:'Confidence',value:text(s.confidenceLevel,30)}]:[])
+        ...(finite(s.currentTarget)?[{key:'strategy.currentTarget'}]:[]),
+        ...(finite(s.recommendedTarget)?[{key:'strategy.recommendedTarget'}]:[]),
+        ...(s.confidenceLevel?[{key:'strategy.confidenceLevel'}]:[])
       ],
       caution:'The Copilot explains the P1/P5 result; it does not recalculate or override it.',
       action:{type:'navigate_strategy',label:'Open Strategy'},
@@ -219,13 +271,13 @@ export function buildLocalCopilotReply(question,context){
 
   if(/weekend/.test(q)){
     const x=bestPattern(context,'weekend_intake');
-    if(x)return {answer:x.summary,basis:[{label:'Weekend delta',value:signed(x.value,0,' '+x.unit)}],caution:null,action:null,source:'local'};
+    if(x)return {answer:x.summary,basis:[{key:'intelligence.weekendDeltaCalories'}],caution:null,action:null,source:'local'};
   }
 
   if(/protein/.test(q)&&finite(i.proteinTargetAdherence)){
     return {
       answer:'Across the current P7 analysis window, protein reached at least 90% of target on about '+i.proteinTargetAdherence+'% of reliable target days.',
-      basis:[{label:'Protein adherence',value:i.proteinTargetAdherence+'%'}],
+      basis:[{key:'intelligence.proteinTargetAdherence'}],
       caution:null,action:null,source:'local'
     };
   }
@@ -235,7 +287,15 @@ export function buildLocalCopilotReply(question,context){
     if(insights.length){
       return {
         answer:insights.slice(0,3).map(x=>x.summary).join(' '),
-        basis:insights.slice(0,3).map(x=>({label:x.title,value:signed(x.value,x.unit==='r'?2:0,' '+x.unit)})),
+        basis:insights.slice(0,3).map(x=>({
+          key:x.id==='protein_adherence'?'intelligence.proteinTargetAdherence':
+            x.id==='calorie_adherence'?'intelligence.calorieTargetAdherence':
+            x.id==='weekend_intake'?'intelligence.weekendDeltaCalories':
+            x.id==='training_carbs'?'intelligence.trainingCarbDelta':
+            x.id==='activity_shift'?'intelligence.activityShiftPercent':
+            x.id==='steps_intake_association'?'intelligence.stepsIntakeCorrelation':
+            x.id==='weight_trend_rate'?'intelligence.weeklyTrendRate':''
+        })).filter(x=>x.key),
         caution:'These are descriptive patterns from P7, not causal claims.',
         action:null,source:'local'
       };
@@ -253,8 +313,8 @@ export function buildLocalCopilotReply(question,context){
           ?'Your saved '+item.name+' is '+round(item.calories,0)+' kcal. It would fit inside today’s current target and leave about '+after+' kcal.'
           :'Your saved '+item.name+' is '+round(item.calories,0)+' kcal, which is about '+Math.abs(after)+' kcal more than today’s remaining target.',
         basis:[
-          {label:'Remaining now',value:round(t.caloriesRemaining,0)+' kcal'},
-          {label:item.name,value:round(item.calories,0)+' kcal'}
+          {key:'today.caloriesRemaining'},
+          {key:'candidate:'+item.id+':calories',label:item.name}
         ],
         caution:'This compares the exact saved item with today’s current target; it does not judge whether you should eat it.',
         action:null,source:'local'
@@ -262,7 +322,7 @@ export function buildLocalCopilotReply(question,context){
     }
     return {
       answer:'I need the food’s actual nutrition before I can compare it with your remaining target.',
-      basis:finite(t.caloriesRemaining)?[{label:'Remaining today',value:round(t.caloriesRemaining,0)+' kcal'}]:[],
+      basis:finite(t.caloriesRemaining)?[{key:'today.caloriesRemaining'}]:[],
       caution:'I will not estimate an unknown food into your canonical nutrition data.',
       action:{type:'navigate_food',query:text(question,160),label:'Find the food'},source:'local'
     };
@@ -287,8 +347,8 @@ export function buildLocalCopilotReply(question,context){
       return {
         answer:'I found a known saved item that may match: '+item.name+'. I can only log it after you confirm the exact saved item.',
         basis:[
-          ...(finite(item.calories)?[{label:'Saved calories',value:Math.round(item.calories)+' kcal'}]:[]),
-          ...(finite(item.protein)?[{label:'Saved protein',value:round(item.protein,0)+' g'}]:[])
+          ...(finite(item.calories)?[{key:'candidate:'+item.id+':calories',label:'Saved calories'}]:[]),
+          ...(finite(item.protein)?[{key:'candidate:'+item.id+':protein',label:'Saved protein'}]:[])
         ],
         caution:'No nutrition values were estimated; this uses existing saved data.',
         action:{type:actionType,id:item.id,multiplier:1,mealType:item.mealType||defaultMealType(),label:'Log '+item.name},
@@ -305,4 +365,4 @@ export function buildLocalCopilotReply(question,context){
   return null;
 }
 
-export const DietCopilotP8=Object.freeze({version:VERSION,actions:ACTIONS,mealTypes:MEAL_TYPES});
+export const DietCopilotP8=Object.freeze({version:VERSION,actions:ACTIONS,mealTypes:MEAL_TYPES,basisKeys:Object.keys(BASIS)});
