@@ -63,8 +63,21 @@ function actionMarkup(message){
   const a=message.action;
   if(!a)return '';
   const label=esc(a.label||'Continue');
-  const detail=a.item?.name?'<small>'+esc(a.item.name)+(Number.isFinite(Number(a.item.calories))?' · '+Math.round(Number(a.item.calories))+' kcal':'')+'</small>':'';
-  return '<div class="dc-copilot-action">'+detail+'<button class="dc-primary-action dc-copilot-confirm" type="button" data-copilot-confirm="'+esc(message.id)+'">'+(a.type.startsWith('log_')||a.type==='repeat_meal'?'Confirm · ':'')+label+'</button></div>';
+  const isWrite=a.type.startsWith('log_')||a.type==='repeat_meal';
+  let detail='';
+  if(a.item?.name){
+    const multiplier=Number(a.multiplier??1);
+    const calories=Number(a.item.calories);
+    const scaledCalories=Number.isFinite(calories)&&Number.isFinite(multiplier)?Math.round(calories*multiplier):null;
+    const parts=[
+      a.item.name,
+      multiplier!==1?multiplier+'×':null,
+      a.mealType||null,
+      scaledCalories!=null?scaledCalories+' kcal':null
+    ].filter(Boolean);
+    detail='<small>'+parts.map(esc).join(' · ')+'</small>';
+  }
+  return '<div class="dc-copilot-action">'+detail+'<button class="dc-primary-action dc-copilot-confirm" type="button" data-copilot-confirm="'+esc(message.id)+'">'+(isWrite?'Confirm · ':'')+label+'</button></div>';
 }
 function messageMarkup(message){
   if(message.role==='user'){
