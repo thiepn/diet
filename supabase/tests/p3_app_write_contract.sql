@@ -50,7 +50,14 @@ begin
     if has_function_privilege('anon',fn,'EXECUTE') then
       raise exception 'P3 contract failed: anon can execute %', name;
     end if;
-    if has_function_privilege('PUBLIC',fn,'EXECUTE') then
+    if exists (
+      select 1
+      from information_schema.role_routine_grants g
+      where g.routine_schema='public'
+        and g.routine_name=name
+        and g.grantee='PUBLIC'
+        and g.privilege_type='EXECUTE'
+    ) then
       raise exception 'P3 contract failed: PUBLIC can execute %', name;
     end if;
     if position('auth.uid()' in pg_get_functiondef(fn))=0 then
