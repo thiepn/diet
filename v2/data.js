@@ -15,7 +15,10 @@ const state={
   source:'none',
   error:null,
   fetchedAt:null,
-  requestEpoch:0
+  requestEpoch:0,
+  progressDays:90,
+  channel:null,
+  realtimeTimer:null
 };
 
 function text(id,value){
@@ -95,6 +98,12 @@ function ensureClient(){
 }
 function clearPrivateState(){
   state.requestEpoch++;
+  if(state.realtimeTimer)clearTimeout(state.realtimeTimer);
+  state.realtimeTimer=null;
+  if(state.channel&&state.client){
+    try{state.client.removeChannel(state.channel)}catch{}
+  }
+  state.channel=null;
   state.user=null;
   state.model=null;
   state.raw=null;
@@ -130,6 +139,22 @@ function saveCache(ownerId,raw){
 }
 function currentSessionOwner(session){
   return typeof session?.user?.id==='string'&&session.user.id?session.user.id:null;
+}
+
+async function subscribeRealtime(){
+  if(!state.client||!state.user||navigator.onLine===false)return;
+  if(state.channel){
+    try{await state.client.removeChannel(state.channel)}catch{}
+    state.channel=null;
+  }
+  let channel=state.client.channel(`diet-v2-read-${state.user.id}`);
+  for(const table of ['profiles','daily_logs','meals','meal_items','weight_entries','goal_phases']){
+    channel=channel.on('postgres_changes',{event:'*',schema:'public',table},()=>{
+      clearTimeout(state.realtimeTimer);
+      state.realtimeTimer=setTimeout(()=>refresh({silent:true}).catch(()=>{}),450);
+    });
+  }
+  state.channel=channel.subscribe();
 }
 
 async function fetchOwnerRows(){
@@ -203,6 +228,7 @@ async function refresh({silent=false}={}){
     saveCache(ownerId,raw);
     setState('ready');
     render();
+    subscribeRealtime().catch(()=>{});
   }catch(error){
     if(epoch!==state.requestEpoch)return;
     state.user=session.user;
@@ -341,10 +367,20 @@ function renderIntakeChart(id,series){
   </div><div class="dc-chart-legend"><span><i class="dc-legend-intake"></i>Intake</span><span><i class="dc-legend-target"></i>Target</span></div>`;
 }
 
+function rangeStartDate(days,asOfDate){
+  const d=new Date(`${asOfDate}T12:00:00`);
+  d.setDate(d.getDate()-Math.max(0,Number(days)-1));
+  return localDateKey(d);
+}
+function filterRange(series,days,asOfDate){
+  const start=rangeStartDate(days,asOfDate);
+  return series.filter(p=>String(p.date)>=start&&String(p.date)<=asOfDate);
+}
 function renderProgress(model){
-  renderLineChart('progressWeightChart',model.progress.trendWeights,model.progress.rawWeights,'kg');
-  renderLineChart('progressExpenditureChart',model.progress.expenditure,[],'kcal');
-  renderIntakeChart('progressIntakeChart',model.progress.intake);
+  const days=state.progressDays;
+  renderLineChart('progressWeightChart',filterRange(model.progress.trendWeights,days,model.asOfDate),filterRange(model.progress.rawWeights,days,model.asOfDate),'kg');
+  renderLineChart('progressExpenditureChart',filterRange(model.progress.expenditure,days,model.asOfDate),[],'kcal');
+  renderIntakeChart('progressIntakeChart',filterRange(model.progress.intake,days,model.asOfDate));
   const projection=model.progress.goalProjection;
   if(projection){
     html('progressGoalTrajectory',`<div class="dc-trajectory"><strong>Projected around ${escapeHtml(prettyDate(projection.projectedDate))}</strong><span>${fmt(projection.weeks,1)} weeks at the selected pace</span><small>Projection, not a guarantee.</small></div>`);
@@ -435,6 +471,20 @@ async function init(){
   });
 }
 
+document.querySelectorAll('[data-progress-range]').forEach(button=>{
+  button.addEventListener('click',()=>{
+    const days=Number(button.dataset.progressRange);
+    if(!Number.isFinite(days)||days<=0)return;
+    state.progressDays=days;
+    document.querySelectorAll('[data-progress-range]').forEach(other=>{
+      const selected=other===button;
+      other.classList.toggle('is-selected',selected);
+      other.setAttribute('aria-pressed',selected?'true':'false');
+    });
+    if(state.model)renderProgress(state.model);
+  });
+});
+
 document.getElementById('closeV2AccountDialog')?.addEventListener('click',closeAccount);
 document.getElementById('v2AccountRefresh')?.addEventListener('click',()=>refresh().catch(()=>{}));
 document.getElementById('v2AccountProduction')?.addEventListener('click',()=>{location.href='../';});
@@ -449,7 +499,9 @@ window.DietV2Data=Object.freeze({
     signedIn:Boolean(state.user),
     fetchedAt:state.fetchedAt,
     engineVersion:state.model?.meta?.engineVersion??null,
-    rows:state.model?.meta?.legacyRows??null
+    rows:state.model?.meta?.legacyRows??null,
+    progressDays:state.progressDays,
+    realtime:Boolean(state.channel)
   })
 });
 
