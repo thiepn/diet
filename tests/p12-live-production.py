@@ -96,7 +96,7 @@ with sync_playwright() as p:
 
     legacy=context.new_page()
     legacy.goto(LEGACY,wait_until="domcontentloaded")
-    check("legacy fallback retained","diet-app.js" in legacy.content())
+    check("legacy fallback retained","legacy-v1-app.js" in legacy.content())
     check("legacy fallback is not V2","dc-version-badge" not in legacy.content())
     legacy.close()
 
