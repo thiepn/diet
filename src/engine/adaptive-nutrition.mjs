@@ -159,7 +159,8 @@ export function estimateExpenditure({weights=[],intakeDays=[],initialTdee=null,e
   if(!trend.length) return {version:ENGINE_VERSION,status:'building_baseline',trend,assessedIntake:assessed,series:[],current:null,confidence:buildConfidence({trend,assessed,series:[],cfg})};
   const lastDate=endDate || trend.at(-1).date;
   const series=[];
-  let state=Number.isFinite(Number(initialTdee))?Number(initialTdee):null;
+  const hasInitialTdee=initialTdee!==null&&initialTdee!==undefined&&initialTdee!==''&&Number.isFinite(Number(initialTdee));
+  let state=hasInitialTdee?Number(initialTdee):null;
   let sameDirection=0, lastSign=0;
   for(const point of trend){
     if(point.date>lastDate) break;
@@ -240,9 +241,11 @@ function buildConfidence({trend,assessed,series,cfg}){
 
 export function recommendCalories({expenditure,currentTarget,goalMode='maintain',targetRateKgPerWeek=0,currentTrendWeight=null,goalWeight=null,confidence=null,config={}}={}){
   const cfg={...DEFAULT_CONFIG,...config};
-  const tdee=Number(expenditure);
-  const current=Number(currentTarget);
-  if(!Number.isFinite(tdee)) return {decision:'need_more_data',reason:'No expenditure estimate is available.',recommendedTarget:Number.isFinite(current)?current:null};
+  const hasTdee=expenditure!==null&&expenditure!==undefined&&expenditure!==''&&Number.isFinite(Number(expenditure));
+  const hasCurrentTarget=currentTarget!==null&&currentTarget!==undefined&&currentTarget!==''&&Number.isFinite(Number(currentTarget));
+  const tdee=hasTdee?Number(expenditure):null;
+  const current=hasCurrentTarget?Number(currentTarget):null;
+  if(!hasTdee) return {decision:'need_more_data',reason:'No expenditure estimate is available.',recommendedTarget:hasCurrentTarget?current:null};
   const score=typeof confidence==='number'?confidence:Number(confidence?.score ?? 0);
   const level=confidence?.level ?? (score>=0.82?'high':score>=0.62?'medium':score>=0.42?'low':'building_baseline');
   let rate=Number(targetRateKgPerWeek)||0;
@@ -262,7 +265,7 @@ export function recommendCalories({expenditure,currentTarget,goalMode='maintain'
   }
 
   const raw=clamp(tdee+rate*cfg.energyDensityKcalPerKg/7,cfg.minimumCalories,cfg.maximumCalories);
-  if(!Number.isFinite(current)) return {decision:'set_initial_target',reason:'No current calorie target exists.',rawTarget:round(raw,0),recommendedTarget:round(raw/25)*25};
+  if(!hasCurrentTarget) return {decision:'set_initial_target',reason:'No current calorie target exists.',rawTarget:round(raw,0),recommendedTarget:round(raw/25)*25};
   const delta=raw-current;
   if(level==='building_baseline' || level==='low') return {decision:'hold_for_confidence',reason:'Expenditure confidence is not high enough to change calories.',rawTarget:round(raw,0),recommendedTarget:current,delta:round(delta,0)};
   if(Math.abs(delta)<cfg.recommendationDeadbandKcal) return {decision:'keep_target',reason:'The calculated change is smaller than the adjustment deadband.',rawTarget:round(raw,0),recommendedTarget:current,delta:round(delta,0)};
@@ -273,8 +276,11 @@ export function recommendCalories({expenditure,currentTarget,goalMode='maintain'
 
 export function computeMacroTargets({calories,bodyWeightKg,proteinGramsPerKg=null,fatGramsPerKg=null,proteinFloorGrams=null,fatFloorGrams=null,config={}}={}){
   const cfg={...DEFAULT_CONFIG,...config};
+  const hasCalories=calories!==null&&calories!==undefined&&calories!==''&&Number.isFinite(Number(calories));
+  const hasWeight=bodyWeightKg!==null&&bodyWeightKg!==undefined&&bodyWeightKg!==''&&Number.isFinite(Number(bodyWeightKg));
+  if(!hasCalories||!hasWeight) return null;
   const kcal=Number(calories), bw=Number(bodyWeightKg);
-  if(!Number.isFinite(kcal)||kcal<=0||!Number.isFinite(bw)||bw<=0) return null;
+  if(kcal<=0||bw<=0) return null;
   const pRate=Number.isFinite(Number(proteinGramsPerKg))?Number(proteinGramsPerKg):cfg.proteinGramsPerKg;
   const fRate=Number.isFinite(Number(fatGramsPerKg))?Number(fatGramsPerKg):cfg.fatGramsPerKg;
   const protein=Math.max(Number(proteinFloorGrams)||0,bw*pRate);
@@ -285,8 +291,12 @@ export function computeMacroTargets({calories,bodyWeightKg,proteinGramsPerKg=nul
 }
 
 export function projectGoal({currentTrendWeight,goalWeight,targetRateKgPerWeek,startDate}={}){
+  const hasCurrent=currentTrendWeight!==null&&currentTrendWeight!==undefined&&currentTrendWeight!==''&&Number.isFinite(Number(currentTrendWeight));
+  const hasGoal=goalWeight!==null&&goalWeight!==undefined&&goalWeight!==''&&Number.isFinite(Number(goalWeight));
+  const hasRate=targetRateKgPerWeek!==null&&targetRateKgPerWeek!==undefined&&targetRateKgPerWeek!==''&&Number.isFinite(Number(targetRateKgPerWeek));
+  if(!hasCurrent||!hasGoal||!hasRate||!startDate) return null;
   const current=Number(currentTrendWeight), goal=Number(goalWeight), rate=Number(targetRateKgPerWeek);
-  if(!Number.isFinite(current)||!Number.isFinite(goal)||!Number.isFinite(rate)||Math.abs(rate)<0.01||!startDate) return null;
+  if(Math.abs(rate)<0.01) return null;
   if((goal-current)*rate<=0) return null;
   const weeks=Math.abs(goal-current)/Math.abs(rate);
   return {weeks:round(weeks,1),projectedDate:addDays(startDate,Math.ceil(weeks*7)),label:'projection_not_guarantee'};
