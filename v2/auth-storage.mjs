@@ -1,6 +1,10 @@
 export const DIET_V2_AUTH_STORAGE_KEY='sb-hycegznamzjhwinegaai-auth-token';
 
 const COOKIE_PREFIX='diet-auth-v2-';
+const PKCE_FALLBACK_PREFIX='diet-v2-pkce:';
+
+function isPkceKey(key){return String(key).endsWith('-code-verifier');}
+function pkceFallbackKey(key){return PKCE_FALLBACK_PREFIX+String(key);}
 
 function cookieName(key){return `${COOKIE_PREFIX}${encodeURIComponent(String(key))}`;}
 function readCookie(name){
@@ -77,7 +81,14 @@ export const dietV2AuthStorage=Object.freeze({
       try{localStorage.removeItem(key)}catch{}
       return null;
     }
-    try{return localStorage.getItem(key)}catch{return null}
+    try{
+      const local=localStorage.getItem(key);
+      if(local!==null)return local;
+    }catch{}
+    if(isPkceKey(key)){
+      try{return sessionStorage.getItem(pkceFallbackKey(key))}catch{}
+    }
+    return null;
   },
   setItem(key,value){
     const text=String(value);
@@ -88,17 +99,27 @@ export const dietV2AuthStorage=Object.freeze({
     }
     try{
       localStorage.setItem(key,text);
-      if(localStorage.getItem(key)===text)return;
+      if(localStorage.getItem(key)===text){
+        if(isPkceKey(key))try{sessionStorage.removeItem(pkceFallbackKey(key))}catch{}
+        return;
+      }
     }catch{}
     if(key===DIET_V2_AUTH_STORAGE_KEY){
       cookieSet(key,text);
       try{localStorage.removeItem(key)}catch{}
       return;
     }
+    if(isPkceKey(key)){
+      try{
+        sessionStorage.setItem(pkceFallbackKey(key),text);
+        if(sessionStorage.getItem(pkceFallbackKey(key))===text)return;
+      }catch{}
+    }
     throw new Error('Browser storage is unavailable.');
   },
   removeItem(key){
     try{localStorage.removeItem(key)}catch{}
+    if(isPkceKey(key))try{sessionStorage.removeItem(pkceFallbackKey(key))}catch{}
     if(key===DIET_V2_AUTH_STORAGE_KEY){
       try{cookieRemove(key)}catch{}
     }
