@@ -26,6 +26,7 @@ assert.match(data,/DIET_V2_OAUTH_QUERY_KEYS/);
 assert.match(data,/history\.replaceState\(null,''/);
 assert.match(data,/auth\.signOut\(\{scope:'local'\}\)/);
 assert.match(data,/version:'2\.0\.0-p11-rc'/);
+assert.doesNotMatch(data,/\\n/,'V2 browser modules must not contain accidental literal \\n source artifacts.');
 assert.doesNotMatch(data,/service_role|sb_secret_|SUPABASE_DB_URL/);
 
 assert.match(sw,/diet-copilot-v2-rc-p11-auth-1/);
