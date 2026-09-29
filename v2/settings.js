@@ -27,6 +27,10 @@ function applyPrefs(){
   root.dataset.density=prefs.density;
   if(prefs.motion==='reduce')root.dataset.motion='reduce';
   else delete root.dataset.motion;
+  const systemDark=globalThis.matchMedia?.('(prefers-color-scheme: dark)')?.matches??false;
+  const effectiveDark=prefs.theme==='dark'||(prefs.theme==='system'&&systemDark);
+  const themeMeta=document.querySelector('meta[name="theme-color"]');
+  if(themeMeta)themeMeta.setAttribute('content',effectiveDark?'#111512':'#f5f7f5');
   document.querySelectorAll('[data-theme-choice]').forEach(x=>x.classList.toggle('is-selected',x.dataset.themeChoice===prefs.theme));
   document.querySelectorAll('[data-density-choice]').forEach(x=>x.classList.toggle('is-selected',x.dataset.densityChoice===prefs.density));
   document.querySelectorAll('[data-motion-choice]').forEach(x=>x.classList.toggle('is-selected',x.dataset.motionChoice===prefs.motion));
