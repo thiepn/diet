@@ -11,7 +11,7 @@ Date: 2026-09-29.
 | P16 static | one-request transport, fallback owner filters, Realtime ownership, cache versions, asset budget |
 | P16 public probe | publishable/anonymous client cannot execute the consolidated private read RPC |
 | Live DB | authenticated snapshot shape, invoker security, anonymous-account rejection |
-| Advisors | no new P16 security/performance defect |
+| Advisors | no P16 security defect; speculative unused indexes removed after advisor review |
 
 ## P16 invariants
 
@@ -24,3 +24,4 @@ Date: 2026-09-29.
 - P15 backup/recovery behavior is unchanged.
 - Installed PWAs move to the P16 cache namespace.
 - Raw core static footprint must remain at or below 700,000 bytes.
+- P16 must not retain speculative indexes that the production advisor reports unused.

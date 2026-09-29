@@ -53,15 +53,13 @@ Supabase does not support filters for DELETE Postgres Changes. P16 therefore doe
 
 This avoids receiving unrelated delete primary keys and prevents cross-user delete traffic from causing unnecessary refreshes.
 
-## Query indexes
+## Index strategy
 
-P16 adds only indexes that correspond to actual hot ordering patterns:
+P16 evaluated three additional composite ordering indexes after consolidating the read path. The post-migration Supabase advisor correctly reported that all three were unused by the current production workload. They were therefore removed in migration `20260929201015` rather than kept speculatively.
 
-- `meal_items_owner_sort_p16 (user_id, meal_id, sort_order, id)`
-- `saved_foods_owner_rank_p16 (user_id, favorite DESC, use_count DESC, last_used_at DESC NULLS LAST, id)`
-- `saved_meals_owner_rank_p16 (user_id, favorite DESC, use_count DESC, last_used_at DESC NULLS LAST, id)`
+P16 instead relies on the existing owner/date/relationship indexes plus explicit `user_id` predicates. This follows Supabase's guidance to avoid over-indexing: future indexes should be added only when production query plans demonstrate a need.
 
-Existing P14 ownership/foreign-key indexes are retained even where current production volume is small.
+Existing P14 ownership and foreign-key indexes remain intact because they also support integrity and authorization relationships.
 
 ## PWA/runtime release
 

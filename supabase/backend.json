@@ -74,8 +74,9 @@
     "consolidated_owner_read": true,
     "owner_filtered_fallback_reads": true,
     "owner_filtered_realtime": true,
-    "hot_order_indexes": true,
-    "static_performance_budget": true
+    "hot_order_indexes": false,
+    "static_performance_budget": true,
+    "speculative_index_cleanup": true
   },
   "observability_policy": {
     "release": "P13",
@@ -150,12 +151,11 @@
     "protected_by_rls": true,
     "migration_versions": [
       "20260929200148",
-      "20260929200457"
+      "20260929200457",
+      "20260929201015"
     ],
-    "indexes": [
-      "meal_items_owner_sort_p16",
-      "saved_foods_owner_rank_p16",
-      "saved_meals_owner_rank_p16"
-    ]
+    "indexes": [],
+    "index_strategy": "existing_owner_indexes_plus_explicit_owner_predicates",
+    "speculative_p16_indexes_retained": false
   }
 }

@@ -12,7 +12,7 @@ The RPC is `SECURITY INVOKER`, requires an authenticated non-anonymous account, 
 
 Realtime INSERT/UPDATE subscriptions are owner-filtered. Broad DELETE subscriptions were removed because Supabase does not support row filters for DELETE Postgres Changes; Diet's delete actions already perform explicit refreshes and foreground revalidation remains active.
 
-P16 also adds composite indexes for meal-item ordering and saved-food/saved-meal ranking, refreshes table statistics, and enforces a 700 KB raw core asset budget.
+P16 refreshes planner statistics and enforces a 700 KB raw core asset budget. Three speculative ordering indexes were tested, flagged unused by the production advisor, and removed rather than adding unnecessary write overhead.
 
 ## Existing protection
 

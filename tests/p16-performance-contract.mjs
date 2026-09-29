@@ -12,6 +12,7 @@ const aliasSw=read('v2/sw.js');
 const pwa=read('v2/pwa.js');
 const migration=read('supabase/migrations/20260929200148_diet_p16_consolidated_reads_and_hot_indexes.sql');
 const explicitInvoker=read('supabase/migrations/20260929200457_diet_p16_read_contract_explicit_invoker.sql');
+const cleanup=read('supabase/migrations/20260929201015_diet_p16_remove_speculative_hot_indexes.sql');
 
 assert.equal(app.release,'2.0.2');
 assert.equal(app.webRelease,'2.0.2');
@@ -41,8 +42,11 @@ assert.match(migration,/revoke all on function public\.diet_app_read_snapshot\(\
 assert.match(migration,/grant execute on function public\.diet_app_read_snapshot\(\) to authenticated,service_role/i);
 for(const name of ['meal_items_owner_sort_p16','saved_foods_owner_rank_p16','saved_meals_owner_rank_p16']){
   assert.match(migration,new RegExp(name));
+  assert.match(cleanup,new RegExp('drop index if exists public\\.'+name));
 }
 assert.match(explicitInvoker,/alter function public\.diet_app_read_snapshot\(\) security invoker/i);
+assert.equal(backend.performance_policy?.speculative_p16_indexes_retained,false);
+assert.deepEqual(backend.performance_policy?.indexes,[]);
 
 assert.match(data,/client\.rpc\('diet_app_read_snapshot'\)/);
 assert.match(data,/state\.readTransport='snapshot_rpc'/);
