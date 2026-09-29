@@ -12,6 +12,12 @@ const dataJs=fs.readFileSync('v2/data.js','utf8');
 const trainingJs=fs.readFileSync('v2/training-actions.js','utf8');
 const writeJs=fs.readFileSync('v2/write-api.mjs','utf8');
 const engine=fs.readFileSync('src/engine/training-nutrition.mjs','utf8');
+const browserAdaptive=fs.readFileSync('v2/engine/adaptive-nutrition.mjs','utf8');
+const browserLegacy=fs.readFileSync('v2/engine/legacy-data-adapter.mjs','utf8');
+const browserTraining=fs.readFileSync('v2/engine/training-nutrition.mjs','utf8');
+assert.equal(browserAdaptive,fs.readFileSync('src/engine/adaptive-nutrition.mjs','utf8'),'Deployed P1 engine copy drifted from canonical source.');
+assert.equal(browserLegacy,fs.readFileSync('src/engine/legacy-data-adapter.mjs','utf8'),'Deployed legacy adapter copy drifted from canonical source.');
+assert.equal(browserTraining,engine,'Deployed P6 engine copy drifted from canonical source.');
 const sql=fs.readFileSync('supabase/p6-training-activity.sql','utf8');
 
 for(const id of [
