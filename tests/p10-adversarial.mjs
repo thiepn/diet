@@ -140,7 +140,7 @@ function dateKey(start,index){
   assert.match(html,/rel="manifest" href="\.\/manifest\.webmanifest"/);
   assert.match(html,/src="\.\/pwa\.js"/);
   assert.match(pwa,/register\('\.\/sw\.js',\{scope:'\.\/'/);
-  assert.match(sw,/diet-copilot-v2-rc-p10/);
+  assert.match(sw,/diet-copilot-v2-rc-p\d+/,'V2 worker must keep a versioned RC cache namespace.');
   assert.match(sw,/\.\/engine\/release-guards\.mjs/);
   assert.match(sw,/request\.mode==='navigate'/);
   assert.match(sw,/new URL\('\.\/index\.html',self\.registration\.scope\)/);
