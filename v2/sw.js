@@ -1,7 +1,7 @@
-const CACHE='diet-copilot-v2-alias-p12-1';
+const CACHE='diet-copilot-v2-alias-p13-1';
 const CORE=[
   './','./index.html','./manifest.webmanifest','./shell.css','./shell.js','./pwa.js',
-  './data.js','./auth-storage.mjs','./read-model.mjs','./write-api.mjs',
+  './data.js','./auth-storage.mjs','./telemetry.mjs','./read-model.mjs','./write-api.mjs',
   './food.js','./meal-editor.js','./food-management.js','./open-food-facts.mjs',
   './strategy-actions.js','./training-actions.js','./copilot.js','./settings.js',
   './engine/adaptive-nutrition.mjs','./engine/legacy-data-adapter.mjs',

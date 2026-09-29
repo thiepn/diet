@@ -1,31 +1,38 @@
-# Diet Copilot 2.0 — P12 production release gates
+# Diet Copilot 2.0.1 — P13 production reliability gates
 
-Date: 2026-09-29. Release: Web 2.0.0. Phase: P12 Production Promotion & Safe Cutover.
+Date: 2026-09-29. Phase: P13 Post-Release Production Monitoring, Telemetry & Reliability Hardening.
 
-This document defines the production cutover gates. Evidence is the current commit's GitHub Actions run and attached JSON/screenshots, not a version label.
-
-## Required automated verification
+## Required gates
 
 | Gate | Coverage |
 | --- | --- |
-| Deployed bytes | Canonical root shell, production manifest/service worker, all V2 runtime modules, SDK/icons and V1 rollback dependencies match the release commit byte-for-byte |
-| Chromium / Firefox / WebKit | Canonical root launches 2.0, primary routes render, account dialog works, Google authorize starts correctly, mobile navigation/food shortcuts stay one-row and no runtime errors occur |
-| OAuth relay | The shared `web-v2` relay target returns callbacks to `/diet/`, not the former RC-only `/diet/v2/` URL |
-| Compatibility alias | `/diet/v2/` remains a functional stable 2.0 alias without RC markers |
-| Legacy rollback | `/diet/legacy-v1.html` still loads the preserved V1 bundle and is not the default route |
-| Root PWA | Root worker owns `/diet/`, installs the P12 production cache and reloads Diet Copilot 2.0 offline |
-| Pages deployment | The tested commit is the commit whose bytes are publicly served |
+| CI | P13 syntax, telemetry privacy contract, product/backend metadata and built Pages artifact |
+| A7/P13 operations | degraded-mode behavior, explicit write safety, Realtime/foreground reliability and no broad local-data clearing |
+| A8 account consumer | Google-only PKCE, canonical project, shared persistent auth storage and P13 release metadata |
+| A9 account platform | Account Platform v1 contract with Diet consumer release 2.0.1 |
+| P13 synthetic | canonical shell, standalone manifest, P13 worker/telemetry asset, Supabase Auth health |
+| P13 live browsers | Chromium, Firefox and WebKit canonical production, System Health diagnostics, mobile layout and runtime errors |
+| Hourly monitor | lightweight public-shell/Auth health probe with JSON evidence |
 
-## Safety invariants
+## Telemetry privacy contract
 
-The canonical Supabase project remains unchanged. P12 is a frontend promotion; it does not reset or migrate nutrition records. Owner-scoped reads/writes, explicit write confirmation, deterministic nutrition calculations, offline cache ownership and the no-exercise-calorie-eat-back rule remain intact.
+Operational telemetry is local-only. It is limited to sanitized event names, state names, operation names, timings, retry flags, connectivity, worker state and sanitized error codes. It never intentionally records nutrition values, meals, weights, email addresses, tokens, OAuth codes, request IDs or free-form user content.
 
-Root and compatibility service workers have separate cache families. The production worker ignores `/diet/v2/` requests, preventing cross-scope offline-shell substitution. OAuth result URLs and callback endpoints are never cached.
+The local log retains at most 120 events for seven days. Clearing System Health history deletes the browser copy.
 
-## Manual verification boundaries
+## Reliability invariants
 
-Automated browsers do not impersonate the user's real Google account, Samsung Internet, Android WebView, Health Connect or Play Store installation state. Those remain provider/device acceptance checks. The browser gate does verify the canonical Supabase authorize destination and the relay destination without exchanging real credentials.
+- Network failures do not become sign-outs.
+- Cached owner-scoped data remains usable when live refresh fails.
+- An uncertain write blocks subsequent writes until canonical refresh/reconciliation.
+- Foreground resume revalidates signed-in data when the last fetch is older than one minute.
+- Realtime status is observable but does not become the authority for nutrition data.
+- Root and `/v2/` workers remain separate scopes.
+- OAuth callback/result URLs are not cached.
+- V1 rollback remains available.
 
-## Rollback
+## Production monitoring
 
-If P12 fails after deployment, use the preserved `/diet/legacy-v1.html` frontend immediately while reverting the production shell/service worker in a reviewed commit. Do not modify or reset the production database as part of frontend rollback.
+The hourly synthetic monitor deliberately avoids real account credentials. It verifies the public shell/PWA and the documented Supabase Auth health endpoint using the public publishable key. Real authenticated data flows remain covered by owner-scoped application contracts and release-browser fixtures rather than production impersonation.
+
+For backend incidents, compare Supabase API/Auth error rates and connection pressure with a known-good window and review Health Check Advisors before changing database behavior.

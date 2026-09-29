@@ -485,6 +485,7 @@
             <button class="dc-more-card" type="button" data-shell-action="account"><span class="dc-more-icon" aria-hidden="true">◉</span><span><strong>Account</strong><small id="moreAccountSummary">THIEPN account and sync status</small></span><span aria-hidden="true">›</span></button>
             <button class="dc-more-card" id="moreAppearanceButton" type="button"><span class="dc-more-icon" aria-hidden="true">◐</span><span><strong>Appearance</strong><small id="moreAppearanceSummary">System · Comfortable</small></span><span aria-hidden="true">›</span></button>
             <button class="dc-more-card" id="moreDataButton" type="button"><span class="dc-more-icon" aria-hidden="true">↓</span><span><strong>Data & export</strong><small id="moreDataSummary">Export + privacy controls</small></span><span aria-hidden="true">›</span></button>
+            <button class="dc-more-card" id="moreHealthButton" type="button"><span class="dc-more-icon" aria-hidden="true">◇</span><span><strong>System health</strong><small id="moreHealthSummary">Checking · local diagnostics</small></span><span aria-hidden="true">›</span></button>
           </div>
         </section>
       </main>
@@ -607,6 +608,42 @@
           <button class="dc-secondary-action" id="clearOfflineCacheButton" type="button">Clear offline cache</button>
         </div>
       </section>
+    </div>
+  </dialog>
+
+  <dialog class="dc-modal dc-p9-dialog" id="systemHealthDialog" aria-labelledby="systemHealthHeading">
+    <div class="dc-modal-card dc-modal-card--wide">
+      <div class="dc-panel-head">
+        <div><p class="dc-eyebrow">Reliability</p><h2 id="systemHealthHeading">System health</h2></div>
+        <button class="dc-icon-button" type="button" data-p9-close="systemHealthDialog" aria-label="Close system health">×</button>
+      </div>
+      <p class="dc-panel-copy">Diagnostics stay on this device and contain operational metadata only. Diet Copilot does not put nutrition records, weights, account email, auth tokens, OAuth codes, request IDs, or Copilot messages in this log.</p>
+
+      <div class="dc-p9-stat-grid">
+        <div><span>Overall</span><strong id="healthOverall">Checking</strong></div>
+        <div><span>Network</span><strong id="healthNetwork">—</strong></div>
+        <div><span>Realtime</span><strong id="healthRealtime">—</strong></div>
+        <div><span>PWA</span><strong id="healthPwa">—</strong></div>
+      </div>
+
+      <div class="dc-settings-list dc-settings-list--p9">
+        <div><span>Data state</span><strong id="healthDataState">—</strong></div>
+        <div><span>Write safety</span><strong id="healthWriteGuard">—</strong></div>
+        <div><span>Diagnostic store</span><strong id="healthTelemetryStore">—</strong></div>
+        <div><span>Events (24 h)</span><strong id="healthEventCount">0</strong></div>
+        <div><span>Last event</span><strong id="healthLastEvent">—</strong></div>
+      </div>
+
+      <section class="dc-health-events-section">
+        <div class="dc-panel-head"><div><p class="dc-eyebrow">Recent</p><h3>Operational events</h3></div><span class="dc-status-chip">Local only</span></div>
+        <div class="dc-health-events" id="healthRecentEvents"></div>
+      </section>
+
+      <div class="dc-p9-actions">
+        <button class="dc-secondary-action" id="healthClearDiagnostics" type="button">Clear history</button>
+        <button class="dc-secondary-action" id="healthCopyDiagnostics" type="button">Copy diagnostics</button>
+        <button class="dc-primary-action" id="healthRefresh" type="button">Refresh health</button>
+      </div>
     </div>
   </dialog>
 

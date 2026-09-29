@@ -20,7 +20,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - name: Verify Diet 2.0 on Account Platform v1
+      - name: Verify Diet 2.0.1 on Account Platform v1
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
@@ -29,6 +29,6 @@ jobs:
           if(release.platformRelease!=='1.0.0')throw new Error('Unexpected platform release.');
           if(release.platformCommit!=='169e083f268e895cd44d8a5fe706ba5d4532bfa2')throw new Error('Unexpected platform release commit.');
           for(const key of ['accountContract','sdkContract','integrationMode'])if(release[key]!==app[key])throw new Error('Release contract mismatch: '+key);
-          if(release.consumerRelease!=='2.0.0'||release.consumerRelease!==app.webRelease)throw new Error('Diet Web 2.0.0 consumer release mismatch.');
-          console.log('Diet Platform v1 / Diet Web 2.0.0 metadata passed.');
+          if(release.consumerRelease!=='2.0.1'||release.consumerRelease!==app.webRelease)throw new Error('Diet Web 2.0.1 consumer release mismatch.');
+          console.log('Diet Platform v1 / Diet Web 2.0.1 metadata passed.');
           NODE

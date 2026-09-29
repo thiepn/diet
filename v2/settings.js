@@ -4,6 +4,10 @@ import {
 import {
   normalizeUiPreferences,buildDietJsonBackup,buildNutritionCsv,buildWeightCsv,DietSettingsDataP9
 } from './engine/settings-data.mjs';
+import { getDietWriteGuardState } from './write-api.mjs';
+import {
+  getTelemetrySnapshot,buildTelemetryDiagnostics,clearTelemetry
+} from './telemetry.mjs';
 
 const PREF_KEY='diet-copilot-v2-ui-preferences-v1';
 const DEFAULT_PREFS=Object.freeze({theme:'system',density:'comfortable',motion:'system'});
@@ -146,12 +150,86 @@ function renderAccountSummary(){
     ?(state.source==='cloud'?'Signed in · synced':'Signed in · '+state.source)
     :'Sign in and sync status';
 }
+function healthTime(value){
+  if(!value)return '—';
+  try{return new Date(value).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});}catch{return '—';}
+}
+function healthOverall(data,pwa,guard,telemetry){
+  if(navigator.onLine===false)return 'Offline';
+  if(guard?.blocked)return 'Refresh required';
+  if(data.status==='error')return 'Data error';
+  if(pwa?.error)return 'PWA issue';
+  if((telemetry.counts?.runtime_error??0)>0)return 'Review diagnostics';
+  if(data.status==='ready'||data.status==='signed_out')return 'Healthy';
+  return 'Checking';
+}
+function renderHealth(){
+  const data=getDietV2State();
+  const pwa=window.DietV2Pwa?.snapshot?.()??{supported:'serviceWorker' in navigator,ready:false,error:null};
+  const guard=getDietWriteGuardState();
+  const telemetry=getTelemetrySnapshot();
+  const overall=healthOverall(data,pwa,guard,telemetry);
+  if($('moreHealthSummary'))$('moreHealthSummary').textContent=overall+' · local diagnostics';
+  if($('healthOverall'))$('healthOverall').textContent=overall;
+  if($('healthDataState'))$('healthDataState').textContent=data.status+' · '+data.source;
+  if($('healthNetwork'))$('healthNetwork').textContent=navigator.onLine===false?'Offline':'Online';
+  if($('healthRealtime'))$('healthRealtime').textContent=data.realtimeStatus||'idle';
+  if($('healthPwa'))$('healthPwa').textContent=pwa.error?'Error':pwa.ready?'Ready':pwa.supported?'Starting':'Unsupported';
+  if($('healthWriteGuard'))$('healthWriteGuard').textContent=guard?.blocked?'Blocked pending refresh':'Clear';
+  if($('healthTelemetryStore'))$('healthTelemetryStore').textContent=telemetry.storage==='local'
+    ?telemetry.eventCount+' local event'+(telemetry.eventCount===1?'':'s')
+    :'Memory only · '+telemetry.eventCount+' event'+(telemetry.eventCount===1?'':'s');
+  if($('healthLastEvent'))$('healthLastEvent').textContent=healthTime(telemetry.lastEventAt);
+  if($('healthEventCount'))$('healthEventCount').textContent=String(telemetry.events24h);
+  const list=$('healthRecentEvents');
+  if(list){
+    const recent=telemetry.recent.slice(-8).reverse();
+    list.innerHTML=recent.length?recent.map(item=>{
+      const meta=Object.entries(item.meta??{}).slice(0,4).map(([key,value])=>key+'='+value).join(' · ');
+      return '<div class="dc-health-event"><span>'+esc(new Date(item.at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'}))+'</span><strong>'+esc(item.type)+'</strong><small>'+esc(meta||'operational event')+'</small></div>';
+    }).join(''):'<div class="dc-empty-state dc-empty-state--compact"><div><strong>No diagnostic events yet</strong><p>Operational events will appear here as the app runs.</p></div></div>';
+  }
+}
+function healthDiagnosticsObject(){
+  const data=getDietV2State();
+  const pwa=window.DietV2Pwa?.snapshot?.()??{};
+  const guard=getDietWriteGuardState();
+  return buildTelemetryDiagnostics({
+    status:data.status,
+    source:data.source,
+    realtime:data.realtimeStatus||'idle',
+    online:navigator.onLine!==false,
+    workerReady:Boolean(pwa.ready),
+    supported:Boolean(pwa.supported),
+    writeBlocked:Boolean(guard?.blocked)
+  });
+}
+async function copyHealthDiagnostics(){
+  const text=JSON.stringify(healthDiagnosticsObject(),null,2);
+  try{
+    await navigator.clipboard.writeText(text);
+    toast('System diagnostics copied.');
+    return;
+  }catch{}
+  const area=document.createElement('textarea');
+  area.value=text;area.setAttribute('readonly','');area.style.position='fixed';area.style.opacity='0';
+  document.body.appendChild(area);area.select();
+  try{document.execCommand('copy');toast('System diagnostics copied.');}
+  catch{toast('Copy failed.');}
+  area.remove();
+}
+function clearHealthHistory(){
+  clearTelemetry();
+  renderHealth();
+  toast('Local diagnostic history cleared.');
+}
 function renderAll(){
   applyPrefs();
   renderBody();
   renderData();
   renderIntegration();
   renderAccountSummary();
+  renderHealth();
 }
 function openBody(){
   renderBody();
@@ -168,6 +246,10 @@ function openData(){
 function openIntegrations(){
   renderIntegration();
   openDialog('integrationsDialog');
+}
+function openHealth(){
+  renderHealth();
+  openDialog('systemHealthDialog');
 }
 function setPreference(kind,value){
   if(kind==='theme')prefs=safePrefs({...prefs,theme:value});
@@ -208,6 +290,10 @@ $('moreBodyButton')?.addEventListener('click',openBody);
 $('moreAppearanceButton')?.addEventListener('click',openAppearance);
 $('moreDataButton')?.addEventListener('click',openData);
 $('moreIntegrationsButton')?.addEventListener('click',openIntegrations);
+$('moreHealthButton')?.addEventListener('click',openHealth);
+$('healthCopyDiagnostics')?.addEventListener('click',copyHealthDiagnostics);
+$('healthClearDiagnostics')?.addEventListener('click',clearHealthHistory);
+$('healthRefresh')?.addEventListener('click',()=>{renderHealth();window.DietV2Data?.refresh?.({silent:true}).catch(()=>{});});
 document.querySelectorAll('[data-p9-close]').forEach(button=>button.addEventListener('click',()=>closeDialog(button.dataset.p9Close)));
 document.querySelectorAll('[data-theme-choice]').forEach(button=>button.addEventListener('click',()=>setPreference('theme',button.dataset.themeChoice)));
 document.querySelectorAll('[data-density-choice]').forEach(button=>button.addEventListener('click',()=>setPreference('density',button.dataset.densityChoice)));
@@ -223,11 +309,13 @@ $('integrationOpenActivity')?.addEventListener('click',openStrategyIntegration);
 $('integrationConnectHealth')?.addEventListener('click',()=>mirrorNativeAction('v2HealthConnectConnect'));
 $('integrationSyncHealth')?.addEventListener('click',()=>mirrorNativeAction('v2HealthConnectSync'));
 
-for(const dialogId of ['bodyWeightDialog','appearanceDialog','dataExportDialog','integrationsDialog']){
+for(const dialogId of ['bodyWeightDialog','appearanceDialog','dataExportDialog','integrationsDialog','systemHealthDialog']){
   $(dialogId)?.addEventListener('click',event=>{if(event.target===$(dialogId))closeDialog(dialogId);});
 }
 window.addEventListener('diet-v2-data-updated',renderAll);
-window.addEventListener('focus',()=>{renderIntegration();renderData();});
+window.addEventListener('diet-v2-telemetry-updated',renderHealth);
+window.addEventListener('diet-v2-reliability-updated',renderHealth);
+window.addEventListener('focus',()=>{renderIntegration();renderData();renderHealth();});
 try{
   globalThis.matchMedia?.('(prefers-color-scheme: dark)')?.addEventListener('change',()=>{
     if(prefs.theme==='system')applyPrefs();
@@ -243,5 +331,6 @@ window.DietV2Settings=Object.freeze({
   apply:applyPrefs,
   exportJson,
   exportNutrition,
-  exportWeights
+  exportWeights,
+  healthDiagnostics:healthDiagnosticsObject
 });

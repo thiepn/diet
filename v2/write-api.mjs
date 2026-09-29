@@ -1,3 +1,4 @@
+import { recordTelemetry, startTelemetrySpan, telemetryErrorCode } from './telemetry.mjs';
 let uncertainWrite=null;
 
 const RPC=Object.freeze({
@@ -54,20 +55,41 @@ function markUncertain(name,args,error){
   return wrapped;
 }
 async function call(client,name,args,{retry=true}={}){
-  if(uncertainWrite)throw reconciliationError();
-  if(!client?.rpc)throw new Error('Diet account connection is unavailable.');
+  if(uncertainWrite){
+    recordTelemetry('write_blocked',{operation:name,code:'reconcile_required',writeBlocked:true});
+    throw reconciliationError();
+  }
+  if(!client?.rpc){
+    recordTelemetry('write_failure',{operation:name,code:'client_unavailable'});
+    throw new Error('Diet account connection is unavailable.');
+  }
+  const span=startTelemetrySpan('write',{operation:name});
   const run=async()=>{
     const {data,error}=await client.rpc(name,args);
     if(error)throw error;
     return data;
   };
-  try{return await run();}
-  catch(error){
-    if(!retry||!isTransient(error))throw error;
+  try{
+    const data=await run();
+    span.end({outcome:'success',retried:false});
+    return data;
+  }catch(error){
+    if(!retry||!isTransient(error)){
+      span.end({outcome:'failure',code:telemetryErrorCode(error),retried:false});
+      throw error;
+    }
+    recordTelemetry('write_retry',{operation:name,code:telemetryErrorCode(error),retried:true});
     await new Promise(resolve=>setTimeout(resolve,320));
-    try{return await run();}
-    catch(secondError){
-      if(isTransient(secondError))throw markUncertain(name,args,secondError);
+    try{
+      const data=await run();
+      span.end({outcome:'success',retried:true});
+      return data;
+    }catch(secondError){
+      if(isTransient(secondError)){
+        span.end({outcome:'uncertain',code:telemetryErrorCode(secondError),retried:true,writeBlocked:true});
+        throw markUncertain(name,args,secondError);
+      }
+      span.end({outcome:'failure',code:telemetryErrorCode(secondError),retried:true});
       throw secondError;
     }
   }
@@ -308,6 +330,9 @@ export async function deleteTrainingDay(client,{trainingDayId,expectedUpdatedAt=
 export function getDietWriteGuardState(){
   return uncertainWrite?{blocked:true,...uncertainWrite}:{blocked:false};
 }
-export function clearUncertainWriteGuard(){uncertainWrite=null;}
+export function clearUncertainWriteGuard(){
+  if(uncertainWrite)recordTelemetry('write_guard',{status:'cleared',writeBlocked:false});
+  uncertainWrite=null;
+}
 
 export const DietWriteRPC=RPC;

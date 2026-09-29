@@ -56,6 +56,18 @@
     "reusable_food_management": true,
     "training_day_planning": true,
     "strategy_action_workflow": true,
-    "offline_owner_cache": true
+    "offline_owner_cache": true,
+    "local_operational_telemetry": true,
+    "production_synthetic_monitoring": true,
+    "foreground_revalidation": true,
+    "realtime_status_diagnostics": true
+  },
+  "observability_policy": {
+    "release": "P13",
+    "client_telemetry": "local_only_sanitized_operational_metadata",
+    "remote_nutrition_telemetry": false,
+    "synthetic_monitoring": "public_shell_plus_auth_health",
+    "retention_days_local": 7,
+    "max_local_events": 120
   }
 }

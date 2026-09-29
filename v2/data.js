@@ -1,7 +1,8 @@
 import { DIET_V2_AUTH_STORAGE_KEY, dietV2AuthStorage } from './auth-storage.mjs';
 import { buildDietV2ReadModel, localDateKey } from './read-model.mjs';
 import { isDefinitiveAuthFailure } from './engine/release-guards.mjs';
-import { clearUncertainWriteGuard } from './write-api.mjs';
+import { clearUncertainWriteGuard, getDietWriteGuardState } from './write-api.mjs';
+import { recordTelemetry, startTelemetrySpan, telemetryErrorCode } from './telemetry.mjs';
 
 export const DIET_V2_SUPABASE_URL='https://hycegznamzjhwinegaai.supabase.co';
 export const DIET_V2_SUPABASE_KEY='sb_publishable_1rZzRPzfLMaAH5pIgCwIjA_19UPMIsR';
@@ -28,7 +29,8 @@ const state={
   requestEpoch:0,
   progressDays:90,
   channel:null,
-  realtimeTimer:null
+  realtimeTimer:null,
+  realtimeStatus:'idle'
 };
 
 function text(id,value){
@@ -90,6 +92,7 @@ function ensureClient(){
     global:{fetch:boundedFetch}
   });
   const {data}=state.client.auth.onAuthStateChange((event,session)=>{
+    recordTelemetry('auth_event',{event,status:session?'session':'none'});
     if(event==='INITIAL_SESSION')return;
     queueMicrotask(async()=>{
       if(event==='SIGNED_OUT'||!session){
@@ -149,9 +152,11 @@ async function resolveOAuthCallback(){
   }
   clearOAuthRelayState();
   if(result.error)throw result.error;
+  recordTelemetry('auth_action',{action:'oauth_complete',outcome:'success'});
   return true;
 }
 export async function signInWithGoogle(){
+  recordTelemetry('auth_action',{action:'sign_in_start',online:navigator.onLine!==false});
   const client=ensureClient();
   const existing=await client.auth.getSession();
   if(existing.error)throw existing.error;
@@ -180,10 +185,12 @@ export async function signInWithGoogle(){
   }catch{
     throw new Error('This browser blocked temporary sign-in state. Allow site data and retry.');
   }
+  recordTelemetry('auth_action',{action:'sign_in_redirect',outcome:'started'});
   location.assign(target.href);
   return null;
 }
 export async function signOutDietV2(){
+  recordTelemetry('auth_action',{action:'sign_out_start'});
   const client=ensureClient();
   const ownerId=state.user?.id??null;
   clearPrivateState();
@@ -199,6 +206,7 @@ export async function signOutDietV2(){
   }
   clearOAuthRelayState();
   render();
+  recordTelemetry('auth_action',{action:'sign_out',outcome:'success'});
 }
 
 function clearPrivateState(){
@@ -209,6 +217,7 @@ function clearPrivateState(){
     try{state.client.removeChannel(state.channel)}catch{}
   }
   state.channel=null;
+  state.realtimeStatus='idle';
   state.user=null;
   state.model=null;
   state.raw=null;
@@ -216,9 +225,18 @@ function clearPrivateState(){
   state.source='none';
 }
 function setState(status,error=null){
+  const previous=state.status;
   state.status=status;
   state.error=error?String(error):null;
   document.documentElement.dataset.dataState=status;
+  if(previous!==status){
+    recordTelemetry('data_state',{
+      status,
+      source:state.source,
+      online:navigator.onLine!==false,
+      code:error?telemetryErrorCode(error):undefined
+    });
+  }
   renderStatus();
 }
 function parseCacheKey(key,ownerId){
@@ -292,6 +310,7 @@ async function subscribeRealtime(){
     try{await state.client.removeChannel(state.channel)}catch{}
     state.channel=null;
   }
+  state.realtimeStatus='connecting';
   let channel=state.client.channel(`diet-v2-read-${state.user.id}`);
   for(const table of ['profiles','daily_logs','meals','meal_items','weight_entries','goal_phases','saved_foods','saved_meals','target_recommendations','activity_daily','training_distribution_settings','training_days']){
     channel=channel.on('postgres_changes',{event:'*',schema:'public',table},()=>{
@@ -299,7 +318,11 @@ async function subscribeRealtime(){
       state.realtimeTimer=setTimeout(()=>refresh({silent:true}).catch(()=>{}),450);
     });
   }
-  state.channel=channel.subscribe();
+  state.channel=channel.subscribe(status=>{
+    state.realtimeStatus=String(status||'unknown').toLowerCase();
+    recordTelemetry('realtime',{status:state.realtimeStatus,online:navigator.onLine!==false});
+    window.dispatchEvent(new CustomEvent('diet-v2-reliability-updated'));
+  });
 }
 
 async function fetchPagedRows(table,columns,{orders=[],pageSize=1000,maxPages=50}={}){
@@ -357,6 +380,8 @@ async function fetchOwnerRows(){
 }
 
 export async function refresh({silent=false}={}){
+  const span=startTelemetrySpan('refresh',{silent,online:navigator.onLine!==false});
+  try{
   const client=ensureClient();
   const epoch=++state.requestEpoch;
   if(!silent)setState('loading');
@@ -449,6 +474,9 @@ export async function refresh({silent=false}={}){
       setState('error',error?.message||error);
     }
     render();
+  }
+  } finally {
+    span.end({status:state.status,source:state.source,realtime:state.realtimeStatus});
   }
 }
 
@@ -750,6 +778,18 @@ async function handleShellAction(action){
   return false;
 }
 
+function shouldRefreshAfterResume(){
+  if(document.visibilityState==='hidden'||navigator.onLine===false)return false;
+  if(!state.user)return false;
+  const fetched=state.fetchedAt?Date.parse(state.fetchedAt):0;
+  return !Number.isFinite(fetched)||Date.now()-fetched>60_000;
+}
+function refreshAfterResume(){
+  if(!shouldRefreshAfterResume())return;
+  recordTelemetry('resume_refresh',{status:state.status,source:state.source});
+  refresh({silent:true}).catch(()=>{});
+}
+
 async function init(){
   renderStatus();
   renderAccount();
@@ -760,7 +800,7 @@ async function init(){
   }catch(error){
     const callback=oauthCallback();
     if(callback.code||callback.error)stripOAuthCallback(callback.url);
-    setState('error',error?.message||error);
+    setState('error',error);
     render();
   }
   window.addEventListener('online',()=>refresh({silent:true}).catch(()=>{}));
@@ -769,6 +809,8 @@ async function init(){
     else setState('offline_empty');
     render();
   });
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshAfterResume();});
+  window.addEventListener('pageshow',event=>{if(event.persisted)refreshAfterResume();});
 }
 
 document.querySelectorAll('[data-progress-range]').forEach(button=>{
@@ -826,10 +868,20 @@ export function getDietV2OfflineCacheInfo(){
     historyDays:Number(cached?.historyDays??OFFLINE_HISTORY_DAYS)
   };
 }
-export function getDietV2State(){return {status:state.status,source:state.source,signedIn:Boolean(state.user),fetchedAt:state.fetchedAt};}
+export function getDietV2State(){
+  const guard=getDietWriteGuardState();
+  return {
+    status:state.status,
+    source:state.source,
+    signedIn:Boolean(state.user),
+    fetchedAt:state.fetchedAt,
+    realtimeStatus:state.realtimeStatus,
+    writeBlocked:Boolean(guard?.blocked)
+  };
+}
 
 window.DietV2Data=Object.freeze({
-  version:'2.0.0-p12',
+  version:'2.0.1-p13',
   refresh,
   signInWithGoogle,
   signOut:signOutDietV2,
@@ -842,7 +894,9 @@ window.DietV2Data=Object.freeze({
     engineVersion:state.model?.meta?.engineVersion??null,
     rows:state.model?.meta?.legacyRows??null,
     progressDays:state.progressDays,
-    realtime:Boolean(state.channel)
+    realtime:Boolean(state.channel),
+    realtimeStatus:state.realtimeStatus,
+    writeBlocked:Boolean(getDietWriteGuardState()?.blocked)
   })
 });
 

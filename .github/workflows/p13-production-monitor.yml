@@ -1,0 +1,107 @@
+name: P13 Production Monitor
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'manifest.webmanifest'
+      - 'sw.js'
+      - 'v2/**'
+      - 'supabase/backend.json'
+      - '.well-known/thiepn-app.json'
+      - '.well-known/thiepn-account-release.json'
+      - 'tests/p13-*'
+      - '.github/workflows/p13-production-monitor.yml'
+  workflow_run:
+    workflows: ['pages build and deployment']
+    types: [completed]
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.event_name == 'schedule' && 'p13-hourly-monitor' || 'p13-release-certification' }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    if: >-
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: P13 static reliability contracts
+        run: |
+          node tests/p13-telemetry.mjs
+          node tests/p13-production-contract.mjs
+          python -m py_compile tests/p13-synthetic-monitor.py tests/p13-live-reliability.py
+
+  synthetic:
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Probe production shell and Supabase Auth health
+        run: python tests/p13-synthetic-monitor.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p13-production-health
+          path: p13-monitor.json
+          retention-days: 14
+
+  browser:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main')
+    needs: synthetic
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install pinned browser tooling
+        run: |
+          pip install playwright==1.57.0
+          python -m playwright install --with-deps ${{ matrix.browser }}
+      - name: Certify production reliability surface
+        run: python tests/p13-live-reliability.py --browser ${{ matrix.browser }} --out p13-live/${{ matrix.browser }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: p13-live-${{ matrix.browser }}
+          path: p13-live/${{ matrix.browser }}/
+          retention-days: 14

@@ -7,25 +7,29 @@
   "accountContract": "1.0",
   "sdkContract": "1.x",
   "integrationMode": "certified-legacy",
-  "operationsVersion": "P12.1",
+  "operationsVersion": "P13.0",
   "sessionAuthority": "thiepn-account",
   "degradedMode": "cached-read-only",
   "authEntryPoints": [
     "google"
   ],
-  "release": "2.0.0",
-  "webRelease": "2.0.0",
+  "release": "2.0.1",
+  "webRelease": "2.0.1",
   "releaseChannel": "stable",
   "stable": true,
   "productionBundle": "v2/data.js",
   "productionStyles": "v2/shell.css",
-  "runtimeMode": "adaptive-v2-production",
+  "runtimeMode": "adaptive-v2-production-monitored",
   "legacyFallback": "/diet/legacy-v1.html",
   "health": {
     "cachedDataPreservedOnBackendFailure": true,
     "networkFailureLogsOutUser": false,
     "writesPerformedByDashboard": true,
-    "writesRequireExplicitConfirmation": true
+    "writesRequireExplicitConfirmation": true,
+    "localOperationalTelemetry": true,
+    "telemetryUploadsNutritionData": false,
+    "syntheticProductionMonitoring": true,
+    "foregroundRevalidation": true
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0"

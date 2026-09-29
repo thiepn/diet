@@ -613,6 +613,14 @@
   .dc-p9-privacy-actions strong{font-size:.77rem}
   .dc-p9-privacy-actions small{color:var(--text-faint);font-size:.66rem;line-height:1.45}
   .dc-p9-privacy-actions>div:last-child{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+  .dc-health-events-section{display:grid;gap:10px;margin-top:18px}
+  .dc-health-events{display:grid;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--surface-muted)}
+  .dc-health-event{display:grid;grid-template-columns:72px minmax(110px,.65fr) minmax(0,1.5fr);gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);font-size:.7rem}
+  .dc-health-event:last-child{border-bottom:0}
+  .dc-health-event span{color:var(--text-faint);font-variant-numeric:tabular-nums}
+  .dc-health-event strong{font-size:.7rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dc-health-event small{color:var(--text-soft);font-size:.66rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 }
 
 @layer utilities{
@@ -673,5 +681,8 @@
     .dc-p9-privacy-actions{grid-template-columns:1fr}
     .dc-p9-privacy-actions>div:last-child{display:grid;grid-template-columns:1fr}
     .dc-p9-privacy-actions .dc-secondary-action{width:100%}
+    .dc-health-event{grid-template-columns:64px minmax(0,1fr);gap:4px 10px}
+    .dc-health-event small{grid-column:1/-1;white-space:normal;line-height:1.35}
+
   }
 }

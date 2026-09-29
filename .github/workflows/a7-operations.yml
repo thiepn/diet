@@ -1,4 +1,4 @@
-name: A7 / P12 Operations Contract
+name: A7 / P13 Operations Contract
 on:
   pull_request:
     branches: [main]
@@ -6,7 +6,6 @@ on:
       - '.well-known/thiepn-app.json'
       - 'v2/**'
       - 'sw.js'
-      - 'legacy-v1*'
       - 'supabase/backend.json'
       - '.github/workflows/a7-operations.yml'
   push:
@@ -23,7 +22,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - name: Verify P12 operations contract
+      - name: Verify P13 operations contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
@@ -31,14 +30,18 @@ jobs:
           const data=fs.readFileSync('v2/data.js','utf8');
           const guards=fs.readFileSync('v2/engine/release-guards.mjs','utf8');
           const writes=fs.readFileSync('v2/write-api.mjs','utf8');
+          const telemetry=fs.readFileSync('v2/telemetry.mjs','utf8');
           const sw=fs.readFileSync('sw.js','utf8');
-          if(app.operationsVersion!=='P12.1')throw new Error('Unexpected operations contract.');
+          if(app.operationsVersion!=='P13.0')throw new Error('Unexpected P13 operations contract.');
           if(app.degradedMode!=='cached-read-only'||app.health?.networkFailureLogsOutUser!==false)throw new Error('Degraded-mode contract regressed.');
           if(app.health?.writesPerformedByDashboard!==true||app.health?.writesRequireExplicitConfirmation!==true)throw new Error('Explicit-write metadata missing.');
+          if(app.health?.localOperationalTelemetry!==true||app.health?.telemetryUploadsNutritionData!==false)throw new Error('Telemetry privacy metadata invalid.');
           if(!data.includes('isDefinitiveAuthFailure')||!data.includes("setState('stale'")||!data.includes("setState('offline'"))throw new Error('Read recovery states regressed.');
+          if(!data.includes('visibilitychange')||!data.includes('pageshow')||!data.includes('realtimeStatus'))throw new Error('P13 foreground/Realtime hardening missing.');
           if(!guards.includes("return 'transient'"))throw new Error('Transient failure classification missing.');
-          if(!writes.includes('p_request_id')||!writes.includes('uncertain'))throw new Error('Write idempotency/uncertainty guard missing.');
+          if(!writes.includes('p_request_id')||!writes.includes('uncertainWrite')||!writes.includes("recordTelemetry('write_retry'"))throw new Error('Write reliability instrumentation missing.');
+          if(telemetry.includes('fetch(')||telemetry.includes('sendBeacon(')||telemetry.includes('.rpc('))throw new Error('P13 local telemetry attempted remote transmission.');
           if(sw.includes('localStorage.clear(')||data.includes('localStorage.clear('))throw new Error('Broad local data clearing is forbidden.');
           if(!sw.includes("scopePath+'v2/'"))throw new Error('Root worker must not intercept V2 alias scope.');
-          console.log('Diet P12 operations contract passed.');
+          console.log('Diet P13 operations contract passed.');
           NODE

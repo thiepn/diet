@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-      - name: P12 JavaScript and Python syntax
+      - name: P13 JavaScript and Python syntax
         shell: bash
         run: |
           set -euo pipefail
@@ -31,10 +31,14 @@ jobs:
             node --check "$tmp"
             rm -f "$tmp"
           done < <(find v2 -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
-          python -m py_compile tests/p12-deployed-production.py tests/p12-live-production.py
-      - name: P12 auth, production and rollback contract
-        run: node tests/p12-auth-contract.mjs
-      - name: P12 product and backend contract
+          node --check tests/p13-telemetry.mjs
+          node --check tests/p13-production-contract.mjs
+          python -m py_compile tests/p13-synthetic-monitor.py tests/p13-live-reliability.py
+      - name: P13 telemetry privacy contract
+        run: node tests/p13-telemetry.mjs
+      - name: P13 production monitoring contract
+        run: node tests/p13-production-contract.mjs
+      - name: P13 product and backend contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
@@ -45,26 +49,27 @@ jobs:
           if(backend.write_protocol?.require_request_id!==true||backend.write_protocol?.retry_same_request_id!==true||backend.write_protocol?.verify_after_write!==true||backend.write_protocol?.dual_write!==false)throw new Error('Reliable write protocol regressed.');
           if(backend.product_boundary?.dashboard_manual_logging!==true||backend.product_boundary?.dashboard_quick_capture!==true||backend.product_boundary?.writes_require_explicit_confirmation!==true)throw new Error('V2 dashboard write boundary regressed.');
           if(backend.product_boundary?.activity_calorie_eat_back!==false)throw new Error('Exercise calories must not be automatically eaten back.');
-          if(app.webRelease!=='2.0.0'||app.releaseChannel!=='stable'||app.stable!==true)throw new Error('P12 stable release metadata invalid.');
-          if(app.productionBundle!=='v2/data.js'||app.productionStyles!=='v2/shell.css'||app.runtimeMode!=='adaptive-v2-production')throw new Error('P12 production runtime metadata invalid.');
+          if(backend.observability_policy?.client_telemetry!=='local_only_sanitized_operational_metadata'||backend.observability_policy?.remote_nutrition_telemetry!==false)throw new Error('P13 telemetry privacy boundary regressed.');
+          if(app.webRelease!=='2.0.1'||app.operationsVersion!=='P13.0'||app.releaseChannel!=='stable'||app.stable!==true)throw new Error('P13 stable release metadata invalid.');
+          if(app.runtimeMode!=='adaptive-v2-production-monitored')throw new Error('P13 monitored runtime metadata invalid.');
           if(release.consumerRelease!==app.webRelease)throw new Error('Account platform consumer release mismatch.');
-          console.log('Diet Copilot 2.0 P12 product/backend contract passed.');
+          console.log('Diet Copilot 2.0.1 P13 product/backend contract passed.');
           NODE
       - name: Build actual GitHub Pages artifact
         uses: actions/jekyll-build-pages@v1
         with:
           source: ./
           destination: ./_site
-      - name: Validate production artifact
+      - name: Validate monitored production artifact
         shell: bash
         run: |
           set -euo pipefail
-          for f in index.html manifest.webmanifest sw.js legacy-v1.html legacy-v1-app.js v2/index.html v2/data.js v2/auth-storage.mjs v2/write-api.mjs v2/shell.css vendor/supabase-2.116.0.js .well-known/thiepn-app.json; do
+          for f in index.html manifest.webmanifest sw.js legacy-v1.html legacy-v1-app.js v2/index.html v2/data.js v2/auth-storage.mjs v2/write-api.mjs v2/telemetry.mjs v2/shell.css vendor/supabase-2.116.0.js .well-known/thiepn-app.json; do
             test -f "_site/$f"
           done
           grep -q 'dc-version-badge">2.0<' _site/index.html
           ! grep -q '2.0 RC' _site/index.html
-          grep -q 'src="./v2/data.js"' _site/index.html
-          grep -q 'legacy-v1-app.js?v=1.0.3-p12-rollback' _site/legacy-v1.html
-          grep -q "dietSetBrowserOAuthRelayState('web-v1-legacy'" _site/legacy-v1-app.js
-          grep -q 'diet-copilot-prod-v2-p12-1' _site/sw.js
+          grep -q 'id="systemHealthDialog"' _site/index.html
+          grep -q 'diet-copilot-prod-v2-p13-1' _site/sw.js
+          grep -q './v2/telemetry.mjs' _site/sw.js
+          grep -q 'local-only-sanitized-operations' _site/v2/telemetry.mjs
