@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "certifiedAt": "2026-09-30",
+  "projectRef": "hycegznamzjhwinegaai",
+  "release": "P23",
+  "currentPostgres": "17.6",
+  "targetPostgres": "17.11",
+  "safeToScheduleUpgrade": true,
+  "upgradeExecuted": false,
+  "postUpgradeValidation": "pending",
+  "sharedSchemaSha256": "aa4aede72f4d2b3ae75b581f691ee6fa1c993a71279c836a8e1fe9b967e13e64",
+  "registeredApps": [
+    {
+      "slug": "notes",
+      "name": "Notes",
+      "path": "/notes/"
+    },
+    {
+      "slug": "diet",
+      "name": "Diet Copilot",
+      "path": "/diet/"
+    },
+    {
+      "slug": "wordstrike",
+      "name": "WORDSTRIKE",
+      "path": "/wordstrike/"
+    },
+    {
+      "slug": "wttn",
+      "name": "Word to the Nations",
+      "path": "/wttn/"
+    },
+    {
+      "slug": "tms60",
+      "name": "TMS60",
+      "path": "/tms60/"
+    }
+  ],
+  "databaseSurfaces": {
+    "account": {
+      "relations": 14,
+      "functions": 30
+    },
+    "canvas": {
+      "relations": 3,
+      "functions": 6
+    },
+    "diet": {
+      "relations": 27,
+      "functions": 137
+    },
+    "gomoku": {
+      "relations": 3,
+      "functions": 1
+    },
+    "leaderboard": {
+      "relations": 3,
+      "functions": 5
+    },
+    "micro_arcade": {
+      "relations": 10,
+      "functions": 24
+    },
+    "notes": {
+      "relations": 3,
+      "functions": 8
+    },
+    "platform": {
+      "relations": 1,
+      "functions": 6
+    },
+    "tms60": {
+      "relations": 2,
+      "functions": 3
+    },
+    "wordstrike": {
+      "relations": 1,
+      "functions": 0
+    },
+    "wttn": {
+      "relations": 2,
+      "functions": 5
+    }
+  },
+  "cron": {
+    "jobs": 8,
+    "activeJobs": 8,
+    "schedulerWorkers": 1,
+    "historyBytes": 32768,
+    "failures7d": 0,
+    "names": [
+      "diet-p15-daily-snapshot",
+      "diet-p15-monthly-snapshot",
+      "diet-p18-integrity-daily",
+      "diet-p19-idempotency-prune",
+      "account-deletion-finalizer",
+      "diet-p20-schema-drift-daily",
+      "diet-p21-readiness-daily",
+      "diet-p22-maintenance-weekly"
+    ]
+  },
+  "upgradeHazards": {
+    "ltreeIndexes": 0,
+    "btreeGistFloatIndexes": 0,
+    "customOperators": 0,
+    "legacyPgcryptoFunctionRefs": 0,
+    "regTypeColumns": 0,
+    "deprecatedExtensions": 0,
+    "extensionVersionMismatches": 0,
+    "md5LoginRoles": 0,
+    "replicationSlots": 0
+  },
+  "edgeFunctions": [
+    {
+      "slug": "leaderboard-profile",
+      "version": 7,
+      "verifyJwt": false,
+      "sha256": "26a021e25836dd655fba3bd975b0e772829cbb5da61b4a193a9e2ed4966e0f24"
+    },
+    {
+      "slug": "get-leaderboard",
+      "version": 11,
+      "verifyJwt": false,
+      "sha256": "2e506223de0d63c21b6f47821b5b91a302b4c2510a085f8c13dbd9062e80a907"
+    },
+    {
+      "slug": "submit-score",
+      "version": 17,
+      "verifyJwt": false,
+      "sha256": "23883e95ec549f2a4c1a3902b4520a08706c5087107d82b12e7a6d32d733d1ac"
+    },
+    {
+      "slug": "micro-arcade-leaderboards",
+      "version": 4,
+      "verifyJwt": false,
+      "sha256": "dda244cfcff59396b97f2c789cad83f78f2bd2d49a02ee5c1eea5dfeabe0dc90"
+    },
+    {
+      "slug": "platform-health",
+      "version": 4,
+      "verifyJwt": false,
+      "sha256": "ba7fc889263de7ae858f2f870fad59d9cd7d146b3e75ceca4b9c8f355a2ac6dd"
+    },
+    {
+      "slug": "gomoku-room",
+      "version": 10,
+      "verifyJwt": false,
+      "sha256": "9cc65a384326688b66be05ebe2596459403e43cd2af80e0d310389ef9188a4b2"
+    },
+    {
+      "slug": "diet-health-sync",
+      "version": 7,
+      "verifyJwt": true,
+      "sha256": "d03a3f68bde63492832ef5ef2e3a2e6ade8b83dd7cea98f2a804abfbfa5a7e9c"
+    },
+    {
+      "slug": "gomoku-room-debug",
+      "version": 6,
+      "verifyJwt": false,
+      "sha256": "f44a5bdbf7ae82562ecab90ca388e5960de6f0780b99712f7e87bb1e77acb0d4"
+    },
+    {
+      "slug": "wordstrike-profile-sync",
+      "version": 5,
+      "verifyJwt": false,
+      "sha256": "70b1e1b969d8c5a6cf252b7336bec0d17d4a66478d54d6e878df0004faf8baee"
+    },
+    {
+      "slug": "diet-copilot-ai",
+      "version": 4,
+      "verifyJwt": true,
+      "sha256": "02a592a1d9abcbc29faaca465c04601ff578c113d8731e92021319461696feb7"
+    },
+    {
+      "slug": "diet-p15-backup-export",
+      "version": 2,
+      "verifyJwt": false,
+      "sha256": "7310fcf2c5ebb4abaccc011bbc27b0592d6be2bd938f271b6a2c9bb2a8373734"
+    }
+  ],
+  "notes": [
+    "The shared project changed during certification: Gomoku migration 20260930000816 landed before the final P23 baseline and is included in the certified fingerprint.",
+    "The P23 database fingerprint excludes managed auth/storage/realtime schemas but includes all app-owned public/private/notes_private/wttn_private/canvas_admin relations and functions, cron definitions, and installed extension names.",
+    "Edge Functions are certified separately in this inventory because they are not represented in the PostgreSQL catalog fingerprint."
+  ]
+}

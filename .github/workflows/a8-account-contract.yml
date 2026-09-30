@@ -21,7 +21,7 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 22
-      - name: Validate Diet 2.0.3 / P22 account consumer contract
+      - name: Validate Diet 2.0.3 / P23 account consumer contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
@@ -30,14 +30,14 @@ jobs:
           const auth=fs.readFileSync('v2/auth-storage.mjs','utf8');
           const html=fs.readFileSync('index.html','utf8');
           const all=fs.readdirSync('v2',{recursive:true}).filter(p=>/\.(?:js|mjs)$/.test(String(p))).map(p=>fs.readFileSync('v2/'+p,'utf8')).join('\n');
-          const expected={schemaVersion:'1.0',app:'diet',displayName:'Diet Copilot',path:'/diet/',accountContract:'1.0',sdkContract:'1.x',integrationMode:'certified-legacy',operationsVersion:'P22.0',sessionAuthority:'thiepn-account'};
+          const expected={schemaVersion:'1.0',app:'diet',displayName:'Diet Copilot',path:'/diet/',accountContract:'1.0',sdkContract:'1.x',integrationMode:'certified-legacy',operationsVersion:'P23.0',sessionAuthority:'thiepn-account'};
           for(const [key,value] of Object.entries(expected))if(app[key]!==value)throw new Error('Diet A8 manifest mismatch: '+key);
           if(app.webRelease!=='2.0.3'||app.sourceLayout!=='v2'||app.runtimeMode!=='adaptive-v2-production-monitored')throw new Error('Diet Web 2.0.3 runtime metadata invalid.');
-          for(const [k,v] of Object.entries({securityRelease:'P14',resilienceRelease:'P15',performanceRelease:'P16',privacyRelease:'P17',integrityRelease:'P18',concurrencyRelease:'P19',changeGovernanceRelease:'P20',incidentCertificationRelease:'P21',maintenanceRelease:'P22'}))if(app[k]!==v)throw new Error('Diet release stack invalid: '+k);
+          for(const [k,v] of Object.entries({securityRelease:'P14',resilienceRelease:'P15',performanceRelease:'P16',privacyRelease:'P17',integrityRelease:'P18',concurrencyRelease:'P19',changeGovernanceRelease:'P20',incidentCertificationRelease:'P21',maintenanceRelease:'P22',platformUpgradeRelease:'P23'}))if(app[k]!==v)throw new Error('Diet release stack invalid: '+k);
           if(JSON.stringify(app.authEntryPoints)!==JSON.stringify(['google']))throw new Error('Diet must remain Google-only auth.');
           if(!html.includes('Continue with Google')||!data.includes("provider:'google'"))throw new Error('Google account entry point regressed.');
           if(!data.includes("flowType:'pkce'")||!data.includes('storage:dietV2AuthStorage'))throw new Error('Diet PKCE/session contract regressed.');
           for(const banned of ['signInWithPassword','resetPasswordForEmail','loginPassword','passwordForm','email-password'])if(all.includes(banned))throw new Error('Legacy password auth returned: '+banned);
           if(!auth.includes("Path=/")||!auth.includes('SameSite=Lax'))throw new Error('Persistent auth storage contract regressed.');
-          console.log('Diet A8 consumer contract passed for Web 2.0.3 / P22.');
+          console.log('Diet A8 consumer contract passed for Web 2.0.3 / P23.');
           NODE

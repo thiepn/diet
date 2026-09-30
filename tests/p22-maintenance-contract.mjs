@@ -13,7 +13,7 @@ const browser=fs.readdirSync('v2',{recursive:true})
   .join('\n');
 
 assert.equal(app.webRelease,'2.0.3');
-assert.equal(app.operationsVersion,'P22.0');
+assert.ok(['P22.0','P23.0'].includes(app.operationsVersion),'P22 maintenance controls must remain valid through P23.');
 assert.equal(app.maintenanceRelease,'P22');
 assert.equal(app.maintenanceModel,'immutable-supply-chain-weekly-maintenance-upgrade-readiness-v1');
 for(const [k,v] of Object.entries({

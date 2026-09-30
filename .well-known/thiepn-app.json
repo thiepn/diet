@@ -7,7 +7,7 @@
   "accountContract": "1.0",
   "sdkContract": "1.x",
   "integrationMode": "certified-legacy",
-  "operationsVersion": "P22.0",
+  "operationsVersion": "P23.0",
   "sessionAuthority": "thiepn-account",
   "degradedMode": "cached-read-only",
   "authEntryPoints": [
@@ -110,7 +110,19 @@
     "sharedProjectUpgradeRequiresCrossAppReview": true,
     "maintenanceStatusServiceOnly": true,
     "autoDependencyUpdate": false,
-    "autoPlatformUpgrade": false
+    "autoPlatformUpgrade": false,
+    "sharedPlatformUpgradeCertification": true,
+    "sharedPlatformUpgradeReady": true,
+    "sharedPlatformUpgradeExecuted": false,
+    "sharedPlatformPostUpgradeValidation": "pending",
+    "sharedPlatformSchemaSha256": "aa4aede72f4d2b3ae75b581f691ee6fa1c993a71279c836a8e1fe9b967e13e64",
+    "certifiedApplicationSurfaceCount": 10,
+    "certifiedPlatformControlSurfaceCount": 1,
+    "registeredSharedApps": 5,
+    "sharedEdgeFunctionCount": 11,
+    "sharedCronJobCount": 8,
+    "sharedUpgradeHazardCount": 0,
+    "platformUpgradeStatusServiceOnly": true
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0",
@@ -131,5 +143,7 @@
   "incidentCertificationRelease": "P21",
   "incidentModel": "failure-injection-write-freeze-recovery-readiness-v1",
   "maintenanceRelease": "P22",
-  "maintenanceModel": "immutable-supply-chain-weekly-maintenance-upgrade-readiness-v1"
+  "maintenanceModel": "immutable-supply-chain-weekly-maintenance-upgrade-readiness-v1",
+  "platformUpgradeRelease": "P23",
+  "platformUpgradeModel": "shared-schema-fingerprint-cross-app-postgres-17-11-readiness-v1"
 }

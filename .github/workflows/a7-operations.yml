@@ -1,4 +1,4 @@
-name: A7 / P22 Full Production Hardening Contract
+name: A7 / P23 Shared Platform Readiness Contract
 on:
   pull_request:
     branches: [main]
@@ -11,6 +11,8 @@ on:
       - 'supabase/migrations/**'
       - 'scripts/p22-*'
       - 'tests/p22-*'
+      - 'tests/p23-*'
+      - 'platform-p23-inventory.json'
       - '.github/workflows/**'
   push:
     branches: [main]
@@ -29,24 +31,27 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12'
-      - name: Verify P22 operations stack
+      - name: Verify P23 operations stack
         run: |
           python scripts/p22-verify-supply-chain.py
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
           const app=JSON.parse(fs.readFileSync('.well-known/thiepn-app.json','utf8'));
           const backend=JSON.parse(fs.readFileSync('supabase/backend.json','utf8'));
-          const migration=fs.readFileSync('supabase/migrations/20260929231309_diet_p22_long_term_operability_supply_chain_maintenance.sql','utf8');
+          const migration=fs.readFileSync('supabase/migrations/20260930000921_platform_p23_shared_postgres_17_11_upgrade_readiness.sql','utf8');
+          const inventory=JSON.parse(fs.readFileSync('platform-p23-inventory.json','utf8'));
           const browser=fs.readdirSync('v2',{recursive:true}).filter(p=>/\.(?:js|mjs)$/.test(String(p))).map(p=>fs.readFileSync('v2/'+p,'utf8')).join('\n');
 
-          if(app.operationsVersion!=='P22.0'||app.maintenanceRelease!=='P22')throw new Error('Unexpected P22 metadata.');
+          if(app.operationsVersion!=='P23.0'||app.maintenanceRelease!=='P22'||app.platformUpgradeRelease!=='P23')throw new Error('Unexpected P23 metadata.');
           for(const [k,v] of Object.entries({securityRelease:'P14',resilienceRelease:'P15',performanceRelease:'P16',privacyRelease:'P17',integrityRelease:'P18',concurrencyRelease:'P19',changeGovernanceRelease:'P20',incidentCertificationRelease:'P21'}))if(app[k]!==v)throw new Error('Prior release regressed: '+k);
-          if(app.webRelease!=='2.0.3')throw new Error('P22 must not churn browser release.');
+          if(app.webRelease!=='2.0.3')throw new Error('P23 must not churn browser release.');
           if(backend.maintenance_policy?.database?.release_status!=='pass')throw new Error('P22 database maintenance is not green.');
           if(backend.maintenance_policy?.database?.expected_diet_jobs!==7)throw new Error('P22 watchdog count invalid.');
           if(backend.maintenance_policy?.supply_chain?.github_actions!=='immutable_commit_sha')throw new Error('P22 immutable Action policy missing.');
           if(backend.maintenance_policy?.platform_upgrade?.diet_preflight_clean!==true)throw new Error('P22 Postgres upgrade preflight not clean.');
-          if(!migration.includes('diet_p22_maintenance_report')||!migration.includes('diet-p22-maintenance-weekly'))throw new Error('P22 maintenance migration incomplete.');
-          for(const name of ['diet_p22_maintenance_status','diet_p22_run_maintenance'])if(browser.includes(name))throw new Error('P22 operator surface leaked into browser runtime: '+name);
-          console.log('Diet P22 full production hardening contract passed.');
+          if(!migration.includes('platform_p23_upgrade_preflight')||!migration.includes('platform_p23_post_upgrade_validation'))throw new Error('P23 platform migration incomplete.');
+          if(backend.platform_upgrade_policy?.safe_to_schedule_upgrade!==true||backend.platform_upgrade_policy?.upgrade_executed!==false)throw new Error('P23 shared-platform readiness invalid.');
+          if(inventory.edgeFunctions?.length!==11||inventory.upgradeExecuted!==false)throw new Error('P23 shared-platform inventory invalid.');
+          for(const name of ['diet_p22_maintenance_status','diet_p22_run_maintenance','platform_p23_upgrade_status','platform_p23_upgrade_preflight','platform_p23_post_upgrade_validation'])if(browser.includes(name))throw new Error('Operator surface leaked into browser runtime: '+name);
+          console.log('Diet P23 shared-platform readiness contract passed.');
           NODE

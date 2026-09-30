@@ -17,7 +17,7 @@ const pwa=read('v2/pwa.js');
 assert.equal(app.release,'2.0.3');
 assert.equal(app.webRelease,'2.0.3');
 assert.equal(account.consumerRelease,'2.0.3');
-assert.ok(['P20.0','P21.0','P22.0'].includes(app.operationsVersion),'P20 governance must remain valid through P22.');
+assert.ok(['P20.0','P21.0','P22.0','P23.0'].includes(app.operationsVersion),'P20 governance must remain valid through P23.');
 assert.equal(app.changeGovernanceRelease,'P20');
 assert.equal(app.schemaContractModel,'deterministic-schema-fingerprint-certified-checkpoint-v1');
 assert.equal(app.securityRelease,'P14');
@@ -51,7 +51,7 @@ assert.deepEqual(policy?.contract_scope?.excludes,[
 ]);
 assert.equal(policy?.checkpoint?.status,'clean');
 assert.ok(['P20','P21','P22'].includes(policy?.checkpoint?.release));
-assert.ok(['P20.0','P21.0','P22.0'].includes(policy?.checkpoint?.operations_version));
+assert.ok(['P20.0','P21.0','P22.0','P23.0'].includes(policy?.checkpoint?.operations_version));
 assert.equal(policy?.drift_audit?.retention_days,365);
 assert.equal(policy?.drift_audit?.cron_utc,'03:37_daily');
 assert.equal(policy?.drift_audit?.auto_repair,false);

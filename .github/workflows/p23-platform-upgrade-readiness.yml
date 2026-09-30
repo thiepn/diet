@@ -1,0 +1,60 @@
+name: P23 Shared Platform Upgrade Readiness
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'platform-p23-inventory.json'
+      - '.well-known/thiepn-app.json'
+      - 'supabase/backend.json'
+      - 'supabase/migrations/**'
+      - 'tests/p23-*'
+      - 'docs/P23-*'
+      - '.github/workflows/p23-platform-upgrade-readiness.yml'
+  schedule:
+    - cron: '43 5 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p23-shared-platform-upgrade-readiness
+  cancel-in-progress: true
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: P23 shared-platform static contract
+        run: |
+          node tests/p23-platform-contract.mjs
+          python -m py_compile tests/p23-shared-platform-public.py
+
+  public:
+    needs: static
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Shared Auth, platform-health and public boundary
+        run: python tests/p23-shared-platform-public.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: p23-shared-platform-public
+          path: p23-shared-platform-public.json
+          retention-days: 30

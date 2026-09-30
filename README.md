@@ -1,37 +1,64 @@
 # Diet Copilot
 
-**Web 2.0.3 · P22 long-term operability & supply-chain hardening**
+**Web 2.0.3 · P23 shared-platform PostgreSQL upgrade readiness**
 
-Diet Copilot 2.0 remains live at **https://thiepn.dev/diet/**. P22 surrounds the P13–P21 production stack with long-term maintenance, dependency and upgrade controls.
+Diet Copilot remains live at **https://thiepn.dev/diet/**. P23 certifies the shared Supabase project for the PostgreSQL 17.11 infrastructure upgrade without executing the upgrade.
 
-## P22
+## P23 result
 
-Production now has a private weekly maintenance audit at **04:07 UTC every Sunday**. It checks scheduler health, seven expected Diet database jobs, recent cron failures, extension-version drift, snapshot freshness, P18 integrity, P20 schema drift and P21 incident readiness.
+The shared project currently runs PostgreSQL **17.6**. Supabase makes **17.11** available as a security/minor upgrade.
 
-Diet-owned `cron.job_run_details` history older than **90 days** is pruned automatically. The cleanup is intentionally scoped to current `diet-%` job IDs so unrelated applications in the shared Supabase project are untouched. P22 audit evidence is retained for **730 days**.
+P23 certifies:
 
-### Supply chain
+- **5 registered THIEPN Account apps**;
+- **10 application/service database surfaces**;
+- **1 platform-control surface**;
+- **11 active Edge Functions**;
+- **8 active pg_cron jobs**;
+- a deterministic cross-app schema fingerprint.
 
-All external GitHub Actions are pinned to reviewed immutable commit SHAs. Floating refs such as `@v6` are prohibited by CI.
+Final P23 database state:
 
-`supply-chain.lock.json` protects:
+- preflight: **pass**
+- safe to schedule upgrade: **true**
+- shared schema SHA-256: `aa4aede72f4d2b3ae75b581f691ee6fa1c993a71279c836a8e1fe9b967e13e64`
+- detected upgrade hazards: **0**
+- infrastructure upgrade executed: **false**
+- post-upgrade validation: **pending**
 
-- reviewed GitHub Action commits;
-- the vendored Supabase JS runtime;
-- the exact Supabase JS SHA-256;
-- the Playwright CI version.
+The P23 hazard scan found zero ltree indexes, zero btree_gist float indexes, zero affected custom operators, zero legacy pgcrypto cipher references, zero app-owned reg* columns, zero deprecated extensions, zero extension-version mismatches, zero MD5 login roles and zero logical replication slots.
 
-The production Supabase browser SDK remains vendored at **2.116.0** with SHA-256:
+## Shared surfaces
 
-`fbde52aab1700a3b308087ae78b41fb5192e7a952d81d5d08238763ce3245dd8`
+Registered apps:
 
-Dependabot checks GitHub Actions weekly. A monthly P22 workflow checks upstream Action tags and the latest Supabase JS release, but updates remain review-only.
+- Notes
+- Diet Copilot
+- WORDSTRIKE
+- Word to the Nations
+- TMS60
 
-### PostgreSQL maintenance
+Additional services sharing the project:
 
-The shared Supabase project currently reports PostgreSQL **17.6**. Diet's preflight for the available 17.11 security update is clean: no `ltree`/`btree_gist` exposure, no affected custom operators and no Diet legacy pgcrypto PGP encryption.
+- THIEPN Account platform
+- Canvas
+- Gomoku
+- Leaderboard
+- Micro Arcade
 
-P22 does **not** automatically upgrade the shared database. Other THIEPN applications must be reviewed before the infrastructure upgrade is started.
+P23 records the deployed Edge Function inventory separately in `platform-p23-inventory.json`, because Edge Function source is outside PostgreSQL's system catalog.
+
+## Concurrent schema changes
+
+While P23 was running, Gomoku migration `20260930000816_gomoku_p3_player_presence_and_vacant_host_seats` landed in the shared database. P23 detected the new relation before final certification, and the final P23 fingerprint includes it.
+
+That is the intended behavior: a platform upgrade must use the final shared database state, not a stale earlier snapshot.
+
+## Upgrade execution
+
+P23 does **not** automatically alter the managed PostgreSQL version.
+
+The actual infrastructure operation requires a maintenance window and cross-app post-upgrade checks. `private.platform_p23_post_upgrade_validation()` therefore remains **pending** until production is actually on PostgreSQL 17.11 or newer.
 
 ## Production hardening stack
 
@@ -42,22 +69,24 @@ P22 does **not** automatically upgrade the shared database. Other THIEPN applica
 - **P17:** privacy/export/lifecycle
 - **P18:** integrity constraints and auditing
 - **P19:** concurrency/idempotency
-- **P20:** schema drift and release checkpoints
+- **P20:** Diet schema drift and release checkpoints
 - **P21:** failure injection and incident recovery
 - **P22:** long-term maintenance and supply-chain hardening
+- **P23:** shared-platform PostgreSQL upgrade certification
 
 ## Release
 
 - Web/PWA: **2.0.3**
-- Operations: **P22.0**
+- Operations: **P23.0**
 - Security: **P14**
 - Resilience: **P15**
 - Performance: **P16**
 - Privacy/lifecycle: **P17**
 - Data integrity: **P18**
 - Concurrency/idempotency: **P19**
-- Change governance: **P20**
+- Diet change governance: **P20**
 - Incident/recovery certification: **P21**
 - Maintenance/supply chain: **P22**
+- Shared-platform upgrade readiness: **P23**
 
-See [P22 maintenance](docs/P22-MAINTENANCE.md), [P22 supply-chain policy](docs/P22-SUPPLY-CHAIN.md), [P22 upgrade playbook](docs/P22-UPGRADE-PLAYBOOK.md), and [QA.md](QA.md).
+See [P23 certification](docs/P23-UPGRADE-CERTIFICATION.md), [P23 upgrade runbook](docs/P23-UPGRADE-RUNBOOK.md), [post-upgrade validation matrix](docs/P23-POST-UPGRADE-CHECKLIST.md), and [QA.md](QA.md).

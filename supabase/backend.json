@@ -110,7 +110,13 @@
     "weekly_maintenance_audit": true,
     "scoped_cron_history_pruning": true,
     "postgres_upgrade_preflight": true,
-    "service_only_maintenance_status": true
+    "service_only_maintenance_status": true,
+    "shared_platform_upgrade_certification": true,
+    "shared_platform_schema_fingerprint": true,
+    "cross_app_upgrade_preflight": true,
+    "cross_app_post_upgrade_validation": true,
+    "edge_function_upgrade_inventory": true,
+    "service_only_platform_upgrade_status": true
   },
   "observability_policy": {
     "release": "P13",
@@ -445,5 +451,60 @@
     "advisor_security_findings": 0,
     "advisor_performance_findings": 0,
     "certified_schema_sha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375"
+  },
+  "platform_upgrade_policy": {
+    "release": "P23",
+    "migration_versions": [
+      "20260930000921"
+    ],
+    "current_postgres": "17.6",
+    "target_postgres": "17.11",
+    "target_server_version_num": 170011,
+    "upgrade_available": true,
+    "safe_to_schedule_upgrade": true,
+    "automatic_upgrade": false,
+    "upgrade_executed": false,
+    "post_upgrade_validation": "pending",
+    "shared_project": true,
+    "registered_active_apps": 5,
+    "certified_application_surfaces": 10,
+    "certified_platform_control_surfaces": 1,
+    "schema_contract_format": "platform-p23-shared-schema-v1",
+    "certified_schema_sha256": "aa4aede72f4d2b3ae75b581f691ee6fa1c993a71279c836a8e1fe9b967e13e64",
+    "certification_table": "private.platform_upgrade_certifications",
+    "certification_retention_days": 730,
+    "preflight_function": "private.platform_p23_upgrade_preflight",
+    "fingerprint_function": "private.platform_p23_shared_schema_fingerprint",
+    "post_upgrade_function": "private.platform_p23_post_upgrade_validation",
+    "status_rpc": "public.platform_p23_upgrade_status",
+    "status_rpc_service_only": true,
+    "edge_function_inventory": "platform-p23-inventory.json",
+    "edge_function_count": 11,
+    "cron_jobs": 8,
+    "cron_scheduler_workers": 1,
+    "cron_history_bytes": 32768,
+    "recent_cron_failures_7d": 0,
+    "hazards": {
+      "ltree_indexes": 0,
+      "btree_gist_float_indexes": 0,
+      "custom_operators": 0,
+      "legacy_pgcrypto_function_refs": 0,
+      "reg_type_columns": 0,
+      "deprecated_extensions": 0,
+      "extension_version_mismatches": 0,
+      "md5_login_roles": 0,
+      "replication_slots": 0
+    },
+    "prior_diet_gates": {
+      "integrity": "clean",
+      "schema_drift": false,
+      "failure_certification": "pass",
+      "incident_readiness": "pass",
+      "maintenance": "pass"
+    },
+    "advisor_security_findings": 0,
+    "advisor_performance_findings": 0,
+    "maintenance_window_required": true,
+    "cross_app_post_upgrade_validation_required": true
   }
 }
