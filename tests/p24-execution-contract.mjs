@@ -32,7 +32,7 @@ assert.equal(app.health?.platformUpgradeEdgeQuietRequired,true);
 assert.equal(app.health?.platformUpgradeEdgeQuietMinutes,10);
 assert.equal(app.health?.platformUpgradeEdgeInventoryRequiresFinalRecheck,true);
 assert.equal(app.health?.platformUpgradeDatabaseGateCoversEdgeDeployments,false);
-assert.equal(app.health?.platformUpgradeLatestObservedGomokuEdgeVersion,24);
+assert.equal(app.health?.platformUpgradeLatestObservedGomokuEdgeVersion,27);
 assert.equal(app.health?.platformUpgradeBlockingReplicationSlots,0);
 assert.equal(app.health?.platformUpgradeDashboardPreflightAuthoritative,true);
 
@@ -63,7 +63,7 @@ assert.equal(policy?.concurrent_change_protection?.require_quiet_window,true);
 assert.equal(policy?.concurrent_change_protection?.edge_deployment_quiet_minutes,10);
 assert.equal(policy?.concurrent_change_protection?.edge_inventory_final_recheck_required,true);
 assert.equal(policy?.concurrent_change_protection?.database_gate_covers_edge_deployments,false);
-assert.equal(policy?.concurrent_change_protection?.latest_observed_gomoku_room_edge?.version,24);
+assert.equal(policy?.concurrent_change_protection?.latest_observed_gomoku_room_edge?.version,27);
 assert.equal(policy?.concurrent_change_protection?.replication_slot_state?.blocking,0);
 assert.equal(policy?.concurrent_change_protection?.replication_slot_state?.dashboard_preflight_authoritative,true);
 
@@ -91,7 +91,7 @@ for(const value of Object.values(p24.preUpgrade.hazards)) assert.equal(value,0);
 assert.equal(p24.recovery.freshInDatabaseSnapshot,true);
 assert.equal(p24.recovery.snapshotVerified,true);
 assert.equal(p24.recovery.snapshotId,'aebe85b2-43a4-4e0b-b44d-e782bb97aa18');
-assert.equal(p24.recovery.snapshotCapturedAt,'2026-09-30T16:19:59.549832Z');
+assert.equal(p24.recovery.snapshotCapturedAt,'2026-09-30T20:27:39.582068Z');
 assert.equal(p24.recovery.snapshotHashOk,true);
 assert.equal(p24.recovery.snapshotSchemaOk,true);
 assert.equal(p24.recovery.restorePlanSafeToStage,true);
@@ -102,7 +102,7 @@ assert.equal(p24.edgeInventoryAtCaptureHistorical,true);
 assert.equal(p24.edgeRevalidation?.required,true);
 assert.equal(p24.edgeRevalidation?.databaseExecutionGateCoversEdgeDeployments,false);
 assert.equal(p24.edgeRevalidation?.minimumQuietMinutes,10);
-assert.equal(p24.edgeRevalidation?.latestObservedGomokuRoomVersion,24);
+assert.equal(p24.edgeRevalidation?.latestObservedGomokuRoomVersion,27);
 assert.equal(p24.edgeRevalidation?.quietWindowSatisfied,true);
 
 assert.equal(p23.sharedSchemaSha256,policy.current_certified_schema_sha256);
@@ -110,8 +110,8 @@ assert.equal(p23.databaseSurfaces.gomoku.relations,9);
 assert.equal(p23.databaseSurfaces.gomoku.functions,8);
 assert.equal(p23.databaseSurfaces.platform.functions,8);
 const gomokuEdge=p23.edgeFunctions.find(x=>x.slug==='gomoku-room');
-assert.equal(gomokuEdge?.version,24);
-assert.equal(gomokuEdge?.sha256,'c66bc31db80b0eb12ef7c4b8d93fc14f5b3a1b9ec23e99b969ad46e6bc301378');
+assert.equal(gomokuEdge?.version,27);
+assert.equal(gomokuEdge?.sha256,'958f85954b7b0e1fe01d67eafc01e6e25e9c216743a6c46ba0e695d218db5068');
 
 for(const token of [
   'private.platform_p24_execution_gate',
