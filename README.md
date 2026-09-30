@@ -10,11 +10,11 @@ P24 now treats the shared project as a moving production platform rather than a 
 
 The refreshed gate distinguishes **blocking/custom replication slots** from Supabase-managed temporary Realtime slots, keeps the Supabase Dashboard preflight authoritative, and still requires an exact certified schema match plus a **10-minute migration quiet window**.
 
-Current recorded P24 state: **waiting for the final quiet window after the latest shared migration**. The live service-only gate is authoritative and automatically becomes ready only when no newer shared migration has invalidated the certification.
+Current recorded P24 state: **ready for the manual Supabase infrastructure upgrade**. The final live gate reported an exact schema match with 225+ minutes of migration quiet time; the latest v27 shared Edge deployment was also quiet for well over 10 minutes. The live gate remains authoritative immediately before the Dashboard click.
 
 Current certified shared SHA-256:
 
-`b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f`
+`8239b32928be652214a63ae733d42bace71d46d7145e3e6e5eea8b7f066e1dfe`
 
 See [P24 execution](docs/P24-UPGRADE-EXECUTION.md) and [P24 manual handoff](docs/P24-MANUAL-HANDOFF.md).
 
