@@ -120,7 +120,8 @@
     "controlled_managed_upgrade_gate": true,
     "shared_schema_quiet_window": true,
     "manual_infrastructure_upgrade_handoff": true,
-    "post_upgrade_cross_app_certification_pending": true
+    "post_upgrade_cross_app_certification_pending": true,
+    "managed_realtime_replication_slot_classification": true
   },
   "observability_policy": {
     "release": "P13",
@@ -470,11 +471,11 @@
     "upgrade_executed": false,
     "post_upgrade_validation": "pending",
     "shared_project": true,
-    "registered_active_apps": 5,
+    "registered_active_apps": 6,
     "certified_application_surfaces": 10,
     "certified_platform_control_surfaces": 1,
     "schema_contract_format": "platform-p23-shared-schema-v1",
-    "certified_schema_sha256": "f5485033a2845f9a1baacee6811c976c72e5ffb5d73bf0b9a50e3d0c0b48647c",
+    "certified_schema_sha256": "72892db6c87e4a7c608c2b15e74e0f4dc7b47a083c707fdd959b82e19f42a62e",
     "certification_table": "private.platform_upgrade_certifications",
     "certification_retention_days": 730,
     "preflight_function": "private.platform_p23_upgrade_preflight",
@@ -509,16 +510,24 @@
     "advisor_security_findings": 0,
     "advisor_performance_findings": 0,
     "maintenance_window_required": true,
-    "cross_app_post_upgrade_validation_required": true
+    "cross_app_post_upgrade_validation_required": true,
+    "replication_slot_state": {
+      "total": 2,
+      "managed_realtime_temporary": 2,
+      "blocking": 0,
+      "classification": "temporary_active_supabase_realtime_pgoutput_or_wal2json",
+      "dashboard_preflight_authoritative": true
+    }
   },
   "platform_upgrade_execution_policy": {
     "release": "P24",
     "active_operations_release": "P23.0",
     "migration_versions": [
       "20260930014316",
-      "20260930014417"
+      "20260930014417",
+      "20260930161902"
     ],
-    "execution_state": "ready_for_manual_supabase_infrastructure_upgrade",
+    "execution_state": "awaiting_final_quiet_window_after_p24_refresh",
     "current_postgres": "17.6",
     "target_postgres": "17.11",
     "managed_upgrade_method": "supabase_infrastructure_in_place_pg_upgrade",
@@ -530,11 +539,11 @@
     "execution_status_rpc": "public.platform_p24_execution_status",
     "execution_status_rpc_service_only": true,
     "minimum_quiet_minutes": 10,
-    "current_certified_schema_sha256": "f5485033a2845f9a1baacee6811c976c72e5ffb5d73bf0b9a50e3d0c0b48647c",
+    "current_certified_schema_sha256": "72892db6c87e4a7c608c2b15e74e0f4dc7b47a083c707fdd959b82e19f42a62e",
     "pre_upgrade_manifest": "platform-p24-pre-upgrade.json",
     "writes_paused": false,
     "recovery": {
-      "fresh_snapshot_captured_at": "2026-09-30T12:51:24.091103Z",
+      "fresh_snapshot_captured_at": "2026-09-30T16:19:59.549832Z",
       "fresh_snapshot_verified": true,
       "restore_plan_safe_to_stage": true,
       "destructive_restore_automatic": false,
@@ -546,20 +555,29 @@
       "require_schema_match": true,
       "require_quiet_window": true,
       "recent_changes": [
-        "20260930013052_gomoku_p4_match_integrity_rate_limits",
-        "20260930014008_gomoku_p5_match_history_persistence",
-        "gomoku-room edge function version 18"
+        "20260930132757_gomoku_p6_online_player_identity_profiles",
+        "20260930150238_account_backup_inventory_order_fix",
+        "20260930150418_gomoku_p6_exact_player_stats",
+        "20260930150847_account_app_deletion_plan_empty_namespace_fix",
+        "20260930161902_platform_p24_managed_realtime_replication_preflight",
+        "gomoku-room edge function version 24"
       ],
       "edge_deployment_quiet_minutes": 10,
       "edge_inventory_final_recheck_required": true,
       "database_gate_covers_edge_deployments": false,
       "latest_observed_gomoku_room_edge": {
-        "version": 21,
-        "sha256": "54aff423db999558a5494d0bad89a7d0dcc738299479be04362129c7c496c0a9",
-        "updated_at": "2026-09-30T01:51:00.957Z"
+        "version": 24,
+        "sha256": "c66bc31db80b0eb12ef7c4b8d93fc14f5b3a1b9ec23e99b969ad46e6bc301378",
+        "updated_at": "2026-09-30T15:06:14.053Z"
       },
-      "database_quiet_window_satisfied": true,
-      "edge_quiet_window_satisfied": true
+      "database_quiet_window_satisfied": false,
+      "edge_quiet_window_satisfied": true,
+      "replication_slot_state": {
+        "total": 2,
+        "managed_realtime_temporary": 2,
+        "blocking": 0,
+        "dashboard_preflight_authoritative": true
+      }
     },
     "completion_requires": [
       "postgres_17_11_or_newer",
