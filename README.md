@@ -14,7 +14,7 @@ Current recorded P24 state: **waiting for the final quiet window after the lates
 
 Current certified shared SHA-256:
 
-`180637a3b4d083f120db1ed9557764c5180a0b42df600a4c615832f0335369cd`
+`b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f`
 
 See [P24 execution](docs/P24-UPGRADE-EXECUTION.md) and [P24 manual handoff](docs/P24-MANUAL-HANDOFF.md).
 
@@ -35,7 +35,7 @@ Final P23 database state:
 
 - preflight: **pass**
 - safe to schedule upgrade: **true**
-- shared schema SHA-256: `180637a3b4d083f120db1ed9557764c5180a0b42df600a4c615832f0335369cd`
+- shared schema SHA-256: `b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f`
 - detected upgrade hazards: **0**
 - infrastructure upgrade executed: **false**
 - post-upgrade validation: **pending**
