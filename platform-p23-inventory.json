@@ -1,15 +1,15 @@
 {
   "schemaVersion": 2,
-  "certifiedAt": "2026-09-30T16:24:04.618771Z",
+  "certifiedAt": "2026-09-30T16:28:04.019536Z",
   "projectRef": "hycegznamzjhwinegaai",
   "release": "P23",
-  "recertifiedDuring": "P24-refresh-after-gomoku-p7",
+  "recertifiedDuring": "P24-refresh-after-gomoku-p7-read-models",
   "currentPostgres": "17.6",
   "targetPostgres": "17.11",
   "safeToScheduleUpgrade": true,
   "upgradeExecuted": false,
   "postUpgradeValidation": "pending",
-  "sharedSchemaSha256": "180637a3b4d083f120db1ed9557764c5180a0b42df600a4c615832f0335369cd",
+  "sharedSchemaSha256": "b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f",
   "registeredApps": [
     {
       "slug": "notes",
@@ -57,7 +57,7 @@
     },
     "gomoku": {
       "relations": 9,
-      "functions": 6
+      "functions": 8
     },
     "leaderboard": {
       "relations": 3,
