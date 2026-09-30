@@ -1,15 +1,15 @@
 {
   "schemaVersion": 2,
-  "certifiedAt": "2026-09-30T01:44:38Z",
+  "certifiedAt": "2026-09-30T16:19:19.829769Z",
   "projectRef": "hycegznamzjhwinegaai",
   "release": "P23",
-  "recertifiedDuring": "P24",
+  "recertifiedDuring": "P24-refresh",
   "currentPostgres": "17.6",
   "targetPostgres": "17.11",
   "safeToScheduleUpgrade": true,
   "upgradeExecuted": false,
   "postUpgradeValidation": "pending",
-  "sharedSchemaSha256": "f5485033a2845f9a1baacee6811c976c72e5ffb5d73bf0b9a50e3d0c0b48647c",
+  "sharedSchemaSha256": "72892db6c87e4a7c608c2b15e74e0f4dc7b47a083c707fdd959b82e19f42a62e",
   "registeredApps": [
     {
       "slug": "notes",
@@ -35,6 +35,11 @@
       "slug": "tms60",
       "name": "TMS60",
       "path": "/tms60/"
+    },
+    {
+      "slug": "gomoku",
+      "name": "Gomoku",
+      "path": "/gomoku/"
     }
   ],
   "databaseSurfaces": {
@@ -52,7 +57,7 @@
     },
     "gomoku": {
       "relations": 5,
-      "functions": 2
+      "functions": 3
     },
     "leaderboard": {
       "relations": 3,
@@ -144,9 +149,10 @@
     },
     {
       "slug": "gomoku-room",
-      "version": 18,
+      "version": 24,
       "verifyJwt": false,
-      "sha256": "a75420057d302fe021bf2134cc88c74be2ec1b8c4f4d2e72084f6dd9d0d2e712"
+      "sha256": "c66bc31db80b0eb12ef7c4b8d93fc14f5b3a1b9ec23e99b969ad46e6bc301378",
+      "updatedAt": "2026-09-30T15:06:14.053Z"
     },
     {
       "slug": "diet-health-sync",
@@ -184,6 +190,14 @@
     "The refreshed baseline includes migrations 20260930013052_gomoku_p4_match_integrity_rate_limits and 20260930014008_gomoku_p5_match_history_persistence.",
     "The refreshed baseline also includes the P24 service-only execution gate and classifier migration.",
     "The P23 database fingerprint excludes managed auth/storage/realtime schemas but includes app-owned relations/functions, cron definitions, and installed extension names.",
-    "Edge Functions are certified separately because they are not represented in the PostgreSQL catalog fingerprint."
-  ]
+    "Edge Functions are certified separately because they are not represented in the PostgreSQL catalog fingerprint.",
+    "P24 refresh recertified the shared schema after Gomoku P6 and Account fixes.",
+    "Two active temporary Supabase Realtime slots are tracked separately; blocking/custom replication slots are zero and Dashboard preflight remains authoritative."
+  ],
+  "replicationSlotState": {
+    "total": 2,
+    "managedRealtimeTemporary": 2,
+    "blocking": 0,
+    "dashboardPreflightAuthoritative": true
+  }
 }
