@@ -6,8 +6,8 @@ The automated preparation is complete up to the managed-infrastructure boundary,
 
 - PostgreSQL: 17.6
 - target: 17.11
-- current certified shared SHA: `180637a3b4d083f120db1ed9557764c5180a0b42df600a4c615832f0335369cd`
-- latest recorded shared migration: `20260930162218_gomoku_p7_ranked_rating_matchmaking`
+- current certified shared SHA: `b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f`
+- latest recorded shared migration: `20260930162517_gomoku_p7_ranked_read_models`
 - latest recorded `gomoku-room`: v24 at 2026-09-30 15:06:14 UTC
 - blocking replication slots at latest refresh: 0
 - fresh Diet recovery snapshot: 2026-09-30 16:19:59 UTC, verified
