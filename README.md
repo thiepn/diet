@@ -1,20 +1,20 @@
 # Diet Copilot
 
-**Web 2.0.3 · P23 active · P24 controlled PostgreSQL upgrade prepared**
+**Web 2.0.3 · P23 active · P24 concurrency-safe PostgreSQL upgrade handoff**
 
 Diet Copilot remains live at **https://thiepn.dev/diet/**. P23 remains the active operations release. P24 has prepared the controlled PostgreSQL 17.11 execution boundary, but the managed infrastructure upgrade has **not** been executed yet.
 
 ## P24 execution state
 
-P24 added a service-only execution gate, refreshed the shared schema/Edge Function baseline after concurrent Gomoku P4/P5 changes, captured and verified a fresh recovery snapshot at 12:51 UTC, confirmed a successful encrypted off-site backup on the current P24 head, verified more than 10 minutes of database and Edge deployment quiet time, and kept Diet in normal writable operation until immediately before the managed upgrade.
+P24 now treats the shared project as a moving production platform rather than a static handoff. After the original handoff, Gomoku P6/P7 and Account migrations changed the database, and `gomoku-room` advanced to v24. The execution gate correctly invalidated the stale certification.
 
-The gate requires an exact certified schema match plus a **10-minute migration quiet window** before the manual Supabase Infrastructure upgrade may begin.
+The refreshed gate distinguishes **blocking/custom replication slots** from Supabase-managed temporary Realtime slots, keeps the Supabase Dashboard preflight authoritative, and still requires an exact certified schema match plus a **10-minute migration quiet window**.
 
-Current P24 state: **database and Edge quiet windows satisfied; ready for the manual Supabase Infrastructure → Upgrade project action**.
+Current recorded P24 state: **waiting for the final quiet window after the latest shared migration**. The live service-only gate is authoritative and automatically becomes ready only when no newer shared migration has invalidated the certification.
 
-Shared pre-upgrade SHA-256:
+Current certified shared SHA-256:
 
-`f5485033a2845f9a1baacee6811c976c72e5ffb5d73bf0b9a50e3d0c0b48647c`
+`180637a3b4d083f120db1ed9557764c5180a0b42df600a4c615832f0335369cd`
 
 See [P24 execution](docs/P24-UPGRADE-EXECUTION.md) and [P24 manual handoff](docs/P24-MANUAL-HANDOFF.md).
 
@@ -24,7 +24,7 @@ The shared project currently runs PostgreSQL **17.6**. Supabase makes **17.11** 
 
 P23 certifies:
 
-- **5 registered THIEPN Account apps**;
+- **6 registered THIEPN Account apps**;
 - **10 application/service database surfaces**;
 - **1 platform-control surface**;
 - **11 active Edge Functions**;
@@ -35,12 +35,12 @@ Final P23 database state:
 
 - preflight: **pass**
 - safe to schedule upgrade: **true**
-- shared schema SHA-256: `aa4aede72f4d2b3ae75b581f691ee6fa1c993a71279c836a8e1fe9b967e13e64`
+- shared schema SHA-256: `180637a3b4d083f120db1ed9557764c5180a0b42df600a4c615832f0335369cd`
 - detected upgrade hazards: **0**
 - infrastructure upgrade executed: **false**
 - post-upgrade validation: **pending**
 
-The P23 hazard scan found zero ltree indexes, zero btree_gist float indexes, zero affected custom operators, zero legacy pgcrypto cipher references, zero app-owned reg* columns, zero deprecated extensions, zero extension-version mismatches, zero MD5 login roles and zero logical replication slots.
+The P23 hazard scan found zero ltree indexes, zero btree_gist float indexes, zero affected custom operators, zero legacy pgcrypto cipher references, zero app-owned reg* columns, zero deprecated extensions, zero extension-version mismatches, zero MD5 login roles and zero blocking/custom logical replication slots. Supabase-managed temporary Realtime slots are classified separately and the Dashboard eligibility check remains authoritative.
 
 ## Shared surfaces
 
@@ -51,12 +51,12 @@ Registered apps:
 - WORDSTRIKE
 - Word to the Nations
 - TMS60
+- Gomoku
 
 Additional services sharing the project:
 
 - THIEPN Account platform
 - Canvas
-- Gomoku
 - Leaderboard
 - Micro Arcade
 
