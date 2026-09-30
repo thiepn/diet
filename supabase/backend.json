@@ -475,7 +475,7 @@
     "certified_application_surfaces": 10,
     "certified_platform_control_surfaces": 1,
     "schema_contract_format": "platform-p23-shared-schema-v1",
-    "certified_schema_sha256": "72892db6c87e4a7c608c2b15e74e0f4dc7b47a083c707fdd959b82e19f42a62e",
+    "certified_schema_sha256": "180637a3b4d083f120db1ed9557764c5180a0b42df600a4c615832f0335369cd",
     "certification_table": "private.platform_upgrade_certifications",
     "certification_retention_days": 730,
     "preflight_function": "private.platform_p23_upgrade_preflight",
@@ -512,8 +512,8 @@
     "maintenance_window_required": true,
     "cross_app_post_upgrade_validation_required": true,
     "replication_slot_state": {
-      "total": 2,
-      "managed_realtime_temporary": 2,
+      "total": 0,
+      "managed_realtime_temporary": 0,
       "blocking": 0,
       "classification": "temporary_active_supabase_realtime_pgoutput_or_wal2json",
       "dashboard_preflight_authoritative": true
@@ -539,7 +539,7 @@
     "execution_status_rpc": "public.platform_p24_execution_status",
     "execution_status_rpc_service_only": true,
     "minimum_quiet_minutes": 10,
-    "current_certified_schema_sha256": "72892db6c87e4a7c608c2b15e74e0f4dc7b47a083c707fdd959b82e19f42a62e",
+    "current_certified_schema_sha256": "180637a3b4d083f120db1ed9557764c5180a0b42df600a4c615832f0335369cd",
     "pre_upgrade_manifest": "platform-p24-pre-upgrade.json",
     "writes_paused": false,
     "recovery": {
@@ -560,6 +560,7 @@
         "20260930150418_gomoku_p6_exact_player_stats",
         "20260930150847_account_app_deletion_plan_empty_namespace_fix",
         "20260930161902_platform_p24_managed_realtime_replication_preflight",
+        "20260930162218_gomoku_p7_ranked_rating_matchmaking",
         "gomoku-room edge function version 24"
       ],
       "edge_deployment_quiet_minutes": 10,
@@ -573,8 +574,8 @@
       "database_quiet_window_satisfied": false,
       "edge_quiet_window_satisfied": true,
       "replication_slot_state": {
-        "total": 2,
-        "managed_realtime_temporary": 2,
+        "total": 0,
+        "managed_realtime_temporary": 0,
         "blocking": 0,
         "dashboard_preflight_authoritative": true
       }
