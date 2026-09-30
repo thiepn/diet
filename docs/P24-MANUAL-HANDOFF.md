@@ -1,20 +1,17 @@
-# P24 — Manual Upgrade Handoff — READY
+# P24 — Manual Upgrade Handoff — LIVE GATE REQUIRED
 
-The automated work has reached the managed-infrastructure boundary.
+The automated preparation is complete up to the managed-infrastructure boundary, but the shared platform is actively developed. A static “READY” label is therefore insufficient.
 
-## Current ready state
+## Recorded refreshed state
 
-At the refreshed handoff:
-
-- execution gate: `ready_for_manual_upgrade`
 - PostgreSQL: 17.6
 - target: 17.11
-- shared schema SHA: exact certified match
-- database quiet window: satisfied
-- latest observed shared Edge deployment: `gomoku-room` v21 at 01:51 UTC
-- Edge quiet window: satisfied
-- fresh recovery snapshot: 12:51 UTC, verified
-- latest encrypted off-site backup on current P24 head: success
+- current certified shared SHA: `180637a3b4d083f120db1ed9557764c5180a0b42df600a4c615832f0335369cd`
+- latest recorded shared migration: `20260930162218_gomoku_p7_ranked_rating_matchmaking`
+- latest recorded `gomoku-room`: v24 at 2026-09-30 15:06:14 UTC
+- blocking replication slots at latest refresh: 0
+- fresh Diet recovery snapshot: 2026-09-30 16:19:59 UTC, verified
+- connector can execute managed upgrade: no
 
 ## Before clicking Upgrade project
 
@@ -29,15 +26,17 @@ writesPaused = false
 quietMinutes >= 10
 ```
 
-If it reports `blocked`, do not override it. A new migration may have landed.
+If it reports `blocked`, do not override it. The most likely causes are a newer shared migration, a changed schema fingerprint, a new blocking replication slot, or the final quiet window not yet being satisfied.
 
-Re-list the project's Edge Functions one final time. Require at least **10 minutes with no shared Edge Function deployment** and no unexplained version/hash difference from the refreshed v21 inventory. The SQL execution gate cannot observe Edge deployments.
+Then re-list Edge Functions. Require at least **10 minutes without an unexplained shared Edge Function deployment**.
+
+The Supabase Dashboard's own eligibility check is authoritative and must also be clean.
 
 ## Dashboard action
 
-**Supabase Dashboard → THIEPN Account → Project Settings → Infrastructure → Upgrade project**
+**Supabase Dashboard → THIEPN Account → Project Settings/General Settings → Upgrade project**
 
-Choose the managed in-place upgrade to PostgreSQL **17.11**.
+Use the managed upgrade to PostgreSQL **17.11**.
 
 ## Immediately before starting
 
@@ -50,21 +49,21 @@ select private.diet_p21_set_write_freeze(
 );
 ```
 
-Do this immediately before the actual Dashboard upgrade, not hours beforehand.
+Do this only immediately before the actual hosted upgrade.
 
 ## After Supabase reports completion
 
-Do not unfreeze yet.
-
-Run the P23 post-upgrade validator and cross-app checks. The database version alone is not sufficient.
-
-Only disable the freeze after:
+Do not unfreeze yet. Require:
 
 - P23 post-upgrade validation = pass;
-- shared schema fingerprint matches;
+- PostgreSQL 17.11+;
+- shared schema fingerprint match;
 - platform-health = healthy;
 - P18 = clean;
 - P20 = no Diet drift;
 - P21 = pass;
 - P22 = pass;
-- critical app smoke tests pass.
+- Auth/Realtime/cron/Edge Functions healthy;
+- critical cross-app smoke tests pass.
+
+Only then remove the write freeze and start P25's production burn-in.
