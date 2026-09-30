@@ -9,7 +9,7 @@
     "sharedSchemaBaselineRecertified": true,
     "maintenanceWindowClosed": true
   },
-  "observedAt": "2026-09-30T14:55:35Z",
+  "observedAt": "2026-09-30T16:33:53.680932Z",
   "project": {
     "ref": "hycegznamzjhwinegaai",
     "name": "THIEPN Account",
@@ -19,18 +19,21 @@
     "sqlServerVersionNum": 170006
   },
   "currentBlockers": {
-    "p24Gate": "blocked",
-    "p23Preflight": "fail",
+    "p24Gate": "blocked_final_quiet_window",
+    "p23Preflight": "pass",
     "upgradeExecuted": false,
-    "currentSchemaSha256": "ab518103bacfcadd476db7e95255fd3fda6135b5285ea13d187805cdce7356ce",
-    "certifiedSchemaSha256": "f5485033a2845f9a1baacee6811c976c72e5ffb5d73bf0b9a50e3d0c0b48647c",
-    "schemaMatchesCertification": false,
-    "latestMigrationVersion": "20260930132757",
-    "latestMigrationName": "gomoku_p6_online_player_identity_profiles",
-    "logicalReplicationSlots": 2,
-    "logicalReplicationSlotsDetail": "two active temporary Supabase Realtime slots",
-    "latestObservedGomokuRoomEdgeVersion": 23,
-    "p24RecordedGomokuRoomEdgeVersion": 21
+    "currentSchemaSha256": "b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f",
+    "certifiedSchemaSha256": "b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f",
+    "schemaMatchesCertification": true,
+    "latestMigrationVersion": "20260930162517",
+    "latestMigrationName": "gomoku_p7_ranked_read_models",
+    "logicalReplicationSlots": 0,
+    "logicalReplicationSlotsDetail": "0 blocking slots at the latest certified preflight; Supabase Dashboard remains authoritative",
+    "latestObservedGomokuRoomEdgeVersion": 25,
+    "latestObservedGomokuRoomEdgeSha256": "600f700cd1d9531e8539b01ca217f472fa7590af6322f293789558288bee2e61",
+    "latestObservedGomokuRoomEdgeUpdatedAt": "2026-09-30T16:27:53.632Z",
+    "p24HardeningMerge": "b8ea00ae0f193a2979d700d79dbcd6fe4edbb40f",
+    "managedUpgradeManualDashboardActionRequired": true
   },
   "preUpgradeHealthBaseline": {
     "window": "approximately 24h ending 2026-09-30T13:48:40Z",
@@ -69,8 +72,8 @@
   },
   "latestKnownPreUpgradeOffsiteBackup": {
     "workflow": "P15 Encrypted Offsite Backup",
-    "runId": 36702600074,
+    "runId": 36744693032,
     "conclusion": "success",
-    "head": "6707542f992affb1f0f6037426786f8dd765c4f2"
+    "head": "b8ea00ae0f193a2979d700d79dbcd6fe4edbb40f"
   }
 }
