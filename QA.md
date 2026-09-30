@@ -30,8 +30,8 @@ Date: 2026-09-30.
 - `safeToScheduleUpgrade=true`.
 - The actual infrastructure upgrade has not been executed.
 - Post-upgrade validation is pending.
-- Shared schema fingerprint is `aa4aede72f4d2b3ae75b581f691ee6fa1c993a71279c836a8e1fe9b967e13e64`.
-- Five registered Account apps are represented.
+- Shared schema fingerprint is `180637a3b4d083f120db1ed9557764c5180a0b42df600a4c615832f0335369cd`.
+- Six registered Account apps are represented.
 - Ten application/service surfaces plus one platform-control surface are fingerprinted.
 - Eleven Edge Functions are inventoried externally.
 - Eight cron jobs are active.
@@ -45,7 +45,7 @@ Date: 2026-09-30.
 - deprecated PG17 extensions are zero.
 - extension version mismatches are zero.
 - MD5 login roles are zero.
-- logical replication slots are zero.
+- blocking/custom logical replication slots are zero; managed temporary Realtime slots are tracked separately.
 - Diet P18 integrity remains clean.
 - Diet P20 drift remains false.
 - Diet P21 failure/readiness remains pass.
@@ -54,21 +54,30 @@ Date: 2026-09-30.
 - The Diet P20 checkpoint intentionally remains P22 because P23 has its own broader cross-app fingerprint.
 
 
-## P24 ready-for-manual-execution invariants
+## P24 concurrency-safe execution invariants
 
 - Active operations release remains P23.0 until the managed upgrade completes.
-- P24 remains incomplete, but its execution gate is now `ready_for_manual_upgrade`.
+- P24 remains incomplete; its live execution gate may be `blocked` during concurrent shared changes and becomes `ready_for_manual_upgrade` only after re-certification plus the final quiet window.
 - PostgreSQL remains 17.6 until the Dashboard upgrade.
 - Target remains 17.11.
 - Managed upgrade execution is not available through the connected automation surface.
 - Pause/Restore is not used as a substitute for the recommended in-place upgrade.
-- Shared schema SHA is `f5485033a2845f9a1baacee6811c976c72e5ffb5d73bf0b9a50e3d0c0b48647c`.
+- Current certified shared schema SHA is `180637a3b4d083f120db1ed9557764c5180a0b42df600a4c615832f0335369cd`.
 - The execution gate requires the SHA to match the latest passing P23 certification.
-- The database quiet window is satisfied and the current certified schema SHA matches exactly.
+- The recorded manifest may be waiting on the final database quiet window; the live gate must report an exact schema match and at least 10 quiet minutes before upgrade.
 - Diet writes are currently not paused.
 - A fresh P15 recovery snapshot is verified and safe to stage.
 - The latest encrypted off-site backup run succeeded.
 - P24 is not complete until PostgreSQL 17.11+ and post-upgrade cross-app validation pass.
 
 - Final Edge Function inventory recheck is mandatory because Edge deployments are outside the PostgreSQL schema fingerprint.
-- The Edge Function quiet window is satisfied against the current v21 Gomoku room deployment, and must be rechecked immediately before the Dashboard click.
+- The latest recorded Gomoku room deployment is v24 and the Edge inventory must be rechecked immediately before the Dashboard click.
+
+## P24 refresh evidence
+
+- Gomoku P6/P7 and Account changes after the original handoff were detected rather than silently accepted.
+- Latest recorded shared migration: `20260930162218_gomoku_p7_ranked_rating_matchmaking`.
+- Gomoku surface at the refresh: 9 relations / 6 functions.
+- Latest recorded `gomoku-room`: v24 (`c66bc31d…301378`).
+- Fresh verified Diet recovery snapshot: `2026-09-30T16:19:59.549832Z`.
+- Replication-slot classifier: 0 blocking slots at the latest refresh; managed Realtime slots are surfaced independently.
