@@ -9,7 +9,7 @@
     "sharedSchemaBaselineRecertified": true,
     "maintenanceWindowClosed": true
   },
-  "observedAt": "2026-09-30T16:33:53.680932Z",
+  "observedAt": "2026-09-30T20:30:28.637657Z",
   "project": {
     "ref": "hycegznamzjhwinegaai",
     "name": "THIEPN Account",
@@ -19,21 +19,25 @@
     "sqlServerVersionNum": 170006
   },
   "currentBlockers": {
-    "p24Gate": "blocked_final_quiet_window",
+    "p24Gate": "ready_for_manual_upgrade",
     "p23Preflight": "pass",
     "upgradeExecuted": false,
-    "currentSchemaSha256": "b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f",
-    "certifiedSchemaSha256": "b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f",
+    "currentSchemaSha256": "8239b32928be652214a63ae733d42bace71d46d7145e3e6e5eea8b7f066e1dfe",
+    "certifiedSchemaSha256": "8239b32928be652214a63ae733d42bace71d46d7145e3e6e5eea8b7f066e1dfe",
     "schemaMatchesCertification": true,
-    "latestMigrationVersion": "20260930162517",
-    "latestMigrationName": "gomoku_p7_ranked_read_models",
+    "latestMigrationVersion": "20260930164232",
+    "latestMigrationName": "gomoku_p7_ranked_active_opponent_index",
     "logicalReplicationSlots": 0,
-    "logicalReplicationSlotsDetail": "0 blocking slots at the latest certified preflight; Supabase Dashboard remains authoritative",
-    "latestObservedGomokuRoomEdgeVersion": 25,
-    "latestObservedGomokuRoomEdgeSha256": "600f700cd1d9531e8539b01ca217f472fa7590af6322f293789558288bee2e61",
-    "latestObservedGomokuRoomEdgeUpdatedAt": "2026-09-30T16:27:53.632Z",
+    "logicalReplicationSlotsDetail": "0 blocking slots at final certified preflight; Dashboard preflight remains authoritative",
+    "latestObservedGomokuRoomEdgeVersion": 27,
+    "latestObservedGomokuRoomEdgeSha256": "958f85954b7b0e1fe01d67eafc01e6e25e9c216743a6c46ba0e695d218db5068",
+    "latestObservedGomokuRoomEdgeUpdatedAt": "2026-09-30T17:22:07.924Z",
     "p24HardeningMerge": "b8ea00ae0f193a2979d700d79dbcd6fe4edbb40f",
-    "managedUpgradeManualDashboardActionRequired": true
+    "managedUpgradeManualDashboardActionRequired": true,
+    "managedPostgresUpgradePending": true,
+    "p24FinalHandoffMerge": "5b51cd35b8050054d25da4443b8875b0fc9d4f82",
+    "databaseQuietMinutesAtFinalGate": 227.95,
+    "edgeQuietMinutesAtFinalCapture": 185.63
   },
   "preUpgradeHealthBaseline": {
     "window": "approximately 24h ending 2026-09-30T13:48:40Z",
