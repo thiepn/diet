@@ -87,10 +87,12 @@ jobs:
           if(backend.platform_upgrade_policy?.safe_to_schedule_upgrade!==true||backend.platform_upgrade_policy?.upgrade_executed!==false||backend.platform_upgrade_policy?.post_upgrade_validation!=='pending')throw new Error('P23 shared-platform readiness state invalid.');
           if(backend.platform_upgrade_execution_policy?.release!=='P24')throw new Error('P24 execution policy missing.');
           if(backend.platform_upgrade_execution_policy?.upgrade_executed!==false||backend.platform_upgrade_execution_policy?.manual_dashboard_action_required!==true)throw new Error('P24 must remain explicitly pending before managed upgrade.');
-          if(app.pendingOperationsPhase!=='P24'||app.platformUpgradeExecutionState!=='ready_for_manual_supabase_infrastructure_upgrade')throw new Error('P24 handoff metadata invalid.');
-          if(backend.platform_upgrade_execution_policy?.execution_state!=='ready_for_manual_supabase_infrastructure_upgrade')throw new Error('P24 execution gate not ready.');
+          const p24States=new Set(['awaiting_final_quiet_window_after_p24_refresh','ready_for_manual_supabase_infrastructure_upgrade']);
+          if(app.pendingOperationsPhase!=='P24'||!p24States.has(app.platformUpgradeExecutionState))throw new Error('P24 handoff metadata invalid.');
+          if(backend.platform_upgrade_execution_policy?.execution_state!==app.platformUpgradeExecutionState)throw new Error('P24 execution metadata mismatch.');
+          if(backend.platform_upgrade_execution_policy?.current_certified_schema_sha256!==app.health.sharedPlatformSchemaSha256)throw new Error('P24 certified schema metadata mismatch.');
           if(release.consumerRelease!==app.webRelease)throw new Error('Account consumer release mismatch.');
-          console.log('Diet Copilot Web 2.0.3 / P23 active + P24 ready-for-manual-upgrade contract passed.');
+          console.log('Diet Copilot Web 2.0.3 / P23 active + P24 concurrency-safe handoff contract passed: '+app.platformUpgradeExecutionState);
           NODE
 
       - name: Build actual GitHub Pages artifact
