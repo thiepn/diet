@@ -4,19 +4,24 @@ P25 is **staged but not active**. It must not be used to claim completion until 
 
 ## Current production gate
 
-Live checks on 2026-09-30 show:
+The P24 concurrency hardening has now been merged to production (`b8ea00ae0f193a2979d700d79dbcd6fe4edbb40f`), and its merge-triggered encrypted P15 off-site backup succeeded.
+
+Latest staged evidence on 2026-09-30:
 
 - project: `THIEPN Account` (`hycegznamzjhwinegaai`)
 - PostgreSQL: **17.6** (`170006`)
 - target: **17.11**
-- P24 execution gate: **blocked**
-- current shared schema SHA: `ab518103bacfcadd476db7e95255fd3fda6135b5285ea13d187805cdce7356ce`
-- last certified SHA: `f5485033a2845f9a1baacee6811c976c72e5ffb5d73bf0b9a50e3d0c0b48647c`
-- latest migration: `20260930132757_gomoku_p6_online_player_identity_profiles`
-- latest observed `gomoku-room` Edge Function: **v23**; the P24 handoff recorded v21
-- P23 preflight currently fails because two active **temporary Supabase Realtime replication slots** are present
+- P23 preflight: **pass**
+- P24 live gate: **blocked only by the final quiet-window timing at the latest observation**
+- current/certified shared schema SHA: `b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f`
+- schema certification match: **true**
+- latest recorded migration: `20260930162517_gomoku_p7_ranked_read_models`
+- blocking replication slots at the latest certified preflight: **0**
+- latest observed `gomoku-room`: **v25**, SHA `600f700c…e2e61`, deployed at 2026-09-30 16:27:53 UTC
+- latest verified pre-upgrade P15 off-site backup run: **36744693032**, success
+- actual managed PostgreSQL upgrade: **not executed**
 
-Therefore the previous P24 handoff is stale. P24 must be refreshed immediately before the Dashboard upgrade. P25 cannot start before that.
+P25 therefore remains correctly **blocked_pre_upgrade**. It activates only after the hosted Supabase upgrade to PostgreSQL 17.11+ and immediate post-upgrade validation pass.
 
 ## Why P25 needs a real burn-in window
 
