@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "capturedAt": "2026-09-30T16:28:04.019536Z",
+  "capturedAt": "2026-09-30T20:27:45.433913Z",
   "projectRef": "hycegznamzjhwinegaai",
   "phase": "P24",
-  "executionState": "awaiting_final_quiet_window_after_p24_refresh",
+  "executionState": "ready_for_manual_supabase_infrastructure_upgrade",
   "activeOperationsRelease": "P23.0",
   "targetPostgres": "17.11",
   "currentPostgres": "17.6",
@@ -13,23 +13,22 @@
   "upgradeExecuted": false,
   "postUpgradeValidation": "pending",
   "preUpgrade": {
-    "sharedSchemaSha256": "b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f",
+    "sharedSchemaSha256": "8239b32928be652214a63ae733d42bace71d46d7145e3e6e5eea8b7f066e1dfe",
     "schemaMatchesLatestCertification": true,
     "preflightStatus": "pass",
     "safeToScheduleUpgrade": true,
     "minimumQuietMinutes": 10,
     "writesPaused": false,
-    "latestMigrationVersion": "20260930162517",
-    "latestMigrationName": "gomoku_p7_ranked_read_models",
+    "latestMigrationVersion": "20260930164232",
+    "latestMigrationName": "gomoku_p7_ranked_active_opponent_index",
     "recentConcurrentChanges": [
       "20260930132757_gomoku_p6_online_player_identity_profiles",
-      "20260930150238_account_backup_inventory_order_fix",
       "20260930150418_gomoku_p6_exact_player_stats",
-      "20260930150847_account_app_deletion_plan_empty_namespace_fix",
-      "20260930161902_platform_p24_managed_realtime_replication_preflight",
       "20260930162218_gomoku_p7_ranked_rating_matchmaking",
-      "gomoku-room Edge Function version 24",
-      "20260930162517_gomoku_p7_ranked_read_models"
+      "20260930162517_gomoku_p7_ranked_read_models",
+      "20260930163438_gomoku_p7_account_capabilities",
+      "20260930164232_gomoku_p7_ranked_active_opponent_index",
+      "gomoku-room Edge Function version 27"
     ],
     "hazards": {
       "ltreeIndexes": 0,
@@ -42,11 +41,11 @@
       "md5LoginRoles": 0,
       "replicationSlots": 0
     },
-    "quietMinutesObserved": 2.29,
-    "databaseQuietWindowSatisfied": false,
+    "quietMinutesObserved": 225.23,
+    "databaseQuietWindowSatisfied": true,
     "edgeQuietWindowSatisfied": true,
-    "edgeLatestObservedUpdatedAt": "2026-09-30T15:06:14.053Z",
-    "edgeQuietMinutesObservedAtRefresh": 658,
+    "edgeLatestObservedUpdatedAt": "2026-09-30T17:22:07.924Z",
+    "edgeQuietMinutesObservedAtRefresh": 185.63,
     "replicationSlotState": {
       "total": 0,
       "managedRealtimeTemporary": 0,
@@ -56,18 +55,18 @@
   },
   "recovery": {
     "freshInDatabaseSnapshot": true,
-    "snapshotCapturedAt": "2026-09-30T16:19:59.549832Z",
+    "snapshotCapturedAt": "2026-09-30T20:27:39.582068Z",
     "snapshotVerified": true,
     "snapshotHashOk": true,
     "snapshotSchemaOk": true,
     "restorePlanSafeToStage": true,
     "destructiveRestoreAutomatic": false,
-    "latestEncryptedOffsiteBackupRun": 36702600074,
+    "latestEncryptedOffsiteBackupRun": 36744693032,
     "latestEncryptedOffsiteBackupConclusion": "success",
-    "latestEncryptedOffsiteBackupHead": "6707542f992affb1f0f6037426786f8dd765c4f2",
+    "latestEncryptedOffsiteBackupHead": "b8ea00ae0f193a2979d700d79dbcd6fe4edbb40f",
     "snapshotId": "aebe85b2-43a4-4e0b-b44d-e782bb97aa18",
     "snapshotSource": "pre_restore",
-    "snapshotVerifiedAt": "2026-09-30T16:19:59.607755Z"
+    "snapshotVerifiedAt": "2026-09-30T20:27:39.637126Z"
   },
   "edgeFunctions": [
     {
@@ -102,10 +101,10 @@
     },
     {
       "slug": "gomoku-room",
-      "version": 24,
+      "version": 27,
       "verifyJwt": false,
-      "sha256": "c66bc31db80b0eb12ef7c4b8d93fc14f5b3a1b9ec23e99b969ad46e6bc301378",
-      "updatedAt": "2026-09-30T15:06:14.053Z"
+      "sha256": "958f85954b7b0e1fe01d67eafc01e6e25e9c216743a6c46ba0e695d218db5068",
+      "updatedAt": "2026-09-30T17:22:07.924Z"
     },
     {
       "slug": "diet-health-sync",
@@ -160,10 +159,10 @@
     "required": true,
     "databaseExecutionGateCoversEdgeDeployments": false,
     "minimumQuietMinutes": 10,
-    "latestObservedGomokuRoomVersion": 24,
-    "latestObservedGomokuRoomSha256": "c66bc31db80b0eb12ef7c4b8d93fc14f5b3a1b9ec23e99b969ad46e6bc301378",
+    "latestObservedGomokuRoomVersion": 27,
+    "latestObservedGomokuRoomSha256": "958f85954b7b0e1fe01d67eafc01e6e25e9c216743a6c46ba0e695d218db5068",
     "instruction": "Immediately before the managed upgrade, re-list all Edge Functions and require no unexplained version/hash change during the final quiet window.",
-    "latestObservedUpdatedAt": "2026-09-30T15:06:14.053Z",
+    "latestObservedUpdatedAt": "2026-09-30T17:22:07.924Z",
     "quietWindowSatisfied": true
   }
 }
