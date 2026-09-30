@@ -123,6 +123,7 @@
     "method": "in-place pg_upgrade",
     "beforeClick": [
       "Confirm public.platform_p24_execution_status reports readyForManualUpgrade=true.",
+      "Re-list all Edge Functions and require at least 10 minutes without a shared Edge Function deployment; the database execution gate cannot observe Edge deployments.",
       "Confirm no new shared migration or Edge Function deployment has landed since the captured baseline.",
       "Enable the Diet P21 write freeze immediately before starting the managed upgrade.",
       "Keep the maintenance window active until cross-app validation passes."
@@ -133,5 +134,14 @@
       "Run platform-health plus P18/P20/P21/P22 and the cross-app validation matrix.",
       "Only then disable the write freeze."
     ]
+  },
+  "edgeInventoryAtCaptureHistorical": true,
+  "edgeRevalidation": {
+    "required": true,
+    "databaseExecutionGateCoversEdgeDeployments": false,
+    "minimumQuietMinutes": 10,
+    "latestObservedGomokuRoomVersion": 21,
+    "latestObservedGomokuRoomSha256": "54aff423db999558a5494d0bad89a7d0dcc738299479be04362129c7c496c0a9",
+    "instruction": "Immediately before the managed upgrade, re-list all Edge Functions and require no unexplained version/hash change during the final quiet window."
   }
 }

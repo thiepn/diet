@@ -17,6 +17,8 @@ quietMinutes >= 10
 
 If it reports `blocked`, do not override it. A new migration may have landed.
 
+Then re-list the project's Edge Functions. Require at least **10 minutes with no shared Edge Function deployment** and no unexplained version/hash difference from the last accepted inventory. The SQL execution gate cannot observe Edge deployments.
+
 ## Dashboard action
 
 **Supabase Dashboard → THIEPN Account → Project Settings → Infrastructure → Upgrade project**

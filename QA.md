@@ -69,3 +69,6 @@ Date: 2026-09-30.
 - A fresh P15 recovery snapshot is verified and safe to stage.
 - The latest encrypted off-site backup run succeeded.
 - P24 is not complete until PostgreSQL 17.11+ and post-upgrade cross-app validation pass.
+
+- Final Edge Function inventory recheck is mandatory because Edge deployments are outside the PostgreSQL schema fingerprint.
+- The final maintenance window requires at least 10 quiet minutes for both database migrations and shared Edge Function deployments.

@@ -549,7 +549,14 @@
         "20260930013052_gomoku_p4_match_integrity_rate_limits",
         "20260930014008_gomoku_p5_match_history_persistence",
         "gomoku-room edge function version 18"
-      ]
+      ],
+      "edge_deployment_quiet_minutes": 10,
+      "edge_inventory_final_recheck_required": true,
+      "database_gate_covers_edge_deployments": false,
+      "latest_observed_gomoku_room_edge": {
+        "version": 21,
+        "sha256": "54aff423db999558a5494d0bad89a7d0dcc738299479be04362129c7c496c0a9"
+      }
     },
     "completion_requires": [
       "postgres_17_11_or_newer",

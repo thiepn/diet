@@ -64,12 +64,14 @@ Diet was briefly placed into the P21 write freeze for the intended upgrade windo
 
 Only after `private.platform_p24_execution_gate()` returns `readyForManualUpgrade=true`:
 
-1. Open the Supabase project.
-2. Go to **Project Settings → Infrastructure**.
-3. Select **Upgrade project**.
-4. Use the managed in-place PostgreSQL upgrade to 17.11.
-5. Keep the shared application maintenance window active.
-6. Immediately return to the P24 post-upgrade validation procedure.
+1. Confirm the database execution gate is ready.
+2. Re-list all Edge Functions and confirm at least 10 quiet minutes with no unexplained version/hash changes.
+3. Open the Supabase project.
+4. Go to **Project Settings → Infrastructure**.
+5. Select **Upgrade project**.
+6. Use the managed in-place PostgreSQL upgrade to 17.11.
+7. Keep the shared application maintenance window active.
+8. Immediately return to the P24 post-upgrade validation procedure.
 
 Do not use Pause/Restore as a substitute for this in-place upgrade.
 

@@ -27,6 +27,11 @@ assert.equal(app.health?.platformUpgradeExecutionConnectorAvailable,false);
 assert.equal(app.health?.platformUpgradeFreshSnapshotVerified,true);
 assert.equal(app.health?.platformUpgradeLatestOffsiteBackupSucceeded,true);
 assert.equal(app.health?.platformUpgradeConcurrentChangeProtection,true);
+assert.equal(app.health?.platformUpgradeEdgeQuietRequired,true);
+assert.equal(app.health?.platformUpgradeEdgeQuietMinutes,10);
+assert.equal(app.health?.platformUpgradeEdgeInventoryRequiresFinalRecheck,true);
+assert.equal(app.health?.platformUpgradeDatabaseGateCoversEdgeDeployments,false);
+assert.equal(app.health?.platformUpgradeLatestObservedGomokuEdgeVersion,21);
 
 const policy=backend.platform_upgrade_execution_policy;
 assert.equal(policy?.release,'P24');
@@ -52,6 +57,10 @@ assert.equal(policy?.recovery?.encrypted_offsite_backup_conclusion,'success');
 assert.equal(policy?.concurrent_change_protection?.enabled,true);
 assert.equal(policy?.concurrent_change_protection?.require_schema_match,true);
 assert.equal(policy?.concurrent_change_protection?.require_quiet_window,true);
+assert.equal(policy?.concurrent_change_protection?.edge_deployment_quiet_minutes,10);
+assert.equal(policy?.concurrent_change_protection?.edge_inventory_final_recheck_required,true);
+assert.equal(policy?.concurrent_change_protection?.database_gate_covers_edge_deployments,false);
+assert.equal(policy?.concurrent_change_protection?.latest_observed_gomoku_room_edge?.version,21);
 
 assert.equal(p24.phase,'P24');
 assert.equal(p24.activeOperationsRelease,'P23.0');
@@ -76,6 +85,11 @@ assert.equal(p24.recovery.restorePlanSafeToStage,true);
 assert.equal(p24.recovery.destructiveRestoreAutomatic,false);
 assert.equal(p24.recovery.latestEncryptedOffsiteBackupConclusion,'success');
 assert.equal(p24.edgeFunctions.length,11);
+assert.equal(p24.edgeInventoryAtCaptureHistorical,true);
+assert.equal(p24.edgeRevalidation?.required,true);
+assert.equal(p24.edgeRevalidation?.databaseExecutionGateCoversEdgeDeployments,false);
+assert.equal(p24.edgeRevalidation?.minimumQuietMinutes,10);
+assert.equal(p24.edgeRevalidation?.latestObservedGomokuRoomVersion,21);
 
 assert.equal(p23.sharedSchemaSha256,policy.current_certified_schema_sha256);
 assert.equal(p23.databaseSurfaces.gomoku.relations,5);

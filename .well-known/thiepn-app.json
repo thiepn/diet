@@ -133,7 +133,12 @@
     "platformUpgradeFreshSnapshotCapturedAt": "2026-09-30T01:38:40Z",
     "platformUpgradeLatestOffsiteBackupRun": 36649457912,
     "platformUpgradeLatestOffsiteBackupSucceeded": true,
-    "platformUpgradeConcurrentChangeProtection": true
+    "platformUpgradeConcurrentChangeProtection": true,
+    "platformUpgradeEdgeQuietRequired": true,
+    "platformUpgradeEdgeQuietMinutes": 10,
+    "platformUpgradeEdgeInventoryRequiresFinalRecheck": true,
+    "platformUpgradeDatabaseGateCoversEdgeDeployments": false,
+    "platformUpgradeLatestObservedGomokuEdgeVersion": 21
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0",
