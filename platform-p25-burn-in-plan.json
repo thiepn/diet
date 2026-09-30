@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "phase": "P25",
+  "title": "Post-Upgrade Burn-In, Stability & Shared-Platform Production Certification",
+  "state": "blocked_pre_upgrade",
+  "activationRequires": {
+    "postgresServerVersionNumAtLeast": 170011,
+    "p24PostUpgradeValidation": "pass",
+    "sharedSchemaBaselineRecertified": true,
+    "maintenanceWindowClosed": true
+  },
+  "observedAt": "2026-09-30T14:55:35Z",
+  "project": {
+    "ref": "hycegznamzjhwinegaai",
+    "name": "THIEPN Account",
+    "region": "eu-west-1",
+    "managementReportedVersion": "17.6.1.127",
+    "sqlServerVersion": "17.6",
+    "sqlServerVersionNum": 170006
+  },
+  "currentBlockers": {
+    "p24Gate": "blocked",
+    "p23Preflight": "fail",
+    "upgradeExecuted": false,
+    "currentSchemaSha256": "ab518103bacfcadd476db7e95255fd3fda6135b5285ea13d187805cdce7356ce",
+    "certifiedSchemaSha256": "f5485033a2845f9a1baacee6811c976c72e5ffb5d73bf0b9a50e3d0c0b48647c",
+    "schemaMatchesCertification": false,
+    "latestMigrationVersion": "20260930132757",
+    "latestMigrationName": "gomoku_p6_online_player_identity_profiles",
+    "logicalReplicationSlots": 2,
+    "logicalReplicationSlotsDetail": "two active temporary Supabase Realtime slots",
+    "latestObservedGomokuRoomEdgeVersion": 23,
+    "p24RecordedGomokuRoomEdgeVersion": 21
+  },
+  "preUpgradeHealthBaseline": {
+    "window": "approximately 24h ending 2026-09-30T13:48:40Z",
+    "platformHealthSamples": 12,
+    "allSamplesHealthy": true,
+    "authLatencyMs": {
+      "median": 371.5,
+      "p95": 710.8,
+      "max": 757
+    },
+    "databaseLatencyMs": {
+      "median": 561.5,
+      "p95": 1049.6,
+      "max": 1153
+    }
+  },
+  "regressionThresholds": {
+    "authP95WarningMs": 1422,
+    "databaseP95WarningMs": 2100,
+    "individualHealthTimeoutMs": 4000,
+    "policy": "warn at >2x pre-upgrade p95; fail on functional outage, repeated degradation, or timeout"
+  },
+  "burnInRequirements": {
+    "minimumHours": 24,
+    "minimumHourlyPublicSamples": 12,
+    "requireSuccessfulPostUpgradeOffsiteBackup": true,
+    "requireZeroNewCronFailures": true,
+    "requireP18IntegrityClean": true,
+    "requireP20SchemaDriftFalse": true,
+    "requireP21IncidentReadinessPass": true,
+    "requireP22MaintenancePass": true,
+    "requireCrossAppSmokeMatrix": true,
+    "requireEdgeInventoryRevalidated": true,
+    "requireAdvisorsReviewed": true,
+    "requirePostgres1711HazardsRechecked": true
+  },
+  "latestKnownPreUpgradeOffsiteBackup": {
+    "workflow": "P15 Encrypted Offsite Backup",
+    "runId": 36702600074,
+    "conclusion": "success",
+    "head": "6707542f992affb1f0f6037426786f8dd765c4f2"
+  }
+}
