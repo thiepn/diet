@@ -1,6 +1,20 @@
-# P24 — Manual Upgrade Handoff
+# P24 — Manual Upgrade Handoff — READY
 
 The automated work has reached the managed-infrastructure boundary.
+
+## Current ready state
+
+At the refreshed handoff:
+
+- execution gate: `ready_for_manual_upgrade`
+- PostgreSQL: 17.6
+- target: 17.11
+- shared schema SHA: exact certified match
+- database quiet window: satisfied
+- latest observed shared Edge deployment: `gomoku-room` v21 at 01:51 UTC
+- Edge quiet window: satisfied
+- fresh recovery snapshot: 12:51 UTC, verified
+- latest encrypted off-site backup on current P24 head: success
 
 ## Before clicking Upgrade project
 
@@ -17,7 +31,7 @@ quietMinutes >= 10
 
 If it reports `blocked`, do not override it. A new migration may have landed.
 
-Then re-list the project's Edge Functions. Require at least **10 minutes with no shared Edge Function deployment** and no unexplained version/hash difference from the last accepted inventory. The SQL execution gate cannot observe Edge deployments.
+Re-list the project's Edge Functions one final time. Require at least **10 minutes with no shared Edge Function deployment** and no unexplained version/hash difference from the refreshed v21 inventory. The SQL execution gate cannot observe Edge deployments.
 
 ## Dashboard action
 

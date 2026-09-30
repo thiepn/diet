@@ -54,21 +54,21 @@ Date: 2026-09-30.
 - The Diet P20 checkpoint intentionally remains P22 because P23 has its own broader cross-app fingerprint.
 
 
-## P24 pending-execution invariants
+## P24 ready-for-manual-execution invariants
 
 - Active operations release remains P23.0 until the managed upgrade completes.
-- P24 is explicitly marked pending.
+- P24 remains incomplete, but its execution gate is now `ready_for_manual_upgrade`.
 - PostgreSQL remains 17.6 until the Dashboard upgrade.
 - Target remains 17.11.
 - Managed upgrade execution is not available through the connected automation surface.
 - Pause/Restore is not used as a substitute for the recommended in-place upgrade.
 - Shared schema SHA is `f5485033a2845f9a1baacee6811c976c72e5ffb5d73bf0b9a50e3d0c0b48647c`.
 - The execution gate requires the SHA to match the latest passing P23 certification.
-- The execution gate requires at least 10 quiet minutes after the latest migration.
+- The database quiet window is satisfied and the current certified schema SHA matches exactly.
 - Diet writes are currently not paused.
 - A fresh P15 recovery snapshot is verified and safe to stage.
 - The latest encrypted off-site backup run succeeded.
 - P24 is not complete until PostgreSQL 17.11+ and post-upgrade cross-app validation pass.
 
 - Final Edge Function inventory recheck is mandatory because Edge deployments are outside the PostgreSQL schema fingerprint.
-- The final maintenance window requires at least 10 quiet minutes for both database migrations and shared Edge Function deployments.
+- The Edge Function quiet window is satisfied against the current v21 Gomoku room deployment, and must be rechecked immediately before the Dashboard click.

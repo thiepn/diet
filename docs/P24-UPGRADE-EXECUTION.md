@@ -1,6 +1,6 @@
 # P24 — Controlled PostgreSQL 17.11 Upgrade Execution
 
-P24 is currently **prepared but not completed**.
+P24 is currently **ready for the managed Dashboard upgrade, but not completed**.
 
 The active operations release remains **P23.0** until the managed Supabase PostgreSQL upgrade has actually completed and all post-upgrade checks pass.
 
@@ -48,7 +48,7 @@ Current database:
 
 ## Recovery evidence
 
-During the P24 maintenance attempt a fresh Diet recovery snapshot was captured and verified:
+The P24 recovery evidence has been refreshed immediately before handoff. A new Diet snapshot was captured at **2026-09-30 12:51:24 UTC** (`aebe85b2-43a4-4e0b-b44d-e782bb97aa18`) and verified:
 
 - hash valid;
 - schema valid;
@@ -62,7 +62,9 @@ Diet was briefly placed into the P21 write freeze for the intended upgrade windo
 
 ## Manual execution step
 
-Only after `private.platform_p24_execution_gate()` returns `readyForManualUpgrade=true`:
+Current execution gate: **ready_for_manual_upgrade**. The certified schema SHA still matches exactly, the database has been migration-quiet for many hours, and the latest observed shared Edge deployment (`gomoku-room` v21) has also been quiet for well over 10 minutes.
+
+Only while `private.platform_p24_execution_gate()` continues to return `readyForManualUpgrade=true`:
 
 1. Confirm the database execution gate is ready.
 2. Re-list all Edge Functions and confirm at least 10 quiet minutes with no unexplained version/hash changes.

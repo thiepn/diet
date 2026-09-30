@@ -130,15 +130,17 @@
     "platformUpgradeExecutionManualActionRequired": true,
     "platformUpgradeExecutionConnectorAvailable": false,
     "platformUpgradeFreshSnapshotVerified": true,
-    "platformUpgradeFreshSnapshotCapturedAt": "2026-09-30T01:38:40Z",
-    "platformUpgradeLatestOffsiteBackupRun": 36649457912,
+    "platformUpgradeFreshSnapshotCapturedAt": "2026-09-30T12:51:24.091103Z",
+    "platformUpgradeLatestOffsiteBackupRun": 36702600074,
     "platformUpgradeLatestOffsiteBackupSucceeded": true,
     "platformUpgradeConcurrentChangeProtection": true,
     "platformUpgradeEdgeQuietRequired": true,
     "platformUpgradeEdgeQuietMinutes": 10,
     "platformUpgradeEdgeInventoryRequiresFinalRecheck": true,
     "platformUpgradeDatabaseGateCoversEdgeDeployments": false,
-    "platformUpgradeLatestObservedGomokuEdgeVersion": 21
+    "platformUpgradeLatestObservedGomokuEdgeVersion": 21,
+    "platformUpgradeDatabaseQuietWindowSatisfied": true,
+    "platformUpgradeEdgeQuietWindowSatisfied": true
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0",
@@ -163,5 +165,5 @@
   "platformUpgradeRelease": "P23",
   "platformUpgradeModel": "shared-schema-fingerprint-cross-app-postgres-17-11-readiness-v1",
   "pendingOperationsPhase": "P24",
-  "platformUpgradeExecutionState": "awaiting_quiet_window_and_manual_supabase_infrastructure_upgrade"
+  "platformUpgradeExecutionState": "ready_for_manual_supabase_infrastructure_upgrade"
 }

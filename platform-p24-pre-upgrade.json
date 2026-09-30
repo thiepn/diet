@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "capturedAt": "2026-09-30T01:44:38Z",
+  "capturedAt": "2026-09-30T12:51:26Z",
   "projectRef": "hycegznamzjhwinegaai",
   "phase": "P24",
-  "executionState": "awaiting_quiet_window_and_manual_supabase_infrastructure_upgrade",
+  "executionState": "ready_for_manual_supabase_infrastructure_upgrade",
   "activeOperationsRelease": "P23.0",
   "targetPostgres": "17.11",
   "currentPostgres": "17.6",
@@ -36,19 +36,27 @@
       "extensionVersionMismatches": 0,
       "md5LoginRoles": 0,
       "replicationSlots": 0
-    }
+    },
+    "quietMinutesObserved": 666.21,
+    "databaseQuietWindowSatisfied": true,
+    "edgeQuietWindowSatisfied": true,
+    "edgeLatestObservedUpdatedAt": "2026-09-30T01:51:00.957Z",
+    "edgeQuietMinutesObservedAtRefresh": 658
   },
   "recovery": {
     "freshInDatabaseSnapshot": true,
-    "snapshotCapturedAt": "2026-09-30T01:38:40Z",
+    "snapshotCapturedAt": "2026-09-30T12:51:24.091103Z",
     "snapshotVerified": true,
     "snapshotHashOk": true,
     "snapshotSchemaOk": true,
     "restorePlanSafeToStage": true,
     "destructiveRestoreAutomatic": false,
-    "latestEncryptedOffsiteBackupRun": 36649457912,
+    "latestEncryptedOffsiteBackupRun": 36702600074,
     "latestEncryptedOffsiteBackupConclusion": "success",
-    "latestEncryptedOffsiteBackupHead": "84d86fc63d2a57c9c805cd449fec9da2ddd1ee43"
+    "latestEncryptedOffsiteBackupHead": "6707542f992affb1f0f6037426786f8dd765c4f2",
+    "snapshotId": "aebe85b2-43a4-4e0b-b44d-e782bb97aa18",
+    "snapshotSource": "pre_restore",
+    "snapshotVerifiedAt": "2026-09-30T12:51:26.116549Z"
   },
   "edgeFunctions": [
     {
@@ -83,9 +91,10 @@
     },
     {
       "slug": "gomoku-room",
-      "version": 18,
+      "version": 21,
       "verifyJwt": false,
-      "sha256": "a75420057d302fe021bf2134cc88c74be2ec1b8c4f4d2e72084f6dd9d0d2e712"
+      "sha256": "54aff423db999558a5494d0bad89a7d0dcc738299479be04362129c7c496c0a9",
+      "updatedAt": "2026-09-30T01:51:00.957Z"
     },
     {
       "slug": "diet-health-sync",
@@ -142,6 +151,8 @@
     "minimumQuietMinutes": 10,
     "latestObservedGomokuRoomVersion": 21,
     "latestObservedGomokuRoomSha256": "54aff423db999558a5494d0bad89a7d0dcc738299479be04362129c7c496c0a9",
-    "instruction": "Immediately before the managed upgrade, re-list all Edge Functions and require no unexplained version/hash change during the final quiet window."
+    "instruction": "Immediately before the managed upgrade, re-list all Edge Functions and require no unexplained version/hash change during the final quiet window.",
+    "latestObservedUpdatedAt": "2026-09-30T01:51:00.957Z",
+    "quietWindowSatisfied": true
   }
 }

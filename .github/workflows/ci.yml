@@ -84,9 +84,10 @@ jobs:
           if(backend.platform_upgrade_policy?.safe_to_schedule_upgrade!==true||backend.platform_upgrade_policy?.upgrade_executed!==false||backend.platform_upgrade_policy?.post_upgrade_validation!=='pending')throw new Error('P23 shared-platform readiness state invalid.');
           if(backend.platform_upgrade_execution_policy?.release!=='P24')throw new Error('P24 execution policy missing.');
           if(backend.platform_upgrade_execution_policy?.upgrade_executed!==false||backend.platform_upgrade_execution_policy?.manual_dashboard_action_required!==true)throw new Error('P24 must remain explicitly pending before managed upgrade.');
-          if(app.pendingOperationsPhase!=='P24'||app.platformUpgradeExecutionState!=='awaiting_quiet_window_and_manual_supabase_infrastructure_upgrade')throw new Error('P24 pending metadata invalid.');
+          if(app.pendingOperationsPhase!=='P24'||app.platformUpgradeExecutionState!=='ready_for_manual_supabase_infrastructure_upgrade')throw new Error('P24 handoff metadata invalid.');
+          if(backend.platform_upgrade_execution_policy?.execution_state!=='ready_for_manual_supabase_infrastructure_upgrade')throw new Error('P24 execution gate not ready.');
           if(release.consumerRelease!==app.webRelease)throw new Error('Account consumer release mismatch.');
-          console.log('Diet Copilot Web 2.0.3 / P23 active + P24 pre-upgrade contract passed.');
+          console.log('Diet Copilot Web 2.0.3 / P23 active + P24 ready-for-manual-upgrade contract passed.');
           NODE
 
       - name: Build actual GitHub Pages artifact

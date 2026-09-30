@@ -6,11 +6,11 @@ Diet Copilot remains live at **https://thiepn.dev/diet/**. P23 remains the activ
 
 ## P24 execution state
 
-P24 added a service-only execution gate, refreshed the shared schema/Edge Function baseline after concurrent Gomoku P4/P5 changes, captured and verified a fresh recovery snapshot, confirmed the latest encrypted off-site backup, and returned Diet to normal writable operation.
+P24 added a service-only execution gate, refreshed the shared schema/Edge Function baseline after concurrent Gomoku P4/P5 changes, captured and verified a fresh recovery snapshot at 12:51 UTC, confirmed a successful encrypted off-site backup on the current P24 head, verified more than 10 minutes of database and Edge deployment quiet time, and kept Diet in normal writable operation until immediately before the managed upgrade.
 
 The gate requires an exact certified schema match plus a **10-minute migration quiet window** before the manual Supabase Infrastructure upgrade may begin.
 
-Current P24 state: **awaiting quiet window and manual Supabase Infrastructure → Upgrade project action**.
+Current P24 state: **database and Edge quiet windows satisfied; ready for the manual Supabase Infrastructure → Upgrade project action**.
 
 Shared pre-upgrade SHA-256:
 

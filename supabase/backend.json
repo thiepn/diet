@@ -518,7 +518,7 @@
       "20260930014316",
       "20260930014417"
     ],
-    "execution_state": "awaiting_quiet_window_and_manual_supabase_infrastructure_upgrade",
+    "execution_state": "ready_for_manual_supabase_infrastructure_upgrade",
     "current_postgres": "17.6",
     "target_postgres": "17.11",
     "managed_upgrade_method": "supabase_infrastructure_in_place_pg_upgrade",
@@ -534,11 +534,11 @@
     "pre_upgrade_manifest": "platform-p24-pre-upgrade.json",
     "writes_paused": false,
     "recovery": {
-      "fresh_snapshot_captured_at": "2026-09-30T01:38:40Z",
+      "fresh_snapshot_captured_at": "2026-09-30T12:51:24.091103Z",
       "fresh_snapshot_verified": true,
       "restore_plan_safe_to_stage": true,
       "destructive_restore_automatic": false,
-      "encrypted_offsite_backup_run": 36649457912,
+      "encrypted_offsite_backup_run": 36702600074,
       "encrypted_offsite_backup_conclusion": "success"
     },
     "concurrent_change_protection": {
@@ -555,8 +555,11 @@
       "database_gate_covers_edge_deployments": false,
       "latest_observed_gomoku_room_edge": {
         "version": 21,
-        "sha256": "54aff423db999558a5494d0bad89a7d0dcc738299479be04362129c7c496c0a9"
-      }
+        "sha256": "54aff423db999558a5494d0bad89a7d0dcc738299479be04362129c7c496c0a9",
+        "updated_at": "2026-09-30T01:51:00.957Z"
+      },
+      "database_quiet_window_satisfied": true,
+      "edge_quiet_window_satisfied": true
     },
     "completion_requires": [
       "postgres_17_11_or_newer",
