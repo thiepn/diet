@@ -4,24 +4,26 @@ P25 is **staged but not active**. It must not be used to claim completion until 
 
 ## Current production gate
 
-The P24 concurrency hardening has now been merged to production (`b8ea00ae0f193a2979d700d79dbcd6fe4edbb40f`), and its merge-triggered encrypted P15 off-site backup succeeded.
+P24 is now fully prepared and its final handoff is merged to `main` at `5b51cd35b8050054d25da4443b8875b0fc9d4f82`.
 
-Latest staged evidence on 2026-09-30:
+Final verified pre-upgrade state:
 
-- project: `THIEPN Account` (`hycegznamzjhwinegaai`)
 - PostgreSQL: **17.6** (`170006`)
 - target: **17.11**
 - P23 preflight: **pass**
-- P24 live gate: **blocked only by the final quiet-window timing at the latest observation**
-- current/certified shared schema SHA: `b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f`
+- P24 live gate: **`ready_for_manual_upgrade`**
+- current/certified shared schema SHA: `8239b32928be652214a63ae733d42bace71d46d7145e3e6e5eea8b7f066e1dfe`
 - schema certification match: **true**
-- latest recorded migration: `20260930162517_gomoku_p7_ranked_read_models`
-- blocking replication slots at the latest certified preflight: **0**
-- latest observed `gomoku-room`: **v25**, SHA `600f700c…e2e61`, deployed at 2026-09-30 16:27:53 UTC
-- latest verified pre-upgrade P15 off-site backup run: **36744693032**, success
+- latest shared migration: `20260930164232_gomoku_p7_ranked_active_opponent_index`
+- database quiet time at final gate: **227.95 minutes**
+- blocking replication slots: **0**
+- latest observed `gomoku-room`: **v27**, SHA `958f8595…db5068`
+- Edge quiet time at final capture: **185.63 minutes**
+- fresh verified Diet recovery snapshot: **2026-09-30 20:27:39 UTC**
+- latest confirmed encrypted off-site backup before the final metadata merge: run **36744693032**, success
 - actual managed PostgreSQL upgrade: **not executed**
 
-P25 therefore remains correctly **blocked_pre_upgrade**. It activates only after the hosted Supabase upgrade to PostgreSQL 17.11+ and immediate post-upgrade validation pass.
+P25 remains correctly **blocked_pre_upgrade** for one reason: the hosted Supabase **Upgrade project** action has not yet moved production to PostgreSQL 17.11+. No P25 burn-in clock may start before that and the immediate post-upgrade validation pass.
 
 ## Why P25 needs a real burn-in window
 
