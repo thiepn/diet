@@ -1,8 +1,22 @@
 # Diet Copilot
 
-**Web 2.0.3 · P23 shared-platform PostgreSQL upgrade readiness**
+**Web 2.0.3 · P23 active · P24 controlled PostgreSQL upgrade prepared**
 
-Diet Copilot remains live at **https://thiepn.dev/diet/**. P23 certifies the shared Supabase project for the PostgreSQL 17.11 infrastructure upgrade without executing the upgrade.
+Diet Copilot remains live at **https://thiepn.dev/diet/**. P23 remains the active operations release. P24 has prepared the controlled PostgreSQL 17.11 execution boundary, but the managed infrastructure upgrade has **not** been executed yet.
+
+## P24 execution state
+
+P24 added a service-only execution gate, refreshed the shared schema/Edge Function baseline after concurrent Gomoku P4/P5 changes, captured and verified a fresh recovery snapshot, confirmed the latest encrypted off-site backup, and returned Diet to normal writable operation.
+
+The gate requires an exact certified schema match plus a **10-minute migration quiet window** before the manual Supabase Infrastructure upgrade may begin.
+
+Current P24 state: **awaiting quiet window and manual Supabase Infrastructure → Upgrade project action**.
+
+Shared pre-upgrade SHA-256:
+
+`f5485033a2845f9a1baacee6811c976c72e5ffb5d73bf0b9a50e3d0c0b48647c`
+
+See [P24 execution](docs/P24-UPGRADE-EXECUTION.md) and [P24 manual handoff](docs/P24-MANUAL-HANDOFF.md).
 
 ## P23 result
 
@@ -73,6 +87,7 @@ The actual infrastructure operation requires a maintenance window and cross-app 
 - **P21:** failure injection and incident recovery
 - **P22:** long-term maintenance and supply-chain hardening
 - **P23:** shared-platform PostgreSQL upgrade certification
+- **P24:** controlled upgrade execution gate and manual infrastructure handoff (pending execution)
 
 ## Release
 

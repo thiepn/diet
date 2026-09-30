@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-09-30T01:44:38Z",
+  "projectRef": "hycegznamzjhwinegaai",
+  "phase": "P24",
+  "executionState": "awaiting_quiet_window_and_manual_supabase_infrastructure_upgrade",
+  "activeOperationsRelease": "P23.0",
+  "targetPostgres": "17.11",
+  "currentPostgres": "17.6",
+  "managedUpgradeAvailable": true,
+  "connectorCanExecuteManagedUpgrade": false,
+  "manualDashboardActionRequired": true,
+  "upgradeExecuted": false,
+  "postUpgradeValidation": "pending",
+  "preUpgrade": {
+    "sharedSchemaSha256": "f5485033a2845f9a1baacee6811c976c72e5ffb5d73bf0b9a50e3d0c0b48647c",
+    "schemaMatchesLatestCertification": true,
+    "preflightStatus": "pass",
+    "safeToScheduleUpgrade": true,
+    "minimumQuietMinutes": 10,
+    "writesPaused": false,
+    "latestMigrationVersion": "20260930014417",
+    "latestMigrationName": "platform_p24_classify_execution_controls",
+    "recentConcurrentChanges": [
+      "20260930013052_gomoku_p4_match_integrity_rate_limits",
+      "20260930014008_gomoku_p5_match_history_persistence",
+      "gomoku-room Edge Function version 18"
+    ],
+    "hazards": {
+      "ltreeIndexes": 0,
+      "btreeGistFloatIndexes": 0,
+      "customOperators": 0,
+      "legacyPgcryptoFunctionRefs": 0,
+      "regTypeColumns": 0,
+      "deprecatedExtensions": 0,
+      "extensionVersionMismatches": 0,
+      "md5LoginRoles": 0,
+      "replicationSlots": 0
+    }
+  },
+  "recovery": {
+    "freshInDatabaseSnapshot": true,
+    "snapshotCapturedAt": "2026-09-30T01:38:40Z",
+    "snapshotVerified": true,
+    "snapshotHashOk": true,
+    "snapshotSchemaOk": true,
+    "restorePlanSafeToStage": true,
+    "destructiveRestoreAutomatic": false,
+    "latestEncryptedOffsiteBackupRun": 36649457912,
+    "latestEncryptedOffsiteBackupConclusion": "success",
+    "latestEncryptedOffsiteBackupHead": "84d86fc63d2a57c9c805cd449fec9da2ddd1ee43"
+  },
+  "edgeFunctions": [
+    {
+      "slug": "leaderboard-profile",
+      "version": 7,
+      "verifyJwt": false,
+      "sha256": "26a021e25836dd655fba3bd975b0e772829cbb5da61b4a193a9e2ed4966e0f24"
+    },
+    {
+      "slug": "get-leaderboard",
+      "version": 11,
+      "verifyJwt": false,
+      "sha256": "2e506223de0d63c21b6f47821b5b91a302b4c2510a085f8c13dbd9062e80a907"
+    },
+    {
+      "slug": "submit-score",
+      "version": 17,
+      "verifyJwt": false,
+      "sha256": "23883e95ec549f2a4c1a3902b4520a08706c5087107d82b12e7a6d32d733d1ac"
+    },
+    {
+      "slug": "micro-arcade-leaderboards",
+      "version": 4,
+      "verifyJwt": false,
+      "sha256": "dda244cfcff59396b97f2c789cad83f78f2bd2d49a02ee5c1eea5dfeabe0dc90"
+    },
+    {
+      "slug": "platform-health",
+      "version": 4,
+      "verifyJwt": false,
+      "sha256": "ba7fc889263de7ae858f2f870fad59d9cd7d146b3e75ceca4b9c8f355a2ac6dd"
+    },
+    {
+      "slug": "gomoku-room",
+      "version": 18,
+      "verifyJwt": false,
+      "sha256": "a75420057d302fe021bf2134cc88c74be2ec1b8c4f4d2e72084f6dd9d0d2e712"
+    },
+    {
+      "slug": "diet-health-sync",
+      "version": 7,
+      "verifyJwt": true,
+      "sha256": "d03a3f68bde63492832ef5ef2e3a2e6ade8b83dd7cea98f2a804abfbfa5a7e9c"
+    },
+    {
+      "slug": "gomoku-room-debug",
+      "version": 6,
+      "verifyJwt": false,
+      "sha256": "f44a5bdbf7ae82562ecab90ca388e5960de6f0780b99712f7e87bb1e77acb0d4"
+    },
+    {
+      "slug": "wordstrike-profile-sync",
+      "version": 5,
+      "verifyJwt": false,
+      "sha256": "70b1e1b969d8c5a6cf252b7336bec0d17d4a66478d54d6e878df0004faf8baee"
+    },
+    {
+      "slug": "diet-copilot-ai",
+      "version": 4,
+      "verifyJwt": true,
+      "sha256": "02a592a1d9abcbc29faaca465c04601ff578c113d8731e92021319461696feb7"
+    },
+    {
+      "slug": "diet-p15-backup-export",
+      "version": 2,
+      "verifyJwt": false,
+      "sha256": "7310fcf2c5ebb4abaccc011bbc27b0592d6be2bd938f271b6a2c9bb2a8373734"
+    }
+  ],
+  "manualExecution": {
+    "location": "Supabase Dashboard > Project Settings > Infrastructure > Upgrade project",
+    "method": "in-place pg_upgrade",
+    "beforeClick": [
+      "Confirm public.platform_p24_execution_status reports readyForManualUpgrade=true.",
+      "Confirm no new shared migration or Edge Function deployment has landed since the captured baseline.",
+      "Enable the Diet P21 write freeze immediately before starting the managed upgrade.",
+      "Keep the maintenance window active until cross-app validation passes."
+    ],
+    "afterUpgrade": [
+      "Run private.platform_p23_post_upgrade_validation().",
+      "Require PostgreSQL 17.11 or newer and exact shared-schema fingerprint match.",
+      "Run platform-health plus P18/P20/P21/P22 and the cross-app validation matrix.",
+      "Only then disable the write freeze."
+    ]
+  }
+}

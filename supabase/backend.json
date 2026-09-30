@@ -116,7 +116,11 @@
     "cross_app_upgrade_preflight": true,
     "cross_app_post_upgrade_validation": true,
     "edge_function_upgrade_inventory": true,
-    "service_only_platform_upgrade_status": true
+    "service_only_platform_upgrade_status": true,
+    "controlled_managed_upgrade_gate": true,
+    "shared_schema_quiet_window": true,
+    "manual_infrastructure_upgrade_handoff": true,
+    "post_upgrade_cross_app_certification_pending": true
   },
   "observability_policy": {
     "release": "P13",
@@ -470,7 +474,7 @@
     "certified_application_surfaces": 10,
     "certified_platform_control_surfaces": 1,
     "schema_contract_format": "platform-p23-shared-schema-v1",
-    "certified_schema_sha256": "aa4aede72f4d2b3ae75b581f691ee6fa1c993a71279c836a8e1fe9b967e13e64",
+    "certified_schema_sha256": "f5485033a2845f9a1baacee6811c976c72e5ffb5d73bf0b9a50e3d0c0b48647c",
     "certification_table": "private.platform_upgrade_certifications",
     "certification_retention_days": 730,
     "preflight_function": "private.platform_p23_upgrade_preflight",
@@ -506,5 +510,55 @@
     "advisor_performance_findings": 0,
     "maintenance_window_required": true,
     "cross_app_post_upgrade_validation_required": true
+  },
+  "platform_upgrade_execution_policy": {
+    "release": "P24",
+    "active_operations_release": "P23.0",
+    "migration_versions": [
+      "20260930014316",
+      "20260930014417"
+    ],
+    "execution_state": "awaiting_quiet_window_and_manual_supabase_infrastructure_upgrade",
+    "current_postgres": "17.6",
+    "target_postgres": "17.11",
+    "managed_upgrade_method": "supabase_infrastructure_in_place_pg_upgrade",
+    "connector_can_execute_managed_upgrade": false,
+    "manual_dashboard_action_required": true,
+    "upgrade_executed": false,
+    "post_upgrade_validation": "pending",
+    "execution_gate": "private.platform_p24_execution_gate",
+    "execution_status_rpc": "public.platform_p24_execution_status",
+    "execution_status_rpc_service_only": true,
+    "minimum_quiet_minutes": 10,
+    "current_certified_schema_sha256": "f5485033a2845f9a1baacee6811c976c72e5ffb5d73bf0b9a50e3d0c0b48647c",
+    "pre_upgrade_manifest": "platform-p24-pre-upgrade.json",
+    "writes_paused": false,
+    "recovery": {
+      "fresh_snapshot_captured_at": "2026-09-30T01:38:40Z",
+      "fresh_snapshot_verified": true,
+      "restore_plan_safe_to_stage": true,
+      "destructive_restore_automatic": false,
+      "encrypted_offsite_backup_run": 36649457912,
+      "encrypted_offsite_backup_conclusion": "success"
+    },
+    "concurrent_change_protection": {
+      "enabled": true,
+      "require_schema_match": true,
+      "require_quiet_window": true,
+      "recent_changes": [
+        "20260930013052_gomoku_p4_match_integrity_rate_limits",
+        "20260930014008_gomoku_p5_match_history_persistence",
+        "gomoku-room edge function version 18"
+      ]
+    },
+    "completion_requires": [
+      "postgres_17_11_or_newer",
+      "p23_post_upgrade_validation_pass",
+      "shared_schema_fingerprint_match",
+      "platform_health_pass",
+      "cross_app_smoke_matrix_pass",
+      "diet_p18_p20_p21_p22_pass",
+      "write_freeze_disabled_only_after_validation"
+    ]
   }
 }

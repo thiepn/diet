@@ -49,6 +49,7 @@ for rpc in [
     "diet_p21_incident_status",
     "diet_p22_maintenance_status",
     "platform_p23_upgrade_status",
+    "platform_p24_execution_status",
 ]:
     status,body=request(
         SUPABASE+"/rest/v1/rpc/"+rpc,

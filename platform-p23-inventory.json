@@ -1,14 +1,15 @@
 {
-  "schemaVersion": 1,
-  "certifiedAt": "2026-09-30",
+  "schemaVersion": 2,
+  "certifiedAt": "2026-09-30T01:44:38Z",
   "projectRef": "hycegznamzjhwinegaai",
   "release": "P23",
+  "recertifiedDuring": "P24",
   "currentPostgres": "17.6",
   "targetPostgres": "17.11",
   "safeToScheduleUpgrade": true,
   "upgradeExecuted": false,
   "postUpgradeValidation": "pending",
-  "sharedSchemaSha256": "aa4aede72f4d2b3ae75b581f691ee6fa1c993a71279c836a8e1fe9b967e13e64",
+  "sharedSchemaSha256": "f5485033a2845f9a1baacee6811c976c72e5ffb5d73bf0b9a50e3d0c0b48647c",
   "registeredApps": [
     {
       "slug": "notes",
@@ -50,8 +51,8 @@
       "functions": 137
     },
     "gomoku": {
-      "relations": 3,
-      "functions": 1
+      "relations": 5,
+      "functions": 2
     },
     "leaderboard": {
       "relations": 3,
@@ -67,7 +68,7 @@
     },
     "platform": {
       "relations": 1,
-      "functions": 6
+      "functions": 8
     },
     "tms60": {
       "relations": 2,
@@ -143,9 +144,9 @@
     },
     {
       "slug": "gomoku-room",
-      "version": 10,
+      "version": 18,
       "verifyJwt": false,
-      "sha256": "9cc65a384326688b66be05ebe2596459403e43cd2af80e0d310389ef9188a4b2"
+      "sha256": "a75420057d302fe021bf2134cc88c74be2ec1b8c4f4d2e72084f6dd9d0d2e712"
     },
     {
       "slug": "diet-health-sync",
@@ -179,8 +180,10 @@
     }
   ],
   "notes": [
-    "The shared project changed during certification: Gomoku migration 20260930000816 landed before the final P23 baseline and is included in the certified fingerprint.",
-    "The P23 database fingerprint excludes managed auth/storage/realtime schemas but includes all app-owned public/private/notes_private/wttn_private/canvas_admin relations and functions, cron definitions, and installed extension names.",
-    "Edge Functions are certified separately in this inventory because they are not represented in the PostgreSQL catalog fingerprint."
+    "P23 was recertified during P24 after Gomoku P4/P5 changed the shared project.",
+    "The refreshed baseline includes migrations 20260930013052_gomoku_p4_match_integrity_rate_limits and 20260930014008_gomoku_p5_match_history_persistence.",
+    "The refreshed baseline also includes the P24 service-only execution gate and classifier migration.",
+    "The P23 database fingerprint excludes managed auth/storage/realtime schemas but includes app-owned relations/functions, cron definitions, and installed extension names.",
+    "Edge Functions are certified separately because they are not represented in the PostgreSQL catalog fingerprint."
   ]
 }

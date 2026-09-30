@@ -1,4 +1,4 @@
-# Diet Copilot 2.0.3 — P23 shared-platform upgrade-readiness gates
+# Diet Copilot 2.0.3 — P23 active / P24 controlled-upgrade preflight gates
 
 Date: 2026-09-30.
 
@@ -15,6 +15,9 @@ Date: 2026-09-30.
 | P21 regression | controlled-failure and cross-browser suite remains green |
 | P22 regression | maintenance and supply-chain controls remain green |
 | Advisors | zero P23-specific security/performance findings |
+| P24 execution gate | exact schema certification + 10-minute migration quiet window |
+| P24 recovery | fresh verified snapshot + successful encrypted off-site backup |
+| P24 public boundary | service-only execution status remains inaccessible to browser clients |
 | Pages | Web 2.0.3 deployment remains unchanged |
 
 ## P23 readiness invariants
@@ -49,3 +52,20 @@ Date: 2026-09-30.
 - Diet P22 maintenance remains pass.
 - P23 status RPC is service-only.
 - The Diet P20 checkpoint intentionally remains P22 because P23 has its own broader cross-app fingerprint.
+
+
+## P24 pending-execution invariants
+
+- Active operations release remains P23.0 until the managed upgrade completes.
+- P24 is explicitly marked pending.
+- PostgreSQL remains 17.6 until the Dashboard upgrade.
+- Target remains 17.11.
+- Managed upgrade execution is not available through the connected automation surface.
+- Pause/Restore is not used as a substitute for the recommended in-place upgrade.
+- Shared schema SHA is `f5485033a2845f9a1baacee6811c976c72e5ffb5d73bf0b9a50e3d0c0b48647c`.
+- The execution gate requires the SHA to match the latest passing P23 certification.
+- The execution gate requires at least 10 quiet minutes after the latest migration.
+- Diet writes are currently not paused.
+- A fresh P15 recovery snapshot is verified and safe to stage.
+- The latest encrypted off-site backup run succeeded.
+- P24 is not complete until PostgreSQL 17.11+ and post-upgrade cross-app validation pass.

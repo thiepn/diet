@@ -1,0 +1,59 @@
+name: P24 Controlled Upgrade Preflight
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'platform-p23-inventory.json'
+      - 'platform-p24-pre-upgrade.json'
+      - '.well-known/thiepn-app.json'
+      - 'supabase/backend.json'
+      - 'supabase/migrations/**'
+      - 'tests/p24-*'
+      - 'docs/P24-*'
+      - '.github/workflows/p24-upgrade-preflight.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p24-controlled-upgrade-preflight
+  cancel-in-progress: true
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: P24 execution-boundary contract
+        run: |
+          node tests/p24-execution-contract.mjs
+          python -m py_compile tests/p24-preupgrade-public.py
+
+  public:
+    needs: static
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Shared platform public pre-upgrade health
+        run: python tests/p24-preupgrade-public.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: p24-preupgrade-public
+          path: p24-preupgrade-public.json
+          retention-days: 30
