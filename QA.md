@@ -30,7 +30,7 @@ Date: 2026-09-30.
 - `safeToScheduleUpgrade=true`.
 - The actual infrastructure upgrade has not been executed.
 - Post-upgrade validation is pending.
-- Shared schema fingerprint is `b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f`.
+- Shared schema fingerprint is `8239b32928be652214a63ae733d42bace71d46d7145e3e6e5eea8b7f066e1dfe`.
 - Six registered Account apps are represented.
 - Ten application/service surfaces plus one platform-control surface are fingerprinted.
 - Eleven Edge Functions are inventoried externally.
@@ -62,22 +62,35 @@ Date: 2026-09-30.
 - Target remains 17.11.
 - Managed upgrade execution is not available through the connected automation surface.
 - Pause/Restore is not used as a substitute for the recommended in-place upgrade.
-- Current certified shared schema SHA is `b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f`.
+- Current certified shared schema SHA is `8239b32928be652214a63ae733d42bace71d46d7145e3e6e5eea8b7f066e1dfe`.
 - The execution gate requires the SHA to match the latest passing P23 certification.
-- The recorded manifest may be waiting on the final database quiet window; the live gate must report an exact schema match and at least 10 quiet minutes before upgrade.
+- Final live gate status is `ready_for_manual_upgrade`: exact schema match, P23 preflight pass, and more than 10 minutes of database quiet time.
 - Diet writes are currently not paused.
 - A fresh P15 recovery snapshot is verified and safe to stage.
 - The latest encrypted off-site backup run succeeded.
 - P24 is not complete until PostgreSQL 17.11+ and post-upgrade cross-app validation pass.
 
 - Final Edge Function inventory recheck is mandatory because Edge deployments are outside the PostgreSQL schema fingerprint.
-- The latest recorded Gomoku room deployment is v24 and the Edge inventory must be rechecked immediately before the Dashboard click.
+- The latest recorded Gomoku room deployment is v27 and had more than 10 minutes of Edge quiet time at final certification; recheck immediately before the Dashboard click.
 
 ## P24 refresh evidence
 
 - Gomoku P6/P7 and Account changes after the original handoff were detected rather than silently accepted.
-- Latest recorded shared migration: `20260930162517_gomoku_p7_ranked_read_models`.
+- Latest recorded shared migration: `20260930164232_gomoku_p7_ranked_active_opponent_index`.
 - Gomoku surface at the refresh: 9 relations / 8 functions.
-- Latest recorded `gomoku-room`: v24 (`c66bc31d…301378`).
-- Fresh verified Diet recovery snapshot: `2026-09-30T16:19:59.549832Z`.
+- Latest recorded `gomoku-room`: v27 (`958f8595…db5068`).
+- Fresh verified Diet recovery snapshot: `2026-09-30T20:27:39.582068Z`.
 - Replication-slot classifier: 0 blocking slots at the latest refresh; managed Realtime slots are surfaced independently.
+
+## Final P24 ready evidence
+
+- Live execution gate: `ready_for_manual_upgrade`.
+- Database quiet time at final check: 225.23 minutes.
+- Edge quiet time at final capture: 185.63 minutes.
+- Current/certified shared SHA: `8239b32928be652214a63ae733d42bace71d46d7145e3e6e5eea8b7f066e1dfe`.
+- Latest shared migration: `20260930164232_gomoku_p7_ranked_active_opponent_index`.
+- Latest `gomoku-room`: v27, SHA `958f85954b7b0e1fe01d67eafc01e6e25e9c216743a6c46ba0e695d218db5068`.
+- Blocking replication slots: 0.
+- P23 preflight: pass.
+- Fresh P15 recovery snapshot: verified.
+- Latest encrypted P15 off-site backup: run `36744693032`, success.
