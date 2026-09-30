@@ -30,7 +30,7 @@ Date: 2026-09-30.
 - `safeToScheduleUpgrade=true`.
 - The actual infrastructure upgrade has not been executed.
 - Post-upgrade validation is pending.
-- Shared schema fingerprint is `180637a3b4d083f120db1ed9557764c5180a0b42df600a4c615832f0335369cd`.
+- Shared schema fingerprint is `b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f`.
 - Six registered Account apps are represented.
 - Ten application/service surfaces plus one platform-control surface are fingerprinted.
 - Eleven Edge Functions are inventoried externally.
@@ -62,7 +62,7 @@ Date: 2026-09-30.
 - Target remains 17.11.
 - Managed upgrade execution is not available through the connected automation surface.
 - Pause/Restore is not used as a substitute for the recommended in-place upgrade.
-- Current certified shared schema SHA is `180637a3b4d083f120db1ed9557764c5180a0b42df600a4c615832f0335369cd`.
+- Current certified shared schema SHA is `b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f`.
 - The execution gate requires the SHA to match the latest passing P23 certification.
 - The recorded manifest may be waiting on the final database quiet window; the live gate must report an exact schema match and at least 10 quiet minutes before upgrade.
 - Diet writes are currently not paused.
@@ -76,8 +76,8 @@ Date: 2026-09-30.
 ## P24 refresh evidence
 
 - Gomoku P6/P7 and Account changes after the original handoff were detected rather than silently accepted.
-- Latest recorded shared migration: `20260930162218_gomoku_p7_ranked_rating_matchmaking`.
-- Gomoku surface at the refresh: 9 relations / 6 functions.
+- Latest recorded shared migration: `20260930162517_gomoku_p7_ranked_read_models`.
+- Gomoku surface at the refresh: 9 relations / 8 functions.
 - Latest recorded `gomoku-room`: v24 (`c66bc31d…301378`).
 - Fresh verified Diet recovery snapshot: `2026-09-30T16:19:59.549832Z`.
 - Replication-slot classifier: 0 blocking slots at the latest refresh; managed Realtime slots are surfaced independently.
