@@ -47,7 +47,7 @@ This avoids manually dropping active managed Realtime slots while preserving the
 
 Current certified shared SHA:
 
-`180637a3b4d083f120db1ed9557764c5180a0b42df600a4c615832f0335369cd`
+`b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f`
 
 Recorded database state:
 
@@ -59,9 +59,9 @@ Recorded database state:
 - six registered Account apps
 - eight active cron jobs
 - eleven Edge Functions
-- Gomoku: 9 relations / 6 functions
+- Gomoku: 9 relations / 8 functions
 - latest recorded `gomoku-room`: v24
-- latest recorded shared migration: `20260930162218_gomoku_p7_ranked_rating_matchmaking`
+- latest recorded shared migration: `20260930162517_gomoku_p7_ranked_read_models`
 
 ## Recovery evidence
 
