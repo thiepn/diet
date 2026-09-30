@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "capturedAt": "2026-09-30T16:19:59.607755Z",
+  "capturedAt": "2026-09-30T16:24:04.618771Z",
   "projectRef": "hycegznamzjhwinegaai",
   "phase": "P24",
   "executionState": "awaiting_final_quiet_window_after_p24_refresh",
@@ -13,20 +13,21 @@
   "upgradeExecuted": false,
   "postUpgradeValidation": "pending",
   "preUpgrade": {
-    "sharedSchemaSha256": "72892db6c87e4a7c608c2b15e74e0f4dc7b47a083c707fdd959b82e19f42a62e",
+    "sharedSchemaSha256": "180637a3b4d083f120db1ed9557764c5180a0b42df600a4c615832f0335369cd",
     "schemaMatchesLatestCertification": true,
     "preflightStatus": "pass",
     "safeToScheduleUpgrade": true,
     "minimumQuietMinutes": 10,
     "writesPaused": false,
-    "latestMigrationVersion": "20260930161902",
-    "latestMigrationName": "platform_p24_managed_realtime_replication_preflight",
+    "latestMigrationVersion": "20260930162218",
+    "latestMigrationName": "gomoku_p7_ranked_rating_matchmaking",
     "recentConcurrentChanges": [
       "20260930132757_gomoku_p6_online_player_identity_profiles",
       "20260930150238_account_backup_inventory_order_fix",
       "20260930150418_gomoku_p6_exact_player_stats",
       "20260930150847_account_app_deletion_plan_empty_namespace_fix",
       "20260930161902_platform_p24_managed_realtime_replication_preflight",
+      "20260930162218_gomoku_p7_ranked_rating_matchmaking",
       "gomoku-room Edge Function version 24"
     ],
     "hazards": {
@@ -46,8 +47,8 @@
     "edgeLatestObservedUpdatedAt": "2026-09-30T15:06:14.053Z",
     "edgeQuietMinutesObservedAtRefresh": 658,
     "replicationSlotState": {
-      "total": 2,
-      "managedRealtimeTemporary": 2,
+      "total": 0,
+      "managedRealtimeTemporary": 0,
       "blocking": 0,
       "dashboardPreflightAuthoritative": true
     }
