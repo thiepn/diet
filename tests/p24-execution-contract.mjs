@@ -107,7 +107,7 @@ assert.equal(p24.edgeRevalidation?.quietWindowSatisfied,true);
 
 assert.equal(p23.sharedSchemaSha256,policy.current_certified_schema_sha256);
 assert.equal(p23.databaseSurfaces.gomoku.relations,9);
-assert.equal(p23.databaseSurfaces.gomoku.functions,6);
+assert.equal(p23.databaseSurfaces.gomoku.functions,8);
 assert.equal(p23.databaseSurfaces.platform.functions,8);
 const gomokuEdge=p23.edgeFunctions.find(x=>x.slug==='gomoku-room');
 assert.equal(gomokuEdge?.version,24);
