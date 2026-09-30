@@ -475,7 +475,7 @@
     "certified_application_surfaces": 10,
     "certified_platform_control_surfaces": 1,
     "schema_contract_format": "platform-p23-shared-schema-v1",
-    "certified_schema_sha256": "b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f",
+    "certified_schema_sha256": "8239b32928be652214a63ae733d42bace71d46d7145e3e6e5eea8b7f066e1dfe",
     "certification_table": "private.platform_upgrade_certifications",
     "certification_retention_days": 730,
     "preflight_function": "private.platform_p23_upgrade_preflight",
@@ -527,7 +527,7 @@
       "20260930014417",
       "20260930161902"
     ],
-    "execution_state": "awaiting_final_quiet_window_after_p24_refresh",
+    "execution_state": "ready_for_manual_supabase_infrastructure_upgrade",
     "current_postgres": "17.6",
     "target_postgres": "17.11",
     "managed_upgrade_method": "supabase_infrastructure_in_place_pg_upgrade",
@@ -539,15 +539,15 @@
     "execution_status_rpc": "public.platform_p24_execution_status",
     "execution_status_rpc_service_only": true,
     "minimum_quiet_minutes": 10,
-    "current_certified_schema_sha256": "b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f",
+    "current_certified_schema_sha256": "8239b32928be652214a63ae733d42bace71d46d7145e3e6e5eea8b7f066e1dfe",
     "pre_upgrade_manifest": "platform-p24-pre-upgrade.json",
     "writes_paused": false,
     "recovery": {
-      "fresh_snapshot_captured_at": "2026-09-30T16:19:59.549832Z",
+      "fresh_snapshot_captured_at": "2026-09-30T20:27:39.582068Z",
       "fresh_snapshot_verified": true,
       "restore_plan_safe_to_stage": true,
       "destructive_restore_automatic": false,
-      "encrypted_offsite_backup_run": 36702600074,
+      "encrypted_offsite_backup_run": 36744693032,
       "encrypted_offsite_backup_conclusion": "success"
     },
     "concurrent_change_protection": {
@@ -556,23 +556,22 @@
       "require_quiet_window": true,
       "recent_changes": [
         "20260930132757_gomoku_p6_online_player_identity_profiles",
-        "20260930150238_account_backup_inventory_order_fix",
         "20260930150418_gomoku_p6_exact_player_stats",
-        "20260930150847_account_app_deletion_plan_empty_namespace_fix",
-        "20260930161902_platform_p24_managed_realtime_replication_preflight",
         "20260930162218_gomoku_p7_ranked_rating_matchmaking",
-        "gomoku-room edge function version 24",
-        "20260930162517_gomoku_p7_ranked_read_models"
+        "20260930162517_gomoku_p7_ranked_read_models",
+        "20260930163438_gomoku_p7_account_capabilities",
+        "20260930164232_gomoku_p7_ranked_active_opponent_index",
+        "gomoku-room Edge Function version 27"
       ],
       "edge_deployment_quiet_minutes": 10,
       "edge_inventory_final_recheck_required": true,
       "database_gate_covers_edge_deployments": false,
       "latest_observed_gomoku_room_edge": {
-        "version": 24,
-        "sha256": "c66bc31db80b0eb12ef7c4b8d93fc14f5b3a1b9ec23e99b969ad46e6bc301378",
-        "updated_at": "2026-09-30T15:06:14.053Z"
+        "version": 27,
+        "sha256": "958f85954b7b0e1fe01d67eafc01e6e25e9c216743a6c46ba0e695d218db5068",
+        "updated_at": "2026-09-30T17:22:07.924Z"
       },
-      "database_quiet_window_satisfied": false,
+      "database_quiet_window_satisfied": true,
       "edge_quiet_window_satisfied": true,
       "replication_slot_state": {
         "total": 0,

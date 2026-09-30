@@ -1,15 +1,15 @@
 {
   "schemaVersion": 2,
-  "certifiedAt": "2026-09-30T16:28:04.019536Z",
+  "certifiedAt": "2026-09-30T20:27:37.770357Z",
   "projectRef": "hycegznamzjhwinegaai",
   "release": "P23",
-  "recertifiedDuring": "P24-refresh-after-gomoku-p7-read-models",
+  "recertifiedDuring": "P24-final-ready",
   "currentPostgres": "17.6",
   "targetPostgres": "17.11",
   "safeToScheduleUpgrade": true,
   "upgradeExecuted": false,
   "postUpgradeValidation": "pending",
-  "sharedSchemaSha256": "b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f",
+  "sharedSchemaSha256": "8239b32928be652214a63ae733d42bace71d46d7145e3e6e5eea8b7f066e1dfe",
   "registeredApps": [
     {
       "slug": "notes",
@@ -103,7 +103,8 @@
       "diet-p20-schema-drift-daily",
       "diet-p21-readiness-daily",
       "diet-p22-maintenance-weekly"
-    ]
+    ],
+    "historyRows": 28
   },
   "upgradeHazards": {
     "ltreeIndexes": 0,
@@ -149,10 +150,10 @@
     },
     {
       "slug": "gomoku-room",
-      "version": 24,
+      "version": 27,
       "verifyJwt": false,
-      "sha256": "c66bc31db80b0eb12ef7c4b8d93fc14f5b3a1b9ec23e99b969ad46e6bc301378",
-      "updatedAt": "2026-09-30T15:06:14.053Z"
+      "sha256": "958f85954b7b0e1fe01d67eafc01e6e25e9c216743a6c46ba0e695d218db5068",
+      "updatedAt": "2026-09-30T17:22:07.924Z"
     },
     {
       "slug": "diet-health-sync",
@@ -192,7 +193,8 @@
     "The P23 database fingerprint excludes managed auth/storage/realtime schemas but includes app-owned relations/functions, cron definitions, and installed extension names.",
     "Edge Functions are certified separately because they are not represented in the PostgreSQL catalog fingerprint.",
     "P24 refresh recertified the shared schema after Gomoku P6 and Account fixes.",
-    "Two active temporary Supabase Realtime slots are tracked separately; blocking/custom replication slots are zero and Dashboard preflight remains authoritative."
+    "Two active temporary Supabase Realtime slots are tracked separately; blocking/custom replication slots are zero and Dashboard preflight remains authoritative.",
+    "Final P24 recertification at 20:27 UTC matched the live schema after the last Gomoku P7 migration; both database and Edge quiet windows were satisfied."
   ],
   "replicationSlotState": {
     "total": 0,
