@@ -47,7 +47,7 @@ This avoids manually dropping active managed Realtime slots while preserving the
 
 Current certified shared SHA:
 
-`b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f`
+`8239b32928be652214a63ae733d42bace71d46d7145e3e6e5eea8b7f066e1dfe`
 
 Recorded database state:
 
@@ -60,12 +60,12 @@ Recorded database state:
 - eight active cron jobs
 - eleven Edge Functions
 - Gomoku: 9 relations / 8 functions
-- latest recorded `gomoku-room`: v24
-- latest recorded shared migration: `20260930162517_gomoku_p7_ranked_read_models`
+- latest recorded `gomoku-room`: v27
+- latest recorded shared migration: `20260930164232_gomoku_p7_ranked_active_opponent_index`
 
 ## Recovery evidence
 
-A fresh Diet recovery snapshot was captured and verified at **2026-09-30 16:19:59 UTC**:
+A fresh Diet recovery snapshot was captured and verified at **2026-09-30 20:27:39 UTC**:
 
 - snapshot ID: `aebe85b2-43a4-4e0b-b44d-e782bb97aa18`
 - payload hash valid
@@ -74,7 +74,13 @@ A fresh Diet recovery snapshot was captured and verified at **2026-09-30 16:19:5
 - restore plan reports `safe_to_stage=true`
 - destructive restore remains operator-only
 
-The encrypted P15 off-site backup remains required immediately around the final upgrade handoff; merging the P24 refresh triggers that workflow again.
+The latest encrypted P15 off-site backup on the P24 hardening head succeeded (run `36744693032`). A further metadata-only merge does not replace the requirement to confirm recovery evidence immediately before the hosted upgrade.
+
+## Current authorization state
+
+At 2026-09-30 20:27:45 UTC the live service-only execution gate returned **`ready_for_manual_upgrade`** with an exact schema match and **225.23 minutes** of migration quiet time. The v27 Edge deployment had also been quiet for about **185.63 minutes**.
+
+No write freeze has been enabled yet because the hosted Dashboard action cannot be executed through the connected Supabase tool surface.
 
 ## Manual execution step
 
