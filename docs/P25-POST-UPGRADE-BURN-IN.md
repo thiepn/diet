@@ -20,7 +20,7 @@ Final verified pre-upgrade state:
 - latest observed `gomoku-room`: **v27**, SHA `958f8595…db5068`
 - Edge quiet time at final capture: **185.63 minutes**
 - fresh verified Diet recovery snapshot: **2026-09-30 20:27:39 UTC**
-- latest confirmed encrypted off-site backup before the final metadata merge: run **36744693032**, success
+- latest encrypted off-site backup on the final P24 handoff merge: run **36773145529**, success
 - actual managed PostgreSQL upgrade: **not executed**
 
 P25 remains correctly **blocked_pre_upgrade** for one reason: the hosted Supabase **Upgrade project** action has not yet moved production to PostgreSQL 17.11+. No P25 burn-in clock may start before that and the immediate post-upgrade validation pass.
