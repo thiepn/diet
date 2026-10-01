@@ -16,7 +16,7 @@ const cleanup=read('supabase/migrations/20260929201015_diet_p16_remove_speculati
 
 assert.ok(['2.0.2','2.0.3'].includes(app.release));
 assert.ok(['2.0.2','2.0.3'].includes(app.webRelease));
-assert.ok(['P16.0','P17.0','P18.0','P19.0','P20.0','P21.0','P22.0','P23.0'].includes(app.operationsVersion));
+assert.ok(['P16.0','P17.0','P18.0','P19.0','P20.0','P21.0','P22.0','P23.0','P25.0'].includes(app.operationsVersion));
 assert.equal(app.performanceRelease,'P16');
 assert.equal(app.securityRelease,'P14');
 assert.equal(app.resilienceRelease,'P15');
