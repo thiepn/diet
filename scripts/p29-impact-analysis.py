@@ -87,6 +87,9 @@ def main():
 
         if item.get("changesSharedSchema") or item.get("changesIdentityContract") or item.get("changesEdgeContract") or item.get("changesCronInventory"):
             release_epoch_invalidated=True
+            impacted.add("platform_control")
+            reasons["platform_control"].append(f"release-epoch-validation-for:{comp}")
+            required_scopes.add("platform_control")
 
     order=topo(impacted,graph["edges"])
     waves={
