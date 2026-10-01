@@ -17,7 +17,7 @@ const pwa=read('v2/pwa.js');
 assert.equal(app.release,'2.0.3');
 assert.equal(app.webRelease,'2.0.3');
 assert.equal(account.consumerRelease,'2.0.3');
-assert.ok(['P21.0','P22.0','P23.0'].includes(app.operationsVersion),'P21 incident controls must remain valid through P23.');
+assert.ok(['P21.0','P22.0','P23.0','P25.0'].includes(app.operationsVersion),'P21 incident controls must remain valid through P25.');
 assert.equal(app.incidentCertificationRelease,'P21');
 assert.equal(app.incidentModel,'failure-injection-write-freeze-recovery-readiness-v1');
 for(const [k,v] of Object.entries({
@@ -71,7 +71,7 @@ assert.equal(policy?.advisor_performance_findings,0);
 assert.match(policy?.certified_schema_sha256||'',/^[0-9a-f]{64}$/);
 
 assert.ok(['P21','P22'].includes(backend.change_governance_policy?.checkpoint?.release));
-assert.ok(['P21.0','P22.0','P23.0'].includes(backend.change_governance_policy?.checkpoint?.operations_version));
+assert.ok(['P21.0','P22.0','P23.0','P25.0'].includes(backend.change_governance_policy?.checkpoint?.operations_version));
 assert.equal(backend.change_governance_policy?.checkpoint?.status,'clean');
 assert.ok(backend.change_governance_policy?.contract_scope?.private_operational_tables>=7);
 assert.equal(backend.change_governance_policy?.certified_schema_sha256,policy.certified_schema_sha256);
