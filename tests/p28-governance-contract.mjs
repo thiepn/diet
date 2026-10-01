@@ -51,7 +51,7 @@ for(const token of [
   '99.61%',
   'public.change_log',
   'Retirement never automatically deletes user data',
-  'number of apps as a split trigger'
+  'app count as a split trigger'
 ]) assert.ok(doc.includes(token),'P28 doc missing '+token);
 
 for(const banned of [
