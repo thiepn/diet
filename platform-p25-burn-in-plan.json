@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 2,
+  "phase": "P25",
+  "title": "Post-Upgrade Burn-In, Stability & Shared-Platform Production Certification",
+  "state": "burn_in_active",
+  "activatedAt": "2026-10-01T12:14:50.879365Z",
+  "minimumCompleteAfter": "2026-10-02T12:14:50.879365Z",
+  "activationEvidence": {
+    "p24PostUpgradeValidation": "pass",
+    "managedHostedBuildBefore": "17.6.1.127",
+    "managedHostedBuildAfter": "17.6.1.164",
+    "releaseChannelBefore": "ga",
+    "releaseChannelAfter": "preview",
+    "postgresServerVersion": "17.6",
+    "postgresServerVersionNum": 170006,
+    "postgres1711CompatibilityBaselineMet": false,
+    "postgres1711TrackedSeparately": true,
+    "postmasterStartedAt": "2026-10-01T07:54:44.803638Z",
+    "semanticFingerprintFormat": "platform-p23-shared-schema-v2",
+    "semanticSchemaSha256": "c6a7b8788a3798e3fe119007e55f7d1b5796ece574a27dd10abeb600179a9918",
+    "applicationSurfaceCountsMatchPreUpgrade": true,
+    "p18Integrity": "clean",
+    "p20SchemaDrift": false,
+    "p21Readiness": "pass",
+    "p22Maintenance": "pass",
+    "cronJobs": 8,
+    "activeCronJobs": 8,
+    "cronFailures24h": 0,
+    "crossAppReadSmokePassed": true,
+    "authSuccessfulRequestsObserved": true,
+    "realtimeHealth200Observed": true,
+    "postgrestSuccessfulTrafficObserved": true,
+    "edgeFunctionsAllActive": true,
+    "advisorsReviewed": true
+  },
+  "preUpgradeHealthBaseline": {
+    "window": "approximately 24h ending 2026-09-30T13:48:40Z",
+    "platformHealthSamples": 12,
+    "allSamplesHealthy": true,
+    "authLatencyMs": {
+      "median": 371.5,
+      "p95": 710.8,
+      "max": 757
+    },
+    "databaseLatencyMs": {
+      "median": 561.5,
+      "p95": 1049.6,
+      "max": 1153
+    }
+  },
+  "regressionThresholds": {
+    "authP95WarningMs": 1422,
+    "databaseP95WarningMs": 2100,
+    "individualHealthTimeoutMs": 4000,
+    "policy": "warn at >2x pre-upgrade p95; fail on functional outage, repeated degradation, or timeout"
+  },
+  "burnInRequirements": {
+    "minimumHours": 24,
+    "minimumHourlyPublicSamples": 12,
+    "requireSuccessfulPostUpgradeOffsiteBackup": true,
+    "requireZeroNewCronFailures": true,
+    "requireP18IntegrityClean": true,
+    "requireP20SchemaDriftFalse": true,
+    "requireP21IncidentReadinessPass": true,
+    "requireP22MaintenancePass": true,
+    "requireCrossAppSmokeMatrix": true,
+    "requireEdgeInventoryRevalidated": true,
+    "requireAdvisorsReviewed": true,
+    "requirePostgres1711HazardsRechecked": true
+  },
+  "completionState": {
+    "complete": false,
+    "remaining": [
+      "burn-in must reach at least 24 hours",
+      "at least 12 successful public samples must span the burn-in window",
+      "first encrypted P15 off-site backup after the hosted upgrade must succeed",
+      "final privileged P18/P20/P21/P22/cron/Edge/Realtime/Auth/advisor checks must pass"
+    ]
+  },
+  "latestKnownPreUpgradeOffsiteBackup": {
+    "workflow": "P15 Encrypted Offsite Backup",
+    "runId": 36773145529,
+    "conclusion": "success",
+    "head": "5b51cd35b8050054d25da4443b8875b0fc9d4f82"
+  },
+  "latestPostUpgradeOffsiteBackup": null
+}

@@ -1,50 +1,49 @@
 # Diet Copilot
 
-**Web 2.0.3 · P23 active · P24 concurrency-safe PostgreSQL upgrade handoff**
+**Web 2.0.3 · P24 validated · P25 post-upgrade burn-in active**
 
-Diet Copilot remains live at **https://thiepn.dev/diet/**. P23 remains the active operations release. P24 has prepared the controlled PostgreSQL 17.11 execution boundary, but the managed infrastructure upgrade has **not** been executed yet.
+Diet Copilot is live at **https://thiepn.dev/diet/**.
 
-## P24 execution state
+## Operations
 
-P24 now treats the shared project as a moving production platform rather than a static handoff. After the original handoff, Gomoku P6/P7 and Account migrations changed the database, and `gomoku-room` advanced to v24. The execution gate correctly invalidated the stale certification.
+The managed Supabase **Upgrade project** operation completed successfully.
 
-The refreshed gate distinguishes **blocking/custom replication slots** from Supabase-managed temporary Realtime slots, keeps the Supabase Dashboard preflight authoritative, and still requires an exact certified schema match plus a **10-minute migration quiet window**.
+- Supabase database build: **17.6.1.127 → 17.6.1.164**
+- release channel: **ga → preview**
+- PostgreSQL server: **17.6** (`170006`)
+- database restart: **2026-10-01 07:54:44 UTC**
+- P24 post-upgrade validation: **pass**
+- semantic shared-schema SHA: `c6a7b8788a3798e3fe119007e55f7d1b5796ece574a27dd10abeb600179a9918`
+- fingerprint format: **platform-p23-shared-schema-v2**
+- P18 integrity: **clean**
+- P20 schema drift: **false**
+- P21 readiness: **pass**
+- P22 maintenance: **pass**
+- cron: **8/8 active**
+- blocking replication slots: **0**
+- application relation/function surface counts: **match the pre-upgrade baseline**
 
-Current recorded P24 state: **ready for the manual Supabase infrastructure upgrade**. The final live gate reported an exact schema match with 225+ minutes of migration quiet time; the latest v27 shared Edge deployment was also quiet for well over 10 minutes. The live gate remains authoritative immediately before the Dashboard click.
+The v2 shared fingerprint normalizes RLS policy roles by stable role names rather than PostgreSQL internal role OIDs, preventing false drift after hosted instance reconstruction.
 
-Current certified shared SHA-256:
+## PostgreSQL 17.11 compatibility baseline
 
-`8239b32928be652214a63ae733d42bace71d46d7145e3e6e5eea8b7f066e1dfe`
+PostgreSQL **17.11** remains a separately tracked compatibility/security baseline. The hosted Supabase operation upgraded the managed project build but the database still reports PostgreSQL 17.6, so the repository does not claim a 17.11 server version.
 
-See [P24 execution](docs/P24-UPGRADE-EXECUTION.md) and [P24 manual handoff](docs/P24-MANUAL-HANDOFF.md).
+## P25 burn-in
 
-## P23 result
+P25 is active.
 
-The shared project currently runs PostgreSQL **17.6**. Supabase makes **17.11** available as a security/minor upgrade.
+- start: **2026-10-01 12:14:50 UTC**
+- earliest completion: **2026-10-02 12:14:50 UTC**
+- minimum duration: **24 hours**
+- minimum public samples: **12**, spanning the window
+- hourly workflow: `.github/workflows/p25-post-upgrade-burnin.yml`
 
-P23 certifies:
+Completion also requires the first encrypted P15 backup after activation, healthy Auth/Realtime/PostgREST/Storage/Edge behavior, clean P18/P20/P21/P22 checks, healthy cron, cross-app smoke coverage, advisor review, and no sustained latency regression.
 
-- **6 registered THIEPN Account apps**;
-- **10 application/service database surfaces**;
-- **1 platform-control surface**;
-- **11 active Edge Functions**;
-- **8 active pg_cron jobs**;
-- a deterministic cross-app schema fingerprint.
+## Shared platform
 
-Final P23 database state:
-
-- preflight: **pass**
-- safe to schedule upgrade: **true**
-- shared schema SHA-256: `b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f`
-- detected upgrade hazards: **0**
-- infrastructure upgrade executed: **false**
-- post-upgrade validation: **pending**
-
-The P23 hazard scan found zero ltree indexes, zero btree_gist float indexes, zero affected custom operators, zero legacy pgcrypto cipher references, zero app-owned reg* columns, zero deprecated extensions, zero extension-version mismatches, zero MD5 login roles and zero blocking/custom logical replication slots. Supabase-managed temporary Realtime slots are classified separately and the Dashboard eligibility check remains authoritative.
-
-## Shared surfaces
-
-Registered apps:
+Registered THIEPN apps:
 
 - Notes
 - Diet Copilot
@@ -53,55 +52,29 @@ Registered apps:
 - TMS60
 - Gomoku
 
-Additional services sharing the project:
-
-- THIEPN Account platform
-- Canvas
-- Leaderboard
-- Micro Arcade
-
-P23 records the deployed Edge Function inventory separately in `platform-p23-inventory.json`, because Edge Function source is outside PostgreSQL's system catalog.
-
-## Concurrent schema changes
-
-While P23 was running, Gomoku migration `20260930000816_gomoku_p3_player_presence_and_vacant_host_seats` landed in the shared database. P23 detected the new relation before final certification, and the final P23 fingerprint includes it.
-
-That is the intended behavior: a platform upgrade must use the final shared database state, not a stale earlier snapshot.
-
-## Upgrade execution
-
-P23 does **not** automatically alter the managed PostgreSQL version.
-
-The actual infrastructure operation requires a maintenance window and cross-app post-upgrade checks. `private.platform_p23_post_upgrade_validation()` therefore remains **pending** until production is actually on PostgreSQL 17.11 or newer.
+Additional shared services include THIEPN Account, Canvas, Leaderboard, and Micro Arcade. Edge Functions are inventoried separately because they are outside PostgreSQL's catalog fingerprint.
 
 ## Production hardening stack
 
-- **P13:** operational telemetry and degraded-mode reliability
+- **P13:** telemetry and degraded-mode reliability
 - **P14:** authorization/RLS
-- **P15:** recovery snapshots and encrypted off-site backup
+- **P15:** verified recovery snapshots and encrypted off-site backup
 - **P16:** read/performance architecture
 - **P17:** privacy/export/lifecycle
 - **P18:** integrity constraints and auditing
 - **P19:** concurrency/idempotency
-- **P20:** Diet schema drift and release checkpoints
-- **P21:** failure injection and incident recovery
-- **P22:** long-term maintenance and supply-chain hardening
-- **P23:** shared-platform PostgreSQL upgrade certification
-- **P24:** controlled upgrade execution gate and manual infrastructure handoff (pending execution)
+- **P20:** schema drift and release governance
+- **P21:** failure injection and incident readiness
+- **P22:** maintenance and supply-chain hardening
+- **P23:** shared-platform upgrade readiness and compatibility checks
+- **P24:** managed hosted-upgrade execution and post-upgrade validation — **complete**
+- **P25:** post-upgrade burn-in and production certification — **active**
 
 ## Release
 
 - Web/PWA: **2.0.3**
-- Operations: **P23.0**
-- Security: **P14**
-- Resilience: **P15**
-- Performance: **P16**
-- Privacy/lifecycle: **P17**
-- Data integrity: **P18**
-- Concurrency/idempotency: **P19**
-- Diet change governance: **P20**
-- Incident/recovery certification: **P21**
-- Maintenance/supply chain: **P22**
-- Shared-platform upgrade readiness: **P23**
+- Operations: **P25.0**
+- P24 validation: **pass**
+- P25 state: **burn_in_active**
 
-See [P23 certification](docs/P23-UPGRADE-CERTIFICATION.md), [P23 upgrade runbook](docs/P23-UPGRADE-RUNBOOK.md), [post-upgrade validation matrix](docs/P23-POST-UPGRADE-CHECKLIST.md), and [QA.md](QA.md).
+See [P25 burn-in](docs/P25-POST-UPGRADE-BURN-IN.md), [P24 execution record](docs/P24-UPGRADE-EXECUTION.md), and [QA.md](QA.md).

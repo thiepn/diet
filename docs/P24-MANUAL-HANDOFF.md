@@ -1,68 +1,24 @@
-# P24 — Manual Upgrade Handoff — READY
+# P24 — Manual Upgrade Handoff — COMPLETED
 
-The automated preparation has reached the hosted Supabase infrastructure boundary.
+The manual Supabase **Upgrade project** action has been completed.
 
-## Final verified state
+## Final outcome
 
-- live execution gate: `ready_for_manual_upgrade`
-- PostgreSQL: 17.6
-- target: 17.11
-- certified shared SHA: `8239b32928be652214a63ae733d42bace71d46d7145e3e6e5eea8b7f066e1dfe`
-- latest shared migration: `20260930164232_gomoku_p7_ranked_active_opponent_index`
-- database quiet time at final gate: 225.23 minutes
-- latest `gomoku-room`: v27, SHA `958f85954b7b0e1fe01d67eafc01e6e25e9c216743a6c46ba0e695d218db5068`
-- Edge quiet time at capture: about 185.63 minutes
-- P23 preflight: pass
-- blocking replication slots: 0
-- six registered Account apps
-- eight cron jobs active, recent failures 0
-- fresh Diet recovery snapshot: 2026-09-30 20:27:39 UTC, verified
-- latest encrypted P15 off-site backup: run `36744693032`, success
-- connector can execute hosted upgrade: **no**
+- pre-upgrade build: `17.6.1.127`
+- post-upgrade build: `17.6.1.164`
+- release channel: `ga` → `preview`
+- database restart: `2026-10-01T07:54:44.803638Z`
+- raw PostgreSQL server: `17.6`
+- P24 post-upgrade validation: **pass**
+- current semantic schema SHA: `c6a7b8788a3798e3fe119007e55f7d1b5796ece574a27dd10abeb600179a9918`
+- P18/P20/P21/P22: **clean / no drift / pass / pass**
+- cron: **8/8 active**
+- blocking replication slots: **0**
+- application surface counts: **match**
+- cross-app read smoke: **pass**
 
-## One remaining infrastructure action
+There is no remaining P24 manual action.
 
-Immediately before clicking Upgrade project, re-run the live P24 gate and re-list Edge Functions. Proceed only if the gate still returns:
+PostgreSQL 17.11 remains a separate compatibility/security baseline because the hosted Supabase build still reports PostgreSQL 17.6.
 
-```text
-status = ready_for_manual_upgrade
-readyForManualUpgrade = true
-schemaMatchesCertification = true
-preflightStatus = pass
-writesPaused = false
-quietMinutes >= 10
-```
-
-The Supabase Dashboard eligibility check must also be clean.
-
-Then enable the Diet P21 write freeze:
-
-```sql
-select private.diet_p21_set_write_freeze(
-  true,
-  'P24 PostgreSQL 17.11 managed upgrade'
-);
-```
-
-Immediately perform:
-
-**Supabase Dashboard → THIEPN Account → Upgrade project → PostgreSQL 17.11**
-
-Do not enable the write freeze until the Dashboard upgrade is about to begin.
-
-## After Supabase reports completion
-
-Keep writes frozen and run the post-upgrade certification. Require:
-
-- PostgreSQL 17.11+
-- P23 post-upgrade validation = pass
-- exact shared-schema fingerprint match
-- platform-health = healthy
-- P18 = clean
-- P20 = no Diet drift
-- P21 = pass
-- P22 = pass
-- Auth, Realtime, cron and Edge Functions healthy
-- critical cross-app smoke matrix pass
-
-Only then remove the write freeze and activate P25's >=24-hour production burn-in.
+The active operations phase is now **P25 — Post-Upgrade Burn-In, Stability & Shared-Platform Production Certification**.

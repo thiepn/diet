@@ -1,15 +1,15 @@
 {
-  "schemaVersion": 2,
-  "certifiedAt": "2026-09-30T20:27:37.770357Z",
+  "schemaVersion": 3,
+  "certifiedAt": "2026-10-01T12:14:50.879365Z",
   "projectRef": "hycegznamzjhwinegaai",
   "release": "P23",
-  "recertifiedDuring": "P24-final-ready",
+  "recertifiedDuring": "P24-post-upgrade-hosted-build-validation",
   "currentPostgres": "17.6",
   "targetPostgres": "17.11",
   "safeToScheduleUpgrade": true,
-  "upgradeExecuted": false,
-  "postUpgradeValidation": "pending",
-  "sharedSchemaSha256": "8239b32928be652214a63ae733d42bace71d46d7145e3e6e5eea8b7f066e1dfe",
+  "upgradeExecuted": true,
+  "postUpgradeValidation": "pass",
+  "sharedSchemaSha256": "c6a7b8788a3798e3fe119007e55f7d1b5796ece574a27dd10abeb600179a9918",
   "registeredApps": [
     {
       "slug": "notes",
@@ -72,8 +72,8 @@
       "functions": 8
     },
     "platform": {
-      "relations": 1,
-      "functions": 8
+      "relations": 2,
+      "functions": 10
     },
     "tms60": {
       "relations": 2,
@@ -104,7 +104,7 @@
       "diet-p21-readiness-daily",
       "diet-p22-maintenance-weekly"
     ],
-    "historyRows": 28
+    "historyRows": 50
   },
   "upgradeHazards": {
     "ltreeIndexes": 0,
@@ -194,12 +194,31 @@
     "Edge Functions are certified separately because they are not represented in the PostgreSQL catalog fingerprint.",
     "P24 refresh recertified the shared schema after Gomoku P6 and Account fixes.",
     "Two active temporary Supabase Realtime slots are tracked separately; blocking/custom replication slots are zero and Dashboard preflight remains authoritative.",
-    "Final P24 recertification at 20:27 UTC matched the live schema after the last Gomoku P7 migration; both database and Edge quiet windows were satisfied."
+    "Final P24 recertification at 20:27 UTC matched the live schema after the last Gomoku P7 migration; both database and Edge quiet windows were satisfied.",
+    "Post-upgrade hosted build validation passed after Supabase moved the project from build 17.6.1.127 (ga) to 17.6.1.164 (preview).",
+    "The semantic schema fingerprint is now platform-p23-shared-schema-v2 and normalizes RLS policy roles by role name instead of unstable internal role OIDs.",
+    "PostgreSQL still reports 17.6; the 17.11 compatibility/security baseline is tracked separately from the hosted Supabase build upgrade."
   ],
   "replicationSlotState": {
     "total": 0,
     "managedRealtimeTemporary": 0,
     "blocking": 0,
     "dashboardPreflightAuthoritative": true
+  },
+  "schemaContractFormat": "platform-p23-shared-schema-v2",
+  "legacyPreUpgradeSchemaSha256V1": "8239b32928be652214a63ae733d42bace71d46d7145e3e6e5eea8b7f066e1dfe",
+  "hostedUpgrade": {
+    "validated": true,
+    "buildBefore": "17.6.1.127",
+    "buildAfter": "17.6.1.164",
+    "releaseChannelBefore": "ga",
+    "releaseChannelAfter": "preview",
+    "postmasterStartedAt": "2026-10-01T07:54:44.803638Z"
+  },
+  "postgres1711Compatibility": {
+    "baseline": "17.11",
+    "serverVersion": "17.6",
+    "met": false,
+    "trackedSeparately": true
   }
 }
