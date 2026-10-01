@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "phase": "P33",
+  "title": "Compliance Evidence, Audit Ledger & End-to-End Change Provenance",
+  "state": "staged_pending_p32",
+  "stagedAt": "2026-10-01T20:10:00Z",
+  "activeOperationsRelease": "P25.0",
+  "dependencyChain": [
+    "P25",
+    "P26",
+    "P27",
+    "P28",
+    "P29",
+    "P30",
+    "P31",
+    "P32",
+    "P33"
+  ],
+  "evidencePrinciples": {
+    "appendOnlyLogicalLedger": true,
+    "tamperEvidentHashChain": true,
+    "gitReviewRequiredForCanonicalLedgerMutation": true,
+    "rawSecretsForbidden": true,
+    "rawAuthAuditRowsForbidden": true,
+    "personalDataMinimization": true,
+    "evidenceMustNameSourceAndTimestamp": true,
+    "observedFactsSeparatedFromDerivedJudgments": true,
+    "historicalEvidenceNeverSilentlyRewritten": true,
+    "complianceCertificationClaimed": false
+  },
+  "sourceClasses": [
+    {
+      "id": "github_source",
+      "examples": [
+        "commit SHA",
+        "PR number/head",
+        "workflow run",
+        "job conclusion",
+        "artifact checksum"
+      ],
+      "trust": "repository_and_ci_evidence"
+    },
+    {
+      "id": "supabase_live",
+      "examples": [
+        "project health",
+        "migration head",
+        "schema fingerprint",
+        "Edge version/SHA",
+        "cron inventory",
+        "advisor result"
+      ],
+      "trust": "live_platform_observation"
+    },
+    {
+      "id": "supabase_native_audit",
+      "examples": [
+        "Auth audit logs",
+        "Platform Audit Logs",
+        "Postgres logs"
+      ],
+      "trust": "provider_native_evidence",
+      "availability": "plan_and_configuration_dependent"
+    },
+    {
+      "id": "human_approval",
+      "examples": [
+        "production approval",
+        "cost approval",
+        "exception approver",
+        "incident decision"
+      ],
+      "trust": "explicit_review_evidence"
+    },
+    {
+      "id": "derived_policy",
+      "examples": [
+        "P32 admission decision",
+        "P31 can-release",
+        "P30 promotion decision",
+        "P29 compatibility certificate"
+      ],
+      "trust": "deterministic_derived_evidence"
+    }
+  ],
+  "currentAuditCapability": {
+    "organizationPlan": "free",
+    "platformAuditLogs": {
+      "available": false,
+      "reason": "Supabase Platform Audit Logs are documented as Team/Enterprise only"
+    },
+    "authAuditLogs": {
+      "postgresRowsObserved": 0,
+      "rawRowsCopiedIntoGit": false
+    },
+    "postgresConnectionLogging": "off",
+    "pgauditInstalled": false,
+    "pgStatStatementsInstalled": true,
+    "pgCronInstalled": true,
+    "automaticConfigurationChangeByP33": false
+  },
+  "retentionClasses": {
+    "release_certificate": {
+      "minimumDays": 730,
+      "containsPersonalData": false
+    },
+    "admission_decision": {
+      "minimumDays": 365,
+      "containsPersonalData": false
+    },
+    "production_attestation": {
+      "minimumDays": 365,
+      "containsPersonalData": false
+    },
+    "exception_record": {
+      "minimumDays": 730,
+      "containsPersonalData": false
+    },
+    "incident_evidence": {
+      "minimumDays": 730,
+      "containsPersonalData": "minimized"
+    },
+    "workflow_artifact": {
+      "minimumDays": 30,
+      "canonical": false
+    },
+    "raw_provider_log": {
+      "retention": "provider_plan_dependent",
+      "canonical": false
+    }
+  },
+  "provenanceChainRequired": [
+    "change manifest",
+    "P32 admission decision",
+    "P29 impact analysis/compatibility evidence when applicable",
+    "P30 immutable candidate and promotion decisions when applicable",
+    "P31 fleet release decision",
+    "human approvals where required",
+    "deployment/workflow identity",
+    "post-deploy live attestation",
+    "final release certificate or failure/abort record"
+  ],
+  "ledgerRules": {
+    "format": "JSONL",
+    "hashAlgorithm": "SHA-256",
+    "canonicalization": "UTF-8 JSON with sorted keys and compact separators",
+    "entryHashInput": "entire entry excluding entryHash",
+    "previousHashRequiredAfterGenesis": true,
+    "sequenceStrictlyIncreasingByOne": true,
+    "eventIdUnique": true,
+    "timestampRequired": true,
+    "deletionForbidden": true,
+    "mutationOfExistingEntryForbidden": true,
+    "correctionModel": "append superseding/correction event; never rewrite prior entry"
+  },
+  "evidencePackRules": {
+    "deterministicFileHashes": true,
+    "artifactOrderSortedByLogicalName": true,
+    "rootHashAlgorithm": "SHA-256 over canonical sorted evidence manifest",
+    "missingRequiredArtifact": "fail",
+    "mutableUrlAloneInsufficient": true,
+    "exactCommitOrRunIdentityRequired": true
+  },
+  "privacyRules": {
+    "doNotStore": [
+      "access tokens",
+      "refresh tokens",
+      "service-role keys",
+      "database passwords",
+      "raw IP addresses in Git evidence",
+      "raw user-agent strings in Git evidence",
+      "raw auth audit log payloads",
+      "user email addresses unless strictly required and separately approved"
+    ],
+    "allowedAggregates": [
+      "audit row counts",
+      "time ranges",
+      "status/result counts",
+      "non-personal resource identifiers",
+      "cryptographic hashes"
+    ]
+  },
+  "completionRequires": [
+    "P32 certified complete",
+    "canonical ledger verifies from genesis to head",
+    "provenance pack builder produces deterministic root hash",
+    "tampered ledger entry is detected",
+    "deleted/reordered ledger entry is detected",
+    "missing required provenance artifact is detected",
+    "historical correction is append-only",
+    "sensitive raw provider audit data never enters Git evidence",
+    "at least one complete release chain is captured end-to-end",
+    "final evidence/audit handbook committed"
+  ]
+}
