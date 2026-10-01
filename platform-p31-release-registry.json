@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "phase": "P31",
+  "registryVersion": "2026-10-01.1",
+  "activeOperationsRelease": "P25.0",
+  "activePhase": {
+    "id": "P25",
+    "state": "restart_required",
+    "reason": "shared release epoch changed repeatedly after burn-in activation",
+    "certifiable": false
+  },
+  "stagedPhases": [
+    {
+      "id": "P26",
+      "state": "staged_pending_p25",
+      "pr": 17,
+      "branch": "p26-steady-state-optimization",
+      "headSha": "32397b4439719165de60e2380185f5a81dd5d7c4",
+      "draft": true
+    },
+    {
+      "id": "P27",
+      "state": "staged_pending_p26",
+      "pr": 18,
+      "branch": "p27-capacity-slo-autonomous-ops",
+      "headSha": "0345772e97411d034bbb1c799d1e1585d71900b4",
+      "draft": true
+    },
+    {
+      "id": "P28",
+      "state": "staged_pending_p27",
+      "pr": 19,
+      "branch": "p28-lifecycle-cost-multiapp-governance",
+      "headSha": "5c8d6621fef7c81f14e481ac692e01919f4f03d1",
+      "draft": true
+    },
+    {
+      "id": "P29",
+      "state": "staged_pending_p28",
+      "pr": 20,
+      "branch": "p29-release-orchestration",
+      "headSha": "559a9f5579d63851858c9e59b012e202b844f92d",
+      "draft": true
+    },
+    {
+      "id": "P30",
+      "state": "staged_pending_p29",
+      "pr": 21,
+      "branch": "p30-release-trains-promotion",
+      "headSha": "5a6c14735f9049acf6394be241f3ef27c8d088e4",
+      "draft": true
+    },
+    {
+      "id": "P31",
+      "state": "staged_pending_p30",
+      "pr": null,
+      "branch": "p31-control-plane-release-registry",
+      "headSha": null,
+      "draft": true
+    }
+  ],
+  "trains": {
+    "active": [],
+    "promotable": [],
+    "blocked": [
+      {
+        "id": "p25-rebaseline",
+        "kind": "platform_maintenance",
+        "reason": "release epoch is still moving",
+        "blockers": [
+          "shared-epoch-moving",
+          "stateful-preview-not-provisioned"
+        ]
+      }
+    ]
+  },
+  "invariants": {
+    "oneActiveProductionTrainPerConflictingScope": true,
+    "immutableCandidateRequired": true,
+    "p29CompatibilityCertificateRequired": true,
+    "p30PromotionGateRequired": true,
+    "manualProductionApprovalRequired": true,
+    "registryMutationThroughReviewedGitOnly": true,
+    "productionIsNotControlPlaneSourceOfDesiredState": true,
+    "liveProductionObservationOverridesStaleRegistryFacts": true
+  }
+}
