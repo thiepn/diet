@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://thiepn.dev/contracts/p31-release-intent.schema.json",
+  "title": "P31 control-plane release intent",
+  "type": "object",
+  "required": [
+    "trainId",
+    "trainType",
+    "components",
+    "scopes",
+    "p29CertificateStatus",
+    "p30PromotionStatus",
+    "targetStage",
+    "now"
+  ],
+  "properties": {
+    "trainId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "trainType": {
+      "enum": [
+        "app_fast",
+        "shared_standard",
+        "coordinated_breaking",
+        "platform_maintenance"
+      ]
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "scopes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "resources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "p29CertificateStatus": {
+      "enum": [
+        "pass",
+        "fail",
+        "missing"
+      ]
+    },
+    "p30PromotionStatus": {
+      "enum": [
+        "pass",
+        "fail",
+        "missing"
+      ]
+    },
+    "targetStage": {
+      "enum": [
+        "candidate",
+        "integration",
+        "production_ready",
+        "production",
+        "observation",
+        "certified"
+      ]
+    },
+    "manualProductionApproval": {
+      "type": "boolean"
+    },
+    "now": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": true
+}
