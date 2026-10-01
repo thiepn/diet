@@ -1,46 +1,47 @@
 # Diet Copilot
 
-**Web 2.0.3 · P23 active · P24 concurrency-safe PostgreSQL upgrade handoff**
+**Web 2.0.3 · P24 validated · P25 post-upgrade burn-in active**
 
-Diet Copilot remains live at **https://thiepn.dev/diet/**. P23 remains the active operations release. P24 has prepared the controlled PostgreSQL 17.11 execution boundary, but the managed infrastructure upgrade has **not** been executed yet.
+Diet Copilot remains live at **https://thiepn.dev/diet/**.
 
-## P24 execution state
+## Current operations state
 
-P24 now treats the shared project as a moving production platform rather than a static handoff. After the original handoff, Gomoku P6/P7 and Account migrations changed the database, and `gomoku-room` advanced to v24. The execution gate correctly invalidated the stale certification.
+The managed Supabase **Upgrade project** operation completed successfully. Post-upgrade validation confirmed that the shared THIEPN Account platform remained healthy.
 
-The refreshed gate distinguishes **blocking/custom replication slots** from Supabase-managed temporary Realtime slots, keeps the Supabase Dashboard preflight authoritative, and still requires an exact certified schema match plus a **10-minute migration quiet window**.
+Verified hosted transition:
 
-Current recorded P24 state: **ready for the manual Supabase infrastructure upgrade**. The final live gate reported an exact schema match with 225+ minutes of migration quiet time; the latest v27 shared Edge deployment was also quiet for well over 10 minutes. The live gate remains authoritative immediately before the Dashboard click.
+- Supabase database build: **17.6.1.127 → 17.6.1.164**
+- release channel: **ga → preview**
+- PostgreSQL server version: **17.6** (`170006`)
+- database restart: **2026-10-01 07:54:44 UTC**
+- P24 post-upgrade validation: **pass**
+- current semantic shared-schema SHA-256: `c6a7b8788a3798e3fe119007e55f7d1b5796ece574a27dd10abeb600179a9918`
+- schema fingerprint: **platform-p23-shared-schema-v2**
+- P18 integrity: **clean**
+- P20 schema drift: **false**
+- P21 readiness: **pass**
+- P22 maintenance: **pass**
+- cron: **8/8 active**, zero failures in the post-upgrade validation
+- blocking replication slots: **0**
+- application surface counts: **match the pre-upgrade baseline**
 
-Current certified shared SHA-256:
+The earlier P23 fingerprint used PostgreSQL internal role OIDs inside RLS policy data. Those OIDs can change when Supabase rebuilds a hosted instance even when policy semantics do not. The v2 fingerprint normalizes those roles to stable role names.
 
-`8239b32928be652214a63ae733d42bace71d46d7145e3e6e5eea8b7f066e1dfe`
+## PostgreSQL 17.11 baseline
 
-See [P24 execution](docs/P24-UPGRADE-EXECUTION.md) and [P24 manual handoff](docs/P24-MANUAL-HANDOFF.md).
+PostgreSQL **17.11** remains a tracked compatibility/security baseline, but the hosted Supabase upgrade did **not** change the raw SQL server minor from 17.6 to 17.11. The hosted upgrade and the upstream PostgreSQL minor baseline are therefore tracked separately.
 
-## P23 result
+## P25 burn-in
 
-The shared project currently runs PostgreSQL **17.6**. Supabase makes **17.11** available as a security/minor upgrade.
+P25 began at **2026-10-01 12:14:50 UTC**.
 
-P23 certifies:
+Earliest possible completion:
 
-- **6 registered THIEPN Account apps**;
-- **10 application/service database surfaces**;
-- **1 platform-control surface**;
-- **11 active Edge Functions**;
-- **8 active pg_cron jobs**;
-- a deterministic cross-app schema fingerprint.
+**2026-10-02 12:14:50 UTC**
 
-Final P23 database state:
+P25 requires at least 24 hours of normal production operation, at least 12 hourly health samples spanning the window, a successful first post-upgrade encrypted P15 backup, healthy cron/Auth/Realtime/Edge behavior, clean P18/P20/P21/P22 checks, and no sustained material latency regression.
 
-- preflight: **pass**
-- safe to schedule upgrade: **true**
-- shared schema SHA-256: `b2d94e5bfa4cfb06c346a5486ebaa918a86c83737e65879691b241e66c17573f`
-- detected upgrade hazards: **0**
-- infrastructure upgrade executed: **false**
-- post-upgrade validation: **pending**
-
-The P23 hazard scan found zero ltree indexes, zero btree_gist float indexes, zero affected custom operators, zero legacy pgcrypto cipher references, zero app-owned reg* columns, zero deprecated extensions, zero extension-version mismatches, zero MD5 login roles and zero blocking/custom logical replication slots. Supabase-managed temporary Realtime slots are classified separately and the Dashboard eligibility check remains authoritative.
+See [P25 burn-in](docs/P25-POST-UPGRADE-BURN-IN.md), [P24 execution record](docs/P24-UPGRADE-EXECUTION.md), and [QA.md](QA.md).
 
 ## Shared surfaces
 
