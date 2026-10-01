@@ -5,6 +5,8 @@ const plan=JSON.parse(fs.readFileSync('platform-p27-capacity-slo-plan.json','utf
 const doc=fs.readFileSync('docs/P27-CAPACITY-SLO-AUTONOMOUS-OPS.md','utf8');
 const sql=fs.readFileSync('scripts/p27-capacity-snapshot.sql','utf8').toLowerCase();
 const workflow=fs.readFileSync('.github/workflows/p27-capacity-slo-staging.yml','utf8');
+const evaluator=fs.readFileSync('scripts/p27-evaluate-slo.py','utf8');
+const forecast=fs.readFileSync('scripts/p27-capacity-forecast.py','utf8');
 
 assert.equal(plan.phase,'P27');
 assert.equal(plan.state,'staged_pending_p26');
@@ -22,6 +24,7 @@ assert.equal(plan.provisionalCapacitySnapshot.idleInTransactionConnections,0);
 
 assert.equal(plan.candidateSloPolicy.status,'provisional_until_p26_baseline');
 assert.equal(plan.candidateSloPolicy.availability.targetPct,99.9);
+assert.equal(plan.candidateSloPolicy.availability.monthlyErrorBudgetMinutesApprox,43.2);
 assert.equal(plan.candidateSloPolicy.database.deadlocksTarget,0);
 assert.equal(plan.autonomyModel.defaultLevel,'L1_detect_and_report');
 assert.ok(plan.autonomyModel.prohibitedWithoutHumanApproval.includes('schema DDL'));
@@ -56,5 +59,8 @@ for(const banned of [
 assert.ok(workflow.includes('workflow_dispatch'));
 assert.doesNotMatch(workflow,/\bschedule\s*:/,'P27 staging workflow must not be scheduled before activation.');
 assert.ok(workflow.includes('p27-public-slo.py'));
+assert.ok(evaluator.includes('errorBudgetMinutes'));
+assert.ok(evaluator.includes('availabilityTargetPct'));
+for(const h of ['30','90','180','365']) assert.ok(forecast.includes(h),'Capacity forecast missing horizon '+h);
 
 console.log('P27 staged capacity/SLO/autonomous-operations contract passed; activation remains blocked on P26.');
