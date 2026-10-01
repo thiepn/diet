@@ -131,7 +131,7 @@
     "platformUpgradeExecutionConnectorAvailable": false,
     "platformUpgradeFreshSnapshotVerified": true,
     "platformUpgradeFreshSnapshotCapturedAt": "2026-09-30T20:27:39.582068Z",
-    "platformUpgradeLatestOffsiteBackupRun": 36744693032,
+    "platformUpgradeLatestOffsiteBackupRun": 36773145529,
     "platformUpgradeLatestOffsiteBackupSucceeded": true,
     "platformUpgradeConcurrentChangeProtection": true,
     "platformUpgradeEdgeQuietRequired": true,
