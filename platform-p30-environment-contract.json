@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "phase": "P30",
+  "topologyVersion": "2026-10-01.1",
+  "capturedAt": "2026-10-01T15:34:14.513446Z",
+  "organization": {
+    "id": "abdxzyrnmefvubqtalvu",
+    "name": "Thiepn",
+    "plan": "free",
+    "tier": "tier_free"
+  },
+  "environments": [
+    {
+      "id": "ci",
+      "kind": "logical",
+      "purpose": "build, contract, impact and compatibility validation",
+      "isolatedState": true,
+      "productionDataAllowed": false,
+      "required": true,
+      "promotionEligibleFor": [
+        "consumer_only",
+        "static_frontend_only"
+      ]
+    },
+    {
+      "id": "preview",
+      "kind": "supabase_branch",
+      "purpose": "isolated stateful integration validation",
+      "provisioned": false,
+      "persistent": false,
+      "productionDataAllowed": false,
+      "costApprovalRequired": true,
+      "requiredFor": [
+        "provider_additive",
+        "provider_breaking",
+        "data_migration_no_contract",
+        "infrastructure_contract",
+        "operational_job_when_schema_or_shared_contract_changes"
+      ]
+    },
+    {
+      "id": "staging",
+      "kind": "supabase_persistent_branch",
+      "purpose": "long-lived coordinated pre-production environment",
+      "provisioned": false,
+      "persistent": true,
+      "productionDataAllowed": false,
+      "costApprovalRequired": true,
+      "optionalUntilScaleJustifies": true
+    },
+    {
+      "id": "production",
+      "kind": "supabase_project",
+      "projectRef": "hycegznamzjhwinegaai",
+      "projectName": "THIEPN Account",
+      "region": "eu-west-1",
+      "serviceStatus": "ACTIVE_HEALTHY",
+      "databaseBuild": "17.6.1.164",
+      "postgresVersion": "17.6",
+      "releaseChannel": "preview",
+      "productionDataAllowed": true,
+      "required": true
+    }
+  ],
+  "branchRegistryObservation": {
+    "defaultBranchName": "main",
+    "defaultBranchId": "748ae21d-3524-48cd-9a72-549fe4d482c9",
+    "branchActionStatus": "MIGRATIONS_FAILED",
+    "previewProjectStatus": "ACTIVE_HEALTHY",
+    "interpretation": "branch deployment/action state and production service health are separate signals",
+    "remoteBranchPromotionBlockedUntilResolved": true,
+    "productionServiceHealthBlocked": false
+  },
+  "currentNonProductionStatefulEnvironments": 0,
+  "creationPolicy": {
+    "automaticCreation": false,
+    "requireP28CostApproval": true,
+    "requireSupabaseCostConfirmation": true,
+    "noProductionDataSeeding": true,
+    "deleteEphemeralPreviewAfterTrain": true
+  }
+}
