@@ -471,7 +471,7 @@
     "upgrade_available": true,
     "safe_to_schedule_upgrade": true,
     "automatic_upgrade": false,
-    "upgrade_executed": false,
+    "upgrade_executed": true,
     "post_upgrade_validation": "pass",
     "shared_project": true,
     "registered_active_apps": 6,
@@ -551,7 +551,7 @@
     "execution_status_rpc": "public.platform_p24_execution_status",
     "execution_status_rpc_service_only": true,
     "minimum_quiet_minutes": 10,
-    "current_certified_schema_sha256": "8239b32928be652214a63ae733d42bace71d46d7145e3e6e5eea8b7f066e1dfe",
+    "current_certified_schema_sha256": "c6a7b8788a3798e3fe119007e55f7d1b5796ece574a27dd10abeb600179a9918",
     "pre_upgrade_manifest": "platform-p24-pre-upgrade.json",
     "writes_paused": false,
     "recovery": {
@@ -559,7 +559,7 @@
       "fresh_snapshot_verified": true,
       "restore_plan_safe_to_stage": true,
       "destructive_restore_automatic": false,
-      "encrypted_offsite_backup_run": 36744693032,
+      "encrypted_offsite_backup_run": 36773145529,
       "encrypted_offsite_backup_conclusion": "success"
     },
     "concurrent_change_protection": {
@@ -605,7 +605,8 @@
     "postmaster_started_at": "2026-10-01T07:54:44.803638Z",
     "post_upgrade_validated_at": "2026-10-01T12:14:50.879365Z",
     "postgres_17_11_compatibility_baseline_met": false,
-    "postgres_17_11_tracked_separately": true
+    "postgres_17_11_tracked_separately": true,
+    "pre_upgrade_certified_schema_sha256": "8239b32928be652214a63ae733d42bace71d46d7145e3e6e5eea8b7f066e1dfe"
   },
   "post_upgrade_burn_in_policy": {
     "release": "P25",
