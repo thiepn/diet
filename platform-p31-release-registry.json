@@ -53,7 +53,7 @@
     {
       "id": "P31",
       "state": "staged_pending_p30",
-      "pr": null,
+      "pr": 22,
       "branch": "p31-control-plane-release-registry",
       "headSha": null,
       "draft": true
