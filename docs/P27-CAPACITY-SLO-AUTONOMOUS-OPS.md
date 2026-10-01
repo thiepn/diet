@@ -103,7 +103,7 @@ Candidate monthly target:
 
 Approximate monthly error budget:
 
-**43.8 minutes**
+**43.2 minutes**
 
 Availability is not inferred from one percentage alone. P27 combines:
 
