@@ -1,0 +1,63 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+
+const baseline=JSON.parse(fs.readFileSync('platform-p25-burn-in-plan.json','utf8'));
+const doc=fs.readFileSync('docs/P25-POST-UPGRADE-BURN-IN.md','utf8');
+const probe=fs.readFileSync('tests/p25-public-burnin.py','utf8');
+const workflow=fs.readFileSync('.github/workflows/p25-post-upgrade-burnin.yml','utf8');
+const migration=fs.readFileSync('supabase/migrations/20261001121450_platform_p24_post_upgrade_hosted_build_validation.sql','utf8');
+
+assert.equal(baseline.phase,'P25');
+assert.equal(baseline.state,'burn_in_active');
+assert.equal(baseline.activationEvidence.p24PostUpgradeValidation,'pass');
+assert.equal(baseline.activationEvidence.managedHostedBuildBefore,'17.6.1.127');
+assert.equal(baseline.activationEvidence.managedHostedBuildAfter,'17.6.1.164');
+assert.equal(baseline.activationEvidence.postgresServerVersion,'17.6');
+assert.equal(baseline.activationEvidence.postgres1711CompatibilityBaselineMet,false);
+assert.equal(baseline.activationEvidence.postgres1711TrackedSeparately,true);
+assert.equal(baseline.activationEvidence.semanticFingerprintFormat,'platform-p23-shared-schema-v2');
+assert.match(baseline.activationEvidence.semanticSchemaSha256,/^[0-9a-f]{64}$/);
+assert.equal(baseline.activationEvidence.applicationSurfaceCountsMatchPreUpgrade,true);
+assert.equal(baseline.activationEvidence.p18Integrity,'clean');
+assert.equal(baseline.activationEvidence.p20SchemaDrift,false);
+assert.equal(baseline.activationEvidence.p21Readiness,'pass');
+assert.equal(baseline.activationEvidence.p22Maintenance,'pass');
+assert.equal(baseline.completionState.complete,false);
+assert.equal(baseline.burnInRequirements.minimumHours,24);
+assert.ok(baseline.burnInRequirements.minimumHourlyPublicSamples>=12);
+assert.equal(baseline.burnInRequirements.requireSuccessfulPostUpgradeOffsiteBackup,true);
+assert.equal(baseline.preUpgradeHealthBaseline.allSamplesHealthy,true);
+
+for(const token of [
+  'P25 is **active**',
+  'minimum 24-hour burn-in',
+  '17.6.1.127',
+  '17.6.1.164',
+  'platform-p23-shared-schema-v2',
+  'P18 remains clean',
+  'P20 remains drift-free',
+  'P21 remains pass',
+  'P22 remains pass'
+]) assert.ok(doc.includes(token),'P25 document missing '+token);
+
+for(const token of [
+  'platform-health',
+  'platform_p23_upgrade_status',
+  'platform_p24_execution_status',
+  'platform_p24_post_upgrade_status',
+  'performanceWarning'
+]) assert.ok(probe.includes(token),'P25 probe missing '+token);
+
+for(const token of [
+  'platform-p23-shared-schema-v2',
+  'jsonb_agg(r.rolname',
+  'platform_managed_upgrade_events',
+  'platform_p24_post_upgrade_validation',
+  'platform_p24_post_upgrade_status'
+]) assert.ok(migration.includes(token),'P24 post-upgrade migration missing '+token);
+
+assert.ok(workflow.includes("cron: '17 * * * *'"));
+assert.ok(workflow.includes('p25-public-burnin.py'));
+assert.ok(workflow.includes('retention-days: 30'));
+
+console.log('P25 active post-upgrade burn-in contract passed.');
