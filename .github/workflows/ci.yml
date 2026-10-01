@@ -32,8 +32,8 @@ jobs:
             node --check "$tmp"
             rm -f "$tmp"
           done < <(find v2 -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
-          for f in tests/p13-telemetry.mjs tests/p14-security-contract.mjs tests/p15-resilience-contract.mjs tests/p16-performance-contract.mjs tests/p17-privacy-lifecycle-contract.mjs tests/p18-integrity-contract.mjs tests/p19-concurrency-contract.mjs tests/p20-governance-contract.mjs tests/p21-incident-contract.mjs tests/p22-maintenance-contract.mjs tests/p23-platform-contract.mjs tests/p24-execution-contract.mjs tests/p25-burnin-contract.mjs tests/p26-steady-state-contract.mjs tests/p27-capacity-slo-contract.mjs; do node --check "$f"; done
-          python -m py_compile tests/p13-synthetic-monitor.py tests/p14-public-security-probe.py tests/p16-public-read-probe.py tests/p17-public-export-probe.py tests/p18-public-integrity-probe.py tests/p19-public-concurrency-probe.py tests/p20-public-release-status-probe.py tests/p21-public-failure-matrix.py tests/p21-live-failure.py scripts/p15-verify-offsite.py scripts/p22-verify-supply-chain.py scripts/p22-upstream-watch.py tests/p23-shared-platform-public.py tests/p24-preupgrade-public.py tests/p25-public-burnin.py tests/p26-public-steady-state.py tests/p27-public-slo.py scripts/p27-evaluate-slo.py scripts/p27-capacity-forecast.py tests/p27-evaluator-contract.py
+          for f in tests/p13-telemetry.mjs tests/p14-security-contract.mjs tests/p15-resilience-contract.mjs tests/p16-performance-contract.mjs tests/p17-privacy-lifecycle-contract.mjs tests/p18-integrity-contract.mjs tests/p19-concurrency-contract.mjs tests/p20-governance-contract.mjs tests/p21-incident-contract.mjs tests/p22-maintenance-contract.mjs tests/p23-platform-contract.mjs tests/p24-execution-contract.mjs tests/p25-burnin-contract.mjs tests/p26-steady-state-contract.mjs tests/p27-capacity-slo-contract.mjs tests/p28-governance-contract.mjs; do node --check "$f"; done
+          python -m py_compile tests/p13-synthetic-monitor.py tests/p14-public-security-probe.py tests/p16-public-read-probe.py tests/p17-public-export-probe.py tests/p18-public-integrity-probe.py tests/p19-public-concurrency-probe.py tests/p20-public-release-status-probe.py tests/p21-public-failure-matrix.py tests/p21-live-failure.py scripts/p15-verify-offsite.py scripts/p22-verify-supply-chain.py scripts/p22-upstream-watch.py tests/p23-shared-platform-public.py tests/p24-preupgrade-public.py tests/p25-public-burnin.py tests/p26-public-steady-state.py tests/p27-public-slo.py scripts/p27-evaluate-slo.py scripts/p27-capacity-forecast.py tests/p27-evaluator-contract.py scripts/p28-cost-attribution.py tests/p28-cost-attribution-contract.py
 
       - name: P22 immutable supply-chain contract
         run: python scripts/p22-verify-supply-chain.py
@@ -75,6 +75,12 @@ jobs:
 
       - name: P27 deterministic evaluator contracts
         run: python tests/p27-evaluator-contract.py
+
+      - name: P28 staged lifecycle/cost/multi-app governance contract
+        run: node tests/p28-governance-contract.mjs
+
+      - name: P28 deterministic cost-attribution contract
+        run: python tests/p28-cost-attribution-contract.py
 
       - name: P25 active release contract
         run: |
