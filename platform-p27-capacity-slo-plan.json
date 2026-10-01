@@ -74,7 +74,7 @@
     "measurementWindowDays": 30,
     "availability": {
       "targetPct": 99.9,
-      "monthlyErrorBudgetMinutesApprox": 43.8,
+      "monthlyErrorBudgetMinutesApprox": 43.2,
       "signals": [
         "public synthetic success",
         "edge gateway 5xx rate",
