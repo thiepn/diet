@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "phase": "P27",
+  "title": "Capacity Planning, Long-Term SLOs & Autonomous Operations Hardening",
+  "state": "staged_pending_p26",
+  "stagedAt": "2026-10-01T12:59:18.343021Z",
+  "activeOperationsRelease": "P25.0",
+  "dependencyChain": [
+    "P25 certified complete",
+    "P26 certified complete",
+    "P27 activation"
+  ],
+  "activationRequires": {
+    "p25Certification": "complete",
+    "p26Certification": "complete",
+    "p26AuthoritativeBaselineHoursAtLeast": 72,
+    "p26UnusedIndexObservationDaysAtLeast": 7,
+    "p26FinalSteadyStateReportCommitted": true,
+    "p18Integrity": "clean",
+    "p20SchemaDrift": false,
+    "p21Readiness": "pass",
+    "p22Maintenance": "pass",
+    "p24PostUpgradeValidation": "pass"
+  },
+  "provisionalCapacitySnapshot": {
+    "observedAt": "2026-10-01T12:59:18.343021Z",
+    "databaseBytes": 26799251,
+    "databasePretty": "26 MB",
+    "maxConnections": 60,
+    "superuserReservedConnections": 3,
+    "usableConnections": 57,
+    "currentConnections": 10,
+    "currentConnectionUtilizationPct": 17.54,
+    "activeConnections": 1,
+    "activeConnectionUtilizationPct": 1.75,
+    "idleConnections": 8,
+    "idleInTransactionConnections": 0,
+    "longRunningTransactionsOver30s": 0,
+    "blockedSessions": 0,
+    "largestRelationBytes": 983040,
+    "userTableBytes": 6660096,
+    "userIndexBytes": 5758976,
+    "walBytesSinceStatsReset": 16619422
+  },
+  "provisionalTrafficSnapshot": {
+    "windowStart": "2026-10-01T07:54:44Z",
+    "windowEnd": "2026-10-01T13:15:00Z",
+    "observedPeakHourlyRequests": 1162,
+    "observed5xx": 0,
+    "latestHighVolumeHourP95OriginMs": 449,
+    "lowTrafficHoursExcludedFromLongTermSloCalibration": true
+  },
+  "capacityPolicy": {
+    "connectionWarningPctOfUsable": 60,
+    "connectionCriticalPctOfUsable": 80,
+    "connectionSustainedMinutes": 15,
+    "idleInTransactionWarningCount": 1,
+    "blockedSessionWarningCount": 1,
+    "longRunningTransactionWarningSeconds": 30,
+    "databaseGrowthForecastMinimumDays": 14,
+    "forecastHorizonDays": [
+      30,
+      90,
+      180,
+      365
+    ],
+    "diskCapacityThresholdsRequireKnownProvisionedLimit": true,
+    "computeScalingRequiresSustainedResourcePressure": true,
+    "readReplicaRequiresMeasuredReadPressureOrGeographicLatencyNeed": true,
+    "poolSizeChangesRequireObservedPeakConnectionEvidence": true
+  },
+  "candidateSloPolicy": {
+    "status": "provisional_until_p26_baseline",
+    "measurementWindowDays": 30,
+    "availability": {
+      "targetPct": 99.9,
+      "monthlyErrorBudgetMinutesApprox": 43.8,
+      "signals": [
+        "public synthetic success",
+        "edge gateway 5xx rate",
+        "auth health",
+        "platform-health"
+      ],
+      "minimumRequestVolumeRequiredForPercentageInterpretation": true
+    },
+    "latency": {
+      "deriveFromP26AuthoritativeBaseline": true,
+      "restP95WarningFormula": "max(1.5 * P26_REST_P95, 750ms)",
+      "restP95CriticalFormula": "max(2.0 * P26_REST_P95, 1500ms)",
+      "authP95WarningFormula": "max(1.5 * P26_AUTH_P95, 750ms)",
+      "authP95CriticalFormula": "max(2.0 * P26_AUTH_P95, 1500ms)",
+      "requireConsecutiveBreaches": 3
+    },
+    "database": {
+      "deadlocksTarget": 0,
+      "blockedSessionsSustainedTarget": 0,
+      "idleInTransactionSustainedTarget": 0,
+      "repeatedSlowQueryThresholdMs": 100,
+      "repeatedSlowQueryMinimumCalls": 10
+    },
+    "burnPolicy": {
+      "fastBurnWindowMinutes": 60,
+      "slowBurnWindowHours": 6,
+      "pageHumanOnlyOnConfirmedFunctionalOrBudgetBreach": true
+    }
+  },
+  "autonomyModel": {
+    "defaultLevel": "L1_detect_and_report",
+    "levels": {
+      "L0": "collect_only",
+      "L1": "detect_classify_report",
+      "L2": "preauthorized_reversible_non_user_data_actions",
+      "L3": "manual_approval_required_for_production_mutation"
+    },
+    "allowedWithoutHumanApproval": [
+      "capture read-only metrics",
+      "run public synthetic probes",
+      "compare SLO/error-budget state",
+      "open/update evidence artifacts",
+      "classify advisor findings",
+      "suppress duplicate alerts",
+      "recommend a runbook"
+    ],
+    "prohibitedWithoutHumanApproval": [
+      "schema DDL",
+      "index creation or deletion",
+      "VACUUM FULL",
+      "REINDEX",
+      "terminate sessions",
+      "change connection pool size",
+      "change compute size",
+      "change disk or IOPS",
+      "create or remove read replicas",
+      "change auth rate limits",
+      "rotate secrets",
+      "modify RLS",
+      "pause or restore the project",
+      "delete user data"
+    ],
+    "futureL2EligibilityRequires": [
+      "explicit runbook",
+      "reversible action",
+      "bounded blast radius",
+      "dry-run or simulation",
+      "automatic post-action verification",
+      "automatic rollback condition",
+      "no user-data mutation",
+      "P20 governance registration"
+    ]
+  },
+  "alertPolicy": {
+    "deduplicateBy": "signal+surface+severity",
+    "coolDownMinutes": 60,
+    "requireEvidenceAnchor": true,
+    "evidenceExamples": [
+      "request path",
+      "status code",
+      "queryid",
+      "relation",
+      "PID",
+      "advisor lint",
+      "workflow run"
+    ],
+    "noNotificationForSingleTransientWarning": true,
+    "escalationOrder": [
+      "observe",
+      "correlate",
+      "classify",
+      "recommend",
+      "human-approved-mitigation"
+    ]
+  },
+  "completionRequires": [
+    "P26 steady-state baseline is certified",
+    "30-day SLO/error-budget model is ratified",
+    "capacity snapshots collected over at least 14 days",
+    "30/90/180/365-day database growth forecasts produced",
+    "connection saturation model validated against observed peaks",
+    "service SLOs separated by Auth/REST/Edge/Database",
+    "alert deduplication and burn-rate policy verified",
+    "autonomy guardrails proven by contract tests",
+    "no autonomous production mutation path exists without explicit approval",
+    "P18/P20/P21/P22 regressions remain absent",
+    "final P27 operations handbook committed"
+  ]
+}
