@@ -43,7 +43,7 @@ for(const token of [
   'block',
   'escalate',
   'non-waivable',
-  'Gomoku P12',
+  'gomoku_p12_moderation_review',
   'v38',
   'entry into the governed release flow',
   'cannot grant production approval'
