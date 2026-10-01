@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "phase": "P29",
+  "title": "Cross-App Release Orchestration, Dependency Graph & Compatibility Certification",
+  "state": "staged_pending_p28",
+  "stagedAt": "2026-10-01T15:03:37.140650Z",
+  "activeOperationsRelease": "P25.0",
+  "dependencyChain": [
+    "P25 certified complete",
+    "P26 certified complete",
+    "P27 certified complete",
+    "P28 certified complete",
+    "P29 activation"
+  ],
+  "activationRequires": {
+    "p25Certification": "complete",
+    "p26Certification": "complete",
+    "p27Certification": "complete",
+    "p28Certification": "complete",
+    "p28ResourceOwnershipCoveragePct": 100,
+    "p28UnresolvedProductionResources": 0,
+    "dependencyGraphCoveragePct": 100,
+    "compatibilityCertificatesRequiredForAllAffectedConsumers": true
+  },
+  "currentReleaseInterruption": {
+    "detected": true,
+    "detectedAt": "2026-10-01T15:03:10.400874Z",
+    "reason": "shared platform changed during P25 burn-in",
+    "latestMigration": "20261001142949_gomoku_p9_competitive_operations",
+    "semanticSchemaSha256": "25749e27870c65113b7ddd2a9ad2724c6eb1622f17a44b4f57977bf01cda9d02",
+    "gomokuRoomVersion": 30,
+    "cronJobs": 9,
+    "priorBurnInBaselineSchemaSha256": "c6a7b8788a3798e3fe119007e55f7d1b5796ece574a27dd10abeb600179a9918",
+    "priorBurnInCronJobs": 8,
+    "p24HistoricalValidatorNow": "fail",
+    "p25BurnInStillCertifiable": false,
+    "requiredAction": "after current shared changes settle, rebaseline shared platform and restart the P25 burn-in window"
+  },
+  "changeClasses": {
+    "provider_additive": {
+      "breaking": false,
+      "requiredConsumers": "direct",
+      "releasePattern": "provider_backward_compatible_then_consumers"
+    },
+    "provider_breaking": {
+      "breaking": true,
+      "requiredConsumers": "all_transitive",
+      "releasePattern": "expand_migrate_contract_or_coordinated_maintenance"
+    },
+    "consumer_only": {
+      "breaking": false,
+      "requiredConsumers": "changed_component",
+      "releasePattern": "consumer_only"
+    },
+    "data_migration_no_contract": {
+      "breaking": false,
+      "requiredConsumers": "owner_plus_platform_smoke",
+      "releasePattern": "migration_then_owner_validation"
+    },
+    "infrastructure_contract": {
+      "breaking": "potential",
+      "requiredConsumers": "all_transitive",
+      "releasePattern": "platform_canary_then_consumer_matrix"
+    },
+    "operational_job": {
+      "breaking": "potential",
+      "requiredConsumers": "owner_plus_platform_control",
+      "releasePattern": "owner_job_then_operational_validation"
+    }
+  },
+  "releaseProtocol": {
+    "default": "expand_migrate_contract",
+    "waves": [
+      "W0 freeze baseline and calculate impact",
+      "W1 deploy backward-compatible providers",
+      "W2 certify provider health and old-consumer compatibility",
+      "W3 release affected consumers in dependency order",
+      "W4 certify full compatibility matrix",
+      "W5 remove deprecated contract only after all consumers pass",
+      "W6 issue immutable release certificate and reopen normal change flow"
+    ],
+    "directBreakingCutoverAllowedOnlyWhen": [
+      "maintenance window explicitly declared",
+      "all affected consumers included",
+      "all consumer candidate builds certified against new provider",
+      "rollback or forward-fix path exists",
+      "release epoch baseline frozen"
+    ]
+  },
+  "certificationPolicy": {
+    "immutableInputs": [
+      "dependency graph version",
+      "baseline semantic schema SHA",
+      "Edge Function version/SHA inventory",
+      "migration head",
+      "changed resources",
+      "change class",
+      "affected component set"
+    ],
+    "requiredEvidence": [
+      "impact analysis",
+      "provider tests",
+      "affected consumer contract tests",
+      "cross-app smoke tests",
+      "security/integrity regression",
+      "deployment ordering evidence",
+      "post-deploy health sample"
+    ],
+    "invalidationTriggers": [
+      "new database migration",
+      "changed semantic schema SHA",
+      "changed Edge Function version or SHA in affected surface",
+      "changed cron inventory in affected surface",
+      "dependency graph version change",
+      "failed required consumer test"
+    ]
+  },
+  "quietWindowPolicy": {
+    "certificationWindowMinutes": 60,
+    "scope": "shared database migrations, affected Edge Functions, affected cron jobs and identity contracts",
+    "unrelatedFrontendOnlyReleaseMayProceed": true,
+    "anySharedProviderChangeRestartsCertificationWindow": true
+  },
+  "completionRequires": [
+    "P28 certified complete",
+    "all live components and shared services represented in dependency graph",
+    "all direct hard dependencies backed by evidence or explicit owner declaration",
+    "impact analysis deterministic and contract-tested",
+    "release planner topologically orders provider/consumer waves",
+    "compatibility certificate rejects missing affected-consumer evidence",
+    "shared-provider changes invalidate stale certificates",
+    "current P25 interruption resolved through a fresh baseline/burn-in",
+    "at least one real cross-app change successfully orchestrated under P29",
+    "final cross-app release handbook committed"
+  ]
+}
