@@ -17,6 +17,22 @@ def main():
     ap.add_argument("--out",default="p33-provenance-pack.json")
     args=ap.parse_args()
     m=json.loads(Path(args.manifest).read_text(encoding="utf-8"))
+    errors=[]
+    if not m.get("repository") or not m.get("commitSha"):
+        errors.append("exact_git_identity_required")
+    workflow=m.get("workflow") or {}
+    if not workflow.get("runId"):
+        errors.append("workflow_run_identity_required")
+    privacy=m.get("privacy") or {}
+    if privacy.get("containsRawSecrets") is not False:
+        errors.append("raw_secret_evidence_forbidden")
+    if privacy.get("containsRawPersonalAuditData") is not False:
+        errors.append("raw_personal_audit_data_forbidden")
+    if errors:
+        result={"schemaVersion":1,"phase":"P33","status":"fail","errors":errors}
+        Path(args.out).write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8")
+        print(json.dumps(result,separators=(",",":")))
+        raise SystemExit(1)
     required=m.get("requiredArtifacts") or []
     artifacts=[]
     missing=[]
