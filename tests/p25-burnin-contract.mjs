@@ -56,19 +56,20 @@ assert.equal(baseline.preUpgradeHealthBaseline.allSamplesHealthy,true);
 for(const token of [
   'P25 is **active**',
   'Generation 2',
-  'minimum 24-hour burn-in',
+  'Generation 3 active freeze',
+  '20261002095255_gomoku_p16_certification_null_fix',
+  'gomoku_p17_release_environments_preview_promotion',
+  '20261002172133_gomoku_p17_certification_health_isolation',
   '17.6.1.127',
   '17.6.1.164',
   'platform-p23-shared-schema-v2',
-  'gomoku_p16_certification_null_fix',
-  'gomoku_p17_release_environments_preview_promotion',
-  'generation 3',
-  'gomoku_p17_certification_health_isolation',
   'Generation 3 is **active but not yet certifiable**',
-  'P18 remains clean',
-  'P20 remains drift-free',
-  'P21 remains pass',
-  'P22 remains pass'
+  'P18: **clean**',
+  'P20 schema drift: **false**',
+  'P21 readiness: **pass**',
+  'P22 maintenance: **pass**',
+  'six 4-hour buckets',
+  '37040772134'
 ]) assert.ok(doc.includes(token),'P25 document missing '+token);
 
 for(const token of [
