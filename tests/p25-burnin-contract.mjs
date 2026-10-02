@@ -55,7 +55,7 @@ assert.equal(baseline.preUpgradeHealthBaseline.allSamplesHealthy,true);
 
 for(const token of [
   'P25 is **active**',
-  'generation 2',
+  'Generation 2',
   'minimum 24-hour burn-in',
   '17.6.1.127',
   '17.6.1.164',
