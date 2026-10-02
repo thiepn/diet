@@ -26,7 +26,7 @@ At activation the migration had been quiet for approximately 279 minutes and the
 
 A recheck at `2026-10-02T14:46:08.606027Z` matched the frozen identity exactly.
 
-The generation 2 freeze was later invalidated by Gomoku P17 changes and is archival evidence only.
+The **generation 2 freeze is invalid** because Gomoku P17 changed the shared epoch; it is retained as archival evidence only.
 
 The latest observed shared epoch is now:
 
