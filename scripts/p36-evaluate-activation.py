@@ -26,18 +26,24 @@ def main():
     act=load(args.activation)
     errors=[]
 
-    frozen=freeze["frozenEpoch"]
+    if p25.get("state")!="burn_in_active" or p25.get("currentGenerationEligible") is not True:
+        errors.append("p25_no_eligible_active_generation")
+
+    current=p25.get("currentEpochFreezeEvidence") or {}
+    migration_head=str(current.get("migrationHead") or "")
+    expected_migration_version=str(current.get("migrationVersion") or (migration_head.split("_",1)[0] if "_" in migration_head else ""))
+    expected_migration_name=str(current.get("migrationName") or (migration_head.split("_",1)[1] if "_" in migration_head else migration_head))
     compare={
-      "migrationVersion":frozen["migrationVersion"],
-      "migrationName":frozen["migrationName"],
-      "semanticSchemaSha256":frozen["semanticSchemaSha256"],
-      "gomokuRoomVersion":frozen["gomokuRoomVersion"],
-      "gomokuRoomSha256":frozen["gomokuRoomSha256"],
-      "cronJobs":frozen["cronJobs"]
+      "migrationVersion":expected_migration_version,
+      "migrationName":expected_migration_name,
+      "semanticSchemaSha256":current.get("semanticSchemaSha256"),
+      "gomokuRoomVersion":current.get("gomokuRoomVersion"),
+      "gomokuRoomSha256":current.get("gomokuRoomSha256"),
+      "cronJobs":current.get("cronJobs")
     }
     stale=[]
     for k,v in compare.items():
-        if obs.get(k)!=v:
+        if not v or obs.get(k)!=v:
             stale.append(k)
     if stale:
         errors.append("frozen_epoch_changed:"+",".join(stale))
@@ -55,18 +61,15 @@ def main():
     if int(obs.get("cronFailures24h",0))!=0:
         errors.append("cron_failures_present")
 
-    if p25.get("generation")!=2 or p25.get("state")!="burn_in_active":
-        errors.append("p25_generation2_not_active")
-
     observed_at=dt(obs["observedAt"])
-    minimum=dt(p25["minimumCompleteAfter"])
-    start=dt(p25["activatedAt"])
+    minimum=dt(p25["minimumCompleteAfter"]) if p25.get("minimumCompleteAfter") else observed_at
+    start=dt(p25["activatedAt"]) if p25.get("activatedAt") else observed_at
     if observed_at < minimum:
         errors.append("p25_minimum_time_not_reached")
 
     rows=samples.get("samples") or []
     good=sorted(
-      [r for r in rows if r.get("status")=="success" and r.get("healthy") is True],
+      [r for r in rows if r.get("status")=="success" and r.get("healthy") is True and dt(r["timestamp"])>=start],
       key=lambda r:r["timestamp"]
     )
     if len(good)<int(p25["burnInRequirements"]["minimumHourlyPublicSamples"]):
@@ -74,14 +77,7 @@ def main():
     if good:
         first=dt(good[0]["timestamp"]); last=dt(good[-1]["timestamp"])
         if first < start:
-            # Old samples are ignored semantically; require at least one sample at/after start.
-            good=[r for r in good if dt(r["timestamp"])>=start]
-            if len(good)<int(p25["burnInRequirements"]["minimumHourlyPublicSamples"]):
-                errors.append("insufficient_generation2_samples")
-            if good:
-                first=dt(good[0]["timestamp"]); last=dt(good[-1]["timestamp"])
-        if first < start:
-            errors.append("sample_window_starts_before_generation2")
+            errors.append("sample_window_starts_before_active_generation")
         if last < minimum:
             errors.append("samples_do_not_span_minimum_window")
     else:
