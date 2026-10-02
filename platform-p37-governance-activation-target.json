@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "phase": "P37",
   "title": "Governance Activation Target",
-  "state": "prepared_pending_current_p25_generation_and_stack_promotion",
+  "state": "prepared_pending_p25_generation3_certification_and_stack_promotion",
   "activationOrder": [
-    "certify the current eligible P25 burn-in generation",
+    "certify P25 generation 3",
     "promote P26 through P36 sequentially",
     "activate P32 warn mode",
     "activate P33 canonical evidence process",
