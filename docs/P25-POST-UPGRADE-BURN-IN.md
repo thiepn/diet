@@ -143,3 +143,24 @@ Because GitHub's nominal hourly schedule was observed to deliver substantially f
 Generation 2 is **invalidated and cannot complete**.
 
 The next valid certification attempt is generation 3, after a new ≥60-minute quiet-window freeze and a fresh minimum 24-hour burn-in with the full sample and final-control requirements.
+
+
+## Latest P17 change — generation 3 still pending
+
+The shared epoch changed again after the first P17 observation:
+
+- migration: `20261002152739_gomoku_p17_certification_health_isolation`
+- semantic SHA: `d5c977fc0d74ea6745ac588fc90656dadc18ee0568c3ac248cfd7540ceb6de00`
+- `gomoku-room`: **v45**
+- Edge SHA: `70e86288e735659c4f0a3c9a2608acf48305ae73afe915fefb22add8f293a2de`
+- Edge updated: **2026-10-02T17:21:44.278Z**
+
+P25 is therefore between valid burn-in generations. The operations phase remains P25, but there is currently **no certifiable active burn-in generation**.
+
+The new earliest possible generation-3 refreeze is:
+
+**2026-10-02T18:21:44.278Z**
+
+Generation 3 may start only if the epoch is still unchanged then and all activation checks are repeated.
+
+Encrypted backup run **37027527911** succeeded at **2026-10-02T15:31:03Z** after the latest database migration, but before the v45 Edge deployment. P25 therefore still requires a successful encrypted backup after the final shared change before generation 3 is activated.
