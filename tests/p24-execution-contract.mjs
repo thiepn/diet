@@ -24,8 +24,8 @@ assert.equal(app.health.platformManagedBuildAfter,'17.6.1.164');
 assert.equal(app.health.platformSemanticFingerprintFormat,'platform-p23-shared-schema-v2');
 assert.equal(app.health.postgres1711CompatibilityBaselineMet,false);
 assert.equal(app.health.postgres1711TrackedSeparately,true);
-assert.equal(app.health.p25BurnInActive,false);
-assert.equal(app.health.p25BurnInGenerationState,'generation3_refreeze_pending');
+assert.equal(app.health.p25BurnInActive,true);
+assert.equal(app.health.p25BurnInGenerationState,'burn_in_active');
 
 const policy=backend.platform_upgrade_execution_policy;
 assert.equal(policy.release,'P24');
@@ -52,7 +52,7 @@ assert.equal(policy.postgres_17_11_tracked_separately,true);
 assert.deepEqual(policy.completion_requires,[]);
 
 assert.equal(backend.post_upgrade_burn_in_policy.release,'P25');
-assert.equal(backend.post_upgrade_burn_in_policy.state,'refreeze_pending');
+assert.equal(backend.post_upgrade_burn_in_policy.state,'burn_in_active');
 assert.equal(backend.post_upgrade_burn_in_policy.p24_post_upgrade_validation,'pass');
 assert.equal(backend.post_upgrade_burn_in_policy.semantic_schema_sha256,policy.post_upgrade_semantic_schema_sha256);
 
@@ -91,4 +91,4 @@ for(const symbol of [
   'platform_p24_post_upgrade_status'
 ]) assert.doesNotMatch(browser,new RegExp(symbol),'P24 operator surface must not enter browser code.');
 
-console.log('P24 managed hosted-upgrade validation contract passed; P25 operations remain active while generation 3 refreeze is pending.');
+console.log('P24 managed hosted-upgrade validation contract passed; P25 generation 3 burn-in is active.');
