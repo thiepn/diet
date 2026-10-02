@@ -8,7 +8,6 @@
   "p35InternalDryRunMinimumDays": 30,
   "plannedExternalReadinessTargetDays": 90,
   "activationGates": {
-    "p25Generation2Certified": false,
     "frozenEpochStillMatches": false,
     "p25MinimumTimeReached": false,
     "p25MinimumSamplesReached": false,
@@ -17,12 +16,13 @@
     "p32ModeAtLeastWarnOrEnforce": false,
     "p33CanonicalEvidenceProcessActive": false,
     "controlCatalogFrozenForPeriod": false,
-    "evidenceCollectionDryRunPass": true
+    "evidenceCollectionDryRunPass": true,
+    "p25ActiveGenerationCertified": false
   },
   "blockers": [
-    "P25 generation 2 was invalidated by Gomoku P17 shared-platform changes",
-    "generation 3 cannot freeze before 2026-10-02T16:16:36.270Z and requires a fresh >=60-minute quiet-window recheck",
-    "a fresh generation-3 minimum 24-hour burn-in and spanning sample set must certify",
+    "P25 generation 2 is invalid and P25 is currently refreeze_pending",
+    "generation 3 cannot freeze before 2026-10-02T18:21:44.278Z and still requires a post-final-change encrypted backup",
+    "a fresh active-generation minimum 24-hour burn-in and spanning sample set must certify",
     "P32 remains staged shadow mode until its dependency chain activates",
     "P33 remains staged and cannot yet be the canonical active evidence process",
     "the P34/P35 control catalog cannot be frozen for the formal period before upstream activation"
