@@ -21,25 +21,28 @@ def main():
     obs=load(args.observation)
     samples=load(args.samples)
     p25=load(args.p25)
-    freeze=load(args.freeze)
+    freeze=load(args.freeze)  # historical P36 freeze; never used as current certification identity
     errors=[]
 
-    start=dt(p25["activatedAt"])
-    minimum=dt(p25["minimumCompleteAfter"])
-    observed=dt(obs["observedAt"])
-    frozen=freeze["frozenEpoch"]
+    if p25.get("state")!="burn_in_active" or p25.get("currentGenerationEligible") is not True:
+        errors.append("p25_no_eligible_active_generation")
 
+    start=dt(p25["activatedAt"]) if p25.get("activatedAt") else dt(obs["observedAt"])
+    minimum=dt(p25["minimumCompleteAfter"]) if p25.get("minimumCompleteAfter") else dt(obs["observedAt"])
+    observed=dt(obs["observedAt"])
+    current=p25.get("currentEpochFreezeEvidence") or {}
+    migration_head=str(current.get("migrationHead") or "")
     expected={
-      "migrationVersion":frozen["migrationVersion"],
-      "migrationName":frozen["migrationName"],
-      "semanticSchemaSha256":frozen["semanticSchemaSha256"],
-      "gomokuRoomVersion":frozen["gomokuRoomVersion"],
-      "gomokuRoomSha256":frozen["gomokuRoomSha256"],
-      "cronJobs":frozen["cronJobs"]
+      "migrationVersion":str(current.get("migrationVersion") or (migration_head.split("_",1)[0] if "_" in migration_head else "")),
+      "migrationName":str(current.get("migrationName") or (migration_head.split("_",1)[1] if "_" in migration_head else migration_head)),
+      "semanticSchemaSha256":current.get("semanticSchemaSha256"),
+      "gomokuRoomVersion":current.get("gomokuRoomVersion"),
+      "gomokuRoomSha256":current.get("gomokuRoomSha256"),
+      "cronJobs":current.get("cronJobs")
     }
     changed=[]
     for k,v in expected.items():
-        if obs.get(k)!=v:
+        if not v or obs.get(k)!=v:
             changed.append(k)
     if changed:
         errors.append("frozen_epoch_changed:"+",".join(changed))
@@ -112,7 +115,7 @@ def main():
     cert={
       "schemaVersion":1,
       "phase":"P37",
-      "certificateType":"p25_generation2_burnin",
+      "certificateType":"p25_active_generation_burnin",
       "decision":"certified" if not errors else "blocked",
       "generation":p25.get("generation"),
       "windowStart":p25["activatedAt"],
