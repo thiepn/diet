@@ -34,9 +34,14 @@ def main():
     phases=[x.get("phase") for x in receipts]
     if phases!=expected:
         errors.append("promotion_receipt_order_or_coverage_invalid")
-    for r in receipts:
-        if r.get("merged") is not True or not r.get("mergeCommitSha") or not r.get("postMergeMainSha"):
+    previous_post=None
+    for i,r in enumerate(receipts):
+        if r.get("merged") is not True or not r.get("preMergeMainSha") or not r.get("mergeCommitSha") or not r.get("postMergeMainSha"):
             errors.append("invalid_promotion_receipt:"+str(r.get("phase")))
+            continue
+        if i>0 and r.get("preMergeMainSha")!=previous_post:
+            errors.append("promotion_receipt_chain_break:"+str(r.get("phase")))
+        previous_post=r.get("postMergeMainSha")
 
     if gov.get("p32Mode") not in ("warn","enforce","production"):
         errors.append("p32_not_warn_or_enforce")
