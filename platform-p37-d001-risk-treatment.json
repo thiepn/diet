@@ -36,8 +36,9 @@
     "Supabase makes leaked-password protection available on the current plan and it remains disabled without review",
     "credential-stuffing or password-auth incident occurs"
   ],
-  "expiresAt": "2026-12-31T23:59:59Z",
+  "expiresAt": "2026-12-31T15:00:00Z",
   "maximumTreatmentDays": 90,
   "permanentClosure": false,
-  "paidPlanUpgradeAuthorized": false
+  "paidPlanUpgradeAuthorized": false,
+  "preparedAt": "2026-10-02T15:13:34.929055Z"
 }
