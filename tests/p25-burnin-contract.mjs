@@ -10,6 +10,12 @@ const migration=fs.readFileSync('supabase/migrations/20261001121450_platform_p24
 assert.equal(baseline.phase,'P25');
 assert.equal(baseline.state,'burn_in_active');
 assert.equal(baseline.generation,2);
+assert.equal(baseline.generationState,'invalidated_epoch_changed');
+assert.equal(baseline.currentGenerationEligible,false);
+assert.equal(baseline.nextGeneration,3);
+assert.equal(baseline.invalidationEvidence.observedMigrationName,'gomoku_p17_release_environments_preview_promotion');
+assert.equal(baseline.invalidationEvidence.observedGomokuRoomVersion,43);
+assert.equal(baseline.refreezePolicy.minimumQuietMinutes,60);
 assert.equal(baseline.currentEpochFreezeEvidence.migrationHead,'20261002095255_gomoku_p16_certification_null_fix');
 assert.equal(baseline.currentEpochFreezeEvidence.gomokuRoomVersion,42);
 assert.equal(baseline.currentEpochFreezeEvidence.cronJobs,11);
@@ -45,6 +51,8 @@ for(const token of [
   '17.6.1.164',
   'platform-p23-shared-schema-v2',
   'gomoku_p16_certification_null_fix',
+  'gomoku_p17_release_environments_preview_promotion',
+  'generation 3',
   'P18 remains clean',
   'P20 remains drift-free',
   'P21 remains pass',
