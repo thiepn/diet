@@ -166,7 +166,15 @@
     "p25EpochQuietAtActivation": true,
     "p25HistoricalHostedUpgradeAttestation": "pass",
     "p25LegacyP24ValidatorCurrentlyMatchesLiveSchema": false,
-    "p25LegacyP24ValidatorMismatchReason": "legitimate post-upgrade application evolution"
+    "p25LegacyP24ValidatorMismatchReason": "legitimate post-upgrade application evolution",
+    "p25CurrentGenerationValid": false,
+    "p25BurnInGenerationState": "invalidated_epoch_changed",
+    "p25BurnInInvalidatedAt": "2026-10-02T15:26:53.149918Z",
+    "p25NextGeneration": 3,
+    "p25RefreezeEarliestAt": "2026-10-02T16:16:36.270Z",
+    "p25LatestObservedMigration": "20261002151605_gomoku_p17_release_environments_preview_promotion",
+    "p25LatestObservedSemanticSchemaSha256": "2067be87d1dfe8bc042940e149d4e7894dde6defec6a7c1378b5233df566f6c2",
+    "p25LatestObservedGomokuEdgeVersion": 43
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0",
