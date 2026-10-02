@@ -1,0 +1,58 @@
+name: P37 Certification Promotion Staging
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'platform-p3*.json'
+      - 'contracts/p3*.json'
+      - 'scripts/p3*.py'
+      - 'tests/p3*'
+      - 'docs/P3*.md'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p37-certification-promotion-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Verify P37 static contract
+        run: node tests/p37-certification-promotion-contract.mjs
+      - name: Verify P37 certification, promotion and launch gates
+        run: python tests/p37-certification-promotion-contract.py
+      - name: Verify burn-in certifier CLI
+        run: python scripts/p37-certify-burnin.py --help > /dev/null
+      - name: Verify sequential promotion CLI
+        run: python scripts/p37-evaluate-promotion.py --help > /dev/null
+      - name: Verify OE launch CLI
+        run: python scripts/p37-build-oe-launch.py --help > /dev/null
+      - name: Archive staged P37 control state
+        shell: bash
+        run: |
+          mkdir -p p37-state
+          cp platform-p37-certification-promotion-launch-plan.json p37-state/
+          cp platform-p37-d001-risk-treatment.json p37-state/
+          cp contracts/p37-governance-promotion-manifest.json p37-state/
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: p37-staging-${{ github.run_id }}
+          path: p37-state/
+          if-no-files-found: error
+          retention-days: 90
