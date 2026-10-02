@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://thiepn.dev/contracts/p34-audit-package-manifest.schema.json",
+  "title": "P34 audit-readiness package manifest",
+  "type": "object",
+  "required": [
+    "scope",
+    "periodStart",
+    "periodEnd",
+    "readinessStatement",
+    "externalAttestation",
+    "requiredArtifacts"
+  ],
+  "properties": {
+    "scope": {
+      "type": "string",
+      "minLength": 1
+    },
+    "periodStart": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "periodEnd": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "readinessStatement": {
+      "type": "string",
+      "minLength": 1
+    },
+    "externalAttestation": {
+      "const": false
+    },
+    "frameworkMappings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "openDeficiencyIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "requiredArtifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "path"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}
