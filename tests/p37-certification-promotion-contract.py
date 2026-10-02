@@ -97,6 +97,7 @@ with tempfile.TemporaryDirectory() as td:
 
     # Promotion starts at P26 and only one candidate may advance.
     state={
+      "promotionStartMainSha":"main-0",
       "currentMainSha":"main-0",
       "phases":[]
     }
@@ -106,7 +107,7 @@ with tempfile.TemporaryDirectory() as td:
           "headSha":item["expectedHeadSha"],"state":"open","draft":True,
           "readyForMerge":False,"mergeable":True,"syncedToMainSha":"main-0",
           "checks":[{"name":"CI","conclusion":"success"}],
-          "merged":False,"mergeCommitSha":None,"postMergeMainSha":None
+          "merged":False,"preMergeMainSha":None,"mergeCommitSha":None,"postMergeMainSha":None
         })
     st=d/"promotion-state.json";dec=d/"promotion-decision.json"
     write(st,state)
@@ -119,6 +120,7 @@ with tempfile.TemporaryDirectory() as td:
     # A later merged phase before P26 is rejected.
     bad=json.loads(json.dumps(state))
     bad["phases"][1]["merged"]=True
+    bad["phases"][1]["preMergeMainSha"]="main-0"
     bad["phases"][1]["mergeCommitSha"]="m27"
     bad["phases"][1]["postMergeMainSha"]="main-x"
     write(st,bad)
@@ -127,7 +129,7 @@ with tempfile.TemporaryDirectory() as td:
 
     # Walk P26 as merged and verify P27 becomes the only candidate after sync.
     step=json.loads(json.dumps(state))
-    step["phases"][0].update({"merged":True,"mergeCommitSha":"m26","postMergeMainSha":"main-1"})
+    step["phases"][0].update({"merged":True,"preMergeMainSha":"main-0","mergeCommitSha":"m26","postMergeMainSha":"main-1"})
     step["currentMainSha"]="main-1"
     step["phases"][1]["syncedToMainSha"]="main-1"
     write(st,step)
@@ -135,20 +137,21 @@ with tempfile.TemporaryDirectory() as td:
     assert json.loads(dec.read_text())["nextPhase"]=="P27"
 
     # Complete promotion state.
-    complete={"currentMainSha":"main-final","phases":[]}
+    complete={"promotionStartMainSha":"main-0","currentMainSha":"main-11","phases":[]}
     receipts=[]
     for i,item in enumerate(MANIFEST["phases"]):
+        pre=f"main-{i}"
         post=f"main-{i+1}"
         complete["phases"].append({
           "phase":item["phase"],"prNumber":item["prNumber"],"branch":item["branch"],
           "headSha":item["expectedHeadSha"],"state":"closed","draft":False,
-          "readyForMerge":True,"mergeable":True,"syncedToMainSha":f"main-{i}",
+          "readyForMerge":True,"mergeable":True,"syncedToMainSha":pre,
           "checks":[{"name":"CI","conclusion":"success"}],
-          "merged":True,"mergeCommitSha":f"merge-{item['phase']}","postMergeMainSha":post
+          "merged":True,"preMergeMainSha":pre,"mergeCommitSha":f"merge-{item['phase']}","postMergeMainSha":post
         })
         receipts.append({
           "phase":item["phase"],"prNumber":item["prNumber"],"merged":True,
-          "mergeCommitSha":f"merge-{item['phase']}","postMergeMainSha":post
+          "preMergeMainSha":pre,"mergeCommitSha":f"merge-{item['phase']}","postMergeMainSha":post
         })
     write(st,complete)
     run([sys.executable,str(PROMO),str(cert),str(st),"--out",str(dec)])
