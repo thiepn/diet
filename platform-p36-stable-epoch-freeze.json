@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "phase": "P36",
+  "title": "Stable Release Epoch Freeze",
+  "state": "active",
+  "p25Generation": 2,
+  "activatedOnMain": true,
+  "mainCommit": "f722d576b483991adaa865e188cc04bea583e6a6",
+  "frozenAt": "2026-10-02T14:32:00.744993Z",
+  "lastRevalidatedAt": "2026-10-02T14:46:08.606027Z",
+  "frozenEpoch": {
+    "migrationVersion": "20261002095255",
+    "migrationName": "gomoku_p16_certification_null_fix",
+    "semanticSchemaSha256": "af9cc4acbed9e61bc81f48642f75b1c2e2841ebdf52a5139f14e784e509aecad",
+    "gomokuRoomVersion": 42,
+    "gomokuRoomSha256": "fc63d31db8a51b860fc45aa7148fc864f8b2622fc469e495123e9a950273687d",
+    "cronJobs": 11
+  },
+  "quietEvidenceAtActivation": {
+    "migrationQuietMinutes": 279,
+    "gomokuEdgeQuietMinutes": 283,
+    "minimumRequiredMinutes": 60,
+    "satisfied": true
+  },
+  "operationalEvidence": {
+    "projectStatus": "ACTIVE_HEALTHY",
+    "p18Integrity": "clean",
+    "p20SchemaDrift": false,
+    "p21Readiness": "pass",
+    "p22Maintenance": "pass",
+    "cronRuns24h": 4042,
+    "cronFailures24h": 0,
+    "blockingReplicationSlots": 0,
+    "encryptedBackupRunId": 36995722053,
+    "encryptedBackupConclusion": "success"
+  },
+  "historicalUpgradeAttestation": {
+    "status": "pass",
+    "managedBuildBefore": "17.6.1.127",
+    "managedBuildAfter": "17.6.1.164",
+    "note": "The legacy P24 live validator now mismatches because application surfaces evolved. That does not invalidate the historical hosted-upgrade attestation."
+  },
+  "invalidationConditions": [
+    "migration head changes",
+    "semantic schema SHA changes",
+    "gomoku-room version or SHA changes",
+    "relevant cron inventory changes",
+    "P18 integrity becomes non-clean",
+    "P20 drift becomes true",
+    "P21 or P22 becomes non-pass",
+    "unexplained functional regression"
+  ],
+  "minimumBurnInHours": 24,
+  "minimumSuccessfulPublicSamples": 12,
+  "earliestCertificationAt": "2026-10-03T14:32:00.744993Z"
+}
