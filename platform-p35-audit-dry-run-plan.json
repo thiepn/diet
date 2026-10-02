@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "phase": "P35",
+  "title": "Audit Dry-Run Certification Plan",
+  "state": "staged_not_certified",
+  "purpose": "Internal simulation of evidence request/sampling and control narrative consistency before any external auditor engagement.",
+  "certificationMeaning": "P35 dry-run pass means the internal package is self-consistent and sample-complete for the simulated scope; it is not an external attestation.",
+  "simulatedScope": "THIEPN shared platform security/availability/change-governance controls",
+  "requiredSections": [
+    "scope_and_system_boundary",
+    "control_catalog",
+    "owner_matrix",
+    "risk_and_deficiency_register",
+    "change_population_and_samples",
+    "access_control_samples",
+    "security_advisor_dispositions",
+    "incident_response_sample_or_drill",
+    "backup_restore_sample",
+    "exceptions_population",
+    "vendor_shared_responsibility",
+    "operating_effectiveness_summary",
+    "P33_provenance_index"
+  ],
+  "automaticFailureConditions": [
+    "unsupported compliance/certification claim",
+    "missing required section",
+    "missing evidence hash",
+    "stale evidence beyond control cadence",
+    "closed deficiency without retest",
+    "unexplained failed control test",
+    "sample population does not reconcile to release/change registry",
+    "period shorter than declared dry-run minimum"
+  ],
+  "currentResult": "not_runnable_until_evidence_period_starts"
+}
