@@ -6,10 +6,17 @@
   "state": "partial_remediation_executed",
   "productionMutationPerformed": false,
   "p25Generation2": {
-    "active": true,
+    "active": false,
     "mainCommit": "f722d576b483991adaa865e188cc04bea583e6a6",
     "frozenAt": "2026-10-02T14:32:00.744993Z",
-    "minimumCompleteAfter": "2026-10-03T14:32:00.744993Z"
+    "minimumCompleteAfter": "2026-10-03T14:32:00.744993Z",
+    "currentGenerationValid": false,
+    "invalidatedAt": "2026-10-02T15:26:53.149918Z",
+    "invalidationReason": "gomoku_p17_shared_epoch_change",
+    "nextGeneration": 3,
+    "earliestRefreezeAt": "2026-10-02T18:21:44.278Z",
+    "latestObservedGomokuRoomVersion": 45,
+    "latestObservedGomokuRoomSha256": "70e86288e735659c4f0a3c9a2608acf48305ae73afe915fefb22add8f293a2de"
   },
   "executedDispositions": [
     {
@@ -101,8 +108,8 @@
     },
     {
       "id": "P34-D006",
-      "state": "remediating",
-      "reason": "P25 generation 2 is active; stable burn-in cannot certify before 2026-10-03T14:32:00.744993Z."
+      "state": "remediating_waiting_generation3",
+      "reason": "P25 generation 2 is invalid; generation 3 is refreeze_pending after Gomoku v45 and requires a fresh quiet-window freeze, post-final-change backup and 24-hour burn-in."
     },
     {
       "id": "P34-D007",

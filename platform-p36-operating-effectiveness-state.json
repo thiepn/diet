@@ -2,14 +2,13 @@
   "schemaVersion": 1,
   "phase": "P36",
   "title": "Operating Effectiveness Activation State",
-  "state": "armed_waiting_p25_generation2",
+  "state": "armed_waiting_new_stable_epoch",
   "active": false,
   "activationIsRetroactive": false,
   "p35InternalDryRunMinimumDays": 30,
   "plannedExternalReadinessTargetDays": 90,
   "activationGates": {
-    "p25Generation2Certified": false,
-    "frozenEpochStillMatches": true,
+    "frozenEpochStillMatches": false,
     "p25MinimumTimeReached": false,
     "p25MinimumSamplesReached": false,
     "noCriticalOpenDeficiencies": true,
@@ -17,11 +16,13 @@
     "p32ModeAtLeastWarnOrEnforce": false,
     "p33CanonicalEvidenceProcessActive": false,
     "controlCatalogFrozenForPeriod": false,
-    "evidenceCollectionDryRunPass": true
+    "evidenceCollectionDryRunPass": true,
+    "p25ActiveGenerationCertified": false
   },
   "blockers": [
-    "P25 generation 2 cannot certify before 2026-10-03T14:32:00.744993Z",
-    "P25 requires at least 12 successful public samples spanning the frozen window",
+    "P25 generation 2 is invalid and P25 is currently refreeze_pending",
+    "generation 3 cannot freeze before 2026-10-02T18:21:44.278Z and still requires a post-final-change encrypted backup",
+    "a fresh active-generation minimum 24-hour burn-in and spanning sample set must certify",
     "P32 remains staged shadow mode until its dependency chain activates",
     "P33 remains staged and cannot yet be the canonical active evidence process",
     "the P34/P35 control catalog cannot be frozen for the formal period before upstream activation"
