@@ -68,6 +68,9 @@ for(const token of [
 ]) assert.ok(migration.includes(token),'P24 post-upgrade migration missing '+token);
 
 assert.ok(workflow.includes("cron: '17 * * * *'"));
+assert.ok(workflow.includes("cron: '7,27,47 * * * *'"));
+assert.equal(baseline.generation2Sampling.evidenceRuleUnchanged,true);
+assert.equal(baseline.generation2Sampling.nominalTriggerOpportunitiesPerHour,4);
 assert.ok(workflow.includes('p25-public-burnin.py'));
 assert.ok(workflow.includes('retention-days: 30'));
 
