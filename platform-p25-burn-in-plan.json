@@ -2,9 +2,9 @@
   "schemaVersion": 3,
   "phase": "P25",
   "title": "Post-Upgrade Burn-In, Stability & Shared-Platform Production Certification",
-  "state": "refreeze_pending",
-  "activatedAt": "2026-10-02T14:32:00.744993Z",
-  "minimumCompleteAfter": "2026-10-03T14:32:00.744993Z",
+  "state": "burn_in_active",
+  "activatedAt": "2026-10-02T20:16:15.888200Z",
+  "minimumCompleteAfter": "2026-10-03T20:16:15.888200Z",
   "activationEvidence": {
     "p24PostUpgradeValidation": "pass",
     "managedHostedBuildBefore": "17.6.1.127",
@@ -74,14 +74,16 @@
   },
   "completionState": {
     "complete": false,
-    "invalidated": true,
+    "invalidated": false,
     "remaining": [
-      "wait until at least 2026-10-02T18:21:44.278Z and confirm no newer shared migration/Edge/relevant-cron change",
-      "recheck P18/P20/P21/P22/project/cron/replication/service health and advisors",
-      "freeze generation 3 on the then-current stable epoch",
-      "restart a fresh minimum 24-hour burn-in window",
-      "collect at least 12 successful healthy samples spanning the new window with six 4-hour coverage buckets",
-      "rerun final cross-app/Edge/Auth/Realtime/PostgREST/Storage/advisor/PostgreSQL 17.11 hazard checks"
+      "wait until at least 2026-10-03T20:16:15.888200Z",
+      "collect at least 12 successful healthy generation-3 samples spanning the full window and all six 4-hour coverage buckets",
+      "confirm no migration/schema/Edge/relevant-cron epoch change during generation 3",
+      "rerun final P18/P20/P21/P22/cron/replication checks",
+      "rerun cross-app smoke and Edge/Auth/Realtime/PostgREST/Storage health",
+      "review Security and Performance advisors at closure",
+      "recheck PostgreSQL 17.11 application hazard scan",
+      "certify P25 generation 3 before any P26 promotion"
     ]
   },
   "latestKnownPreUpgradeOffsiteBackup": {
@@ -100,9 +102,9 @@
     "afterLatestEdgeDeployment": true,
     "sufficientForGeneration3Refreeze": true
   },
-  "generation": 2,
+  "generation": 3,
   "initialActivatedAt": "2026-10-01T12:14:50.879365Z",
-  "restartReason": "Generation 1 burn-in was invalidated by legitimate cross-app shared-platform changes after the hosted upgrade. Generation 2 freezes the current shared release epoch after >60 minutes without a migration or Gomoku Edge deployment.",
+  "restartReason": "Generation 2 was invalidated by legitimate Gomoku P17 shared-platform changes. Generation 3 freezes the final P17 health-isolation epoch after >60 minutes of release quiet, current control revalidation, and a successful encrypted backup after the final shared change.",
   "historicalHostedUpgradeAttestation": {
     "status": "pass",
     "observedAt": "2026-10-01T12:14:50.879365Z",
@@ -112,24 +114,64 @@
     "note": "Historical upgrade attestation is immutable. The legacy P24 validator now reports schema/application-surface mismatch because the shared application evolved after upgrade; that mismatch is not evidence of hosted-upgrade failure."
   },
   "currentEpochFreezeEvidence": {
-    "frozenAt": "2026-10-02T14:32:00.744993Z",
+    "frozenAt": "2026-10-02T20:16:15.888200Z",
     "projectStatus": "ACTIVE_HEALTHY",
-    "migrationHead": "20261002095255_gomoku_p16_certification_null_fix",
-    "migrationQuietMinutesAtFreeze": 279,
-    "semanticSchemaSha256": "af9cc4acbed9e61bc81f48642f75b1c2e2841ebdf52a5139f14e784e509aecad",
-    "gomokuRoomVersion": 42,
-    "gomokuRoomSha256": "fc63d31db8a51b860fc45aa7148fc864f8b2622fc469e495123e9a950273687d",
-    "gomokuEdgeUpdatedAt": "2026-10-02T09:48:13.062Z",
-    "edgeQuietMinutesAtFreeze": 283,
+    "migrationVersion": "20261002172133",
+    "migrationName": "gomoku_p17_certification_health_isolation",
+    "migrationHead": "20261002172133_gomoku_p17_certification_health_isolation",
+    "migrationQuietMinutesAtFreeze": 174,
+    "semanticSchemaSha256": "d5c977fc0d74ea6745ac588fc90656dadc18ee0568c3ac248cfd7540ceb6de00",
+    "gomokuRoomVersion": 45,
+    "gomokuRoomSha256": "70e86288e735659c4f0a3c9a2608acf48305ae73afe915fefb22add8f293a2de",
+    "gomokuEdgeUpdatedAt": "2026-10-02T17:21:44.278Z",
+    "edgeQuietMinutesAtFreeze": 174,
     "cronJobs": 11,
     "activeCronJobs": 11,
-    "cronRuns24h": 4042,
+    "cronRuns24h": 4349,
     "cronFailures24h": 0,
     "blockingReplicationSlots": 0,
     "p18Integrity": "clean",
     "p20SchemaDrift": false,
     "p21Readiness": "pass",
     "p22Maintenance": "pass",
+    "edgeFunctionCount": 11,
+    "edgeFunctionsAllActive": true,
+    "edgeHttp5xxSinceFinalSharedChange": 0,
+    "functionEdgeHttp5xxSinceFinalSharedChange": 0,
+    "securityAdvisorReviewed": true,
+    "securityAdvisorDisposition": {
+      "rlsEnabledNoPolicy": {
+        "count": 64,
+        "anonDml": 0,
+        "authenticatedDml": 0,
+        "classification": "intentional_deny_by_default_or_service_only"
+      },
+      "authenticatedSecurityDefiner": {
+        "count": 39,
+        "anonExecutable": 0,
+        "authUidBound": 39,
+        "controlledSearchPath": 39,
+        "classification": "reviewed_authenticated_privileged_rpc_design"
+      },
+      "leakedPasswordProtection": {
+        "count": 1,
+        "classification": "known_open_plan_feature_risk_treatment"
+      }
+    },
+    "performanceAdvisorReviewed": true,
+    "performanceAdvisorDisposition": {
+      "unindexedForeignKeys": 21,
+      "unusedIndexes": 108,
+      "classification": "review_only_no_speculative_ddl_during_burn_in"
+    },
+    "postgres1711Hazards": {
+      "applicationRegTypeColumns": 0,
+      "md5LoginRoles": 0,
+      "deprecatedExtensions": 0,
+      "customOperators": 0,
+      "riskyGistIndexes": 0,
+      "replicationSlots": 0
+    },
     "legacyP24ValidatorStatus": "fail",
     "legacyP24ValidatorFailureClass": "expected_application_evolution_after_upgrade",
     "hostedUpgradeRegressionDetected": false
@@ -147,8 +189,8 @@
     "sampleWindowMustSpanBurnIn": true,
     "frozenEpochImpact": "none"
   },
-  "generationState": "generation3_refreeze_pending",
-  "currentGenerationEligible": false,
+  "generationState": "burn_in_active",
+  "currentGenerationEligible": true,
   "invalidatedAt": "2026-10-02T15:26:53.149918Z",
   "invalidationEvidence": {
     "reason": "shared_release_epoch_changed",
@@ -164,7 +206,7 @@
     "observedGomokuRoomSha256": "147046c90c849225c9a862f5607b725adb254b919dd756d9092caa4e0fe39b3d",
     "observedGomokuEdgeUpdatedAt": "2026-10-02T15:16:36.270Z"
   },
-  "nextGeneration": 3,
+  "nextGeneration": null,
   "refreezePolicy": {
     "minimumQuietMinutes": 60,
     "quietClockStartsAfterLatestObservedSharedChange": "2026-10-02T17:21:44.278Z",
@@ -174,7 +216,7 @@
     "requirePostFinalChangeEncryptedBackup": true
   },
   "latestObservedEpoch": {
-    "observedAt": "2026-10-02T17:44:24.816659Z",
+    "observedAt": "2026-10-02T20:16:15.888200Z",
     "migrationVersion": "20261002172133",
     "migrationName": "gomoku_p17_certification_health_isolation",
     "semanticSchemaSha256": "d5c977fc0d74ea6745ac588fc90656dadc18ee0568c3ac248cfd7540ceb6de00",
@@ -184,5 +226,19 @@
     "cronJobs": 11,
     "activeCronJobs": 11,
     "cronFailures24h": 0
+  },
+  "generation3Sampling": {
+    "workflow": ".github/workflows/p25-post-upgrade-burnin.yml",
+    "cron": [
+      "17 * * * *",
+      "7,27,47 * * * *"
+    ],
+    "nominalTriggerOpportunitiesPerHour": 4,
+    "evidenceRuleUnchanged": true,
+    "minimumSuccessfulSamples": 12,
+    "sampleWindowMustSpanBurnIn": true,
+    "minimumCoverageBuckets": 6,
+    "coverageBucketHours": 4,
+    "terminalSampleRequiredAtOrAfterMinimumCompleteAfter": true
   }
 }
