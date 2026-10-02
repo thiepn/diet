@@ -6,23 +6,25 @@ P37 is the first phase allowed to convert the long P26–P36 governance stack fr
 
 ## Current production state
 
-P25 generation 2 remains the active operations release.
+P25 remains the active operations release, but generation 2 is invalid and **generation 3 is refreeze pending**.
 
-Frozen generation-2 epoch:
+The latest observed shared epoch is:
 
-- migration: `20261002095255_gomoku_p16_certification_null_fix`
-- semantic schema SHA: `af9cc4acbed9e61bc81f48642f75b1c2e2841ebdf52a5139f14e784e509aecad`
-- `gomoku-room`: v42
-- Edge SHA: `fc63d31db8a51b860fc45aa7148fc864f8b2622fc469e495123e9a950273687d`
+- migration: `20261002152739_gomoku_p17_certification_health_isolation`
+- semantic schema SHA: `d5c977fc0d74ea6745ac588fc90656dadc18ee0568c3ac248cfd7540ceb6de00`
+- `gomoku-room`: **v45**
+- Edge SHA: `70e86288e735659c4f0a3c9a2608acf48305ae73afe915fefb22add8f293a2de`
+- Edge updated: `2026-10-02T17:21:44.278Z`
 - cron: 11/11 active
-- latest live staging check: `2026-10-02T15:13:34.929055Z`
-- cron failures in the observed 24h window: 0
+- observed 24h cron failures: 0
 
-The earliest possible P25 generation-2 certification remains:
+The generation-2 P16 freeze is invalid historical evidence only.
 
-`2026-10-03T14:32:00.744993Z`
+Generation 3 is **refreeze pending**. The current earliest possible refreeze is:
 
-At the P37 staging observation there were **0 qualifying** dedicated P25 workflow samples after the freeze, so certification is impossible today.
+`2026-10-02T18:21:44.278Z`
+
+It may start only if the epoch is unchanged at that point and a successful encrypted backup exists after the final shared change. Until then there is no eligible active P25 burn-in generation and therefore no qualifying sample population to certify.
 
 ## Sampling reliability correction
 
@@ -42,17 +44,17 @@ This changes only evidence-collection opportunity density. It does not change:
 - the requirement for at least 12 successful samples;
 - the required evidence span.
 
-P26–P36 were resynchronized with that main commit before P37 was staged.
+P26–P36 were resynchronized again after generation 2 invalidation, and P37's promotion manifest now points at those current synchronized heads.
 
 ## Burn-in certification
 
-`scripts/p37-certify-burnin.py` will not certify P25 generation 2 unless all release identity and operational checks still pass.
+`scripts/p37-certify-burnin.py` will certify only the **current eligible P25 burn-in generation**. It explicitly rejects `refreeze_pending`, invalidated, or otherwise ineligible generations.
 
 In addition to at least 12 successful healthy P25 samples, P37 requires **six 4-hour coverage buckets** across the first 24 hours and a terminal successful sample at or after the 24-hour boundary.
 
 This prevents twelve clustered samples near the end of the window from being presented as a 24-hour observation period.
 
-The final certification also requires:
+For whichever generation is active, final certification also requires:
 
 - exact frozen migration/schema/Edge/cron identity;
 - project `ACTIVE_HEALTHY`;
@@ -153,7 +155,7 @@ P32 is intentionally moved to `warn` first rather than jumping directly from sha
 
 `scripts/p37-build-oe-launch.py` requires:
 
-- certified P25 generation 2;
+- a certified current eligible P25 burn-in generation;
 - complete, ordered P26–P36 promotion receipts;
 - P32 at warn/enforce/production;
 - active P33 canonical evidence;
@@ -174,8 +176,8 @@ Its start timestamp is the final successful governance activation observation af
 
 ## Current P37 state
 
-P37 remains `staged_waiting_p25_generation2`.
+P37 remains `staged_waiting_p25_generation3_refreeze`.
 
 Nothing in the staged P37 branch changes production, RLS, database functions, Auth settings, billing, Edge Functions, cron or Supabase infrastructure.
 
-The next execution checkpoint is after `2026-10-03T14:32:00.744993Z`, when P37 can re-evaluate the real generation-2 sample population and live frozen epoch.
+The next execution checkpoint is a valid generation-3 refreeze after the latest shared epoch has remained quiet for at least 60 minutes and a post-final-change encrypted backup is available. Only after that new freeze does the fresh 24-hour certification window begin.
