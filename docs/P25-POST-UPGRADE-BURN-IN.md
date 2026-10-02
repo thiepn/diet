@@ -22,7 +22,7 @@ The legacy `private.platform_p24_post_upgrade_validation()` now reports a live s
 
 Generation 1 was invalidated by legitimate shared-platform evolution after the hosted upgrade.
 
-Generation 2 froze the P16 epoch at `2026-10-02T14:32:00.744993Z`, but was invalidated when Gomoku P17 changed the database and Edge release epoch. Generation 2 is historical evidence only and cannot certify P25.
+Generation 2 froze `20261002095255_gomoku_p16_certification_null_fix` at `2026-10-02T14:32:00.744993Z`, but was invalidated when Gomoku P17 introduced `gomoku_p17_release_environments_preview_promotion` and subsequent P17 health-isolation changes. Generation 2 is historical evidence only and cannot certify P25.
 
 ## Generation 3 active freeze
 
