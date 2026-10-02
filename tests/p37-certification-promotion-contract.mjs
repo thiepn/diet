@@ -54,7 +54,7 @@ assert.equal(freeze.state,'invalidated_by_shared_epoch_change');
 for(const token of [
   'P37 is **staged, not active**',
   'generation 3',
-  'generation 3 is **active**',
+  '**generation 3 is active**',
   'gomoku_p17_certification_health_isolation',
   'v45',
   'six 4-hour coverage buckets',
