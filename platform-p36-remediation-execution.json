@@ -61,7 +61,7 @@
       ],
       "rationale": "Current RLS-enabled/no-policy relations are intentional deny-by-default/service-only surfaces. Supabase documents that RLS with no policy denies Data API row access, and the current live retest shows no direct anon/authenticated DML privileges on the entire class.",
       "retest": {
-        "tables": 58,
+        "tables": 64,
         "anonAnyDmlGrant": 0,
         "authenticatedAnyDmlGrant": 0,
         "advisorLevel": "INFO"
@@ -108,8 +108,8 @@
     },
     {
       "id": "P34-D006",
-      "state": "remediating_waiting_generation3",
-      "reason": "P25 generation 2 is invalid; generation 3 is refreeze_pending after Gomoku v45 and requires a fresh quiet-window freeze, post-final-change backup and 24-hour burn-in."
+      "state": "remediating_generation3_burn_in_active",
+      "reason": "P25 generation 3 is active on the final P17 epoch and must complete its fresh 24-hour burn-in plus spanning sample and final-control requirements."
     },
     {
       "id": "P34-D007",
@@ -120,7 +120,7 @@
   "securityAdvisorExpectedState": {
     "rlsEnabledNoPolicy": {
       "level": "INFO",
-      "count": 58,
+      "count": 64,
       "disposition": "design_accepted_with_regression_guard"
     },
     "authenticatedSecurityDefinerExecutable": {
@@ -139,5 +139,17 @@
     "retestEvidenceRequired": true,
     "regressionReopensDeficiency": true,
     "historicalP34RecordsRemainImmutable": true
+  },
+  "p25Generation3": {
+    "active": true,
+    "mainCommit": "e78f9bd67528215222b3a4ce545d939d0d587db5",
+    "frozenAt": "2026-10-02T20:16:15.888200Z",
+    "minimumCompleteAfter": "2026-10-03T20:16:15.888200Z",
+    "currentGenerationValid": true,
+    "migration": "20261002172133_gomoku_p17_certification_health_isolation",
+    "semanticSchemaSha256": "d5c977fc0d74ea6745ac588fc90656dadc18ee0568c3ac248cfd7540ceb6de00",
+    "gomokuRoomVersion": 45,
+    "gomokuRoomSha256": "70e86288e735659c4f0a3c9a2608acf48305ae73afe915fefb22add8f293a2de",
+    "encryptedBackupRunId": 37040772134
   }
 }
