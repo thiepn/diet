@@ -44,7 +44,7 @@ assert.ok(defs.items.some(x=>x.id==='P34-D002'&&x.observedCount===39));
 for(const token of [
   'P34 is **staged, not active**',
   'not an external certification',
-  'Gomoku P14',
+  'gomoku_p14_audit_sequence_hardening',
   'v40',
   '39',
   '50',
