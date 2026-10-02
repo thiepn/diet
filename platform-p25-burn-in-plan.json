@@ -74,12 +74,13 @@
   },
   "completionState": {
     "complete": false,
+    "invalidated": true,
     "remaining": [
-      "generation 2 burn-in must reach at least 24 hours",
-      "at least 12 successful public samples must span the generation 2 burn-in window",
-      "the frozen shared release epoch must not change during the window",
-      "a successful encrypted P15 off-site backup after the final shared change must remain available",
-      "final privileged P18/P20/P21/P22/cron/Edge/Realtime/Auth/advisor checks must pass"
+      "wait until at least 2026-10-02T16:16:36.270Z and confirm no newer shared migration/Edge/relevant-cron change",
+      "freeze generation 3 on the then-current stable epoch",
+      "restart a fresh minimum 24-hour burn-in window",
+      "collect at least 12 successful healthy samples spanning the new window",
+      "rerun final P18/P20/P21/P22/cron/Edge/service/advisor/hazard checks"
     ]
   },
   "latestKnownPreUpgradeOffsiteBackup": {
@@ -142,5 +143,30 @@
     "minimumSuccessfulSamples": 12,
     "sampleWindowMustSpanBurnIn": true,
     "frozenEpochImpact": "none"
+  },
+  "generationState": "invalidated_epoch_changed",
+  "currentGenerationEligible": false,
+  "invalidatedAt": "2026-10-02T15:26:53.149918Z",
+  "invalidationEvidence": {
+    "reason": "shared_release_epoch_changed",
+    "previousMigrationVersion": "20261002095255",
+    "previousMigrationName": "gomoku_p16_certification_null_fix",
+    "previousSemanticSchemaSha256": "af9cc4acbed9e61bc81f48642f75b1c2e2841ebdf52a5139f14e784e509aecad",
+    "previousGomokuRoomVersion": 42,
+    "previousGomokuRoomSha256": "fc63d31db8a51b860fc45aa7148fc864f8b2622fc469e495123e9a950273687d",
+    "observedMigrationVersion": "20261002151605",
+    "observedMigrationName": "gomoku_p17_release_environments_preview_promotion",
+    "observedSemanticSchemaSha256": "2067be87d1dfe8bc042940e149d4e7894dde6defec6a7c1378b5233df566f6c2",
+    "observedGomokuRoomVersion": 43,
+    "observedGomokuRoomSha256": "147046c90c849225c9a862f5607b725adb254b919dd756d9092caa4e0fe39b3d",
+    "observedGomokuEdgeUpdatedAt": "2026-10-02T15:16:36.270Z"
+  },
+  "nextGeneration": 3,
+  "refreezePolicy": {
+    "minimumQuietMinutes": 60,
+    "quietClockStartsAfterLatestObservedSharedChange": "2026-10-02T15:16:36.270Z",
+    "earliestRefreezeAt": "2026-10-02T16:16:36.270Z",
+    "requireMigrationSchemaEdgeCronRecheck": true,
+    "requireControlsAndBackupRecheck": true
   }
 }

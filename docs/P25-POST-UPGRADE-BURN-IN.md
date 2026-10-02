@@ -2,7 +2,7 @@
 
 P25 is **active**.
 
-The hosted Supabase build upgrade itself remains historically validated. The original generation-1 burn-in was later invalidated by legitimate shared-platform application changes, so P25 has been restarted as **generation 2** against a newly frozen release epoch.
+The hosted Supabase build upgrade itself remains historically validated. P25 remains the active certification process, but **generation 2 has been invalidated by a newer shared release epoch** and is no longer eligible for certification.
 
 ## Hosted upgrade attestation
 
@@ -33,7 +33,7 @@ P25 generation 2 separates:
 1. immutable historical hosted-upgrade attestation; and
 2. the current frozen shared release epoch used for burn-in.
 
-## Generation 2 frozen epoch
+## Generation 2 frozen epoch — historical / invalidated
 
 Frozen at:
 
@@ -63,7 +63,25 @@ At freeze time there had been approximately:
 - **279 minutes** without a newer shared migration;
 - **283 minutes** without a newer Gomoku Edge deployment.
 
-The required quiet period is therefore satisfied.
+The required quiet period was satisfied when generation 2 started.
+
+## Generation 2 invalidation
+
+At **2026-10-02T15:26:53.149918Z**, the live shared platform no longer matched the generation-2 freeze:
+
+- migration: `20261002151605_gomoku_p17_release_environments_preview_promotion`
+- semantic SHA: `2067be87d1dfe8bc042940e149d4e7894dde6defec6a7c1378b5233df566f6c2`
+- `gomoku-room`: **v43**
+- Edge SHA: `147046c90c849225c9a862f5607b725adb254b919dd756d9092caa4e0fe39b3d`
+- latest observed shared change: **2026-10-02T15:16:36.270Z**
+
+This invalidates generation 2. None of its post-freeze samples may certify the P16 epoch.
+
+P25 will start **generation 3** only after the new epoch has remained unchanged for at least 60 minutes. The earliest possible refreeze based on the observed P17 change is:
+
+**2026-10-02T16:16:36.270Z**
+
+Before refreezing, migration, semantic schema, Edge inventory, relevant cron inventory, P18/P20/P21/P22 health, backup status and service health must all be rechecked.
 
 ## Backup evidence
 
@@ -122,6 +140,6 @@ Because GitHub's nominal hourly schedule was observed to deliver substantially f
 
 ## Completion
 
-Generation 2 is **not complete yet**.
+Generation 2 is **invalidated and cannot complete**.
 
-If the frozen migration, semantic schema, Edge deployment or relevant cron inventory changes before certification, this generation is invalidated and a new freeze/burn-in generation is required.
+The next valid certification attempt is generation 3, after a new ≥60-minute quiet-window freeze and a fresh minimum 24-hour burn-in with the full sample and final-control requirements.
