@@ -74,6 +74,9 @@ def main():
     expiry=dt(risk["expiresAt"])
     if observed>=expiry:
         errors.append("d001_risk_treatment_expired")
+    max_days=int(risk.get("maximumTreatmentDays",90))
+    if (expiry-observed).total_seconds()>max_days*86400:
+        errors.append("d001_risk_treatment_exceeds_maximum_remaining_days")
 
     if errors:
         out={
