@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "phase": "P36",
+  "title": "Remediation Execution Result",
+  "executedAt": "2026-10-02T14:46:08.606027Z",
+  "state": "partial_remediation_executed",
+  "productionMutationPerformed": false,
+  "p25Generation2": {
+    "active": true,
+    "mainCommit": "f722d576b483991adaa865e188cc04bea583e6a6",
+    "frozenAt": "2026-10-02T14:32:00.744993Z",
+    "minimumCompleteAfter": "2026-10-03T14:32:00.744993Z"
+  },
+  "executedDispositions": [
+    {
+      "deficiencyId": "P34-D002",
+      "result": "closed_by_documented_design",
+      "controlIds": [
+        "TH-PR-04",
+        "TH-DE-01"
+      ],
+      "rationale": "The advisor warning identifies privileged RPC exposure but does not prove authorization failure. All current authenticated-callable public SECURITY DEFINER RPCs are authenticated-only, bind to auth.uid(), and use an empty controlled search_path. The six functions without explicit RAISE paths were manually inspected and either return false/status or filter/mutate only rows bound to auth.uid().",
+      "retest": {
+        "functions": 39,
+        "anonExecutable": 0,
+        "authenticatedExecutable": 39,
+        "referencesAuthUid": 39,
+        "referencesAuthJwt": 21,
+        "controlledEmptySearchPath": 39,
+        "explicitRejectPath": 33,
+        "manuallyReviewedWithoutExplicitRaise": [
+          "claim_notes_sync_access(text)",
+          "disable_notes_sync_access()",
+          "has_notes_sync_access()",
+          "list_notes_auth_sessions()",
+          "list_thiepn_account_sessions()",
+          "notes_auth_identity_delete_status()"
+        ]
+      },
+      "regressionReopenConditions": [
+        "any authenticated-callable SECURITY DEFINER function becomes executable by anon",
+        "any such function lacks auth.uid() subject binding without an independently reviewed authorization mechanism",
+        "any such function loses controlled search_path",
+        "cross-user authorization test fails"
+      ],
+      "advisorFindingMayRemain": true
+    },
+    {
+      "deficiencyId": "P34-D003",
+      "result": "closed_by_documented_design",
+      "controlIds": [
+        "TH-PR-02",
+        "TH-DE-01"
+      ],
+      "rationale": "Current RLS-enabled/no-policy relations are intentional deny-by-default/service-only surfaces. Supabase documents that RLS with no policy denies Data API row access, and the current live retest shows no direct anon/authenticated DML privileges on the entire class.",
+      "retest": {
+        "tables": 58,
+        "anonAnyDmlGrant": 0,
+        "authenticatedAnyDmlGrant": 0,
+        "advisorLevel": "INFO"
+      },
+      "regressionReopenConditions": [
+        "a no-policy relation gains anon or authenticated SELECT/INSERT/UPDATE/DELETE privileges",
+        "a user-facing relation is added to this class without an explicit access design",
+        "a direct Data API use case requires row access but no policy exists"
+      ],
+      "advisorFindingMayRemain": true
+    },
+    {
+      "deficiencyId": "P34-D005",
+      "result": "closed_owner_resolved",
+      "controlIds": [
+        "TH-GV-02",
+        "TH-ID-01"
+      ],
+      "rationale": "Both previously unresolved relations originate in the Diet core migration. training_distribution_settings is also consumed by Diet read/write, export, recovery, lifecycle, integrity and schema-contract functions.",
+      "ownership": [
+        {
+          "resource": "public.change_log",
+          "owner": "diet",
+          "originMigration": "20260912192748_thiepn_account_diet_core"
+        },
+        {
+          "resource": "public.training_distribution_settings",
+          "owner": "diet",
+          "originMigration": "20260912192748_thiepn_account_diet_core"
+        }
+      ]
+    }
+  ],
+  "remainingDeficiencies": [
+    {
+      "id": "P34-D001",
+      "state": "open_cost_security_decision",
+      "reason": "Leaked-password protection is disabled and current Supabase docs require Pro Plan or above."
+    },
+    {
+      "id": "P34-D004",
+      "state": "open_audit_visibility_decision",
+      "reason": "Native provider audit visibility remains incomplete on the current plan/configuration."
+    },
+    {
+      "id": "P34-D006",
+      "state": "remediating",
+      "reason": "P25 generation 2 is active; stable burn-in cannot certify before 2026-10-03T14:32:00.744993Z."
+    },
+    {
+      "id": "P34-D007",
+      "state": "open_environment_cost_decision",
+      "reason": "No isolated stateful non-production Supabase environment is provisioned."
+    }
+  ],
+  "securityAdvisorExpectedState": {
+    "rlsEnabledNoPolicy": {
+      "level": "INFO",
+      "count": 58,
+      "disposition": "design_accepted_with_regression_guard"
+    },
+    "authenticatedSecurityDefinerExecutable": {
+      "level": "WARN",
+      "count": 39,
+      "disposition": "design_accepted_with_regression_guard"
+    },
+    "leakedPasswordProtection": {
+      "level": "WARN",
+      "count": 1,
+      "disposition": "open"
+    }
+  },
+  "closureModel": {
+    "advisorDisappearanceRequired": false,
+    "retestEvidenceRequired": true,
+    "regressionReopensDeficiency": true,
+    "historicalP34RecordsRemainImmutable": true
+  }
+}
