@@ -8,11 +8,11 @@ const workflow=fs.readFileSync('.github/workflows/p25-post-upgrade-burnin.yml','
 const migration=fs.readFileSync('supabase/migrations/20261001121450_platform_p24_post_upgrade_hosted_build_validation.sql','utf8');
 
 assert.equal(baseline.phase,'P25');
-assert.equal(baseline.state,'refreeze_pending');
-assert.equal(baseline.generation,2);
-assert.equal(baseline.generationState,'generation3_refreeze_pending');
-assert.equal(baseline.currentGenerationEligible,false);
-assert.equal(baseline.nextGeneration,3);
+assert.equal(baseline.state,'burn_in_active');
+assert.equal(baseline.generation,3);
+assert.equal(baseline.generationState,'burn_in_active');
+assert.equal(baseline.currentGenerationEligible,true);
+assert.equal(baseline.nextGeneration,null);
 assert.equal(baseline.invalidationEvidence.observedMigrationName,'gomoku_p17_release_environments_preview_promotion');
 assert.equal(baseline.invalidationEvidence.observedGomokuRoomVersion,43);
 assert.equal(baseline.refreezePolicy.minimumQuietMinutes,60);
@@ -22,10 +22,14 @@ assert.equal(baseline.latestPostUpgradeOffsiteBackup.sufficientForGeneration3Ref
 assert.equal(baseline.latestPostUpgradeOffsiteBackup.runId,37040772134);
 assert.equal(baseline.latestObservedEpoch.migrationVersion,'20261002172133');
 assert.equal(baseline.latestObservedEpoch.gomokuRoomVersion,45);
-assert.equal(baseline.currentEpochFreezeEvidence.migrationHead,'20261002095255_gomoku_p16_certification_null_fix');
-assert.equal(baseline.currentEpochFreezeEvidence.gomokuRoomVersion,42);
+assert.equal(baseline.currentEpochFreezeEvidence.migrationHead,'20261002172133_gomoku_p17_certification_health_isolation');
+assert.equal(baseline.currentEpochFreezeEvidence.gomokuRoomVersion,45);
 assert.equal(baseline.currentEpochFreezeEvidence.cronJobs,11);
 assert.equal(baseline.currentEpochFreezeEvidence.cronFailures24h,0);
+assert.equal(baseline.currentEpochFreezeEvidence.edgeFunctionCount,11);
+assert.equal(baseline.currentEpochFreezeEvidence.edgeFunctionsAllActive,true);
+assert.equal(baseline.currentEpochFreezeEvidence.postgres1711Hazards.applicationRegTypeColumns,0);
+assert.equal(baseline.currentEpochFreezeEvidence.postgres1711Hazards.md5LoginRoles,0);
 assert.equal(baseline.currentEpochFreezeEvidence.hostedUpgradeRegressionDetected,false);
 assert.equal(baseline.burnInRequirements.requireFrozenReleaseEpoch,true);
 assert.equal(baseline.burnInRequirements.requireNoSharedEpochChangeDuringWindow,true);
@@ -60,7 +64,7 @@ for(const token of [
   'gomoku_p17_release_environments_preview_promotion',
   'generation 3',
   'gomoku_p17_certification_health_isolation',
-  'no certifiable active burn-in generation',
+  'Generation 3 is **active but not yet certifiable**',
   'P18 remains clean',
   'P20 remains drift-free',
   'P21 remains pass',
@@ -85,8 +89,9 @@ for(const token of [
 
 assert.ok(workflow.includes("cron: '17 * * * *'"));
 assert.ok(workflow.includes("cron: '7,27,47 * * * *'"));
-assert.equal(baseline.generation2Sampling.evidenceRuleUnchanged,true);
-assert.equal(baseline.generation2Sampling.nominalTriggerOpportunitiesPerHour,4);
+assert.equal(baseline.generation3Sampling.evidenceRuleUnchanged,true);
+assert.equal(baseline.generation3Sampling.nominalTriggerOpportunitiesPerHour,4);
+assert.equal(baseline.generation3Sampling.minimumCoverageBuckets,6);
 assert.ok(workflow.includes('p25-public-burnin.py'));
 assert.ok(workflow.includes('retention-days: 30'));
 
