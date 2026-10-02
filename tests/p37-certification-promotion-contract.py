@@ -23,14 +23,14 @@ def write(path,obj):
 def read(path):
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
-assert PLAN["state"]=="staged_waiting_p25_generation3_refreeze"
+assert PLAN["state"]=="staged_waiting_p25_generation3_certification"
 assert PLAN["p25Current"]["minimumSuccessfulSamples"]==12
 assert PLAN["p25Current"]["minimumCoverageBuckets"]==6
-assert PLAN["p25Current"]["currentGenerationEligible"] is False
+assert PLAN["p25Current"]["currentGenerationEligible"] is True
 assert PLAN["governancePromotion"]["onePhaseAtATime"] is True
 assert PLAN["governancePromotion"]["allowBatchMerge"] is False
-assert P25["state"]=="refreeze_pending"
-assert P25["generationState"]=="generation3_refreeze_pending"
+assert P25["state"]=="burn_in_active"
+assert P25["generationState"]=="burn_in_active"
 assert RISK["liveEvidence"]["usersWithPasswordHash"]==0
 assert RISK["liveEvidence"]["identityProviderCounts"]=={"google":11}
 assert RISK["permanentClosure"] is False
@@ -40,9 +40,9 @@ with tempfile.TemporaryDirectory() as td:
     obs=d/"obs.json"; samples=d/"samples.json"; cert=d/"cert.json"; p25f=d/"p25.json"
 
     base_obs={
-      "observedAt":"2026-10-02T17:30:00Z",
+      "observedAt":"2026-10-02T20:30:00Z",
       "projectStatus":"ACTIVE_HEALTHY",
-      "migrationVersion":"20261002152739",
+      "migrationVersion":"20261002172133",
       "migrationName":"gomoku_p17_certification_health_isolation",
       "semanticSchemaSha256":"d5c977fc0d74ea6745ac588fc90656dadc18ee0568c3ac248cfd7540ceb6de00",
       "gomokuRoomVersion":45,
@@ -56,41 +56,26 @@ with tempfile.TemporaryDirectory() as td:
       "postgres1711HazardCount":0
     }
 
-    # Real repository state must fail: no eligible active generation exists.
+    # Real repository state is eligible but must fail before 24h and without samples.
     write(obs,base_obs);write(samples,{"samples":[]});write(p25f,P25)
     run([sys.executable,str(CERT),str(obs),str(samples),"--p25",str(p25f),"--out",str(cert)],1)
     blocked=read(cert)
     assert blocked["decision"]=="blocked"
-    assert "p25_no_eligible_active_generation" in blocked["errors"]
+    assert "minimum_24h_not_reached" in blocked["errors"]
+    assert "insufficient_successful_samples" in blocked["errors"]
+    assert "p25_no_eligible_active_generation" not in blocked["errors"]
 
-    # Model a future valid generation 3 without changing repository state.
     active=json.loads(json.dumps(P25))
-    active["state"]="burn_in_active"
-    active["generation"]=3
-    active["generationState"]="burn_in_active"
-    active["currentGenerationEligible"]=True
-    active["activatedAt"]="2026-10-02T18:30:00Z"
-    active["minimumCompleteAfter"]="2026-10-03T18:30:00Z"
-    active["currentEpochFreezeEvidence"]={
-      "frozenAt":"2026-10-02T18:30:00Z",
-      "migrationVersion":"20261002152739",
-      "migrationName":"gomoku_p17_certification_health_isolation",
-      "migrationHead":"20261002152739_gomoku_p17_certification_health_isolation",
-      "semanticSchemaSha256":"d5c977fc0d74ea6745ac588fc90656dadc18ee0568c3ac248cfd7540ceb6de00",
-      "gomokuRoomVersion":45,
-      "gomokuRoomSha256":"70e86288e735659c4f0a3c9a2608acf48305ae73afe915fefb22add8f293a2de",
-      "cronJobs":11
-    }
     write(p25f,active)
 
-    start=datetime.fromisoformat("2026-10-02T18:30:00+00:00")
+    start=datetime.fromisoformat(P25["activatedAt"].replace("Z","+00:00"))
     offsets=[0.5,2.5,4.5,6.5,8.5,10.5,12.5,14.5,16.5,18.5,20.5,24.3]
     rows=[]
     for i,h in enumerate(offsets):
         t=start+timedelta(hours=h)
         rows.append({"timestamp":t.isoformat().replace("+00:00","Z"),"status":"success","healthy":True,"runId":1000+i})
 
-    good_obs=dict(base_obs);good_obs["observedAt"]="2026-10-03T19:00:00Z"
+    good_obs=dict(base_obs);good_obs["observedAt"]="2026-10-03T20:40:00Z"
     write(obs,good_obs);write(samples,{"samples":rows})
     run([sys.executable,str(CERT),str(obs),str(samples),"--p25",str(p25f),"--out",str(cert)])
     good_cert=read(cert)
@@ -105,7 +90,7 @@ with tempfile.TemporaryDirectory() as td:
     for i in range(12):
         t=start+timedelta(hours=20,minutes=10*i)
         clustered.append({"timestamp":t.isoformat().replace("+00:00","Z"),"status":"success","healthy":True})
-    clustered[-1]["timestamp"]="2026-10-03T18:50:00Z"
+    clustered[-1]["timestamp"]="2026-10-03T20:20:00Z"
     write(samples,{"samples":clustered})
     run([sys.executable,str(CERT),str(obs),str(samples),"--p25",str(p25f),"--out",str(cert)],1)
     assert any(x.startswith("missing_4h_coverage_buckets:") for x in read(cert)["errors"])
@@ -161,7 +146,7 @@ with tempfile.TemporaryDirectory() as td:
     promotion=d/"promotion-receipts.json";write(promotion,{"receipts":receipts})
     gov=d/"governance.json"
     governance={
-      "observedAt":"2026-10-03T20:00:00Z",
+      "observedAt":"2026-10-03T21:00:00Z",
       "p32Mode":"warn","p33CanonicalEvidenceActive":True,
       "controlCatalogFrozen":True,"controlCatalogVersion":"2026-10-02.1",
       "evidenceCollectionDryRunPass":True,"criticalOpenDeficiencies":0,
@@ -175,7 +160,7 @@ with tempfile.TemporaryDirectory() as td:
     l=read(launch)
     assert l["decision"]=="launched"
     assert l["oeState"]=="active"
-    assert l["periodStart"]=="2026-10-03T20:00:00Z"
+    assert l["periodStart"]=="2026-10-03T21:00:00Z"
     assert l["activationIsRetroactive"] is False
 
     badgov=dict(governance);badgov["usersWithPasswordHash"]=1
