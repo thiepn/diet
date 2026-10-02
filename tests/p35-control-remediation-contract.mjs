@@ -46,7 +46,7 @@ for(const token of [
   'Pro Plan',
   '30-day',
   '90-day',
-  'operating effectiveness',
+  'Operating-effectiveness evidence period',
   'dry-run',
   'not an external attestation'
 ]) assert.ok(doc.includes(token),'P35 doc missing '+token);
