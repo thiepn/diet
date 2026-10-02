@@ -58,7 +58,7 @@ def main():
         if obs.get(k)!=v:
             errors.append("bad_"+k)
 
-    if int(obs.get("activeCronJobs",-1))!=int(frozen["cronJobs"]):
+    if int(obs.get("activeCronJobs",-1))!=int(expected["cronJobs"]):
         errors.append("active_cron_inventory_mismatch")
     if int(obs.get("cronFailures24h",0))!=0:
         errors.append("cron_failures_present")
