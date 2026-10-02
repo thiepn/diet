@@ -8,14 +8,17 @@ const workflow=fs.readFileSync('.github/workflows/p25-post-upgrade-burnin.yml','
 const migration=fs.readFileSync('supabase/migrations/20261001121450_platform_p24_post_upgrade_hosted_build_validation.sql','utf8');
 
 assert.equal(baseline.phase,'P25');
-assert.equal(baseline.state,'burn_in_active');
+assert.equal(baseline.state,'refreeze_pending');
 assert.equal(baseline.generation,2);
-assert.equal(baseline.generationState,'invalidated_epoch_changed');
+assert.equal(baseline.generationState,'generation3_refreeze_pending');
 assert.equal(baseline.currentGenerationEligible,false);
 assert.equal(baseline.nextGeneration,3);
 assert.equal(baseline.invalidationEvidence.observedMigrationName,'gomoku_p17_release_environments_preview_promotion');
 assert.equal(baseline.invalidationEvidence.observedGomokuRoomVersion,43);
 assert.equal(baseline.refreezePolicy.minimumQuietMinutes,60);
+assert.equal(baseline.latestObservedEpoch.migrationName,'gomoku_p17_certification_health_isolation');
+assert.equal(baseline.latestObservedEpoch.gomokuRoomVersion,45);
+assert.equal(baseline.latestPostUpgradeOffsiteBackup.sufficientForGeneration3Refreeze,false);
 assert.equal(baseline.currentEpochFreezeEvidence.migrationHead,'20261002095255_gomoku_p16_certification_null_fix');
 assert.equal(baseline.currentEpochFreezeEvidence.gomokuRoomVersion,42);
 assert.equal(baseline.currentEpochFreezeEvidence.cronJobs,11);
@@ -53,6 +56,8 @@ for(const token of [
   'gomoku_p16_certification_null_fix',
   'gomoku_p17_release_environments_preview_promotion',
   'generation 3',
+  'gomoku_p17_certification_health_isolation',
+  'no certifiable active burn-in generation',
   'P18 remains clean',
   'P20 remains drift-free',
   'P21 remains pass',

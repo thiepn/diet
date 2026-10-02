@@ -2,7 +2,7 @@
   "schemaVersion": 3,
   "phase": "P25",
   "title": "Post-Upgrade Burn-In, Stability & Shared-Platform Production Certification",
-  "state": "burn_in_active",
+  "state": "refreeze_pending",
   "activatedAt": "2026-10-02T14:32:00.744993Z",
   "minimumCompleteAfter": "2026-10-03T14:32:00.744993Z",
   "activationEvidence": {
@@ -76,7 +76,8 @@
     "complete": false,
     "invalidated": true,
     "remaining": [
-      "wait until at least 2026-10-02T16:16:36.270Z and confirm no newer shared migration/Edge/relevant-cron change",
+      "wait until at least 2026-10-02T18:21:44.278Z and confirm no newer shared migration/Edge/relevant-cron change",
+      "obtain or verify a successful encrypted P15 off-site backup after the final shared change",
       "freeze generation 3 on the then-current stable epoch",
       "restart a fresh minimum 24-hour burn-in window",
       "collect at least 12 successful healthy samples spanning the new window",
@@ -91,11 +92,13 @@
   },
   "latestPostUpgradeOffsiteBackup": {
     "workflow": "P15 Encrypted Offsite Backup",
-    "runId": 36995722053,
+    "runId": 37027527911,
     "conclusion": "success",
-    "createdAt": "2026-10-02T10:29:08Z",
-    "head": "49c4583a0e6e5a3a4432fd3229d3b4b9fce9e8ac",
-    "afterFrozenEpochLastSharedChange": true
+    "createdAt": "2026-10-02T15:31:03Z",
+    "head": "306f214be1eb3c6833e82973b1313bd3713bf555",
+    "afterLatestDatabaseMigration": true,
+    "afterLatestEdgeDeployment": false,
+    "sufficientForGeneration3Refreeze": false
   },
   "generation": 2,
   "initialActivatedAt": "2026-10-01T12:14:50.879365Z",
@@ -144,7 +147,7 @@
     "sampleWindowMustSpanBurnIn": true,
     "frozenEpochImpact": "none"
   },
-  "generationState": "invalidated_epoch_changed",
+  "generationState": "generation3_refreeze_pending",
   "currentGenerationEligible": false,
   "invalidatedAt": "2026-10-02T15:26:53.149918Z",
   "invalidationEvidence": {
@@ -164,9 +167,20 @@
   "nextGeneration": 3,
   "refreezePolicy": {
     "minimumQuietMinutes": 60,
-    "quietClockStartsAfterLatestObservedSharedChange": "2026-10-02T15:16:36.270Z",
-    "earliestRefreezeAt": "2026-10-02T16:16:36.270Z",
+    "quietClockStartsAfterLatestObservedSharedChange": "2026-10-02T17:21:44.278Z",
+    "earliestRefreezeAt": "2026-10-02T18:21:44.278Z",
     "requireMigrationSchemaEdgeCronRecheck": true,
-    "requireControlsAndBackupRecheck": true
+    "requireControlsAndBackupRecheck": true,
+    "requirePostFinalChangeEncryptedBackup": true
+  },
+  "latestObservedEpoch": {
+    "observedAt": "2026-10-02T17:21:44.278Z",
+    "migrationVersion": "20261002152739",
+    "migrationName": "gomoku_p17_certification_health_isolation",
+    "semanticSchemaSha256": "d5c977fc0d74ea6745ac588fc90656dadc18ee0568c3ac248cfd7540ceb6de00",
+    "gomokuRoomVersion": 45,
+    "gomokuRoomSha256": "70e86288e735659c4f0a3c9a2608acf48305ae73afe915fefb22add8f293a2de",
+    "gomokuRoomUpdatedAt": "2026-10-02T17:21:44.278Z",
+    "earliestRefreezeAt": "2026-10-02T18:21:44.278Z"
   }
 }
