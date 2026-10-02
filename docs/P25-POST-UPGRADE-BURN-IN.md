@@ -163,4 +163,8 @@ The new earliest possible generation-3 refreeze is:
 
 Generation 3 may start only if the epoch is still unchanged then and all activation checks are repeated.
 
-Encrypted backup run **37027527911** succeeded at **2026-10-02T15:31:03Z** after the latest database migration, but before the v45 Edge deployment. P25 therefore still requires a successful encrypted backup after the final shared change before generation 3 is activated.
+The final P17 database head is now `20261002172133_gomoku_p17_certification_health_isolation`. The semantic SHA remains `d5c977fc0d74ea6745ac588fc90656dadc18ee0568c3ac248cfd7540ceb6de00`, and `gomoku-room` remains v45.
+
+Encrypted backup run **37040772134** succeeded at **2026-10-02T17:26:57Z**, after both the final P17 migration head and the v45 Edge deployment. The generation-3 backup prerequisite is therefore satisfied.
+
+The remaining pre-freeze blocker is the quiet-window deadline: generation 3 still cannot freeze before **2026-10-02T18:21:44.278Z**, and the epoch plus current controls must be rechecked at that time.
