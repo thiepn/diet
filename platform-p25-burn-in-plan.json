@@ -1,10 +1,10 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "phase": "P25",
   "title": "Post-Upgrade Burn-In, Stability & Shared-Platform Production Certification",
   "state": "burn_in_active",
-  "activatedAt": "2026-10-01T12:14:50.879365Z",
-  "minimumCompleteAfter": "2026-10-02T12:14:50.879365Z",
+  "activatedAt": "2026-10-02T14:32:00.744993Z",
+  "minimumCompleteAfter": "2026-10-03T14:32:00.744993Z",
   "activationEvidence": {
     "p24PostUpgradeValidation": "pass",
     "managedHostedBuildBefore": "17.6.1.127",
@@ -66,14 +66,19 @@
     "requireCrossAppSmokeMatrix": true,
     "requireEdgeInventoryRevalidated": true,
     "requireAdvisorsReviewed": true,
-    "requirePostgres1711HazardsRechecked": true
+    "requirePostgres1711HazardsRechecked": true,
+    "requireFrozenReleaseEpoch": true,
+    "requireNoSharedEpochChangeDuringWindow": true,
+    "requireHistoricalHostedUpgradeAttestationPass": true,
+    "requireCurrentP24ValidatorPass": false
   },
   "completionState": {
     "complete": false,
     "remaining": [
-      "burn-in must reach at least 24 hours",
-      "at least 12 successful public samples must span the burn-in window",
-      "first encrypted P15 off-site backup after the hosted upgrade must succeed",
+      "generation 2 burn-in must reach at least 24 hours",
+      "at least 12 successful public samples must span the generation 2 burn-in window",
+      "the frozen shared release epoch must not change during the window",
+      "a successful encrypted P15 off-site backup after the final shared change must remain available",
       "final privileged P18/P20/P21/P22/cron/Edge/Realtime/Auth/advisor checks must pass"
     ]
   },
@@ -83,5 +88,46 @@
     "conclusion": "success",
     "head": "5b51cd35b8050054d25da4443b8875b0fc9d4f82"
   },
-  "latestPostUpgradeOffsiteBackup": null
+  "latestPostUpgradeOffsiteBackup": {
+    "workflow": "P15 Encrypted Offsite Backup",
+    "runId": 36995722053,
+    "conclusion": "success",
+    "createdAt": "2026-10-02T10:29:08Z",
+    "head": "49c4583a0e6e5a3a4432fd3229d3b4b9fce9e8ac",
+    "afterFrozenEpochLastSharedChange": true
+  },
+  "generation": 2,
+  "initialActivatedAt": "2026-10-01T12:14:50.879365Z",
+  "restartReason": "Generation 1 burn-in was invalidated by legitimate cross-app shared-platform changes after the hosted upgrade. Generation 2 freezes the current shared release epoch after >60 minutes without a migration or Gomoku Edge deployment.",
+  "historicalHostedUpgradeAttestation": {
+    "status": "pass",
+    "observedAt": "2026-10-01T12:14:50.879365Z",
+    "managedHostedBuildBefore": "17.6.1.127",
+    "managedHostedBuildAfter": "17.6.1.164",
+    "semanticSchemaSha256": "c6a7b8788a3798e3fe119007e55f7d1b5796ece574a27dd10abeb600179a9918",
+    "note": "Historical upgrade attestation is immutable. The legacy P24 validator now reports schema/application-surface mismatch because the shared application evolved after upgrade; that mismatch is not evidence of hosted-upgrade failure."
+  },
+  "currentEpochFreezeEvidence": {
+    "frozenAt": "2026-10-02T14:32:00.744993Z",
+    "projectStatus": "ACTIVE_HEALTHY",
+    "migrationHead": "20261002095255_gomoku_p16_certification_null_fix",
+    "migrationQuietMinutesAtFreeze": 279,
+    "semanticSchemaSha256": "af9cc4acbed9e61bc81f48642f75b1c2e2841ebdf52a5139f14e784e509aecad",
+    "gomokuRoomVersion": 42,
+    "gomokuRoomSha256": "fc63d31db8a51b860fc45aa7148fc864f8b2622fc469e495123e9a950273687d",
+    "gomokuEdgeUpdatedAt": "2026-10-02T09:48:13.062Z",
+    "edgeQuietMinutesAtFreeze": 283,
+    "cronJobs": 11,
+    "activeCronJobs": 11,
+    "cronRuns24h": 4042,
+    "cronFailures24h": 0,
+    "blockingReplicationSlots": 0,
+    "p18Integrity": "clean",
+    "p20SchemaDrift": false,
+    "p21Readiness": "pass",
+    "p22Maintenance": "pass",
+    "legacyP24ValidatorStatus": "fail",
+    "legacyP24ValidatorFailureClass": "expected_application_evolution_after_upgrade",
+    "hostedUpgradeRegressionDetected": false
+  }
 }
