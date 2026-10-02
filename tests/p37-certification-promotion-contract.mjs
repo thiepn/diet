@@ -4,6 +4,7 @@ import fs from 'node:fs';
 const plan=JSON.parse(fs.readFileSync('platform-p37-certification-promotion-launch-plan.json','utf8'));
 const manifest=JSON.parse(fs.readFileSync('contracts/p37-governance-promotion-manifest.json','utf8'));
 const risk=JSON.parse(fs.readFileSync('platform-p37-d001-risk-treatment.json','utf8'));
+const target=JSON.parse(fs.readFileSync('platform-p37-governance-activation-target.json','utf8'));
 const p25=JSON.parse(fs.readFileSync('platform-p25-burn-in-plan.json','utf8'));
 const freeze=JSON.parse(fs.readFileSync('platform-p36-stable-epoch-freeze.json','utf8'));
 const doc=fs.readFileSync('docs/P37-BURNIN-PROMOTION-OE-LAUNCH.md','utf8');
@@ -31,6 +32,13 @@ assert.equal(risk.liveEvidence.usersWithPasswordHash,0);
 assert.deepEqual(risk.liveEvidence.identityProviderCounts,{google:11});
 assert.equal(risk.permanentClosure,false);
 assert.equal(risk.paidPlanUpgradeAuthorized,false);
+
+assert.equal(target.phase,'P37');
+assert.equal(target.targetState.p32Mode,'warn');
+assert.equal(target.targetState.p33CanonicalEvidenceActive,true);
+assert.equal(target.targetState.controlCatalogFrozen,true);
+assert.equal(target.deficiencyStateAtLaunch['P34-D006'],'closed_by_generation2_stability_certification');
+assert.equal(target.launchInvariant.activationIsRetroactive,false);
 
 assert.equal(p25.generation,2);
 assert.equal(p25.generation2Sampling.nominalTriggerOpportunitiesPerHour,4);
