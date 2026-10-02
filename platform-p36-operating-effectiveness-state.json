@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "phase": "P36",
+  "title": "Operating Effectiveness Activation State",
+  "state": "armed_waiting_p25_generation2",
+  "active": false,
+  "activationIsRetroactive": false,
+  "p35InternalDryRunMinimumDays": 30,
+  "plannedExternalReadinessTargetDays": 90,
+  "activationGates": {
+    "p25Generation2Certified": false,
+    "frozenEpochStillMatches": true,
+    "p25MinimumTimeReached": false,
+    "p25MinimumSamplesReached": false,
+    "noCriticalOpenDeficiencies": true,
+    "highDeficienciesDispositionedOrRemediating": true,
+    "p32ModeAtLeastWarnOrEnforce": false,
+    "p33CanonicalEvidenceProcessActive": false,
+    "controlCatalogFrozenForPeriod": false,
+    "evidenceCollectionDryRunPass": true
+  },
+  "blockers": [
+    "P25 generation 2 cannot certify before 2026-10-03T14:32:00.744993Z",
+    "P25 requires at least 12 successful public samples spanning the frozen window",
+    "P32 remains staged shadow mode until its dependency chain activates",
+    "P33 remains staged and cannot yet be the canonical active evidence process",
+    "the P34/P35 control catalog cannot be frozen for the formal period before upstream activation"
+  ],
+  "activationRule": "Start the OE period only after all gates pass. Do not backdate the period to the epoch freeze or P25 burn-in start.",
+  "plannedPeriod": {
+    "periodId": "p36-oe-001",
+    "periodStart": null,
+    "periodEnd": null,
+    "targetInternalDryRunDays": 30,
+    "targetExternalReadinessDays": 90
+  },
+  "onActivation": [
+    "freeze control catalog version",
+    "record P33 ledger activation event",
+    "start daily/per-change/weekly/monthly P35 evidence journal",
+    "capture first Security Advisor and fleet-state evidence",
+    "record active deficiency population",
+    "begin 30-calendar-day internal OE clock"
+  ]
+}
