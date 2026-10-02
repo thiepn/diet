@@ -16,6 +16,8 @@ assert.equal(plan.activeOperationsRelease,'P25.0');
 assert.equal(plan.p25Current.minimumSuccessfulSamples,12);
 assert.equal(plan.p25Current.minimumCoverageBuckets,6);
 assert.equal(plan.p25Current.currentGenerationEligible,false);
+assert.equal(plan.p25Current.postFinalChangeEncryptedBackupAvailable,true);
+assert.equal(plan.p25Current.postFinalChangeEncryptedBackupRunId,37040772134);
 assert.equal(plan.governancePromotion.onePhaseAtATime,true);
 assert.equal(plan.governancePromotion.allowBatchMerge,false);
 assert.equal(plan.oeLaunch.startIsRetroactive,false);
