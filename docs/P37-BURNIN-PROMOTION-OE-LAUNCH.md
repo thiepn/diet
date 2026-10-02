@@ -6,11 +6,11 @@ P37 is the first phase allowed to convert the long P26–P36 governance stack fr
 
 ## Current production state
 
-P25 remains the active operations release, but generation 2 is invalid and **generation 3 is refreeze pending**.
+P25 remains the active operations release and **generation 3 is active**.
 
 The latest observed shared epoch is:
 
-- migration: `20261002152739_gomoku_p17_certification_health_isolation`
+- migration: `20261002172133_gomoku_p17_certification_health_isolation`
 - semantic schema SHA: `d5c977fc0d74ea6745ac588fc90656dadc18ee0568c3ac248cfd7540ceb6de00`
 - `gomoku-room`: **v45**
 - Edge SHA: `70e86288e735659c4f0a3c9a2608acf48305ae73afe915fefb22add8f293a2de`
@@ -20,13 +20,17 @@ The latest observed shared epoch is:
 
 The generation-2 P16 freeze is invalid historical evidence only.
 
-Generation 3 is **refreeze pending**. The current earliest possible refreeze is:
+Generation 3 activated at:
 
-`2026-10-02T18:21:44.278Z`
+`2026-10-02T20:16:15.888200Z`
 
-Encrypted P15 backup run **37040772134** succeeded at **2026-10-02T17:26:57Z**, after the final recorded P17 migration and the v45 Edge deployment. The post-final-change backup gate is therefore satisfied.
+Earliest certification:
 
-Generation 3 may start only if the epoch is still unchanged after the quiet-window deadline and the current control/service checks pass. Until then there is no eligible active P25 burn-in generation and therefore no qualifying sample population to certify.
+`2026-10-03T20:16:15.888200Z`
+
+Encrypted P15 backup run **37040772134** succeeded at **2026-10-02T17:26:57Z**, after the final P17 database and v45 Edge changes. The post-final-change backup gate is satisfied.
+
+The current blocker is no longer refreeze readiness. Generation 3 must survive the full 24-hour frozen window and collect at least 12 healthy samples spanning all six 4-hour coverage buckets, including a terminal sample at or after the minimum boundary.
 
 ## Sampling reliability correction
 
@@ -46,11 +50,11 @@ This changes only evidence-collection opportunity density. It does not change:
 - the requirement for at least 12 successful samples;
 - the required evidence span.
 
-P26–P36 were resynchronized again after generation 2 invalidation, and P37's promotion manifest now points at those current synchronized heads.
+P26–P36 were resynchronized again after generation-3 activation, and P37's promotion manifest points at those current synchronized heads.
 
 ## Burn-in certification
 
-`scripts/p37-certify-burnin.py` will certify only the **current eligible P25 burn-in generation**. It explicitly rejects `refreeze_pending`, invalidated, or otherwise ineligible generations.
+`scripts/p37-certify-burnin.py` will certify only the **current eligible P25 burn-in generation**. It explicitly rejects invalidated or otherwise ineligible generations and will not certify generation 3 before its minimum boundary.
 
 In addition to at least 12 successful healthy P25 samples, P37 requires **six 4-hour coverage buckets** across the first 24 hours and a terminal successful sample at or after the 24-hour boundary.
 
@@ -178,8 +182,8 @@ Its start timestamp is the final successful governance activation observation af
 
 ## Current P37 state
 
-P37 remains `staged_waiting_p25_generation3_refreeze`.
+P37 remains `staged_waiting_p25_generation3_certification`.
 
 Nothing in the staged P37 branch changes production, RLS, database functions, Auth settings, billing, Edge Functions, cron or Supabase infrastructure.
 
-The next execution checkpoint is a valid generation-3 refreeze after the latest shared epoch has remained quiet for at least 60 minutes and a post-final-change encrypted backup is available. Only after that new freeze does the fresh 24-hour certification window begin.
+The next execution checkpoint is generation-3 certification after `2026-10-03T20:16:15.888200Z`, provided the frozen epoch remains unchanged and the sample, service, advisor and final-control gates all pass.
