@@ -2,73 +2,100 @@
 
 P25 is **active**.
 
-The hosted Supabase upgrade completed and P24 post-upgrade validation passed at **2026-10-01 12:14:50 UTC**. The minimum 24-hour burn-in therefore cannot complete before **2026-10-02 12:14:50 UTC**.
+The hosted Supabase build upgrade itself remains historically validated. The original generation-1 burn-in was later invalidated by legitimate shared-platform application changes, so P25 has been restarted as **generation 2** against a newly frozen release epoch.
 
-## What actually upgraded
+## Hosted upgrade attestation
 
-The managed Dashboard operation moved the project from Supabase database build **17.6.1.127** to **17.6.1.164** and changed the reported release channel from **ga** to **preview**. PostgreSQL itself still reports **17.6** (`170006`).
+Historical hosted-upgrade evidence remains unchanged:
 
-This is treated as the completed **hosted Supabase build upgrade**. PostgreSQL **17.11** remains a separate compatibility/security baseline and is **not** falsely recorded as the server version.
+- managed build: **17.6.1.127 → 17.6.1.164**
+- release channel: **ga → preview**
+- PostgreSQL server: **17.6** (`170006`)
+- original post-upgrade semantic SHA: `c6a7b8788a3798e3fe119007e55f7d1b5796ece574a27dd10abeb600179a9918`
+- semantic format: `platform-p23-shared-schema-v2`
+- P18 remains clean
+- P20 remains drift-free
+- P21 remains pass
+- P22 remains pass
 
-Supabase's current upgrade documentation describes "Upgrade project" as moving a project to a new Supabase instance and running `pg_upgrade`; the actual hosted target is whatever build Supabase offers for that project.
+PostgreSQL 17.11 remains a separate compatibility/security baseline and is not recorded as the running server version.
 
-## P24 validation result
+## Why generation 1 was restarted
 
-The authoritative post-upgrade validator is now:
+After the hosted upgrade, Gomoku and other shared surfaces continued evolving. That legitimately changed the shared semantic schema, Edge inventory, cron inventory and application-surface counts.
 
-`private.platform_p24_post_upgrade_validation()`
+The legacy `private.platform_p24_post_upgrade_validation()` therefore now reports a schema/application-surface mismatch against the immutable post-upgrade snapshot.
 
-It currently reports **pass**.
+That mismatch is expected application evolution. It is **not** treated as evidence that the hosted upgrade failed.
 
-Validated evidence:
+P25 generation 2 separates:
 
-- project status: ACTIVE_HEALTHY
-- hosted build: 17.6.1.127 → 17.6.1.164
-- database restart: 2026-10-01 07:54:44 UTC
-- semantic schema fingerprint: `c6a7b8788a3798e3fe119007e55f7d1b5796ece574a27dd10abeb600179a9918`
-- fingerprint format: `platform-p23-shared-schema-v2`
-- application surface counts match pre-upgrade
-- P18 integrity: clean
-- P20 schema drift: false
-- P21 readiness: pass
-- P22 maintenance: pass
-- cron: 8/8 active, zero failures in the post-upgrade check
-- blocking replication slots: zero
-- Auth requests succeeded after restart
-- Realtime health returned HTTP 200 after restart
-- PostgREST traffic succeeded after restart
-- Storage traffic exists after restart
-- all Edge Functions are ACTIVE
-- read-only smoke checks passed across Account, Diet, Notes, TMS60, WTTN, Wordstrike, Gomoku, Leaderboard, Micro Arcade and Canvas
+1. immutable historical hosted-upgrade attestation; and
+2. the current frozen shared release epoch used for burn-in.
 
-## Fingerprint repair
+## Generation 2 frozen epoch
 
-The old P23 fingerprint serialized RLS policy role arrays as raw PostgreSQL role OIDs. A hosted instance rebuild can legitimately assign new OIDs even when policy semantics are unchanged, producing false schema drift.
+Frozen at:
 
-P25/P24 now use `platform-p23-shared-schema-v2`, which hashes **role names instead of internal OIDs**.
+**2026-10-02T14:32:00.744993Z**
 
-## Burn-in window
+Earliest possible completion:
 
-Start: **2026-10-01T12:14:50.879365Z**
+**2026-10-03T14:32:00.744993Z**
 
-Earliest completion: **2026-10-02T12:14:50.879365Z**
+Current epoch:
 
-Requirements:
+- project: `ACTIVE_HEALTHY`
+- migration: `20261002095255_gomoku_p16_certification_null_fix`
+- semantic SHA: `af9cc4acbed9e61bc81f48642f75b1c2e2841ebdf52a5139f14e784e509aecad`
+- `gomoku-room`: **v42**
+- Edge SHA: `fc63d31db8a51b860fc45aa7148fc864f8b2622fc469e495123e9a950273687d`
+- cron: **11/11 active**
+- cron runs in the preceding 24h: **4042 succeeded / 0 failed**
+- blocking replication slots: **0**
+- P18: clean
+- P20: drift false
+- P21: pass
+- P22: pass
 
-- at least 24 hours elapsed;
-- at least 12 successful hourly public samples spanning the window;
-- first post-upgrade encrypted P15 off-site backup succeeds;
+At freeze time there had been approximately:
+
+- **279 minutes** without a newer shared migration;
+- **283 minutes** without a newer Gomoku Edge deployment.
+
+The required quiet period is therefore satisfied.
+
+## Backup evidence
+
+Latest encrypted P15 off-site backup:
+
+- workflow: `P15 Encrypted Offsite Backup`
+- run: **36995722053**
+- created: **2026-10-02T10:29:08Z**
+- conclusion: **success**
+
+This backup occurred after the final P16 shared migration/Edge deployment and before the epoch freeze.
+
+## Burn-in requirements
+
+Generation 2 requires a minimum 24-hour burn-in plus:
+
+- at least 12 successful public samples spanning the window;
+- no shared migration/Edge/cron epoch change during the window;
 - no unresolved functional outage;
 - no sustained material latency regression;
-- no new unexplained cron failures;
+- zero new unexplained cron failures;
 - P18 remains clean;
 - P20 remains drift-free;
 - P21 remains pass;
 - P22 remains pass;
 - Auth, Realtime, PostgREST, Storage and required Edge Functions remain healthy;
-- cross-app smoke matrix remains good;
-- advisors are reviewed again at closure;
-- PostgreSQL 17.11 hazard checks remain clean even though the hosted server is still 17.6.
+- cross-app smoke checks remain good;
+- advisors are reviewed at closure;
+- PostgreSQL 17.11 hazards remain separately reviewed;
+- the successful post-final-change encrypted backup remains available.
+
+A current `platform_p24_post_upgrade_validation()` pass is **not** required for generation 2 because that function compares current application surfaces with the immutable upgrade-era snapshot. The historical hosted-upgrade attestation must remain valid.
 
 ## Performance baseline
 
@@ -81,7 +108,7 @@ Individual health checks fail at 4000 ms. A single warning does not fail P25; su
 
 ## Hourly evidence
 
-`.github/workflows/p25-post-upgrade-burnin.yml` runs hourly on `main` and records:
+`.github/workflows/p25-post-upgrade-burnin.yml` continues to run on `main` and records the minimum 24-hour burn-in evidence:
 
 - Diet production shell reachability;
 - Auth health;
@@ -93,4 +120,6 @@ Artifacts are retained for 30 days.
 
 ## Completion
 
-P25 is **not complete yet**. It will close only after the full minimum window and all final checks pass.
+Generation 2 is **not complete yet**.
+
+If the frozen migration, semantic schema, Edge deployment or relevant cron inventory changes before certification, this generation is invalidated and a new freeze/burn-in generation is required.
