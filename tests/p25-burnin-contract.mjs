@@ -9,6 +9,15 @@ const migration=fs.readFileSync('supabase/migrations/20261001121450_platform_p24
 
 assert.equal(baseline.phase,'P25');
 assert.equal(baseline.state,'burn_in_active');
+assert.equal(baseline.generation,2);
+assert.equal(baseline.currentEpochFreezeEvidence.migrationHead,'20261002095255_gomoku_p16_certification_null_fix');
+assert.equal(baseline.currentEpochFreezeEvidence.gomokuRoomVersion,42);
+assert.equal(baseline.currentEpochFreezeEvidence.cronJobs,11);
+assert.equal(baseline.currentEpochFreezeEvidence.cronFailures24h,0);
+assert.equal(baseline.currentEpochFreezeEvidence.hostedUpgradeRegressionDetected,false);
+assert.equal(baseline.burnInRequirements.requireFrozenReleaseEpoch,true);
+assert.equal(baseline.burnInRequirements.requireNoSharedEpochChangeDuringWindow,true);
+assert.equal(baseline.burnInRequirements.requireCurrentP24ValidatorPass,false);
 assert.equal(baseline.activationEvidence.p24PostUpgradeValidation,'pass');
 assert.equal(baseline.activationEvidence.managedHostedBuildBefore,'17.6.1.127');
 assert.equal(baseline.activationEvidence.managedHostedBuildAfter,'17.6.1.164');
@@ -30,10 +39,12 @@ assert.equal(baseline.preUpgradeHealthBaseline.allSamplesHealthy,true);
 
 for(const token of [
   'P25 is **active**',
+  'generation 2',
   'minimum 24-hour burn-in',
   '17.6.1.127',
   '17.6.1.164',
   'platform-p23-shared-schema-v2',
+  'gomoku_p16_certification_null_fix',
   'P18 remains clean',
   'P20 remains drift-free',
   'P21 remains pass',
