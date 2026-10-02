@@ -610,7 +610,7 @@
   },
   "post_upgrade_burn_in_policy": {
     "release": "P25",
-    "state": "burn_in_active",
+    "state": "refreeze_pending",
     "started_at": "2026-10-01T12:14:50.879365Z",
     "minimum_complete_after": "2026-10-02T12:14:50.879365Z",
     "minimum_hours": 24,
@@ -639,6 +639,28 @@
       "edge_realtime_auth_healthy",
       "advisors_reviewed",
       "no_sustained_latency_regression"
+    ],
+    "current_generation": null,
+    "last_generation": 2,
+    "last_generation_state": "invalidated_epoch_changed",
+    "next_generation": 3,
+    "latest_observed_migration": "20261002152739_gomoku_p17_certification_health_isolation",
+    "latest_observed_schema_sha256": "d5c977fc0d74ea6745ac588fc90656dadc18ee0568c3ac248cfd7540ceb6de00",
+    "latest_observed_gomoku_edge_version": 45,
+    "latest_observed_gomoku_edge_sha256": "70e86288e735659c4f0a3c9a2608acf48305ae73afe915fefb22add8f293a2de",
+    "latest_observed_gomoku_edge_updated_at": "2026-10-02T17:21:44.278Z",
+    "earliest_refreeze_at": "2026-10-02T18:21:44.278Z",
+    "minimum_quiet_minutes": 60,
+    "latest_backup_run": 37027527911,
+    "latest_backup_after_final_shared_change": false,
+    "generation3_activation_requires": [
+      "60_minute_quiet_window_after_latest_shared_change",
+      "migration_schema_edge_cron_identity_recheck",
+      "p18_clean",
+      "p20_no_schema_drift",
+      "p21_pass",
+      "p22_pass",
+      "successful_encrypted_backup_after_final_shared_change"
     ]
   }
 }
