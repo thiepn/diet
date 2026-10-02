@@ -81,7 +81,7 @@
       "phase": "P36",
       "prNumber": 28,
       "branch": "p36-remediation-freeze-oe-activation",
-      "expectedHeadSha": "b748045f8ca4535eca54399cc6f105c3f2076b69"
+      "expectedHeadSha": "8240c485cb28fef8867ce7607e666e7162d2feb3"
     }
   ]
 }
