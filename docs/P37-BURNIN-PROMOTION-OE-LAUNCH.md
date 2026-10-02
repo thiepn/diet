@@ -131,7 +131,7 @@ The treatment is fail-closed. It reopens immediately if:
 - Supabase makes the protection available on the current plan and it remains disabled without review;
 - a password-auth/credential-stuffing incident occurs.
 
-The planned treatment expires no later than `2026-12-31T23:59:59Z`.
+The planned treatment expires no later than `2026-12-31T15:00:00Z`.
 
 It is not permanent closure and it does not authorize a paid-plan upgrade.
 
