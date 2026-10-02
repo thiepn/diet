@@ -92,11 +92,11 @@ jobs:
           if(backend.platform_upgrade_execution_policy?.upgrade_executed!==true||backend.platform_upgrade_execution_policy?.manual_dashboard_action_required!==false)throw new Error('P24 completion metadata invalid.');
           if(app.pendingOperationsPhase!=='P25'||app.platformUpgradeExecutionState!=='completed_managed_hosted_upgrade_validated')throw new Error('P25 activation metadata invalid.');
           if(backend.platform_upgrade_execution_policy?.execution_state!==app.platformUpgradeExecutionState)throw new Error('P24 execution metadata mismatch.');
-          if(backend.post_upgrade_burn_in_policy?.release!=='P25'||backend.post_upgrade_burn_in_policy?.state!=='burn_in_active')throw new Error('P25 burn-in is not active.');
-          if(app.health?.p25BurnInActive!==true||app.health?.sharedPlatformPostUpgradeValidation!=='pass')throw new Error('P25 health metadata invalid.');
+          if(backend.post_upgrade_burn_in_policy?.release!=='P25'||backend.post_upgrade_burn_in_policy?.state!=='refreeze_pending')throw new Error('P25 refreeze-pending state invalid.');
+          if(app.health?.p25BurnInActive!==false||app.health?.p25CurrentGenerationValid!==false||app.health?.p25BurnInGenerationState!=='generation3_refreeze_pending'||app.health?.sharedPlatformPostUpgradeValidation!=='pass')throw new Error('P25 between-generation health metadata invalid.');
           if(backend.post_upgrade_burn_in_policy?.semantic_schema_sha256!==app.health.sharedPlatformSchemaSha256)throw new Error('P25 semantic schema metadata mismatch.');
           if(release.consumerRelease!==app.webRelease)throw new Error('Account consumer release mismatch.');
-          console.log('Diet Copilot Web 2.0.3 / P24 validated + P25 active burn-in contract passed.');
+          console.log('Diet Copilot Web 2.0.3 / P24 validated + P25 generation-3 refreeze-pending contract passed.');
           NODE
 
       - name: Build actual GitHub Pages artifact
