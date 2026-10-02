@@ -24,7 +24,9 @@ Generation 3 is **refreeze pending**. The current earliest possible refreeze is:
 
 `2026-10-02T18:21:44.278Z`
 
-It may start only if the epoch is unchanged at that point and a successful encrypted backup exists after the final shared change. Until then there is no eligible active P25 burn-in generation and therefore no qualifying sample population to certify.
+Encrypted P15 backup run **37040772134** succeeded at **2026-10-02T17:26:57Z**, after the final recorded P17 migration and the v45 Edge deployment. The post-final-change backup gate is therefore satisfied.
+
+Generation 3 may start only if the epoch is still unchanged after the quiet-window deadline and the current control/service checks pass. Until then there is no eligible active P25 burn-in generation and therefore no qualifying sample population to certify.
 
 ## Sampling reliability correction
 
