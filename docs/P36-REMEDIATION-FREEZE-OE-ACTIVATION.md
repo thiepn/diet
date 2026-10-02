@@ -4,13 +4,13 @@ P36 is **staged, not active**.
 
 The important difference from P26–P35 is that one prerequisite has now been executed outside the future stack:
 
-**P25 remains the active operations phase on main, but generation 2 is invalid and no certifiable burn-in generation is active.**
+**P25 generation 3 is active on main, while the invalid generation-2 freeze remains historical evidence only.**
 
-Main commit: `f722d576b483991adaa865e188cc04bea583e6a6`.
+Generation-3 activation commit: `e78f9bd67528215222b3a4ce545d939d0d587db5`.
 
 P36 itself remains downstream of P35 and does not skip that dependency chain.
 
-## 1. Historical freeze invalidated; generation 3 pending
+## 1. Historical generation-2 freeze invalidated; generation 3 is active
 
 The current shared epoch was frozen at `2026-10-02T14:32:00.744993Z`.
 
@@ -35,7 +35,16 @@ The latest observed shared epoch is now:
 - `gomoku-room`: **v45**
 - Edge SHA: `70e86288e735659c4f0a3c9a2608acf48305ae73afe915fefb22add8f293a2de`
 
-Generation 3 is refreeze-pending. The current earliest refreeze is `2026-10-02T18:21:44.278Z`, subject to a fresh quiet-window, control, and backup recheck.
+P25 **generation 3 is active** with the replacement freeze:
+
+- migration: `20261002172133_gomoku_p17_certification_health_isolation`
+- semantic SHA: `d5c977fc0d74ea6745ac588fc90656dadc18ee0568c3ac248cfd7540ceb6de00`
+- `gomoku-room`: **v45**
+- activation: `2026-10-02T20:16:15.888200Z`
+- earliest certification: `2026-10-03T20:16:15.888200Z`
+- post-final-change encrypted backup: run **37040772134**
+
+The archived generation-2 freeze remains invalid and is not used by the activation evaluator.
 
 ## 2. Remediation execution
 
@@ -64,7 +73,7 @@ Result: **closed by documented design**, with a grant regression guard.
 
 P36's latest live retest finds:
 
-- **58** RLS-enabled/no-policy public relations;
+- **64** RLS-enabled/no-policy public relations;
 - **0** with direct `anon` SELECT/INSERT/UPDATE/DELETE privileges;
 - **0** with direct `authenticated` SELECT/INSERT/UPDATE/DELETE privileges.
 
@@ -86,7 +95,7 @@ Four remain:
 
 - **P34-D001** — leaked-password protection / Pro-plan security-cost decision;
 - **P34-D004** — provider-native audit visibility decision;
-- **P34-D006** — remediating while P25 waits for generation-3 refreeze and a fresh 24-hour burn-in;
+- **P34-D006** — remediating through the active generation-3 24-hour burn-in;
 - **P34-D007** — isolated stateful non-production environment / cost decision.
 
 No production Auth/billing/logging/environment change is performed by P36 staging.
@@ -95,13 +104,13 @@ No production Auth/billing/logging/environment change is performed by P36 stagin
 
 `private.platform_p24_post_upgrade_validation()` currently reports fail because it compares today's evolved application schema with the immutable upgrade-era application-surface snapshot.
 
-Its underlying current controls still report P18 clean, P20 drift false, P21 pass, P22 pass, 11/11 cron active, 4042 successful cron executions and 0 failures in the observed 24h window, and zero blocking replication slots.
+Its underlying current controls still report P18 clean, P20 drift false, P21 pass, P22 pass, 11/11 cron active, 4349 successful cron executions and 0 failures in the activation 24h observation window, and zero blocking replication slots.
 
-P36 does not rewrite the historical P24 evidence. The hosted upgrade remains historically attested as successful. P25 will use the next eligible active generation freeze for stability certification; the archived P16 freeze is no longer an activation source.
+P36 does not rewrite the historical P24 evidence. The hosted upgrade remains historically attested as successful. P25 now uses the eligible generation-3 freeze for stability certification; the archived P16 freeze is no longer an activation source.
 
 ## 4. Operating-effectiveness activation
 
-OE is currently `armed_waiting_new_stable_epoch`. It is **not active**.
+OE is currently `armed_waiting_p25_generation3_certification`. It is **not active**.
 
 The activation engine requires all of the following:
 
@@ -116,7 +125,7 @@ The activation engine requires all of the following:
 9. the evidence-collection dry-run passes;
 10. no critical deficiency is open and high deficiencies are remediated or formally dispositioned.
 
-Those gates cannot pass while P25 is `refreeze_pending`; P32/P33 also remain staged.
+Those gates cannot pass yet because generation 3 has not reached its minimum 24-hour certification boundary and P32/P33 remain staged.
 
 ## No retroactive evidence clock
 
@@ -134,7 +143,7 @@ No DDL or DML is part of the P36 remediation evidence query.
 
 ## Production boundary
 
-P36 has executed the safe repository/control-state actions: the invalidated generation-2 freeze is preserved as historical evidence, future branches follow the current P25 refreeze-pending state, and evidence-based design/ownership dispositions remain recorded.
+P36 has executed the safe repository/control-state actions: the invalidated generation-2 freeze is preserved as historical evidence, future branches follow the active P25 generation-3 state, and evidence-based design/ownership dispositions remain recorded.
 
 P36 has **not** upgraded Supabase, enabled paid Auth features, changed RLS, changed function grants, changed database functions, created a branch environment, changed logging, or started the OE period early.
 
@@ -142,4 +151,4 @@ P36 has **not** upgraded Supabase, enabled paid Auth features, changed RLS, chan
 
 P36 remains `staged_pending_p35`.
 
-The next meaningful live milestone is a valid generation-3 freeze after the latest shared epoch has remained quiet for at least 60 minutes and a post-final-change encrypted backup is available.
+The next meaningful live milestone is P25 generation-3 certification after `2026-10-03T20:16:15.888200Z`, provided the frozen epoch remains unchanged and the spanning sample/final-control gates pass.
