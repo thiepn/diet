@@ -18,8 +18,9 @@ def main():
     errors=[]
     start=ts(period["periodStart"]); end=ts(period["periodEnd"])
     duration=(end-start).total_seconds()/86400
+    calendar_days=(end.date()-start.date()).days+1
     min_days=plan["evidencePeriod"]["internalDryRunMinimumDays"]
-    if duration < min_days: errors.append("evidence_period_too_short")
+    if calendar_days < min_days: errors.append("evidence_period_too_short")
     period_id=period["periodId"]
     records=[]
     for i,line in enumerate(Path(args.journal).read_text(encoding="utf-8").splitlines(),1):
@@ -49,7 +50,7 @@ def main():
     daily_controls=plan["evidenceCadence"]["daily"]["requiredControls"]
     threshold=plan["evidenceCadence"]["daily"]["minimumSuccessfulDaysPct"]/100
     max_missed=plan["evidenceCadence"]["daily"]["maximumConsecutiveMissedDays"]
-    day_count=int(math.floor(duration))+1
+    day_count=calendar_days
     dates=[(start.date()+timedelta(days=i)).isoformat() for i in range(day_count)]
     pass_days=defaultdict(set)
     for r in records:
@@ -91,7 +92,7 @@ def main():
     out={
       "schemaVersion":1,"phase":"P35","periodId":period_id,
       "status":"pass" if not errors else "fail",
-      "durationDays":round(duration,4),"records":len(records),
+      "durationDays":round(duration,4),"calendarDays":calendar_days,"records":len(records),
       "expectedChanges":len(expected_changes),"failedRecords":len(failures),
       "externalCertificationClaim":False,"errors":errors
     }
