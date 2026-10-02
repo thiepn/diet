@@ -129,5 +129,18 @@
     "legacyP24ValidatorStatus": "fail",
     "legacyP24ValidatorFailureClass": "expected_application_evolution_after_upgrade",
     "hostedUpgradeRegressionDetected": false
+  },
+  "generation2Sampling": {
+    "reason": "Observed GitHub scheduled-workflow delivery was substantially sparser than nominal hourly cadence. Increase trigger opportunities without changing probe semantics or frozen production epoch.",
+    "workflow": ".github/workflows/p25-post-upgrade-burnin.yml",
+    "cron": [
+      "17 * * * *",
+      "7,27,47 * * * *"
+    ],
+    "nominalTriggerOpportunitiesPerHour": 4,
+    "evidenceRuleUnchanged": true,
+    "minimumSuccessfulSamples": 12,
+    "sampleWindowMustSpanBurnIn": true,
+    "frozenEpochImpact": "none"
   }
 }

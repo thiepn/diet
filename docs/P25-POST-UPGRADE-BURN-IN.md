@@ -118,6 +118,8 @@ Individual health checks fail at 4000 ms. A single warning does not fail P25; su
 
 Artifacts are retained for 30 days.
 
+Because GitHub's nominal hourly schedule was observed to deliver substantially fewer runs than requested, generation 2 keeps the original `17 * * * *` trigger and adds `7,27,47 * * * *`. This changes only sampling opportunity density; the ≥12-successful-samples and full-window evidence rules are unchanged.
+
 ## Completion
 
 Generation 2 is **not complete yet**.
