@@ -29,6 +29,7 @@ def main():
     rows={x.get("phase"):x for x in state.get("phases") or []}
     merged=[]
     candidate=None
+    last_post=state.get("promotionStartMainSha")
 
     for item in expected:
         phase=item["phase"]
@@ -47,9 +48,13 @@ def main():
             break
 
         if row.get("merged") is True:
-            if not row.get("mergeCommitSha") or not row.get("postMergeMainSha"):
+            if not row.get("preMergeMainSha") or not row.get("mergeCommitSha") or not row.get("postMergeMainSha"):
                 errors.append("missing_merge_receipt:"+phase)
                 break
+            if last_post is not None and row.get("preMergeMainSha")!=last_post:
+                errors.append("merge_receipt_chain_break:"+phase)
+                break
+            last_post=row.get("postMergeMainSha")
             merged.append(phase)
             continue
 
@@ -85,6 +90,8 @@ def main():
             cerrors.append("candidate_not_mergeable")
         if row.get("syncedToMainSha")!=state.get("currentMainSha"):
             cerrors.append("candidate_not_synced_to_current_main")
+        if merged and state.get("currentMainSha")!=last_post:
+            cerrors.append("current_main_does_not_match_last_receipt")
         if not all_checks_success(row):
             cerrors.append("candidate_checks_not_all_success")
         if row.get("draft") is not True and row.get("readyForMerge") is not True:
