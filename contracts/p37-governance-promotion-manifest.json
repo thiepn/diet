@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "phase": "P37",
+  "title": "Governance Stack Promotion Manifest",
+  "policy": {
+    "certificationRequired": "P25_generation_2_certified",
+    "orderStrict": true,
+    "oneOpenCandidateAtATime": true,
+    "mergeMethod": "squash",
+    "freshCIPerCandidate": true,
+    "nextBranchMustBeSyncedToPostMergeMain": true,
+    "exactExpectedHeadRequired": true,
+    "draftMustBeMarkedReadyImmediatelyBeforeMerge": true,
+    "postMergeReceiptRequired": true,
+    "batchMergeForbidden": true,
+    "abortOnEpochChange": true,
+    "abortOnFailedOrMissingCheck": true
+  },
+  "phases": [
+    {
+      "phase": "P26",
+      "prNumber": 17,
+      "branch": "p26-steady-state-optimization",
+      "expectedHeadSha": "c7baf716f49740978c604f83454da00ae115604b"
+    },
+    {
+      "phase": "P27",
+      "prNumber": 18,
+      "branch": "p27-capacity-slo-autonomous-ops",
+      "expectedHeadSha": "caaa3000e3fc7d90104a1094bfdbf953ef8965c8"
+    },
+    {
+      "phase": "P28",
+      "prNumber": 19,
+      "branch": "p28-lifecycle-cost-multiapp-governance",
+      "expectedHeadSha": "94a6323fa14b1540f81fbf64134a5aa1c5248b84"
+    },
+    {
+      "phase": "P29",
+      "prNumber": 20,
+      "branch": "p29-release-orchestration",
+      "expectedHeadSha": "23616f412c01f2a74b27594b2e10d0c4c45cdaf3"
+    },
+    {
+      "phase": "P30",
+      "prNumber": 21,
+      "branch": "p30-release-trains-promotion",
+      "expectedHeadSha": "c331144bf936c2fdd10a5c263991abe324b61282"
+    },
+    {
+      "phase": "P31",
+      "prNumber": 22,
+      "branch": "p31-control-plane-release-registry",
+      "expectedHeadSha": "60b9fd09f508c982cb04e44b43f2fa97ca616e0c"
+    },
+    {
+      "phase": "P32",
+      "prNumber": 23,
+      "branch": "p32-policy-as-code-admission",
+      "expectedHeadSha": "86d190441f4c33de8ce7db047be718f643ed48d7"
+    },
+    {
+      "phase": "P33",
+      "prNumber": 24,
+      "branch": "p33-compliance-evidence-provenance",
+      "expectedHeadSha": "4536fafcd2ffb1f05278d5a0eeac82ce44220a8d"
+    },
+    {
+      "phase": "P34",
+      "prNumber": 25,
+      "branch": "p34-security-control-assurance",
+      "expectedHeadSha": "6363a26b5b34498440bd923a2d8141562c91fb69"
+    },
+    {
+      "phase": "P35",
+      "prNumber": 26,
+      "branch": "p35-control-remediation-oe-dryrun",
+      "expectedHeadSha": "2b47ed697f804716b8799617b4fd0e75ac5510b7"
+    },
+    {
+      "phase": "P36",
+      "prNumber": 28,
+      "branch": "p36-remediation-freeze-oe-activation",
+      "expectedHeadSha": "689cf7e01b2dc727de72b30d33246d2c15a3ddcf"
+    }
+  ]
+}
