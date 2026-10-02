@@ -11,11 +11,11 @@ const doc=fs.readFileSync('docs/P37-BURNIN-PROMOTION-OE-LAUNCH.md','utf8');
 const workflow=fs.readFileSync('.github/workflows/p37-certification-promotion-staging.yml','utf8');
 
 assert.equal(plan.phase,'P37');
-assert.equal(plan.state,'staged_waiting_p25_generation3_refreeze');
+assert.equal(plan.state,'staged_waiting_p25_generation3_certification');
 assert.equal(plan.activeOperationsRelease,'P25.0');
 assert.equal(plan.p25Current.minimumSuccessfulSamples,12);
 assert.equal(plan.p25Current.minimumCoverageBuckets,6);
-assert.equal(plan.p25Current.currentGenerationEligible,false);
+assert.equal(plan.p25Current.currentGenerationEligible,true);
 assert.equal(plan.p25Current.postFinalChangeEncryptedBackupAvailable,true);
 assert.equal(plan.p25Current.postFinalChangeEncryptedBackupRunId,37040772134);
 assert.equal(plan.governancePromotion.onePhaseAtATime,true);
@@ -43,17 +43,18 @@ assert.equal(target.targetState.controlCatalogFrozen,true);
 assert.equal(target.deficiencyStateAtLaunch['P34-D006'],'closed_by_current_active_generation_stability_certification');
 assert.equal(target.launchInvariant.activationIsRetroactive,false);
 
-assert.equal(p25.state,'refreeze_pending');
-assert.equal(p25.generationState,'generation3_refreeze_pending');
-assert.equal(p25.currentGenerationEligible,false);
-assert.equal(p25.nextGeneration,3);
-assert.equal(p25.generation2Sampling.nominalTriggerOpportunitiesPerHour,4);
+assert.equal(p25.state,'burn_in_active');
+assert.equal(p25.generationState,'burn_in_active');
+assert.equal(p25.currentGenerationEligible,true);
+assert.equal(p25.generation,3);
+assert.equal(p25.nextGeneration,null);
+assert.equal(p25.generation3Sampling.nominalTriggerOpportunitiesPerHour,4);
 assert.equal(freeze.state,'invalidated_by_shared_epoch_change');
 
 for(const token of [
   'P37 is **staged, not active**',
   'generation 3',
-  'refreeze pending',
+  'generation 3 is **active**',
   'gomoku_p17_certification_health_isolation',
   'v45',
   'six 4-hour coverage buckets',
