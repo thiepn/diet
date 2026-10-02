@@ -56,6 +56,15 @@ def main():
         candidate=(item,row)
         break
 
+    if not errors and candidate is not None:
+        candidate_index=next(i for i,x in enumerate(expected) if x["phase"]==candidate[0]["phase"])
+        later_merged=[
+          x["phase"] for x in expected[candidate_index+1:]
+          if (rows.get(x["phase"]) or {}).get("merged") is True
+        ]
+        if later_merged:
+            errors.append("out_of_order_merged:"+",".join(later_merged))
+
     if not errors and candidate is None and len(merged)==len(expected):
         decision={
           "schemaVersion":1,"phase":"P37","decision":"stack_complete",
