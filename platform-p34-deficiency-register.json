@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "phase": "P34",
+  "snapshotAt": "2026-10-02T06:10:53.901Z",
+  "items": [
+    {
+      "id": "P34-D001",
+      "title": "Leaked password protection disabled",
+      "controlIds": [
+        "TH-PR-01",
+        "TH-DE-01"
+      ],
+      "severity": "high",
+      "state": "open",
+      "owner": "account",
+      "source": "Supabase Security Advisor / auth_leaked_password_protection",
+      "observedCount": 1,
+      "requiredClosureEvidence": [
+        "configuration decision",
+        "post-change Security Advisor retest",
+        "P32/P30/P31 governed change evidence if enabled"
+      ],
+      "automaticRemediation": false
+    },
+    {
+      "id": "P34-D002",
+      "title": "Authenticated-callable SECURITY DEFINER functions require disposition",
+      "controlIds": [
+        "TH-PR-04",
+        "TH-DE-01"
+      ],
+      "severity": "high",
+      "state": "open",
+      "owner": "platform",
+      "source": "Supabase Security Advisor / authenticated_security_definer_function_executable",
+      "observedCount": 39,
+      "requiredClosureEvidence": [
+        "function inventory",
+        "callable-role classification",
+        "internal authorization review",
+        "remediation/justification",
+        "Security Advisor retest"
+      ],
+      "automaticRemediation": false
+    },
+    {
+      "id": "P34-D003",
+      "title": "RLS enabled with no policy findings require exposure classification",
+      "controlIds": [
+        "TH-PR-02",
+        "TH-DE-01"
+      ],
+      "severity": "medium",
+      "state": "open",
+      "owner": "platform",
+      "source": "Supabase Security Advisor / rls_enabled_no_policy",
+      "observedCount": 50,
+      "requiredClosureEvidence": [
+        "table classification",
+        "Data API/grant exposure evidence",
+        "intended access model",
+        "policy/remediation where applicable",
+        "Security Advisor retest"
+      ],
+      "automaticRemediation": false
+    },
+    {
+      "id": "P34-D004",
+      "title": "Native audit visibility is incomplete on current configuration/plan",
+      "controlIds": [
+        "TH-DE-02",
+        "TH-GV-04"
+      ],
+      "severity": "medium",
+      "state": "open",
+      "owner": "platform",
+      "source": "P33 audit capability snapshot",
+      "observedCount": null,
+      "requiredClosureEvidence": [
+        "documented audit evidence requirements",
+        "provider capability decision",
+        "logging/plan decision if needed",
+        "privacy/retention design"
+      ],
+      "automaticRemediation": false
+    },
+    {
+      "id": "P34-D005",
+      "title": "Resource ownership governance remains unresolved",
+      "controlIds": [
+        "TH-GV-02",
+        "TH-ID-01"
+      ],
+      "severity": "high",
+      "state": "open",
+      "owner": "platform",
+      "source": "P28/P31 governance registry",
+      "observedCount": 2,
+      "requiredClosureEvidence": [
+        "public.change_log ownership/disposition",
+        "training_distribution_settings ownership confirmation",
+        "updated registry validation"
+      ],
+      "automaticRemediation": false
+    },
+    {
+      "id": "P34-D006",
+      "title": "Stable operating-effectiveness window not yet established",
+      "controlIds": [
+        "TH-RC-02",
+        "TH-DE-03",
+        "TH-GV-01"
+      ],
+      "severity": "high",
+      "state": "open",
+      "owner": "platform",
+      "source": "P25/P29-P34 release-epoch observations",
+      "observedCount": null,
+      "requiredClosureEvidence": [
+        "shared epoch stable",
+        "replacement P25 burn-in completed",
+        "P26/P27 baseline evidence",
+        "defined operating-effectiveness observation period"
+      ],
+      "automaticRemediation": false
+    },
+    {
+      "id": "P34-D007",
+      "title": "Stateful non-production integration environment not available",
+      "controlIds": [
+        "TH-GV-01",
+        "TH-ID-02",
+        "TH-PR-05"
+      ],
+      "severity": "medium",
+      "state": "open",
+      "owner": "platform",
+      "source": "P30 environment contract",
+      "observedCount": 0,
+      "requiredClosureEvidence": [
+        "approved environment strategy",
+        "healthy isolated environment for stateful shared release or auditor-accepted equivalent evidence"
+      ],
+      "automaticRemediation": false
+    }
+  ],
+  "closurePolicy": {
+    "closureRequiresRetest": true,
+    "closureRequiresEvidenceHashes": true,
+    "acceptedTemporarilyRequiresExpiry": true,
+    "acceptedTemporarilyMaximumDays": 90,
+    "criticalCannotBeRiskAcceptedWithoutExplicitExecutiveDecision": true,
+    "historicalItemsNeverDeleted": true
+  }
+}
