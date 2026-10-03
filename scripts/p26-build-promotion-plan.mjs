@@ -51,7 +51,7 @@ const p25=JSON.parse(fs.readFileSync(p25Path,'utf8'));
 const p26=JSON.parse(fs.readFileSync(p26Path,'utf8'));
 const observationHours=p26.baselinePolicy?.authoritativeObservationHours || 72;
 const activeAt=checkedAt.toISOString();
-const earliestBaselineCompleteAt=new Date(checkedAt.getTime()+observationHours*3600000).toISOString();
+const earliestAuthoritativeBaselineCompleteAt=new Date(checkedAt.getTime()+observationHours*3600000).toISOString();
 
 const promotion={
   schemaVersion:1,
