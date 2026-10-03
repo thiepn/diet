@@ -38,7 +38,10 @@ assert.ok(plan.baselinePolicy.authoritativeObservationHours>=72);
 assert.ok(plan.baselinePolicy.unusedIndexMinimumObservationDays>=7);
 assert.equal(plan.baselinePolicy.publicSampling.cadenceHours,4);
 assert.equal(plan.baselinePolicy.publicSampling.minimumObservationHours,72);
-assert.ok(plan.baselinePolicy.publicSampling.minimumScheduledSamples>=18);
+assert.ok(plan.baselinePolicy.publicSampling.minimumScheduledSamples>=19);
+assert.equal(plan.baselinePolicy.publicSampling.authoritativePhaseState,'active_observation');
+assert.equal(plan.baselinePolicy.publicSampling.authoritativeOperationsRelease,'P26.0');
+assert.equal(plan.baselinePolicy.publicSampling.qualifierRequiresExactPhaseIdentity,true);
 assert.equal(plan.baselinePolicy.publicSampling.scheduledRunsRequireActivationReady,true);
 assert.equal(plan.optimizationGuardrails.noDatabaseDdlBeforeP25Completion,true);
 assert.equal(plan.optimizationGuardrails.noIndexDropsFromFreshlyResetStats,true);
@@ -128,6 +131,49 @@ for(const required of [
 
 assert.ok(publicProbe.includes('platform-p26-steady-state-plan.json'));
 assert.ok(publicProbe.includes('"state":plan.get("state","unknown")'));
+assert.ok(publicProbe.includes('"activeOperationsRelease":plan.get("activeOperationsRelease")'));
+
+const sampleDir='p26-public-samples.test';
+const summaryOut='p26-public-baseline-summary.test.json';
+try {
+  fs.mkdirSync(sampleDir,{recursive:true});
+  const start=Date.parse('2026-10-04T00:00:00Z');
+  for(let i=0;i<19;i++){
+    const checkedAt=new Date(start+i*4*60*60*1000).toISOString().replace('.000Z','Z');
+    const sample={
+      schemaVersion:1,
+      phase:'P26',
+      state:'active_observation',
+      activeOperationsRelease:'P26.0',
+      checkedAt,
+      passed:true,
+      performanceWarning:false,
+      thresholds:{authInternalWarningMs:1422,databaseInternalWarningMs:2100},
+      checks:[
+        {name:'diet_shell',passed:true,status:200,endToEndLatencyMs:100+i},
+        {name:'auth_health',passed:true,status:200,endToEndLatencyMs:80+i},
+        {name:'platform_health',passed:true,status:200,platformStatus:'healthy',endToEndLatencyMs:150+i,authLatencyMs:300+i,databaseLatencyMs:500+i}
+      ]
+    };
+    fs.writeFileSync(`${sampleDir}/p26-public-steady-state-${String(i).padStart(2,'0')}.json`,JSON.stringify(sample));
+  }
+  execFileSync('python',[
+    'scripts/p26-summarize-public-samples.py',
+    sampleDir,
+    '--out',summaryOut
+  ],{stdio:'pipe'});
+  const summary=JSON.parse(fs.readFileSync(summaryOut,'utf8'));
+  assert.equal(summary.qualification.qualified,true);
+  assert.equal(summary.qualification.sampleCountMet,true);
+  assert.equal(summary.qualification.spanMet,true);
+  assert.equal(summary.qualification.requiredPhaseStateMet,true);
+  assert.equal(summary.qualification.requiredOperationsReleaseMet,true);
+  assert.equal(summary.window.sampleCount,19);
+  assert.equal(summary.window.spanHours,72);
+} finally {
+  fs.rmSync(sampleDir,{recursive:true,force:true});
+  fs.rmSync(summaryOut,{force:true});
+}
 
 const triageOut='p26-optimization-triage.test.json';
 try {
