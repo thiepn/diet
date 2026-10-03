@@ -12,18 +12,20 @@ P26 deliberately avoids “cleaning up” every advisor finding. After a Postgre
 
 P26 may activate only after:
 
-- P25 is certified complete;
-- at least 24 hours of P25 burn-in have elapsed;
-- at least 12 successful P25 samples span that window;
-- the first post-upgrade encrypted P15 backup succeeded;
-- P24 remains pass;
+- P25 generation 3 is formally certified complete;
+- at least 24 hours of generation-3 burn-in have elapsed;
+- at least 12 successful healthy samples span the full window, cover all six 4-hour buckets, and include a terminal sample after the minimum completion time;
+- the frozen migration/schema/Edge/relevant-cron epoch remains unchanged;
+- the historical hosted-upgrade attestation remains pass;
+- the encrypted P15 backup taken after the final shared database/Edge change remains successful;
 - P18 is clean;
 - P20 drift is false;
 - P21 readiness is pass;
 - P22 maintenance is pass;
+- Security and Performance Advisor closure review is complete;
 - the final baseline capture occurs after at least 60 minutes without a shared database migration or Edge deployment.
 
-The repository must remain at operations release **P25.0** until this gate is satisfied.
+Generation 3 activated at **2026-10-02 20:16:15 UTC**. Its earliest possible certification is **2026-10-03 20:16:15 UTC**. The repository must remain at operations release **P25.0** until the full gate is satisfied. The legacy live P24 validator is not used as a current-schema gate because legitimate shared-application evolution occurred after the hosted upgrade; the immutable historical hosted-upgrade attestation is the correct prerequisite.
 
 ## Provisional post-upgrade baseline
 
@@ -54,6 +56,28 @@ Application-facing role means:
 
 Operator/admin traffic is measured separately and must not be used to claim application regressions.
 
+## Live provisional refresh — 2026-10-03 08:09 UTC
+
+A second read-only capture shows the database continuing to warm and improve while P25 remains active:
+
+| Signal | Refreshed value | Interpretation |
+| --- | ---: | --- |
+| Overall DB cache hit | 99.9657% | Healthy |
+| Table block hit | 99.7695% | Healthy |
+| Index block hit | 99.6943% | Healthy |
+| Active / idle / other connections | 1 / 10 / 1 | Low pressure |
+| Waiting locks | 0 | Healthy |
+| Deadlocks / conflicts | 0 / 0 | Healthy |
+| pg_stat_statements calls | 160,516 | Much larger observation set |
+| Weighted mean execution | 1.199 ms | Improved from the first provisional capture |
+| Repeated statements >100 ms mean with >=10 calls | 1 | Classified below |
+
+Application-facing role means at this refresh were: authenticator **16.290 ms** over 2,322 calls, authenticated **5.753 ms** over 181 calls, service_role **0.265 ms** over 103,855 calls, and anon **0.122 ms** over 309 calls.
+
+The one repeated slow statement is `SELECT name FROM pg_timezone_names`: 45 calls, 672.400 ms mean, 1,231.413 ms max. No reference to `pg_timezone_names` exists in the Diet Copilot repository, so P26 classifies it as platform/introspection traffic unless later evidence correlates it with a user-facing workflow. It is not grounds for application-schema DDL.
+
+Temporary I/O has grown to about **11.15 GB** since the statistics reset. The largest currently visible temp-block consumers are operator/baseline queries, so P26 still does not infer application memory pressure from the aggregate counter. No `work_mem`, compute, or pool tuning is justified from this signal alone.
+
 ## Service baseline
 
 Structured Edge logs since the restart show:
@@ -70,14 +94,14 @@ PostgREST emitted 19 timeout-manager messages, but no corresponding user-facing 
 
 ## Advisor findings
 
-The current Performance Advisor reports two unindexed foreign keys:
+The 2026-10-03 Performance Advisor snapshot reports **21 unindexed foreign keys**: 19 on newer Gomoku shared-platform tables and the two earlier Micro Arcade findings:
 
 - `public.micro_arcade_best_scores(player_id)`
 - `public.micro_arcade_lb_reviews(run_id)`
 
-These are candidates, not automatic changes. Both are currently small surfaces; P26 will measure join/delete/update behavior before deciding whether covering indexes improve real workload.
+These are candidates, not automatic changes. The largest currently observed candidate table is only 147,456 bytes. `micro_arcade_best_scores` has 8 live rows and 49,152 total bytes; `micro_arcade_lb_reviews` has 5 live rows and 32,768 total bytes. P26 will measure actual delete/update/join behavior before deciding whether covering indexes improve a real workload.
 
-The advisor also reports 71 unused indexes. **No unused index may be dropped from this evidence.** PostgreSQL usage statistics reset during the hosted upgrade, and none of the currently zero-scan indexes is at least 1 MiB. Index-removal analysis requires at least seven days of post-reset observations and explicit review of uniqueness, constraints, authorization paths, cron paths, and rare operational queries.
+The advisor now reports **108 unused indexes** as the shared platform has expanded. PostgreSQL statistics show 467 user indexes total, 342 with zero scans, but **zero** zero-scan indexes are at least 1 MiB. **No unused index may be dropped from this evidence.** Statistics reset during the hosted upgrade and the shared-platform schema has continued to evolve. Index-removal analysis still requires at least seven days of post-reset observations plus explicit review of uniqueness, constraints, authorization paths, cron paths, and rare operational queries.
 
 ## Temp I/O
 
