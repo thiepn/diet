@@ -80,17 +80,19 @@ Temporary I/O has grown to about **11.15 GB** since the statistics reset. The la
 
 ## Service baseline
 
-Structured Edge logs since the restart show:
+The initial post-upgrade capture showed zero user-facing 5xx and established the first provisional latency reference. A refreshed 24-hour log window at 2026-10-03 08:09 UTC now shows:
 
 | Surface | Requests | 5xx | p50 origin | p95 origin | max |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Auth routes | 38 | 0 | 162 ms | 541 ms | 911 ms |
-| REST routes | 1,022 | 0 | 151 ms | 450 ms | 1,639 ms |
-| Other routed traffic | 107 | 0 | 24 ms | 312 ms | 848 ms |
+| REST routes | 23,359 | 0 | 120 ms | 326 ms | 4,264 ms |
+| Auth routes | 303 | 0 | 150 ms | 619 ms | 3,242 ms |
+| Realtime broadcast | 1,959 | 0 | 21 ms | 82 ms | 18,978 ms |
 
-Auth service request-completion logs show p50 **7.993 ms**, p95 **287.445 ms**, max **307.043 ms**, with zero 5xx in the captured window.
+REST p95 improved from the first provisional **450 ms** sample to **326 ms**. Auth gateway p95 is **619 ms**, still below the existing P25 warning threshold of **1,422 ms**. Realtime broadcast is tracked separately because its request shape can legitimately produce much longer origin times than ordinary REST/Auth calls.
 
-PostgREST emitted 19 timeout-manager messages, but no corresponding user-facing Edge 5xx were observed. P26 treats this as a watch signal: investigate only if it correlates with failed requests, elevated p95, or a reproducible user workflow failure.
+Auth service request-completion logs in the same 24-hour window show **245** completed requests, p50 **1.053 ms**, p95 **58.045 ms**, max **312.087 ms**, and zero 5xx.
+
+PostgREST emitted **170** timeout-manager messages in the 24-hour log window, up from the initial provisional 19-message sample, while Edge still showed **0 Auth/REST 5xx**. This remains a watch signal rather than a tuning trigger: it becomes actionable only if it correlates with failed requests, sustained p95 regression, or a reproducible user workflow failure.
 
 ## Advisor findings
 
