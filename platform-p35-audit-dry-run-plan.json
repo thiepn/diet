@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 2,
+  "phase": "P35",
+  "title": "Internal Audit Dry-Run Plan",
+  "state": "engine_implemented_period_not_started",
+  "purpose": "Simulate evidence request, sampling, population reconciliation and narrative consistency before external auditor engagement.",
+  "dryRunMeaning": "A simulation pass proves the P35 evidence machinery can produce a self-consistent package from a complete simulated population. It does not prove real operating effectiveness and is not an external attestation.",
+  "actualOperatingDryRunMeaning": "After a real authorized evidence period, the same engine can assess the actual period. External audit readiness still requires P34 gates and auditor-defined scope.",
+  "requiredSections": [
+    "scope_and_system_boundary",
+    "control_catalog",
+    "owner_matrix",
+    "risk_and_deficiency_register",
+    "change_population_and_samples",
+    "access_control_samples",
+    "security_advisor_dispositions",
+    "incident_response_sample_or_drill",
+    "backup_restore_sample",
+    "exceptions_population",
+    "vendor_shared_responsibility",
+    "operating_effectiveness_summary",
+    "P33_provenance_index"
+  ],
+  "automaticFailureConditions": [
+    "unsupported compliance/certification claim",
+    "operating-mode package built from simulation evidence",
+    "missing required section or artifact hash",
+    "P33 ledger/anchor mismatch",
+    "unreconciled population",
+    "unexplained or unresolved failed control test",
+    "closed deficiency without retest/evidence",
+    "period shorter than declared minimum",
+    "synthetic evidence in a real operating period"
+  ],
+  "currentResult": "simulation_engine_available_real_period_not_started",
+  "externalAttestation": false
+}
