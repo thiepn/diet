@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {execFileSync,spawnSync} from 'node:child_process';
+import os from 'node:os';
+import path from 'node:path';
 
 const plan=JSON.parse(fs.readFileSync('platform-p28-lifecycle-governance-plan.json','utf8'));
 const own=JSON.parse(fs.readFileSync('platform-p28-resource-ownership.json','utf8'));
@@ -53,6 +55,7 @@ for(const banned of [
 assert.ok(workflow.includes("cron: '31 4 * * 0'"));
 assert.ok(workflow.includes('p28-governance-audit.mjs'));
 assert.ok(workflow.includes('p28-governance-audit.json'));
+assert.ok(workflow.includes('p28-data-api-governance.mjs'));
 
 const auditOut='p28-governance-audit.test.json';
 try{
@@ -80,5 +83,34 @@ t=transition({component:'legacy-app',current:'deprecated',target:'retired',liveD
 assert.equal(t.report.allowed,true);
 assert.equal(t.report.automaticMutationPerformed,false);
 assert.equal(t.report.destructiveActionAllowed,false);
+
+const lintDir=fs.mkdtempSync(path.join(os.tmpdir(),'p28-api-lint-'));
+try{
+  fs.writeFileSync(path.join(lintDir,'20261004010101_safe.sql'),`
+    create table public.safe_resource(id uuid primary key);
+    alter table public.safe_resource enable row level security;
+    revoke all on table public.safe_resource from anon, authenticated;
+    create or replace function public.safe_fn() returns void language sql as $ select; $;
+    revoke execute on function public.safe_fn() from public;
+  `);
+  execFileSync(process.execPath,['scripts/p28-data-api-governance.mjs','--dir',lintDir,'--baseline','20261003000000','--out','p28-api-safe.test.json'],{stdio:'pipe'});
+  const safe=JSON.parse(fs.readFileSync('p28-api-safe.test.json','utf8'));
+  assert.equal(safe.passed,true);
+
+  fs.writeFileSync(path.join(lintDir,'20261004020202_unsafe.sql'),`
+    create table public.unsafe_resource(id uuid primary key);
+    create or replace function public.unsafe_fn() returns void language sql as $ select; $;
+  `);
+  const bad=spawnSync(process.execPath,['scripts/p28-data-api-governance.mjs','--dir',lintDir,'--baseline','20261003000000','--out','p28-api-unsafe.test.json'],{encoding:'utf8'});
+  assert.notEqual(bad.status,0);
+  const unsafe=JSON.parse(fs.readFileSync('p28-api-unsafe.test.json','utf8'));
+  assert.equal(unsafe.passed,false);
+  assert.ok(unsafe.findings.some(x=>x.code==='missing_rls_enable'));
+  assert.ok(unsafe.findings.some(x=>x.code==='missing_explicit_function_execute_decision'));
+} finally {
+  fs.rmSync(lintDir,{recursive:true,force:true});
+  fs.rmSync('p28-api-safe.test.json',{force:true});
+  fs.rmSync('p28-api-unsafe.test.json',{force:true});
+}
 
 console.log('P28 lifecycle/cost/multi-app governance contract passed.');
