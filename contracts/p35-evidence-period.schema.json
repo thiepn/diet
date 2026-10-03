@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://thiepn.dev/contracts/p35-evidence-period.schema.json",
+  "title": "P35 operating-effectiveness evidence period",
+  "type": "object",
+  "required": [
+    "periodId",
+    "mode",
+    "periodStart",
+    "periodEnd",
+    "expectedChangeIds",
+    "expectedIncidentIds",
+    "expectedExceptionIds"
+  ],
+  "properties": {
+    "periodId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mode": {
+      "enum": [
+        "simulation",
+        "operating"
+      ]
+    },
+    "periodStart": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "periodEnd": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expectedChangeIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "expectedIncidentIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "expectedExceptionIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "startAuthorizationId": {
+      "type": "string"
+    },
+    "backfilled": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": true
+}
