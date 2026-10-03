@@ -21,67 +21,67 @@
       "phase": "P26",
       "prNumber": 17,
       "branch": "p26-steady-state-optimization",
-      "expectedHeadSha": "c247690be9a360368e4e4050750fdb6eecdfeb69"
+      "expectedHeadSha": "a87c6e86cf89008465563b162525f9eda280ac0a"
     },
     {
       "phase": "P27",
       "prNumber": 18,
       "branch": "p27-capacity-slo-autonomous-ops",
-      "expectedHeadSha": "08b6ac51ca46da6dc75c686006631a6f0c346cb2"
+      "expectedHeadSha": "ac2db9baad7eb035e715a2d8d5ad5d55ed415c72"
     },
     {
       "phase": "P28",
       "prNumber": 19,
       "branch": "p28-lifecycle-cost-multiapp-governance",
-      "expectedHeadSha": "a6884bdd83efee16719a0d822c0216ed3ad9b778"
+      "expectedHeadSha": "6c1f2a37290abaa77d958195ac6fd0cf3dcac00d"
     },
     {
       "phase": "P29",
       "prNumber": 20,
       "branch": "p29-release-orchestration",
-      "expectedHeadSha": "52a0c9f578b4f62b134c057840d313d70e54d017"
+      "expectedHeadSha": "a5e4bce52856b837802ac4ff597f180852849453"
     },
     {
       "phase": "P30",
       "prNumber": 21,
       "branch": "p30-release-trains-promotion",
-      "expectedHeadSha": "7576eaae63df0dd5a7bf4a6e1d4d5450f17e3972"
+      "expectedHeadSha": "b5630ae1cce048c510de742b83f59c75221e59f5"
     },
     {
       "phase": "P31",
       "prNumber": 22,
       "branch": "p31-control-plane-release-registry",
-      "expectedHeadSha": "4555aa732510d5f58b80b7df17548dc573fa38e6"
+      "expectedHeadSha": "c69214f26d50ff4e0809991ca864e6998ff428d5"
     },
     {
       "phase": "P32",
       "prNumber": 23,
       "branch": "p32-policy-as-code-admission",
-      "expectedHeadSha": "20e2e19e8b6ce89b5b5dcd7adb36af97ddc45ad0"
+      "expectedHeadSha": "b945633f442d04e1fa54857264773f28e3eab09b"
     },
     {
       "phase": "P33",
       "prNumber": 24,
       "branch": "p33-compliance-evidence-provenance",
-      "expectedHeadSha": "683befe451ea9d4368aeb79993807076d26dc277"
+      "expectedHeadSha": "2f47d1bbf03aa7414ff5278c87e899eb5912b6f9"
     },
     {
       "phase": "P34",
       "prNumber": 25,
       "branch": "p34-security-control-assurance",
-      "expectedHeadSha": "4b12c4ede5a61696a887af487f8d2b7b93f2adb9"
+      "expectedHeadSha": "718077eb25b060ba770c0d72f5a69b947f6be6b7"
     },
     {
       "phase": "P35",
       "prNumber": 26,
       "branch": "p35-control-remediation-oe-dryrun",
-      "expectedHeadSha": "611a95ec22ad0e1262d4cea7774dd51d1b41dcbc"
+      "expectedHeadSha": "11d0debd4d42c6cbc2bc99db9b112f95555b8b93"
     },
     {
       "phase": "P36",
       "prNumber": 28,
       "branch": "p36-remediation-freeze-oe-activation",
-      "expectedHeadSha": "8e340271a780c1446c18db66dbac333aee8b619f"
+      "expectedHeadSha": "15ff10a40831a1a28ad7c3992a54a7df5e4f8cc2"
     }
   ]
 }
