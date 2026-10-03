@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import json,subprocess,sys,tempfile
+import json,subprocess,sys,tempfile,hashlib
 from datetime import datetime,timedelta,timezone
 from pathlib import Path
 
@@ -36,13 +36,18 @@ with tempfile.TemporaryDirectory() as td:
     assert rem["operatingPeriodReady"] is False
 
     # Current gate remains blocked.
+    def fsha(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+    anchor=json.loads((ROOT/"platform-p33-ledger-anchor.json").read_text())
     blocked={
       "periodId":"oe-real-001","mode":"operating","observedAt":"2026-10-03T22:55:16Z",
       "scopedEpochStableMinutes":0,"criticalOpen":0,
       "highDeficiencyStates":{"P34-D001":"decision_required","P34-D002":"authorization_review_ready","P34-D005":"governance_onboarding_required"},
       "p32Mode":"warn","p33LedgerVerified":True,"controlCatalogFrozen":True,"evidenceCollectorContractPass":True,
       "explicitAuthorization":False,"p34CatalogVersion":"2026-10-03.1","p34SnapshotVersion":"2026-10-03.1",
-      "p33HeadHash":"a"*64,"p33AnchorSha256":"b"*64,"controlCatalogSha256":"c"*64,"p34SnapshotSha256":"d"*64,
+      "p33HeadHash":anchor["headHash"],
+      "p33AnchorSha256":fsha(ROOT/"platform-p33-ledger-anchor.json"),
+      "controlCatalogSha256":fsha(ROOT/"platform-p34-control-catalog.json"),
+      "p34SnapshotSha256":fsha(ROOT/"platform-p34-assurance-snapshot.json"),
       "requestedBy":"platform","authorizedBy":"reviewer"
     }
     gf=d/"blocked-gate.json"; gf.write_text(json.dumps(blocked))
