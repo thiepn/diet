@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://thiepn.dev/contracts/p29-release-evidence.schema.json",
+  "title": "P29 compatibility certification evidence",
+  "type": "object",
+  "required": [
+    "graphVersion",
+    "graphSha256",
+    "changeManifestSha256",
+    "componentResults",
+    "scopeResults",
+    "baseline",
+    "observed",
+    "quietWindowObservedMinutes"
+  ],
+  "properties": {
+    "graphVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "graphSha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "changeManifestSha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "quietWindowObservedMinutes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "deprecatedContractRemovalRequested": {
+      "type": "boolean"
+    },
+    "deprecatedContractCleanupAuthorized": {
+      "type": "boolean"
+    },
+    "componentResults": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "component",
+          "status"
+        ],
+        "properties": {
+          "component": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pass",
+              "fail"
+            ]
+          },
+          "evidence": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "scopeResults": {
+      "type": "object",
+      "additionalProperties": {
+        "enum": [
+          "pass",
+          "fail"
+        ]
+      }
+    },
+    "baseline": {
+      "type": "object",
+      "required": [
+        "semanticSchemaSha256",
+        "migrationHead",
+        "edgeInventorySha256",
+        "cronInventorySha256"
+      ]
+    },
+    "observed": {
+      "type": "object",
+      "required": [
+        "semanticSchemaSha256",
+        "migrationHead",
+        "edgeInventorySha256",
+        "cronInventorySha256"
+      ]
+    }
+  },
+  "additionalProperties": true
+}
