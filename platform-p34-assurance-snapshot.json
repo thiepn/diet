@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "phase": "P34",
+  "snapshotAt": "2026-10-02T06:10:53.901Z",
+  "overallState": "not_audit_ready",
+  "overallReason": "Control framework exists, but multiple design-review/open-evidence items and insufficient operating-history evidence remain.",
+  "externalAttestationClaim": false,
+  "livePlatform": {
+    "status": "ACTIVE_HEALTHY",
+    "migrationHead": "20261001202408_gomoku_p14_audit_sequence_hardening",
+    "semanticSchemaSha256": "6eeac4c344629484c38e70574a7a4ee0c493118282e9c065e2476643c66d2862",
+    "gomokuRoomVersion": 40,
+    "gomokuRoomSha256": "f04a4796ac94c668bbec2b2a58917bb570ebb64d8038b19bf51534da91da3eee",
+    "cronJobs": 11,
+    "releaseEpochState": "moving"
+  },
+  "securityAdvisor": {
+    "observedAt": "2026-10-02T06:10:53.901Z",
+    "findings": [
+      {
+        "lint": "rls_enabled_no_policy",
+        "level": "INFO",
+        "count": 50,
+        "treatment": "design_review",
+        "note": "No-policy RLS tables may be intentionally service-only/inaccessible, but direct grants/exposure and intended access must be evidenced per table/class."
+      },
+      {
+        "lint": "authenticated_security_definer_function_executable",
+        "level": "WARN",
+        "count": 39,
+        "treatment": "priority_review",
+        "note": "Authenticated-callable SECURITY DEFINER RPCs require explicit callable-role and internal authorization review; warning alone does not prove exploitability."
+      },
+      {
+        "lint": "auth_leaked_password_protection",
+        "level": "WARN",
+        "count": 1,
+        "treatment": "open_configuration_gap",
+        "note": "Leaked password protection is disabled."
+      }
+    ],
+    "warningCount": 40,
+    "infoCount": 50
+  },
+  "evidenceCapability": {
+    "platformAuditLogsAvailable": false,
+    "platformAuditLogsReason": "current Supabase organization is Free; current docs state Platform Audit Logs are Team/Enterprise only",
+    "authAuditRowsObserved": 0,
+    "postgresConnectionLogging": "off",
+    "pgauditInstalled": false,
+    "p33TamperEvidentLedger": "implemented_staged",
+    "externalLogDrain": "not_configured",
+    "evidenceGapClassification": "partial"
+  },
+  "controlAssessments": [
+    {
+      "controlId": "TH-GV-01",
+      "design": "implemented_staged",
+      "operation": "not_yet_effective_over_period",
+      "state": "partial",
+      "evidence": [
+        "P20",
+        "P29",
+        "P30",
+        "P31",
+        "P32",
+        "P33"
+      ]
+    },
+    {
+      "controlId": "TH-GV-02",
+      "design": "partial",
+      "operation": "not_yet_effective_over_period",
+      "state": "gap",
+      "evidence": [
+        "P28",
+        "P31"
+      ],
+      "openItems": [
+        "public.change_log owner unresolved",
+        "training_distribution_settings ownership confirmation"
+      ]
+    },
+    {
+      "controlId": "TH-GV-03",
+      "design": "implemented_staged",
+      "operation": "not_yet_observed_over_period",
+      "state": "partial",
+      "evidence": [
+        "P32 exception tests",
+        "P33 ledger"
+      ]
+    },
+    {
+      "controlId": "TH-GV-04",
+      "design": "documented",
+      "operation": "periodic_review_not_yet_established",
+      "state": "partial",
+      "evidence": [
+        "Supabase shared-responsibility documentation",
+        "P28 cost/plan inventory"
+      ]
+    },
+    {
+      "controlId": "TH-ID-01",
+      "design": "implemented_staged",
+      "operation": "live_reconciliation_working",
+      "state": "partial",
+      "evidence": [
+        "P28 inventory",
+        "P31 registry",
+        "live Supabase"
+      ]
+    },
+    {
+      "controlId": "TH-ID-02",
+      "design": "implemented_staged",
+      "operation": "contract_tested",
+      "state": "partial",
+      "evidence": [
+        "P29 dependency graph"
+      ]
+    },
+    {
+      "controlId": "TH-PR-01",
+      "design": "partial",
+      "operation": "advisor_observed",
+      "state": "gap",
+      "openItems": [
+        "leaked password protection disabled",
+        "organization/admin MFA evidence not captured in P34"
+      ]
+    },
+    {
+      "controlId": "TH-PR-02",
+      "design": "review_required",
+      "operation": "advisor_observed",
+      "state": "review",
+      "openItems": [
+        "50 RLS-enabled/no-policy INFO findings need exposure/privilege classification"
+      ]
+    },
+    {
+      "controlId": "TH-PR-03",
+      "design": "implemented_staged",
+      "operation": "negative_tests_pass",
+      "state": "partial",
+      "evidence": [
+        "P32 secret guardrail",
+        "P33 privacy guardrail"
+      ]
+    },
+    {
+      "controlId": "TH-PR-04",
+      "design": "review_required",
+      "operation": "advisor_observed",
+      "state": "review",
+      "openItems": [
+        "39 authenticated-callable SECURITY DEFINER WARN findings need function-by-function or class-based justification/remediation"
+      ]
+    },
+    {
+      "controlId": "TH-PR-05",
+      "design": "implemented_staged",
+      "operation": "CI_continuously_tests_current_repo",
+      "state": "partial",
+      "evidence": [
+        "P22",
+        "P32"
+      ]
+    },
+    {
+      "controlId": "TH-PR-06",
+      "design": "implemented",
+      "operation": "contract_evidence_exists",
+      "state": "partial",
+      "evidence": [
+        "P17",
+        "P18",
+        "P32"
+      ]
+    },
+    {
+      "controlId": "TH-DE-01",
+      "design": "implemented_staged",
+      "operation": "manual_snapshot_only",
+      "state": "partial",
+      "openItems": [
+        "daily continuous assurance not active"
+      ]
+    },
+    {
+      "controlId": "TH-DE-02",
+      "design": "partial",
+      "operation": "staged_only",
+      "state": "gap",
+      "openItems": [
+        "Platform Audit Logs unavailable on current plan",
+        "auth audit table currently empty",
+        "log_connections off",
+        "pgaudit absent"
+      ]
+    },
+    {
+      "controlId": "TH-DE-03",
+      "design": "implemented_staged",
+      "operation": "repeatedly_detecting_live_epoch_drift",
+      "state": "partial",
+      "evidence": [
+        "P29-P34 moving epoch detections"
+      ]
+    },
+    {
+      "controlId": "TH-RS-01",
+      "design": "implemented",
+      "operation": "failure_injection_evidence_exists",
+      "state": "partial",
+      "evidence": [
+        "P21"
+      ]
+    },
+    {
+      "controlId": "TH-RC-01",
+      "design": "implemented",
+      "operation": "backup_verification_evidence_exists",
+      "state": "partial",
+      "evidence": [
+        "P15",
+        "P21"
+      ]
+    },
+    {
+      "controlId": "TH-RC-02",
+      "design": "partial",
+      "operation": "burn_in_invalidated_by_moving_epoch",
+      "state": "gap",
+      "openItems": [
+        "P25 stable burn-in must restart after shared changes stop"
+      ]
+    }
+  ],
+  "readinessGates": {
+    "allCriticalSecurityAdvisorWarningsDispositioned": false,
+    "allResourceOwnershipResolved": false,
+    "stableReleaseEpoch": false,
+    "p25BurnInCertified": false,
+    "p32EnforcementActive": false,
+    "p33CanonicalEvidenceProcessActive": false,
+    "operatingEffectivenessWindowEstablished": false,
+    "externalAuditorEngaged": false
+  }
+}

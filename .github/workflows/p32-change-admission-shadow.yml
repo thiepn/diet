@@ -1,0 +1,76 @@
+name: P32 Change Admission Shadow
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/**'
+      - 'v2/**'
+      - '.github/workflows/**'
+      - 'platform-p2*.json'
+      - 'platform-p3*.json'
+      - 'scripts/p2*.py'
+      - 'scripts/p3*.py'
+      - 'contracts/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p32-admission-shadow-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  shadow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Verify P32 staged contract
+        run: node tests/p32-policy-contract.mjs
+      - name: Verify admission engine negative paths
+        run: python tests/p32-admission-contract.py
+      - name: Produce shadow decision artifact
+        shell: bash
+        run: |
+          cat > p32-shadow-manifest.json <<'JSON'
+          {
+            "changeId":"shadow-${{ github.run_id }}",
+            "requester":"github-actions",
+            "owner":"diet",
+            "components":["diet"],
+            "changeClass":"consumer_only",
+            "scopes":["app:diet"],
+            "resources":[],
+            "mutationTypes":["tests"],
+            "targetEnvironment":"ci",
+            "riskSignals":{},
+            "requestedPaidResources":[],
+            "productionMutationRequested":false,
+            "p29ImpactComplete":true,
+            "requiredTrainType":"app_fast",
+            "affectedConsumers":[],
+            "files":["tests/p32-admission-contract.py"],
+            "humanApprovals":{},
+            "integrationEnvironment":{"kind":"logical","status":"healthy"},
+            "intent":"tests",
+            "now":"2026-10-01T18:30:00Z",
+            "exceptions":[]
+          }
+          JSON
+          python scripts/p32-admit-change.py p32-shadow-manifest.json --out p32-admission-decision.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: p32-admission-shadow-${{ github.run_id }}
+          path: p32-admission-decision.json
+          if-no-files-found: error
+          retention-days: 30

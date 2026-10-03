@@ -1,0 +1,77 @@
+name: P33 Evidence and Provenance Staging
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'platform-p2*.json'
+      - 'platform-p3*.json'
+      - 'scripts/p2*.py'
+      - 'scripts/p3*.py'
+      - 'contracts/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p33-evidence-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Verify P33 static contract
+        run: node tests/p33-evidence-contract.mjs
+      - name: Verify ledger/provenance negative paths
+        run: python tests/p33-evidence-contract.py
+      - name: Verify canonical ledger
+        run: python scripts/p33-ledger.py verify platform-p33-audit-ledger.jsonl --out p33-ledger-verification.json
+      - name: Build staged provenance pack
+        shell: bash
+        run: |
+          cat > p33-provenance-manifest.json <<JSON
+          {
+            "changeId":"p33-staging-${{ github.run_id }}",
+            "subject":"P33 evidence/provenance staging",
+            "repository":"thiepn/diet",
+            "commitSha":"${{ github.sha }}",
+            "pullRequest":23,
+            "workflow":{"runId":"${{ github.run_id }}","name":"P33 Evidence and Provenance Staging"},
+            "liveAttestation":{
+              "migrationHead":"20261001183709_gomoku_p13_reliability_heartbeat",
+              "semanticSchemaSha256":"0b60c48fd0aef1e33a17c6c18914c6a7357044f6026a6f2c3d3b34a51bcc6794",
+              "gomokuRoomVersion":39,
+              "cronJobs":11
+            },
+            "approvals":[],
+            "privacy":{"containsRawSecrets":false,"containsRawPersonalAuditData":false},
+            "requiredArtifacts":[
+              {"name":"p32-policy","path":"platform-p32-policy-bundle.json","kind":"policy"},
+              {"name":"p31-fleet","path":"platform-p31-fleet-registry.json","kind":"fleet-registry"},
+              {"name":"p33-policy","path":"platform-p33-evidence-policy.json","kind":"evidence-policy"},
+              {"name":"p33-ledger","path":"platform-p33-audit-ledger.jsonl","kind":"audit-ledger"}
+            ]
+          }
+          JSON
+          python scripts/p33-build-provenance.py p33-provenance-manifest.json --out p33-provenance-pack.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: p33-evidence-${{ github.run_id }}
+          path: |
+            p33-ledger-verification.json
+            p33-provenance-pack.json
+          if-no-files-found: error
+          retention-days: 90

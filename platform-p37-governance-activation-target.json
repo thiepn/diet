@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "phase": "P37",
+  "title": "Governance Activation Target",
+  "state": "prepared_pending_p25_generation3_certification_and_stack_promotion",
+  "activationOrder": [
+    "certify P25 generation 3",
+    "promote P26 through P36 sequentially",
+    "activate P32 warn mode",
+    "activate P33 canonical evidence process",
+    "freeze P34 control catalog 2026-10-02.1",
+    "activate P34-D001 temporary risk treatment if live conditions still match",
+    "close P34-D006 with P25/P26/P27 stable-window evidence",
+    "run final P37 launch gate",
+    "start operating-effectiveness period at final launch observation"
+  ],
+  "targetState": {
+    "p32Mode": "warn",
+    "p32WhyNotEnforceYet": "First activation after shadow mode. Warn mode provides reviewed operational exposure before future enforcement.",
+    "p33CanonicalEvidenceActive": true,
+    "controlCatalogVersion": "2026-10-02.1",
+    "controlCatalogFrozen": true,
+    "evidenceCollectionDryRunPassRequired": true
+  },
+  "deficiencyStateAtLaunch": {
+    "P34-D001": "temporary_risk_treatment_active_if_zero_password_auth_exposure",
+    "P34-D002": "closed_by_documented_design",
+    "P34-D003": "closed_by_documented_design",
+    "P34-D004": "open_medium_provider_audit_visibility_decision",
+    "P34-D005": "closed_owner_resolved",
+    "P34-D006": "closed_by_current_active_generation_stability_certification",
+    "P34-D007": "open_medium_environment_cost_decision"
+  },
+  "launchInvariant": {
+    "criticalOpenDeficiencies": 0,
+    "highDeficienciesDispositionedOrRemediating": true,
+    "mediumDeficienciesMayRemainWithDocumentedOwners": true,
+    "activationIsRetroactive": false,
+    "externalAttestation": false
+  }
+}

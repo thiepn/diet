@@ -1,0 +1,285 @@
+{
+  "schemaVersion": 1,
+  "phase": "P31",
+  "registryVersion": "2026-10-01.1",
+  "capturedAt": "2026-10-01T16:10:17.047692Z",
+  "canonicalProject": {
+    "ref": "hycegznamzjhwinegaai",
+    "name": "THIEPN Account",
+    "region": "eu-west-1",
+    "serviceStatus": "ACTIVE_HEALTHY",
+    "databaseBuild": "17.6.1.164",
+    "postgresVersion": "17.6",
+    "releaseChannel": "preview"
+  },
+  "controlPlaneStatus": "amber",
+  "controlPlaneReason": "shared release epoch is still moving; no active platform outage observed",
+  "releaseEpoch": {
+    "state": "moving",
+    "semanticSchemaSha256": "717bbdd5c015430246a443e9ee3fe3820111add7d7d63c42d7cd00429051fa4b",
+    "migrationHead": "20261001154723_gomoku_p11_social_cron",
+    "cronJobs": 10,
+    "edge": {
+      "gomokuRoom": {
+        "version": 35,
+        "sha256": "20a9b9edc5f9a31f4b21c178fec0b24347ea86dc875b3c66701f1750c2e0e3a9",
+        "status": "ACTIVE"
+      }
+    },
+    "previousObservedEpochs": [
+      {
+        "phase": "P29",
+        "migrationHead": "20261001142949_gomoku_p9_competitive_operations",
+        "semanticSchemaSha256": "25749e27870c65113b7ddd2a9ad2724c6eb1622f17a44b4f57977bf01cda9d02",
+        "gomokuRoomVersion": 30,
+        "cronJobs": 9
+      },
+      {
+        "phase": "P30",
+        "migrationHead": "20261001151625_gomoku_p10_competitive_identity",
+        "semanticSchemaSha256": "2d95021a86c36e963c9619cdf05febbd6b31cb2feec391e5c9a8cde87b22cf3c",
+        "gomokuRoomVersion": 32,
+        "cronJobs": 9
+      }
+    ],
+    "sharedPromotionsBlocked": true,
+    "stableOnlyAfterMinutesWithoutSharedChange": 60
+  },
+  "components": [
+    {
+      "id": "database",
+      "class": "platform",
+      "owner": "platform",
+      "criticality": "tier0",
+      "lifecycle": "active",
+      "releaseScope": [
+        "database_schema"
+      ]
+    },
+    {
+      "id": "auth",
+      "class": "platform",
+      "owner": "platform",
+      "criticality": "tier0",
+      "lifecycle": "active",
+      "releaseScope": [
+        "identity_contract"
+      ]
+    },
+    {
+      "id": "data_api",
+      "class": "platform",
+      "owner": "platform",
+      "criticality": "tier0",
+      "lifecycle": "active",
+      "releaseScope": [
+        "database_api"
+      ]
+    },
+    {
+      "id": "realtime",
+      "class": "platform",
+      "owner": "platform",
+      "criticality": "tier0",
+      "lifecycle": "active",
+      "releaseScope": [
+        "realtime_contract"
+      ]
+    },
+    {
+      "id": "storage",
+      "class": "platform",
+      "owner": "platform",
+      "criticality": "tier1",
+      "lifecycle": "active",
+      "releaseScope": [
+        "storage_contract"
+      ]
+    },
+    {
+      "id": "edge_runtime",
+      "class": "platform",
+      "owner": "platform",
+      "criticality": "tier0",
+      "lifecycle": "active",
+      "releaseScope": [
+        "edge_runtime"
+      ]
+    },
+    {
+      "id": "account",
+      "class": "shared_service",
+      "owner": "account",
+      "criticality": "tier0",
+      "lifecycle": "active",
+      "releaseScope": [
+        "app:account",
+        "identity_contract"
+      ]
+    },
+    {
+      "id": "leaderboard",
+      "class": "shared_service",
+      "owner": "leaderboard",
+      "criticality": "tier1",
+      "lifecycle": "active",
+      "releaseScope": [
+        "app:leaderboard"
+      ]
+    },
+    {
+      "id": "micro_arcade",
+      "class": "shared_service",
+      "owner": "micro_arcade",
+      "criticality": "tier2",
+      "lifecycle": "active",
+      "releaseScope": [
+        "app:micro_arcade"
+      ]
+    },
+    {
+      "id": "canvas",
+      "class": "shared_service",
+      "owner": "canvas",
+      "criticality": "tier2",
+      "lifecycle": "active",
+      "releaseScope": [
+        "app:canvas"
+      ]
+    },
+    {
+      "id": "platform_control",
+      "class": "shared_service",
+      "owner": "platform",
+      "criticality": "tier0",
+      "lifecycle": "active",
+      "releaseScope": [
+        "platform_control"
+      ]
+    },
+    {
+      "id": "notes",
+      "class": "registered_app",
+      "owner": "notes",
+      "criticality": "tier1",
+      "lifecycle": "active",
+      "route": "/notes/",
+      "releaseScope": [
+        "app:notes"
+      ]
+    },
+    {
+      "id": "diet",
+      "class": "registered_app",
+      "owner": "diet",
+      "criticality": "tier1",
+      "lifecycle": "active",
+      "route": "/diet/",
+      "releaseScope": [
+        "app:diet"
+      ]
+    },
+    {
+      "id": "wordstrike",
+      "class": "registered_app",
+      "owner": "wordstrike",
+      "criticality": "tier2",
+      "lifecycle": "active",
+      "route": "/wordstrike/",
+      "releaseScope": [
+        "app:wordstrike"
+      ]
+    },
+    {
+      "id": "gomoku",
+      "class": "registered_app",
+      "owner": "gomoku",
+      "criticality": "tier1",
+      "lifecycle": "active",
+      "route": "/gomoku/",
+      "releaseScope": [
+        "app:gomoku",
+        "cron:gomoku",
+        "edge:gomoku-room"
+      ]
+    },
+    {
+      "id": "wttn",
+      "class": "registered_app",
+      "owner": "wttn",
+      "criticality": "tier1",
+      "lifecycle": "active",
+      "route": "/wttn/",
+      "releaseScope": [
+        "app:wttn"
+      ]
+    },
+    {
+      "id": "tms60",
+      "class": "registered_app",
+      "owner": "tms60",
+      "criticality": "tier1",
+      "lifecycle": "active",
+      "route": "/tms60/",
+      "releaseScope": [
+        "app:tms60"
+      ]
+    }
+  ],
+  "observedBlocks": [
+    {
+      "id": "shared-epoch-moving",
+      "type": "release_epoch",
+      "severity": "blocking_for_shared_promotion",
+      "scopes": [
+        "database_schema",
+        "cron:gomoku",
+        "edge:gomoku-room",
+        "app:gomoku"
+      ],
+      "owner": "platform_control",
+      "reason": "Gomoku shared migrations/Edge/cron changed across P29, P30 and P31 snapshots",
+      "automaticMutation": false
+    },
+    {
+      "id": "supabase-main-branch-action-failed",
+      "type": "environment",
+      "severity": "blocking_for_remote_branch_promotion",
+      "scopes": [
+        "environment:preview",
+        "environment:staging"
+      ],
+      "owner": "platform_control",
+      "reason": "Supabase branch registry reports main action state MIGRATIONS_FAILED while production service is ACTIVE_HEALTHY",
+      "automaticMutation": false
+    }
+  ],
+  "governanceUnresolved": [
+    {
+      "id": "public.change_log",
+      "owner": null,
+      "severity": "p28_activation_blocker",
+      "reason": "generic empty legacy relation; owner not proven"
+    },
+    {
+      "id": "public.training_distribution_settings",
+      "owner": "diet?",
+      "severity": "confirmation_required",
+      "reason": "probable Diet ownership not yet governance-certified"
+    }
+  ],
+  "environmentSummary": {
+    "logicalCi": {
+      "status": "available"
+    },
+    "statefulPreview": {
+      "status": "not_provisioned"
+    },
+    "persistentStaging": {
+      "status": "not_provisioned"
+    },
+    "production": {
+      "status": "ACTIVE_HEALTHY"
+    }
+  }
+}

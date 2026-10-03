@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "phase": "P35",
+  "title": "Operating Effectiveness Evidence Period",
+  "state": "not_started_blocked_by_moving_release_epoch",
+  "evidencePeriod": {
+    "internalDryRunMinimumDays": 30,
+    "externalReadinessTargetDays": 90,
+    "externalReadinessTargetNote": "Planning default only; actual external-audit period and sampling are agreed with the auditor and chosen framework.",
+    "periodStart": null,
+    "periodEnd": null,
+    "startsAutomatically": false
+  },
+  "startGate": {
+    "releaseEpochStableForMinutes": 60,
+    "replacementP25BurnInCertified": true,
+    "P32ModeAtLeast": "warn_or_enforce",
+    "P33CanonicalEvidenceProcessActive": true,
+    "criticalDeficienciesOpen": 0,
+    "highDeficienciesDispositionedOrRemediating": true,
+    "controlCatalogFrozenForPeriod": true,
+    "evidenceCollectionDryRunPass": true
+  },
+  "resetConditions": [
+    "material control redesign affecting sampled population",
+    "unexplained loss of required evidence",
+    "critical security/control failure",
+    "release/evidence tooling change that invalidates prior samples"
+  ],
+  "evidenceCadence": {
+    "perChange": {
+      "minimumCoveragePct": 100,
+      "requiredControls": [
+        "TH-GV-01",
+        "TH-ID-02",
+        "TH-PR-03",
+        "TH-PR-05",
+        "TH-PR-06",
+        "TH-DE-02",
+        "TH-DE-03"
+      ]
+    },
+    "daily": {
+      "minimumSuccessfulDaysPct": 95,
+      "maximumConsecutiveMissedDays": 1,
+      "requiredControls": [
+        "TH-GV-02",
+        "TH-ID-01",
+        "TH-PR-01",
+        "TH-PR-02",
+        "TH-PR-04",
+        "TH-DE-01",
+        "TH-DE-03"
+      ]
+    },
+    "weekly": {
+      "minimumSuccessfulWeeksPct": 100,
+      "requiredChecks": [
+        "open_deficiency_aging",
+        "exception_aging",
+        "evidence_freshness"
+      ]
+    },
+    "monthly": {
+      "minimumSuccessfulMonths": 1,
+      "requiredChecks": [
+        "TH-RC-02",
+        "control_owner_attestation",
+        "readiness_summary"
+      ]
+    },
+    "quarterly": {
+      "requiredFor30DayDryRun": false,
+      "requiredForExternalReadinessPeriod": true,
+      "requiredChecks": [
+        "TH-GV-04",
+        "control_catalog_review",
+        "provider_due_diligence_refresh"
+      ]
+    }
+  },
+  "sampleRequirements": {
+    "changeManagementSamples": "all production-impacting changes during period",
+    "accessControlSamples": "all changed privileged/RLS surfaces plus representative unchanged samples",
+    "incidentSamples": "all incidents; if zero, one documented drill",
+    "restoreSamples": "at least one restore/recovery evidence sample or approved drill evidence",
+    "exceptionSamples": "all exceptions during period; zero is valid if evidenced",
+    "advisorSnapshots": "daily on evidence days"
+  },
+  "evidenceJournal": {
+    "format": "JSONL",
+    "appendOnly": true,
+    "hashLinkedToP33": true,
+    "requiredFields": [
+      "timestamp",
+      "controlId",
+      "testId",
+      "status",
+      "evidenceRefs",
+      "source",
+      "periodId"
+    ],
+    "permittedStatus": [
+      "pass",
+      "fail",
+      "not_tested",
+      "not_applicable"
+    ],
+    "rawSecretsForbidden": true,
+    "rawPersonalProviderLogsForbidden": true
+  },
+  "completionGate": {
+    "minimumInternalDryRunDays": 30,
+    "noCriticalOpenDeficiencies": true,
+    "highDeficienciesHaveDisposition": true,
+    "dailyCoverageMeetsThreshold": true,
+    "perChangeCoveragePct": 100,
+    "weeklyReviewsComplete": true,
+    "monthlyReviewComplete": true,
+    "allFailuresHaveLinkedDeficiencyOrIncident": true,
+    "p35AuditDryRunPass": true,
+    "externalCertificationClaim": false
+  }
+}

@@ -1,0 +1,55 @@
+name: P30 Release Train Staging
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p30-release-train-staging
+  cancel-in-progress: true
+
+jobs:
+  staged:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Verify P30 release train contract
+        run: node tests/p30-release-train-contract.mjs
+      - name: Verify P30 candidate and promotion gates
+        run: python tests/p30-promotion-contract.py
+      - name: Build immutable example app-fast candidate
+        shell: bash
+        run: |
+          cat > p30-example-manifest.json <<'JSON'
+          {
+            "trainId":"p30-example-app-fast",
+            "trainType":"app_fast",
+            "gitSha":"${{ github.sha }}",
+            "dependencyGraphVersion":"2026-10-01.1",
+            "changeManifestSha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "impactAnalysisSha256":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "semanticSchemaSha256":"2d95021a86c36e963c9619cdf05febbd6b31cb2feec391e5c9a8cde87b22cf3c",
+            "migrationHead":"20261001151625",
+            "edgeInventorySha256":"dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "cronInventorySha256":"eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "environmentTopologyVersion":"2026-10-01.1"
+          }
+          JSON
+          python scripts/p30-build-candidate.py p30-example-manifest.json --out p30-example-candidate.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: p30-candidate-${{ github.run_id }}
+          path: p30-example-candidate.json
+          if-no-files-found: error
+          retention-days: 30

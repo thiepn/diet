@@ -1,0 +1,284 @@
+{
+  "schemaVersion": 1,
+  "phase": "P28",
+  "title": "Long-Term Platform Lifecycle, Cost Efficiency & Multi-App Governance",
+  "state": "staged_pending_p27",
+  "stagedAt": "2026-10-01T14:18:00Z",
+  "activeOperationsRelease": "P25.0",
+  "dependencyChain": [
+    "P25 certified complete",
+    "P26 certified complete",
+    "P27 certified complete",
+    "P28 activation"
+  ],
+  "activationRequires": {
+    "p25Certification": "complete",
+    "p26Certification": "complete",
+    "p27Certification": "complete",
+    "p27CapacityForecastDaysAtLeast": 14,
+    "p27SloPolicyRatified": true,
+    "p27AutonomyDefault": "L1_detect_and_report",
+    "p18Integrity": "clean",
+    "p20SchemaDrift": false,
+    "p21Readiness": "pass",
+    "p22Maintenance": "pass",
+    "resourceOwnershipCoveragePct": 100,
+    "unresolvedProductionResources": 0
+  },
+  "organization": {
+    "name": "Thiepn",
+    "id": "abdxzyrnmefvubqtalvu",
+    "plan": "free",
+    "tier": "tier_free",
+    "projectCountInScope": 1,
+    "canonicalProject": {
+      "ref": "hycegznamzjhwinegaai",
+      "name": "THIEPN Account",
+      "region": "eu-west-1",
+      "status": "ACTIVE_HEALTHY"
+    },
+    "nonDefaultPreviewBranchCount": 0,
+    "costModel": "quota_limited_free_plan",
+    "currencyCostAttribution": "not_available_authoritatively_via_current_connector",
+    "authoritativeBillingSource": "Supabase organization Usage and Billing pages"
+  },
+  "billingDocsSnapshot": {
+    "observedAt": "2026-10-01",
+    "refreshBeforeAnyPlanOrCostDecision": true,
+    "freePlan": {
+      "egress": "5 GB",
+      "databaseSize": "500 MB per project",
+      "monthlyActiveUsers": "50,000",
+      "storageSize": "1 GB",
+      "edgeFunctionInvocations": "500,000",
+      "realtimeMessages": "2,000,000",
+      "realtimePeakConnections": "200"
+    },
+    "spendCap": {
+      "availableOnCurrentPlan": false,
+      "note": "Spend Cap is a Pro-plan control; Free plan does not charge overage but quota/fair-use restrictions can apply."
+    },
+    "paidProjectRule": "each project has dedicated compute; adding projects can increase paid-plan compute cost",
+    "previewBranchRule": "preview branches consume their own usage and branching compute; do not leave branches alive without an explicit lifecycle"
+  },
+  "currentCapacityAgainstKnownQuota": {
+    "databaseBytes": 26799251,
+    "databaseQuota": "500 MB per project",
+    "approximateDatabaseQuotaUtilizationPct": 5.11,
+    "storageObjects": 14,
+    "storageBytes": 2394,
+    "storageQuota": "1 GB",
+    "currentCostPressure": "low",
+    "note": "Do not infer MAU, egress, Edge Function billing invocations, or Realtime billed messages from API request logs."
+  },
+  "lifecycleModel": {
+    "states": [
+      "incubating",
+      "active",
+      "maintenance",
+      "deprecated",
+      "archived",
+      "retired"
+    ],
+    "allowedTransitions": {
+      "incubating": [
+        "active",
+        "retired"
+      ],
+      "active": [
+        "maintenance",
+        "deprecated"
+      ],
+      "maintenance": [
+        "active",
+        "deprecated"
+      ],
+      "deprecated": [
+        "active",
+        "archived",
+        "retired"
+      ],
+      "archived": [
+        "active",
+        "retired"
+      ],
+      "retired": []
+    },
+    "requirements": {
+      "active": [
+        "declared owner",
+        "canonical route/repository",
+        "resource ownership manifest",
+        "data/export/deletion behavior",
+        "dependency declaration",
+        "release/security contract"
+      ],
+      "maintenance": [
+        "writes remain supported if applicable",
+        "security and compatibility updates continue",
+        "feature development may be frozen"
+      ],
+      "deprecated": [
+        "successor or no-successor explicitly stated",
+        "user-facing notice when applicable",
+        "migration/export path defined",
+        "retirement criteria defined"
+      ],
+      "archived": [
+        "normal writes disabled",
+        "required exports/backups preserved",
+        "dependencies no longer require active writes"
+      ],
+      "retired": [
+        "zero live dependents",
+        "data disposition explicitly approved",
+        "routes/jobs/functions/secrets/resources accounted for",
+        "no automatic user-data deletion"
+      ]
+    }
+  },
+  "componentClasses": {
+    "registeredApps": [
+      "notes",
+      "diet",
+      "wordstrike",
+      "gomoku",
+      "wttn",
+      "tms60"
+    ],
+    "sharedServices": [
+      "account",
+      "canvas",
+      "leaderboard",
+      "micro_arcade"
+    ],
+    "platformInfrastructure": [
+      "platform",
+      "auth",
+      "realtime",
+      "storage",
+      "cron",
+      "database"
+    ]
+  },
+  "governancePolicy": {
+    "mandatoryResourceOwner": true,
+    "mandatoryDependencyDeclaration": true,
+    "mandatoryLifecycleState": true,
+    "mandatoryDataDispositionBeforeRetirement": true,
+    "newResourceNaming": "app prefix or dedicated app-owned private schema; unprefixed public resources require explicit shared-contract classification",
+    "sharedChangeClasses": [
+      "cross_app_schema",
+      "identity_contract",
+      "platform_control",
+      "shared_edge",
+      "shared_cron",
+      "billing_or_plan"
+    ],
+    "sharedChangeRequires": [
+      "affected owner list",
+      "compatibility matrix",
+      "migration/deployment evidence",
+      "rollback or forward-fix plan",
+      "P20 governance registration",
+      "quiet-window coordination when certification/upgrade work is active"
+    ],
+    "projectSplitCriteria": [
+      "independent region/data-residency requirement",
+      "independent billing or organization boundary",
+      "team/access-control isolation requirement",
+      "independent backup/restore or RTO requirement",
+      "sustained noisy-neighbor/resource-pressure evidence",
+      "quota saturation attributable to one app",
+      "security/compliance isolation requirement"
+    ],
+    "neverSplitOnlyBecause": "number of apps is large"
+  },
+  "costEfficiencyPolicy": {
+    "mode": "showback_before_chargeback",
+    "attributionUnit": "measured usage units, not guessed currency",
+    "directPools": [
+      "app-attributable API paths",
+      "app-owned Edge Functions",
+      "app-owned storage buckets",
+      "app-owned cron jobs",
+      "app-owned database surfaces"
+    ],
+    "sharedPools": [
+      "Auth",
+      "Realtime shared infrastructure",
+      "Account",
+      "platform health/control",
+      "base database compute",
+      "shared logs"
+    ],
+    "minimumAttributionCoveragePctBeforeChargeback": 90,
+    "quotaBandsPct": {
+      "observe": 60,
+      "plan": 80,
+      "protect": 90
+    },
+    "anomalyRule": "investigate material step-change versus rolling baseline; do not auto-throttle an app solely from one spike",
+    "newPaidResourceRequiresExplicitApproval": true,
+    "paidResourceExamples": [
+      "new Supabase project",
+      "preview branch kept beyond task lifecycle",
+      "compute resize",
+      "read replica",
+      "PITR",
+      "IPv4",
+      "custom domain",
+      "extra disk IOPS/throughput",
+      "log drain"
+    ]
+  },
+  "attributionSnapshot": {
+    "windowStart": "2026-10-01T07:54:44Z",
+    "windowEnd": "2026-10-01T14:18:00Z",
+    "totalGatewayRequests": 3578,
+    "classifiedRequests": 3564,
+    "classificationCoveragePct": 99.61,
+    "observed5xx": 0,
+    "byPool": {
+      "gomoku": 3084,
+      "shared_realtime": 307,
+      "account": 66,
+      "shared_auth": 64,
+      "diet": 27,
+      "unattributed": 14,
+      "leaderboard": 8,
+      "platform": 8
+    },
+    "warning": "API request share is showback evidence only; it is not equivalent to Supabase invoice share."
+  },
+  "previewBranchPolicy": {
+    "currentNonDefaultBranches": 0,
+    "defaultLifecycle": "ephemeral",
+    "deleteWhenWorkEnds": true,
+    "persistentRequiresExplicitReason": true,
+    "maxUnreviewedLifetimeHours": 24,
+    "costMustBeConfirmedBeforeCreation": true
+  },
+  "retirementPolicy": {
+    "automaticProductionDeletion": false,
+    "automaticSecretRotation": false,
+    "automaticProjectPauseOrDelete": false,
+    "requireDependencyGraphZeroLiveConsumers": true,
+    "requireExportAndRetentionDecision": true,
+    "requireBackupDecision": true,
+    "requireOwnerApproval": true
+  },
+  "completionRequires": [
+    "P27 certified complete",
+    "all production resources mapped to an owner/shared class",
+    "legacy unprefixed resources assigned explicit owners or migrated under controlled change",
+    "all registered apps have lifecycle/data/dependency manifests",
+    "shared change classes enforced in CI",
+    "cost attribution coverage >=90% across a representative 30-day window",
+    "organization usage/quota report reviewed",
+    "project-split criteria documented and tested against current architecture",
+    "deprecation/archive/retirement runbooks verified",
+    "no automatic destructive lifecycle action exists",
+    "final multi-app governance handbook committed"
+  ]
+}

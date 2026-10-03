@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://thiepn.dev/contracts/p29-release-evidence.schema.json",
+  "title": "P29 release compatibility evidence",
+  "type": "object",
+  "required": [
+    "graphVersion",
+    "baselineSemanticSchemaSha256",
+    "migrationHead",
+    "edgeInventorySha256",
+    "componentResults",
+    "scopeResults",
+    "baseline",
+    "observed"
+  ],
+  "properties": {
+    "graphVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "baselineSemanticSchemaSha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "migrationHead": {
+      "type": "string",
+      "minLength": 1
+    },
+    "edgeInventorySha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "componentResults": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "component",
+          "status"
+        ],
+        "properties": {
+          "component": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pass",
+              "fail"
+            ]
+          }
+        }
+      }
+    },
+    "scopeResults": {
+      "type": "object",
+      "additionalProperties": {
+        "enum": [
+          "pass",
+          "fail"
+        ]
+      }
+    },
+    "baseline": {
+      "type": "object"
+    },
+    "observed": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

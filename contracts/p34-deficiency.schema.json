@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://thiepn.dev/contracts/p34-deficiency.schema.json",
+  "title": "P34 assurance deficiency",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "controlIds",
+    "severity",
+    "state",
+    "owner",
+    "source",
+    "requiredClosureEvidence",
+    "automaticRemediation"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^P34-D[0-9]{3}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "controlIds": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "severity": {
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "state": {
+      "enum": [
+        "open",
+        "accepted_temporarily",
+        "remediating",
+        "ready_for_retest",
+        "closed"
+      ]
+    },
+    "owner": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1
+    },
+    "requiredClosureEvidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "automaticRemediation": {
+      "const": false
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "retestEvidence": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "additionalProperties": true
+}

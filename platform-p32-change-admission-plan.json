@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "phase": "P32",
+  "title": "Policy-as-Code Enforcement, Automated Change Admission & Fleet Guardrails",
+  "state": "staged_pending_p31",
+  "stagedAt": "2026-10-01T18:21:00.428555Z",
+  "activeOperationsRelease": "P25.0",
+  "dependencyChain": [
+    "P25",
+    "P26",
+    "P27",
+    "P28",
+    "P29",
+    "P30",
+    "P31",
+    "P32"
+  ],
+  "activationRequires": {
+    "p31Certification": "complete",
+    "p31FleetRegistryValid": true,
+    "p31ReleaseRegistryValid": true,
+    "p31ReleaseEpochStable": true,
+    "p32ShadowFalsePositiveReviewComplete": true,
+    "p32PolicyCoveragePct": 100,
+    "p32NonWaivableNegativeTestsPass": true
+  },
+  "admissionStages": [
+    "normalize_manifest",
+    "validate_identity_and_ownership",
+    "classify_risk_and_change_type",
+    "evaluate_security_and_data_guardrails",
+    "evaluate_fleet_epoch_environment_and_locks",
+    "evaluate_dependency_and_release_train_requirements",
+    "evaluate_exceptions",
+    "emit_decision_and_requirements"
+  ],
+  "outcomes": {
+    "admit": "Change may enter the required P29/P30 release flow. This is not production approval.",
+    "block": "Change violates a hard policy or lacks required evidence.",
+    "escalate": "Change is potentially valid but requires explicit human/platform approval."
+  },
+  "currentMode": "shadow",
+  "currentReleaseEpoch": {
+    "p31Migration": "20261001154723_gomoku_p11_social_cron",
+    "p31SchemaSha256": "717bbdd5c015430246a443e9ee3fe3820111add7d7d63c42d7cd00429051fa4b",
+    "currentMigration": "20261001162929_gomoku_p12_moderation_review",
+    "currentSchemaSha256": "040813e9bfb672a8a1b8b9ba7af05ce3b729250d43c86110782a1c1dfe167a6b",
+    "p31GomokuRoomVersion": 35,
+    "currentGomokuRoomVersion": 38,
+    "epochStable": false,
+    "sharedAdmissionBlocked": true
+  },
+  "manifestRequirements": [
+    "changeId",
+    "requester",
+    "owner",
+    "components",
+    "changeClass",
+    "scopes",
+    "resources",
+    "mutationTypes",
+    "targetEnvironment",
+    "riskSignals",
+    "requestedPaidResources",
+    "productionMutationRequested",
+    "p29ImpactComplete",
+    "requiredTrainType"
+  ],
+  "riskTiers": {
+    "low": [
+      "static frontend",
+      "documentation",
+      "tests",
+      "non-shared consumer-only code"
+    ],
+    "medium": [
+      "owner-local Edge change",
+      "non-contract cron logic",
+      "non-sensitive configuration"
+    ],
+    "high": [
+      "database schema",
+      "shared Edge contract",
+      "Auth/RLS",
+      "cross-app provider",
+      "cron inventory"
+    ],
+    "critical": [
+      "user-data destruction",
+      "secret/authorization bypass",
+      "destructive recovery",
+      "policy self-modification"
+    ]
+  },
+  "enforcementPhases": {
+    "shadow": "decision is informational; existing CI remains authoritative",
+    "warn": "admission violations annotate and require acknowledgement",
+    "enforce": "block merge/train admission on block outcome",
+    "production": "enforce across all governed repositories with centralized evidence"
+  },
+  "fleetGuardrails": {
+    "noSharedAdmissionDuringMovingEpoch": true,
+    "unrelatedAppFastMayAdmitWhenScopesDoNotConflict": true,
+    "unresolvedGovernanceBlocksTouchedResource": true,
+    "directProductionMutationNeverAutoAdmits": true,
+    "statefulPreviewRequiredForStatefulSharedChanges": true,
+    "branchMigrationFailureBlocksStatefulBranchAdmission": true,
+    "policyEngineCannotGrantProductionApproval": true
+  },
+  "completionRequires": [
+    "P31 certified complete",
+    "policy bundle reviewed and versioned",
+    "shadow mode runs across representative changes without unacceptable false positives",
+    "all non-waivable negative tests pass",
+    "exception expiry and non-waivable behavior verified",
+    "cross-app breaking-provider admission verified",
+    "moving-epoch stateful admission blocked",
+    "unrelated app-fast admission verified",
+    "security anti-pattern tests verified",
+    "paid-resource and destructive-action escalation verified",
+    "policy self-modification cannot self-approve",
+    "enforcement activation occurs in a separate reviewed change"
+  ]
+}

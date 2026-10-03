@@ -1,0 +1,411 @@
+{
+  "schemaVersion": 1,
+  "phase": "P34",
+  "catalogVersion": "2026-10-02.1",
+  "title": "THIEPN Security Control Catalog",
+  "mappingNotice": "Mappings are internal crosswalks for readiness and communication. They are not auditor-approved mappings and do not establish compliance.",
+  "frameworks": {
+    "nistCsf20": {
+      "version": "2.0",
+      "functions": [
+        "GOVERN",
+        "IDENTIFY",
+        "PROTECT",
+        "DETECT",
+        "RESPOND",
+        "RECOVER"
+      ],
+      "authority": "NIST CSF 2.0"
+    },
+    "soc2Readiness": {
+      "level": "high_level_domains_only",
+      "domains": [
+        "Security",
+        "Availability",
+        "Processing Integrity",
+        "Confidentiality",
+        "Privacy"
+      ],
+      "authority": "AICPA Trust Services Criteria",
+      "note": "No claim is made that these internal controls satisfy specific AICPA criteria."
+    }
+  },
+  "controls": [
+    {
+      "id": "TH-GV-01",
+      "title": "Change governance and reviewed release admission",
+      "owner": "platform",
+      "objective": "Production-impacting change is reviewed, classified, evidenced and routed through governed release controls.",
+      "nist": [
+        "GOVERN"
+      ],
+      "soc2": [
+        "Security",
+        "Processing Integrity"
+      ],
+      "frequency": "per_change",
+      "evidence": [
+        "P20 governance",
+        "P29 compatibility certificate",
+        "P30 candidate/promotion",
+        "P31 can-release",
+        "P32 admission",
+        "GitHub PR/workflow identity"
+      ],
+      "test": "deterministic_contract_and_release_evidence"
+    },
+    {
+      "id": "TH-GV-02",
+      "title": "Resource ownership and lifecycle governance",
+      "owner": "platform",
+      "objective": "Every governed resource has an owner, lifecycle state and disposition path.",
+      "nist": [
+        "GOVERN",
+        "IDENTIFY"
+      ],
+      "soc2": [
+        "Security",
+        "Privacy"
+      ],
+      "frequency": "daily_and_per_change",
+      "evidence": [
+        "P28 ownership registry",
+        "P31 fleet registry"
+      ],
+      "test": "registry_coverage_and_unresolved_resource_count"
+    },
+    {
+      "id": "TH-GV-03",
+      "title": "Exception governance",
+      "owner": "platform",
+      "objective": "Exceptions are scoped, independently approved, time-bounded, traceable and unable to waive non-waivable controls.",
+      "nist": [
+        "GOVERN"
+      ],
+      "soc2": [
+        "Security"
+      ],
+      "frequency": "per_exception",
+      "evidence": [
+        "P32 exception records",
+        "P33 audit ledger/provenance"
+      ],
+      "test": "expiry_scope_approver_nonwaivable_tests"
+    },
+    {
+      "id": "TH-GV-04",
+      "title": "Cloud/shared-responsibility governance",
+      "owner": "platform",
+      "objective": "Provider and THIEPN responsibilities are distinguished and reviewed before relying on provider controls.",
+      "nist": [
+        "GOVERN",
+        "IDENTIFY"
+      ],
+      "soc2": [
+        "Security",
+        "Availability",
+        "Confidentiality"
+      ],
+      "frequency": "quarterly_or_provider_change",
+      "evidence": [
+        "Supabase shared-responsibility review",
+        "plan capability snapshot",
+        "vendor security documentation"
+      ],
+      "test": "documented_boundary_and_provider_evidence_review"
+    },
+    {
+      "id": "TH-ID-01",
+      "title": "Asset and service inventory",
+      "owner": "platform",
+      "objective": "Production applications, shared services, infrastructure resources, Edge Functions, jobs and storage are inventoried.",
+      "nist": [
+        "IDENTIFY"
+      ],
+      "soc2": [
+        "Security",
+        "Availability"
+      ],
+      "frequency": "daily_and_per_change",
+      "evidence": [
+        "P28 resource inventory",
+        "P31 17-node fleet registry",
+        "live Supabase inventory"
+      ],
+      "test": "registry_to_live_reconciliation"
+    },
+    {
+      "id": "TH-ID-02",
+      "title": "Dependency and blast-radius inventory",
+      "owner": "platform",
+      "objective": "Direct and transitive provider/consumer dependencies are known before shared change.",
+      "nist": [
+        "IDENTIFY",
+        "GOVERN"
+      ],
+      "soc2": [
+        "Security",
+        "Availability",
+        "Processing Integrity"
+      ],
+      "frequency": "per_change",
+      "evidence": [
+        "P29 dependency graph",
+        "impact analysis"
+      ],
+      "test": "graph_coverage_and_transitive_consumer_tests"
+    },
+    {
+      "id": "TH-PR-01",
+      "title": "Identity and authentication safeguards",
+      "owner": "account",
+      "objective": "Administrative and user authentication safeguards are configured and periodically reviewed.",
+      "nist": [
+        "PROTECT"
+      ],
+      "soc2": [
+        "Security",
+        "Confidentiality",
+        "Privacy"
+      ],
+      "frequency": "daily_configuration_review",
+      "evidence": [
+        "Auth configuration",
+        "security advisor",
+        "account/session contracts"
+      ],
+      "test": "auth_control_snapshot_and_advisor_review"
+    },
+    {
+      "id": "TH-PR-02",
+      "title": "Data authorization and row-level access",
+      "owner": "platform",
+      "objective": "Exposed data is protected by appropriate RLS/policies or intentionally inaccessible through explicit privilege design.",
+      "nist": [
+        "PROTECT"
+      ],
+      "soc2": [
+        "Security",
+        "Confidentiality",
+        "Privacy"
+      ],
+      "frequency": "per_schema_change_and_daily_advisor",
+      "evidence": [
+        "RLS inventory",
+        "grants",
+        "Security Advisor",
+        "P14 security regression"
+      ],
+      "test": "exposure_rls_policy_grant_review"
+    },
+    {
+      "id": "TH-PR-03",
+      "title": "Secrets and credential protection",
+      "owner": "platform",
+      "objective": "Privileged credentials are not exposed to public clients or committed into evidence/source.",
+      "nist": [
+        "PROTECT"
+      ],
+      "soc2": [
+        "Security",
+        "Confidentiality"
+      ],
+      "frequency": "per_change",
+      "evidence": [
+        "P32 secret guardrail",
+        "P33 evidence privacy contract",
+        "CI scanning/contracts"
+      ],
+      "test": "negative_secret_exposure_tests"
+    },
+    {
+      "id": "TH-PR-04",
+      "title": "Privileged database function safety",
+      "owner": "platform",
+      "objective": "SECURITY DEFINER functions are intentional, restricted and perform internal authorization appropriate to their privilege.",
+      "nist": [
+        "PROTECT"
+      ],
+      "soc2": [
+        "Security",
+        "Confidentiality"
+      ],
+      "frequency": "per_function_change_and_daily_advisor",
+      "evidence": [
+        "function definitions",
+        "EXECUTE grants",
+        "Security Advisor"
+      ],
+      "test": "security_definer_callable_role_and_internal_auth_review"
+    },
+    {
+      "id": "TH-PR-05",
+      "title": "Software supply-chain and CI integrity",
+      "owner": "platform",
+      "objective": "Release workflows use reviewed source and immutable action references, with deterministic policy tests.",
+      "nist": [
+        "PROTECT",
+        "GOVERN"
+      ],
+      "soc2": [
+        "Security",
+        "Processing Integrity"
+      ],
+      "frequency": "per_change",
+      "evidence": [
+        "P22 supply-chain contract",
+        "P32 admission",
+        "GitHub workflow SHA pins"
+      ],
+      "test": "workflow_pin_and_policy_integrity_tests"
+    },
+    {
+      "id": "TH-PR-06",
+      "title": "Data lifecycle, export and deletion governance",
+      "owner": "account",
+      "objective": "User data export/deletion behavior is explicit, authorized and recoverable from errors where intended.",
+      "nist": [
+        "PROTECT",
+        "GOVERN"
+      ],
+      "soc2": [
+        "Privacy",
+        "Confidentiality",
+        "Processing Integrity"
+      ],
+      "frequency": "per_change_and_periodic",
+      "evidence": [
+        "P17 lifecycle",
+        "Account deletion/export functions",
+        "P33 provenance"
+      ],
+      "test": "lifecycle_contract_and_destructive_action_guardrails"
+    },
+    {
+      "id": "TH-DE-01",
+      "title": "Security posture monitoring",
+      "owner": "platform",
+      "objective": "Security Advisor warnings/errors and bounded auth/authorization signals are reviewed and triaged.",
+      "nist": [
+        "DETECT"
+      ],
+      "soc2": [
+        "Security"
+      ],
+      "frequency": "daily",
+      "evidence": [
+        "Supabase Security Advisor",
+        "security monitor evidence",
+        "triage records"
+      ],
+      "test": "advisor_snapshot_and_open_finding_aging"
+    },
+    {
+      "id": "TH-DE-02",
+      "title": "Audit logging and change provenance",
+      "owner": "platform",
+      "objective": "Material changes can be reconstructed from source, approval, deployment and live-state evidence.",
+      "nist": [
+        "DETECT",
+        "GOVERN"
+      ],
+      "soc2": [
+        "Security",
+        "Processing Integrity"
+      ],
+      "frequency": "per_change",
+      "evidence": [
+        "P33 ledger",
+        "Git history",
+        "workflow identities",
+        "native provider logs when available"
+      ],
+      "test": "ledger_chain_and_provenance_pack_verification"
+    },
+    {
+      "id": "TH-DE-03",
+      "title": "Configuration and release drift detection",
+      "owner": "platform",
+      "objective": "Unexpected changes to schema, migration head, Edge inventory, cron or registry state are detected before certification.",
+      "nist": [
+        "DETECT",
+        "IDENTIFY"
+      ],
+      "soc2": [
+        "Security",
+        "Availability",
+        "Processing Integrity"
+      ],
+      "frequency": "continuous_release_and_daily",
+      "evidence": [
+        "P20 drift",
+        "P29 certificate invalidation",
+        "P31 reconciliation",
+        "P30 immutable candidates"
+      ],
+      "test": "live_to_registry_and_candidate_reconciliation"
+    },
+    {
+      "id": "TH-RS-01",
+      "title": "Incident detection, coordination and recovery decision",
+      "owner": "platform",
+      "objective": "Incidents have bounded response, evidence, scoped coordination and explicit destructive-recovery approval.",
+      "nist": [
+        "RESPOND"
+      ],
+      "soc2": [
+        "Security",
+        "Availability"
+      ],
+      "frequency": "per_incident_and_periodic_exercise",
+      "evidence": [
+        "P21 incident/recovery",
+        "P31 locks",
+        "P33 incident evidence"
+      ],
+      "test": "failure_injection_and_incident_runbook_contract"
+    },
+    {
+      "id": "TH-RC-01",
+      "title": "Backup, restore and recovery assurance",
+      "owner": "platform",
+      "objective": "Recovery evidence exists, backups are independently protected where designed, and restoration is tested/governed.",
+      "nist": [
+        "RECOVER"
+      ],
+      "soc2": [
+        "Availability",
+        "Processing Integrity"
+      ],
+      "frequency": "daily_monthly_and_release",
+      "evidence": [
+        "P15 verified snapshots/offsite backup",
+        "restore plans",
+        "P21 recovery validation"
+      ],
+      "test": "backup_verification_and_restore_plan_contract"
+    },
+    {
+      "id": "TH-RC-02",
+      "title": "Availability, SLO and capacity resilience",
+      "owner": "platform",
+      "objective": "Availability/capacity risks are measured against service baselines and release observation requirements.",
+      "nist": [
+        "RECOVER",
+        "IDENTIFY",
+        "DETECT"
+      ],
+      "soc2": [
+        "Availability"
+      ],
+      "frequency": "continuous_and_monthly",
+      "evidence": [
+        "P25 burn-in",
+        "P26 baseline",
+        "P27 SLO/capacity",
+        "P30 observation"
+      ],
+      "test": "health_slo_capacity_and_release_observation"
+    }
+  ]
+}
