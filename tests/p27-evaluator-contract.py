@@ -21,7 +21,7 @@ assert abs(healthy["errorBudgetMinutes"]-43.2)<1e-9
 
 fast=run("scripts/p27-evaluate-slo.py",{"samples":[
   {"checkedAt":"2026-10-03T00:30:00Z","requests":10000,"failures5xx":0,"syntheticPassed":True,"restP95Ms":300,"authP95Ms":600},
-  {"checkedAt":"2026-10-03T01:00:00Z","requests":10000,"failures5xx":200,"syntheticPassed":True,"restP95Ms":300,"authP95Ms":600}
+  {"checkedAt":"2026-10-03T01:00:00Z","requests":10000,"failures5xx":300,"syntheticPassed":True,"restP95Ms":300,"authP95Ms":600}
 ]})
 assert fast["fastBurnRate1h"]>=14.4
 assert fast["state"]=="critical"
