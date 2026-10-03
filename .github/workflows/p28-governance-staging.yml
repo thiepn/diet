@@ -34,6 +34,8 @@ jobs:
         run: python tests/p28-quota-contract.py
       - name: Produce governance audit
         run: node scripts/p28-governance-audit.mjs --out p28-governance-audit.json
+      - name: Enforce post-P28 Data API exposure governance
+        run: node scripts/p28-data-api-governance.mjs --out p28-data-api-governance.json
       - name: Evaluate current known quota dimensions
         shell: bash
         run: |
@@ -54,6 +56,7 @@ jobs:
           name: p28-governance-${{ github.run_id }}
           path: |
             p28-governance-audit.json
+            p28-data-api-governance.json
             p28-quota-evaluation.json
           if-no-files-found: error
           retention-days: 30
