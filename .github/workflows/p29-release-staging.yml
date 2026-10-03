@@ -1,0 +1,60 @@
+name: P29 Cross-App Release Certification
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p29-release-certification
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Validate dependency graph
+        run: node scripts/p29-validate-graph.mjs p29-graph-validation.json
+      - name: Verify P29 release contract
+        run: node tests/p29-release-orchestration-contract.mjs
+      - name: Verify impact and certificate engines
+        run: python tests/p29-orchestration-contract.py
+      - name: Produce current Micro Arcade recovery impact example
+        shell: bash
+        run: |
+          cat > p29-change.json <<'JSON'
+          {
+            "changeId":"micro-arcade-p31-backend-recovery",
+            "graphVersion":"2026-10-03.1",
+            "changes":[
+              {
+                "component":"micro_arcade",
+                "class":"operational_job",
+                "changesSharedSchema":true,
+                "changesEdgeContract":true,
+                "changesCronInventory":true
+              }
+            ]
+          }
+          JSON
+          python scripts/p29-impact-analysis.py p29-change.json --out p29-impact-analysis.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: p29-release-${{ github.run_id }}
+          path: |
+            p29-graph-validation.json
+            p29-impact-analysis.json
+          if-no-files-found: error
+          retention-days: 30

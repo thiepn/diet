@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://thiepn.dev/contracts/p29-change-manifest.schema.json",
+  "title": "P29 cross-app change manifest",
+  "type": "object",
+  "required": [
+    "changeId",
+    "graphVersion",
+    "changes"
+  ],
+  "properties": {
+    "changeId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "graphVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "maintenanceWindowDeclared": {
+      "type": "boolean"
+    },
+    "rollbackOrForwardFixPlan": {
+      "type": "string"
+    },
+    "changes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "component",
+          "class"
+        ],
+        "properties": {
+          "component": {
+            "type": "string",
+            "minLength": 1
+          },
+          "class": {
+            "enum": [
+              "provider_additive",
+              "provider_breaking",
+              "consumer_only",
+              "data_migration_no_contract",
+              "infrastructure_contract",
+              "operational_job"
+            ]
+          },
+          "changesSharedSchema": {
+            "type": "boolean"
+          },
+          "changesIdentityContract": {
+            "type": "boolean"
+          },
+          "changesEdgeContract": {
+            "type": "boolean"
+          },
+          "changesCronInventory": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

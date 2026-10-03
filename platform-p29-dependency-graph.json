@@ -1,0 +1,456 @@
+{
+  "schemaVersion": 2,
+  "phase": "P29",
+  "graphVersion": "2026-10-03.1",
+  "capturedAt": "2026-10-03T10:53:23.237810Z",
+  "canonicalProjectRef": "hycegznamzjhwinegaai",
+  "scope": "THIEPN shared Supabase platform and known registered consumers",
+  "nodes": [
+    {
+      "id": "database",
+      "kind": "platform",
+      "owner": "platform",
+      "releaseRole": "provider"
+    },
+    {
+      "id": "auth",
+      "kind": "platform",
+      "owner": "platform",
+      "releaseRole": "provider"
+    },
+    {
+      "id": "data_api",
+      "kind": "platform",
+      "owner": "platform",
+      "releaseRole": "provider"
+    },
+    {
+      "id": "realtime",
+      "kind": "platform",
+      "owner": "platform",
+      "releaseRole": "provider"
+    },
+    {
+      "id": "storage",
+      "kind": "platform",
+      "owner": "platform",
+      "releaseRole": "provider"
+    },
+    {
+      "id": "edge_runtime",
+      "kind": "platform",
+      "owner": "platform",
+      "releaseRole": "provider"
+    },
+    {
+      "id": "account",
+      "kind": "shared_service",
+      "owner": "account",
+      "releaseRole": "provider_consumer"
+    },
+    {
+      "id": "leaderboard",
+      "kind": "shared_service",
+      "owner": "leaderboard",
+      "releaseRole": "provider_consumer"
+    },
+    {
+      "id": "micro_arcade",
+      "kind": "shared_service",
+      "owner": "micro_arcade",
+      "releaseRole": "provider_consumer"
+    },
+    {
+      "id": "canvas",
+      "kind": "shared_service",
+      "owner": "canvas",
+      "releaseRole": "provider_consumer"
+    },
+    {
+      "id": "platform_control",
+      "kind": "shared_service",
+      "owner": "platform",
+      "releaseRole": "consumer"
+    },
+    {
+      "id": "notes",
+      "kind": "registered_app",
+      "owner": "notes",
+      "releaseRole": "consumer"
+    },
+    {
+      "id": "diet",
+      "kind": "registered_app",
+      "owner": "diet",
+      "releaseRole": "consumer"
+    },
+    {
+      "id": "wordstrike",
+      "kind": "registered_app",
+      "owner": "wordstrike",
+      "releaseRole": "consumer"
+    },
+    {
+      "id": "gomoku",
+      "kind": "registered_app",
+      "owner": "gomoku",
+      "releaseRole": "consumer"
+    },
+    {
+      "id": "wttn",
+      "kind": "registered_app",
+      "owner": "wttn",
+      "releaseRole": "consumer"
+    },
+    {
+      "id": "tms60",
+      "kind": "registered_app",
+      "owner": "tms60",
+      "releaseRole": "consumer"
+    }
+  ],
+  "edges": [
+    {
+      "consumer": "account",
+      "provider": "auth",
+      "contract": "identity",
+      "strength": "hard",
+      "evidence": "account tables reference auth.users"
+    },
+    {
+      "consumer": "account",
+      "provider": "data_api",
+      "contract": "database_api",
+      "strength": "hard"
+    },
+    {
+      "consumer": "account",
+      "provider": "database",
+      "contract": "persistence",
+      "strength": "hard"
+    },
+    {
+      "consumer": "leaderboard",
+      "provider": "auth",
+      "contract": "identity",
+      "strength": "hard",
+      "evidence": "leaderboard profiles/submissions reference auth.users"
+    },
+    {
+      "consumer": "leaderboard",
+      "provider": "data_api",
+      "contract": "database_api",
+      "strength": "hard"
+    },
+    {
+      "consumer": "leaderboard",
+      "provider": "database",
+      "contract": "persistence",
+      "strength": "hard"
+    },
+    {
+      "consumer": "leaderboard",
+      "provider": "edge_runtime",
+      "contract": "edge_execution",
+      "strength": "hard"
+    },
+    {
+      "consumer": "micro_arcade",
+      "provider": "data_api",
+      "contract": "database_api",
+      "strength": "hard"
+    },
+    {
+      "consumer": "micro_arcade",
+      "provider": "database",
+      "contract": "persistence",
+      "strength": "hard"
+    },
+    {
+      "consumer": "micro_arcade",
+      "provider": "edge_runtime",
+      "contract": "edge_execution",
+      "strength": "hard"
+    },
+    {
+      "consumer": "canvas",
+      "provider": "storage",
+      "contract": "object_storage",
+      "strength": "hard",
+      "evidence": "canvas-ci-assets bucket"
+    },
+    {
+      "consumer": "canvas",
+      "provider": "database",
+      "contract": "persistence",
+      "strength": "hard"
+    },
+    {
+      "consumer": "canvas",
+      "provider": "data_api",
+      "contract": "database_api",
+      "strength": "hard"
+    },
+    {
+      "consumer": "platform_control",
+      "provider": "auth",
+      "contract": "identity_health",
+      "strength": "soft"
+    },
+    {
+      "consumer": "platform_control",
+      "provider": "data_api",
+      "contract": "database_api_health",
+      "strength": "hard"
+    },
+    {
+      "consumer": "platform_control",
+      "provider": "database",
+      "contract": "schema_and_health",
+      "strength": "hard"
+    },
+    {
+      "consumer": "platform_control",
+      "provider": "edge_runtime",
+      "contract": "platform_health",
+      "strength": "hard"
+    },
+    {
+      "consumer": "notes",
+      "provider": "auth",
+      "contract": "shared_identity",
+      "strength": "hard"
+    },
+    {
+      "consumer": "notes",
+      "provider": "account",
+      "contract": "account_manifest_and_lifecycle",
+      "strength": "hard"
+    },
+    {
+      "consumer": "notes",
+      "provider": "data_api",
+      "contract": "database_api",
+      "strength": "hard"
+    },
+    {
+      "consumer": "notes",
+      "provider": "database",
+      "contract": "persistence",
+      "strength": "hard"
+    },
+    {
+      "consumer": "diet",
+      "provider": "auth",
+      "contract": "shared_identity",
+      "strength": "hard"
+    },
+    {
+      "consumer": "diet",
+      "provider": "account",
+      "contract": "account_manifest_and_lifecycle",
+      "strength": "hard"
+    },
+    {
+      "consumer": "diet",
+      "provider": "data_api",
+      "contract": "database_api",
+      "strength": "hard"
+    },
+    {
+      "consumer": "diet",
+      "provider": "database",
+      "contract": "persistence",
+      "strength": "hard"
+    },
+    {
+      "consumer": "diet",
+      "provider": "edge_runtime",
+      "contract": "diet_edge_functions",
+      "strength": "hard"
+    },
+    {
+      "consumer": "wordstrike",
+      "provider": "auth",
+      "contract": "shared_identity",
+      "strength": "hard"
+    },
+    {
+      "consumer": "wordstrike",
+      "provider": "account",
+      "contract": "account_manifest_and_lifecycle",
+      "strength": "hard"
+    },
+    {
+      "consumer": "wordstrike",
+      "provider": "leaderboard",
+      "contract": "public_profile_and_score_protocol",
+      "strength": "hard",
+      "evidence": "leaderboard Edge Functions source from thiepn/wordstrike"
+    },
+    {
+      "consumer": "wordstrike",
+      "provider": "data_api",
+      "contract": "database_api",
+      "strength": "hard"
+    },
+    {
+      "consumer": "wordstrike",
+      "provider": "database",
+      "contract": "persistence",
+      "strength": "hard"
+    },
+    {
+      "consumer": "wordstrike",
+      "provider": "edge_runtime",
+      "contract": "wordstrike_and_leaderboard_edges",
+      "strength": "hard"
+    },
+    {
+      "consumer": "gomoku",
+      "provider": "auth",
+      "contract": "shared_identity",
+      "strength": "hard",
+      "evidence": "gomoku-room validates /auth/v1/user"
+    },
+    {
+      "consumer": "gomoku",
+      "provider": "account",
+      "contract": "connection_and_identity_grants",
+      "strength": "hard",
+      "evidence": "gomoku-room reads account_app_connections/account_app_grants"
+    },
+    {
+      "consumer": "gomoku",
+      "provider": "leaderboard",
+      "contract": "profile_username",
+      "strength": "hard",
+      "evidence": "gomoku-room reads leaderboard_profiles"
+    },
+    {
+      "consumer": "gomoku",
+      "provider": "realtime",
+      "contract": "room_broadcast",
+      "strength": "hard"
+    },
+    {
+      "consumer": "gomoku",
+      "provider": "data_api",
+      "contract": "database_api",
+      "strength": "hard"
+    },
+    {
+      "consumer": "gomoku",
+      "provider": "database",
+      "contract": "persistence",
+      "strength": "hard"
+    },
+    {
+      "consumer": "gomoku",
+      "provider": "edge_runtime",
+      "contract": "gomoku-room execution",
+      "strength": "hard"
+    },
+    {
+      "consumer": "wttn",
+      "provider": "auth",
+      "contract": "shared_identity",
+      "strength": "hard"
+    },
+    {
+      "consumer": "wttn",
+      "provider": "account",
+      "contract": "account_manifest_and_lifecycle",
+      "strength": "hard"
+    },
+    {
+      "consumer": "wttn",
+      "provider": "data_api",
+      "contract": "database_api",
+      "strength": "hard"
+    },
+    {
+      "consumer": "wttn",
+      "provider": "database",
+      "contract": "persistence",
+      "strength": "hard"
+    },
+    {
+      "consumer": "tms60",
+      "provider": "auth",
+      "contract": "shared_identity",
+      "strength": "hard"
+    },
+    {
+      "consumer": "tms60",
+      "provider": "account",
+      "contract": "account_manifest_and_lifecycle",
+      "strength": "hard"
+    },
+    {
+      "consumer": "tms60",
+      "provider": "data_api",
+      "contract": "database_api",
+      "strength": "hard"
+    },
+    {
+      "consumer": "tms60",
+      "provider": "database",
+      "contract": "persistence",
+      "strength": "hard"
+    }
+  ],
+  "resourceOwners": {
+    "edgeFunctions": {
+      "leaderboard-profile": "leaderboard",
+      "get-leaderboard": "leaderboard",
+      "submit-score": "leaderboard",
+      "micro-arcade-leaderboards": "micro_arcade",
+      "platform-health": "platform_control",
+      "gomoku-room": "gomoku",
+      "diet-health-sync": "diet",
+      "gomoku-room-debug": "gomoku",
+      "wordstrike-profile-sync": "wordstrike",
+      "diet-copilot-ai": "diet",
+      "diet-p15-backup-export": "diet",
+      "micro-arcade-p31-backup-export": "micro_arcade"
+    },
+    "cronJobs": {
+      "diet-p15-daily-snapshot": "diet",
+      "diet-p15-monthly-snapshot": "diet",
+      "diet-p18-integrity-daily": "diet",
+      "diet-p19-idempotency-prune": "diet",
+      "account-deletion-finalizer": "account",
+      "diet-p20-schema-drift-daily": "diet",
+      "diet-p21-readiness-daily": "diet",
+      "diet-p22-maintenance-weekly": "diet",
+      "gomoku-p9-competition-tick": "gomoku",
+      "gomoku-p11-social-tick": "gomoku",
+      "gomoku-p13-reliability-tick": "gomoku",
+      "micro-arcade-p31-daily": "micro_arcade",
+      "micro-arcade-p31-monthly": "micro_arcade"
+    }
+  },
+  "liveBaseline": {
+    "observedAt": "2026-10-03T10:53:23.237810Z",
+    "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
+    "latestMigrationVersion": "20261003094639",
+    "latestMigrationName": "arcade_p31_backend_recovery",
+    "edgeInventorySha256": "8400fe3f4f203d37e8208a8541c2e6ffc7d49ace98871ecdb80fef1026842da8",
+    "edgeFunctionCount": 12,
+    "edgeHighlights": {
+      "gomokuRoom": {
+        "version": 47,
+        "sha256": "d603e6f1865eb6e1ef3d0565fdee9d3839dc0a50b2e1a7610b2eaaad161a2fce"
+      },
+      "microArcadeBackup": {
+        "version": 1,
+        "sha256": "364c23e05d762edf1cbf699613c3242b9ae8ce1557322b2beb57c7af9b3bf980"
+      }
+    },
+    "cronInventorySha256": "22e21a59a108390b6f669698914e1c958ae4c357be36dce7947b137025e710bc",
+    "cronJobs": 13,
+    "p28ResourceOwnershipUnresolved": 0,
+    "note": "P29 certificates bind to this exact release epoch at certificate creation time; later unrelated epochs require a fresh baseline rather than rewriting old evidence."
+  }
+}
