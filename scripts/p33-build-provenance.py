@@ -34,6 +34,7 @@ def main():
     chain=m.get("chainRefs") or {}
     artifacts=m.get("requiredArtifacts") or []
     anchor_path=m.get("ledgerAnchorPath")
+    ledger_path=m.get("ledgerPath")
 
     if not m.get("changeId") or not m.get("subject"): errors.append("change_identity_required")
     if not git.get("repository") or not HEX40.match(str(git.get("commitSha",""))):
@@ -67,6 +68,23 @@ def main():
         if anchor and not HEX64.match(str(anchor.get("headHash",""))):
             errors.append("ledger_anchor_head_invalid")
 
+    if not ledger_path or not Path(ledger_path).is_file():
+        errors.append("ledger_required")
+    elif anchor:
+        ledger_bytes=Path(ledger_path).read_bytes()
+        if sha_file(ledger_path)!=anchor.get("ledgerSha256"):
+            errors.append("ledger_anchor_sha_mismatch")
+        try:
+            ledger_entries=[json.loads(x) for x in ledger_bytes.decode("utf-8").splitlines() if x.strip()]
+        except Exception:
+            errors.append("ledger_invalid_json")
+            ledger_entries=[]
+        if ledger_entries:
+            if len(ledger_entries)!=anchor.get("entryCount"):
+                errors.append("ledger_anchor_count_mismatch")
+            if ledger_entries[-1].get("entryHash")!=anchor.get("headHash"):
+                errors.append("ledger_anchor_head_mismatch")
+
     if errors: fail(args.out,errors)
 
     resolved=[]; missing=[]
@@ -93,6 +111,12 @@ def main():
       "liveAttestation":m.get("liveAttestation"),
       "approvals":m.get("approvals",[]),
       "artifacts":resolved,
+      "ledger":{
+        "path":ledger_path,
+        "sha256":sha_file(ledger_path),
+        "headHash":anchor["headHash"],
+        "entryCount":anchor["entryCount"]
+      },
       "ledgerAnchor":{
         "path":anchor_path,
         "sha256":sha_file(anchor_path),
