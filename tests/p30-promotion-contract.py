@@ -32,7 +32,8 @@ def run(cmd,expect=0):
     return p
 
 def build(d,manifest):
-    mp=d/"manifest.json"; cp=d/"candidate.json"
+    stem=(manifest["trainId"]+"-"+manifest["gitSha"][:8]).replace("/","-")
+    mp=d/(stem+".manifest.json"); cp=d/(stem+".candidate.json")
     mp.write_text(json.dumps(manifest),encoding="utf-8")
     run([sys.executable,str(BUILD),str(mp),"--out",str(cp)])
     return json.loads(cp.read_text()),cp
