@@ -1,0 +1,270 @@
+{
+  "schemaVersion": 2,
+  "phase": "P33",
+  "title": "Compliance Evidence, Audit Ledger & End-to-End Change Provenance",
+  "state": "implementation_active_operator_override",
+  "policyVersion": "2026-10-03.1",
+  "startedAt": "2026-10-03T21:52:18.112063Z",
+  "sourceMainSha": "0e7e48c57cc505ec0d42dcc706e364763b8e8c63",
+  "operatorOverride": {
+    "enabled": true,
+    "scope": "engineering phase progression",
+    "doesNotClaimExternalComplianceCertification": true,
+    "doesNotAuthorizeProductionConfigurationChanges": true,
+    "doesNotAuthorizePaidAuditFeatures": true
+  },
+  "evidencePrinciples": {
+    "appendOnlyLogicalLedger": true,
+    "tamperEvidentHashChain": true,
+    "reviewedHeadAnchor": true,
+    "gitReviewRequiredForCanonicalMutation": true,
+    "rawSecretsForbidden": true,
+    "rawAuthAuditRowsForbidden": true,
+    "personalDataMinimization": true,
+    "evidenceMustNameSourceAndTimestamp": true,
+    "observedFactsSeparatedFromDerivedJudgments": true,
+    "historicalEvidenceNeverSilentlyRewritten": true,
+    "externalComplianceCertificationClaimed": false
+  },
+  "sourceClasses": [
+    {
+      "id": "github_source",
+      "trust": "repository_and_ci_evidence",
+      "examples": [
+        "commit SHA",
+        "PR",
+        "workflow run",
+        "job conclusion",
+        "artifact checksum"
+      ]
+    },
+    {
+      "id": "supabase_live",
+      "trust": "live_platform_observation",
+      "examples": [
+        "project health",
+        "migration head",
+        "schema fingerprint",
+        "Edge version/SHA",
+        "cron inventory"
+      ]
+    },
+    {
+      "id": "supabase_native_audit",
+      "trust": "provider_native_evidence",
+      "availability": "plan_and_configuration_dependent",
+      "examples": [
+        "Auth audit logs",
+        "Platform Audit Logs",
+        "Postgres logs"
+      ]
+    },
+    {
+      "id": "human_approval",
+      "trust": "explicit_review_evidence",
+      "examples": [
+        "production approval",
+        "cost approval",
+        "exception approval",
+        "incident decision"
+      ]
+    },
+    {
+      "id": "derived_policy",
+      "trust": "deterministic_derived_evidence",
+      "examples": [
+        "P32 admission",
+        "P31 can-release",
+        "P30 promotion",
+        "P29 compatibility"
+      ]
+    }
+  ],
+  "currentLiveAttestation": {
+    "observedAt": "2026-10-03T21:52:18.112063Z",
+    "projectStatus": "ACTIVE_HEALTHY",
+    "migrationHead": "20261003202015",
+    "migrationName": "hub_h12_h13_notes_projection",
+    "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
+    "gomokuRoomVersion": 48,
+    "gomokuRoomSha256": "f0493fe400876a8d52f394724d6e44644978d2028b890c912ec283fdc32154cd",
+    "cronJobs": 14,
+    "registeredApps": 7,
+    "p32SnapshotSupersededByNewMigration": true
+  },
+  "currentAuditCapability": {
+    "organizationPlan": "free",
+    "platformAuditLogs": {
+      "available": false,
+      "reason": "Supabase Platform Audit Logs are currently documented as Team/Enterprise only."
+    },
+    "authAuditLogs": {
+      "postgresRowsObserved": 0,
+      "rawRowsCopiedIntoGit": false
+    },
+    "postgresConnectionLogging": "off",
+    "pgauditInstalled": false,
+    "pgStatStatementsInstalled": true,
+    "pgCronInstalled": true,
+    "automaticConfigurationChangeByP33": false
+  },
+  "ledgerRules": {
+    "format": "JSONL",
+    "entrySchemaVersion": 2,
+    "hashAlgorithm": "SHA-256",
+    "canonicalization": "UTF-8 canonical JSON with recursively sorted object keys and compact separators",
+    "entryHashInput": "entire entry excluding entryHash",
+    "previousHashRequiredAfterGenesis": true,
+    "sequenceStrictlyIncreasingByOne": true,
+    "eventIdUnique": true,
+    "recordedAtRequired": true,
+    "deletionForbidden": true,
+    "mutationOfExistingEntryForbidden": true,
+    "correctionModel": "append correction/superseding event; never rewrite prior entry",
+    "anchorRequired": true,
+    "anchorChecks": [
+      "entryCount",
+      "headSequence",
+      "headEventId",
+      "headHash",
+      "ledgerSha256"
+    ]
+  },
+  "provenanceRules": {
+    "exactGitCommitRequired": true,
+    "exactWorkflowRunRequired": true,
+    "artifactHashesRequired": true,
+    "artifactByteSizesRequired": true,
+    "artifactLogicalNamesUnique": true,
+    "artifactOrderSorted": true,
+    "chainReferencesRequired": true,
+    "rootHashAlgorithm": "SHA-256 over canonical pack excluding rootHash",
+    "missingRequiredArtifact": "fail",
+    "mutableUrlAloneInsufficient": true,
+    "ledgerAnchorBindingRequired": true
+  },
+  "privacyRules": {
+    "doNotStore": [
+      "access tokens",
+      "refresh tokens",
+      "service-role keys",
+      "database passwords",
+      "raw IP addresses in Git evidence",
+      "raw user-agent strings in Git evidence",
+      "raw Auth audit log payloads",
+      "user email addresses unless strictly required and separately approved"
+    ],
+    "allowedAggregates": [
+      "audit row counts",
+      "time ranges",
+      "status/result counts",
+      "non-personal resource identifiers",
+      "cryptographic hashes"
+    ]
+  },
+  "retentionClasses": {
+    "governance_receipt": {
+      "minimumDays": 730,
+      "canonical": true
+    },
+    "release_certificate": {
+      "minimumDays": 730,
+      "canonical": true
+    },
+    "admission_decision": {
+      "minimumDays": 365,
+      "canonical": true
+    },
+    "production_attestation": {
+      "minimumDays": 365,
+      "canonical": true
+    },
+    "exception_record": {
+      "minimumDays": 730,
+      "canonical": true
+    },
+    "incident_evidence": {
+      "minimumDays": 730,
+      "canonical": true,
+      "personalData": "minimized"
+    },
+    "workflow_artifact": {
+      "minimumDays": 90,
+      "canonical": false
+    },
+    "raw_provider_log": {
+      "retention": "provider_plan_dependent",
+      "canonical": false
+    }
+  },
+  "p32GovernanceProvenance": {
+    "changeId": "p32-policy-as-code-admission",
+    "pr": 23,
+    "branchHeadSha": "3a7f34109b481af0a7bab3affc9e23e734c3d513",
+    "mergeSha": "0e7e48c57cc505ec0d42dcc706e364763b8e8c63",
+    "workflows": [
+      {
+        "name": "CI",
+        "runId": 37123067111,
+        "runNumber": 784,
+        "conclusion": "success"
+      },
+      {
+        "name": "P32 Change Admission Warn",
+        "runId": 37123067138,
+        "runNumber": 1,
+        "conclusion": "success"
+      },
+      {
+        "name": "A7 / P25 Operations Contract",
+        "runId": 37123067132,
+        "runNumber": 456,
+        "conclusion": "success"
+      }
+    ],
+    "predecessorPhases": [
+      {
+        "phase": "P26",
+        "pr": 17,
+        "mergeSha": "01f40c2ee4feaecd204bf5b87d6a79ac81da90a2"
+      },
+      {
+        "phase": "P27",
+        "pr": 18,
+        "mergeSha": "f4e9c2f23a799426ea3a60046094df5436947ab9"
+      },
+      {
+        "phase": "P28",
+        "pr": 19,
+        "mergeSha": "85f23ea62b6bd874100ba4d9a158bd9574431312"
+      },
+      {
+        "phase": "P29",
+        "pr": 20,
+        "mergeSha": "2c1bd74dfab8c45425054e552ba92bc65713c6b5"
+      },
+      {
+        "phase": "P30",
+        "pr": 21,
+        "mergeSha": "dd35a66826471b4cd94c1b9e8ead90be18dc1dc5"
+      },
+      {
+        "phase": "P31",
+        "pr": 22,
+        "mergeSha": "fd0f541fef82539c75ce3c4b429a222b4a20663f"
+      }
+    ]
+  },
+  "completionCriteria": [
+    "canonical ledger verifies against reviewed head anchor",
+    "tampering, middle deletion, reordering and tail truncation are detected",
+    "append refuses invalid ledger/anchor",
+    "corrections append without rewriting old bytes",
+    "provenance packs are deterministic and bind exact Git/workflow identities",
+    "P32 governance change has reconstructable cross-phase provenance",
+    "missing artifact or chain reference fails",
+    "raw secret/personal audit declarations fail",
+    "P33 makes no production logging/configuration or paid-plan change",
+    "documentation clearly states this is internal evidence, not external certification"
+  ]
+}
