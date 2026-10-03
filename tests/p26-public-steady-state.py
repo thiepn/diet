@@ -25,6 +25,7 @@ def main():
     ap.add_argument("--out",default="p26-public-steady-state.json")
     args=ap.parse_args()
 
+    plan=json.loads(Path("platform-p26-steady-state-plan.json").read_text(encoding="utf-8"))
     source=Path("v2/data.js").read_text(encoding="utf-8")
     m=re.search(r"DIET_V2_SUPABASE_KEY='(sb_publishable_[A-Za-z0-9_-]+)'",source)
     if not m:
@@ -74,7 +75,8 @@ def main():
     payload={
         "schemaVersion":1,
         "phase":"P26",
-        "state":"staged_pending_p25",
+        "state":plan.get("state","unknown"),
+        "activeOperationsRelease":plan.get("activeOperationsRelease"),
         "checkedAt":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),
         "passed":all(x["passed"] for x in checks),
         "performanceWarning":any(
