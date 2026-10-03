@@ -26,12 +26,16 @@ jobs:
           python-version: '3.12'
       - name: Verify staged P26 contract
         run: node tests/p26-steady-state-contract.mjs
+      - name: Capture activation readiness
+        run: node scripts/p26-activation-readiness.mjs --out p26-activation-readiness.json
       - name: Capture public steady-state sample
         run: python tests/p26-public-steady-state.py --out p26-public-steady-state.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: p26-steady-state-${{ github.run_id }}
-          path: p26-public-steady-state.json
+          path: |
+            p26-activation-readiness.json
+            p26-public-steady-state.json
           if-no-files-found: error
           retention-days: 30
