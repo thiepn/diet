@@ -98,9 +98,9 @@ Individual health checks fail at 4000 ms. A single warning does not fail P25; su
 Trigger opportunities:
 
 - `17 * * * *`
-- `7,27,47 * * * *`
+- `7,27,37,47,57 * * * *`
 
-The higher trigger opportunity density compensates for previously observed sparse GitHub scheduled-workflow delivery. It does **not** change the evidence standard.
+The higher trigger opportunity density compensates for observed sparse GitHub scheduled-workflow delivery. Generation 3 began with 4 nominal opportunities/hour but produced only 5 successful samples in its first ~10 hours, so the schedule was increased to 6 nominal opportunities/hour without changing the probe or evidence rules. It does **not** change the evidence standard.
 
 Generation 3 requires:
 
