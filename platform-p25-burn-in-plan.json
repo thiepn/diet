@@ -231,14 +231,15 @@
     "workflow": ".github/workflows/p25-post-upgrade-burnin.yml",
     "cron": [
       "17 * * * *",
-      "7,27,47 * * * *"
+      "7,27,37,47,57 * * * *"
     ],
-    "nominalTriggerOpportunitiesPerHour": 4,
+    "nominalTriggerOpportunitiesPerHour": 6,
     "evidenceRuleUnchanged": true,
     "minimumSuccessfulSamples": 12,
     "sampleWindowMustSpanBurnIn": true,
     "minimumCoverageBuckets": 6,
     "coverageBucketHours": 4,
-    "terminalSampleRequiredAtOrAfterMinimumCompleteAfter": true
+    "terminalSampleRequiredAtOrAfterMinimumCompleteAfter": true,
+    "reason": "GitHub scheduled delivery remained sparse during generation 3 (5 successful samples in the first ~10 hours). Increase schedule opportunities without changing probe semantics, frozen production epoch, thresholds, or evidence requirements."
   }
 }
