@@ -9,11 +9,13 @@ function argValue(flag){
 const requireReady=args.includes('--require-ready');
 const atRaw=argValue('--at');
 const outPath=argValue('--out') || 'p26-activation-readiness.json';
+const p25Path=argValue('--p25') || 'platform-p25-burn-in-plan.json';
+const p26Path=argValue('--p26') || 'platform-p26-steady-state-plan.json';
 const checkedAt=atRaw ? new Date(atRaw) : new Date();
 if(Number.isNaN(checkedAt.getTime())) throw new Error('Invalid --at timestamp.');
 
-const p25=JSON.parse(fs.readFileSync('platform-p25-burn-in-plan.json','utf8'));
-const p26=JSON.parse(fs.readFileSync('platform-p26-steady-state-plan.json','utf8'));
+const p25=JSON.parse(fs.readFileSync(p25Path,'utf8'));
+const p26=JSON.parse(fs.readFileSync(p26Path,'utf8'));
 const req=p26.activationRequires || {};
 const freeze=p25.currentEpochFreezeEvidence || {};
 const latest=p25.latestObservedEpoch || {};
