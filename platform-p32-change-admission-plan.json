@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 2,
+  "phase": "P32",
+  "title": "Policy-as-Code Enforcement, Automated Change Admission & Fleet Guardrails",
+  "state": "implementation_active_operator_override",
+  "startedAt": "2026-10-03T12:21:26.764331Z",
+  "sourceMainSha": "fd0f541fef82539c75ce3c4b429a222b4a20663f",
+  "operatorOverride": {
+    "enabled": true,
+    "instruction": "Advance to P32 without waiting for earlier time-based certification gates.",
+    "scope": "engineering phase progression",
+    "doesNotAuthorizeProductionPromotion": true,
+    "doesNotAuthorizeProductionMutation": true,
+    "doesNotAuthorizePaidResourceProvisioning": true,
+    "doesNotAuthorizePolicySelfEnforcement": true
+  },
+  "currentMode": "warn",
+  "modeSemantics": {
+    "shadow": "evaluate and record only",
+    "warn": "evaluate and surface would-block/escalate decisions; CI remains non-blocking",
+    "enforce": "block governed change admission on block outcome",
+    "production": "enforce centrally across governed repositories"
+  },
+  "modePromotionPolicy": {
+    "automaticModePromotion": false,
+    "selfApprovalForbidden": true,
+    "enforceRequiresReviewedBundleChange": true,
+    "productionRequiresCentralizedEvidenceAndCrossRepoRollout": true
+  },
+  "liveBaseline": {
+    "observedAt": "2026-10-03T12:21:26.764331Z",
+    "projectStatus": "ACTIVE_HEALTHY",
+    "organizationPlan": "free",
+    "migrationHead": "20261003105645",
+    "migrationName": "gomoku_p20_production_slos_error_budgets",
+    "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
+    "edgeFunctionCount": 12,
+    "gomokuRoomVersion": 48,
+    "gomokuRoomSha256": "f0493fe400876a8d52f394724d6e44644978d2028b890c912ec283fdc32154cd",
+    "cronJobs": 14,
+    "registeredApps": 7,
+    "dependencyGraphCoveragePct": 94.44,
+    "registeredAppGovernanceCoveragePct": 85.71,
+    "unmodeledComponents": [
+      "semester-os"
+    ],
+    "releaseEpochState": "moving",
+    "fleetReleaseSafety": "amber",
+    "hostedBranchActionStatus": "MIGRATIONS_FAILED"
+  },
+  "admissionPipeline": [
+    "normalize_manifest",
+    "bind_policy_and_registry_versions",
+    "validate_component_ownership_and_lifecycle",
+    "classify_change_and_required_train",
+    "evaluate_security_data_and_supply_chain",
+    "evaluate_fleet_epoch_environment_and_cost",
+    "evaluate_dependency_compatibility",
+    "evaluate_exceptions",
+    "emit_deterministic_admission_receipt"
+  ],
+  "outcomes": {
+    "admit": "Change may enter P29/P30/P31 release flow. This is not production approval.",
+    "block": "Hard policy failure or required governance/evidence missing.",
+    "escalate": "Potentially valid change requires explicit human/platform/incident approval."
+  },
+  "fleetGuardrails": {
+    "unmodeledComponentBlocksOwnAdmission": true,
+    "incompleteGraphBlocksSharedStatefulAdmission": true,
+    "unrelatedGovernedAppFastMayAdmitDuringScopedAmber": true,
+    "gomokuScopedAdmissionBlockedWhileEdgeEpochMoving": true,
+    "hostedBranchFailureBlocksOnlyHostedBranchPath": true,
+    "localSupabaseEphemeralAllowedForStatefulValidation": true,
+    "directProductionMutationNeverAutoAdmits": true,
+    "policyEngineCannotGrantProductionApproval": true
+  },
+  "exceptionPolicy": {
+    "maximumLifetimeHours": 168,
+    "exactPolicyIdsRequired": true,
+    "exactScopesRequired": true,
+    "wildcardPoliciesAllowed": false,
+    "wildcardScopesAllowed": false,
+    "selfApprovalAllowed": false,
+    "expiredExceptionsIgnoredButReported": true,
+    "nonWaivableCannotBeOverridden": true
+  },
+  "automation": {
+    "level": "L1_evaluate_record_warn",
+    "mergeBlockingAllowedInCurrentMode": false,
+    "productionPromotionAllowed": false,
+    "productionMutationAllowed": false,
+    "paidProvisioningAllowed": false,
+    "policyModeSelfPromotionAllowed": false
+  },
+  "completionCriteria": [
+    "versioned policy bundle with stable IDs is committed",
+    "warn-mode workflow runs deterministically and remains non-blocking",
+    "non-waivable negative paths are contract-tested",
+    "unmodeled semester-os admission is blocked",
+    "unrelated governed app_fast admission is allowed during scoped amber",
+    "stateful/shared admission is blocked while dependency coverage is incomplete",
+    "local Supabase ephemeral stateful environment is accepted when fully evidenced",
+    "hosted branch path is rejected while Free/MIGRATIONS_FAILED",
+    "exceptions reject self-approval wildcards expiry overflow and non-waivable policies",
+    "policy self-modification cannot self-approve",
+    "admit never grants production approval"
+  ]
+}

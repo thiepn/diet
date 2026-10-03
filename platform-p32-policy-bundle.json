@@ -1,0 +1,296 @@
+{
+  "schemaVersion": 2,
+  "phase": "P32",
+  "bundleVersion": "2026-10-03.2",
+  "mode": "warn",
+  "capturedAt": "2026-10-03T12:21:26.764331Z",
+  "sourceMainSha": "fd0f541fef82539c75ce3c4b429a222b4a20663f",
+  "defaultDecision": "block",
+  "decisions": [
+    "admit",
+    "block",
+    "escalate"
+  ],
+  "fleetRegistryVersion": "2026-10-03.2",
+  "releaseRegistryVersion": "2026-10-03.2",
+  "dependencyGraphVersion": "2026-10-03.1",
+  "liveBaseline": {
+    "observedAt": "2026-10-03T12:21:26.764331Z",
+    "projectStatus": "ACTIVE_HEALTHY",
+    "organizationPlan": "free",
+    "migrationHead": "20261003105645",
+    "migrationName": "gomoku_p20_production_slos_error_budgets",
+    "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
+    "edgeFunctionCount": 12,
+    "gomokuRoomVersion": 48,
+    "gomokuRoomSha256": "f0493fe400876a8d52f394724d6e44644978d2028b890c912ec283fdc32154cd",
+    "cronJobs": 14,
+    "registeredApps": 7,
+    "dependencyGraphCoveragePct": 94.44,
+    "registeredAppGovernanceCoveragePct": 85.71,
+    "unmodeledComponents": [
+      "semester-os"
+    ],
+    "releaseEpochState": "moving",
+    "fleetReleaseSafety": "amber",
+    "hostedBranchActionStatus": "MIGRATIONS_FAILED"
+  },
+  "policies": [
+    {
+      "id": "P32-OWN-001",
+      "category": "ownership",
+      "severity": "high",
+      "waivable": false,
+      "onFail": "block",
+      "description": "Every changed component must be governed in P31 and represented in the P29 dependency graph."
+    },
+    {
+      "id": "P32-OWN-002",
+      "category": "ownership",
+      "severity": "high",
+      "waivable": false,
+      "onFail": "block",
+      "description": "Manifest owner must match the governed component owner for single-owner changes."
+    },
+    {
+      "id": "P32-LIFE-001",
+      "category": "lifecycle",
+      "severity": "high",
+      "waivable": true,
+      "onFail": "block",
+      "description": "Retired components reject feature work; deprecated/archived components require lifecycle-compatible intent."
+    },
+    {
+      "id": "P32-REG-001",
+      "category": "registry",
+      "severity": "high",
+      "waivable": false,
+      "onFail": "block",
+      "description": "Admission manifest must bind exact current P31 fleet and release registry versions."
+    },
+    {
+      "id": "P32-FLEET-001",
+      "category": "fleet",
+      "severity": "high",
+      "waivable": false,
+      "onFail": "block",
+      "description": "Shared/stateful changes require complete dependency governance coverage."
+    },
+    {
+      "id": "P32-EPOCH-001",
+      "category": "release",
+      "severity": "high",
+      "waivable": false,
+      "onFail": "block",
+      "description": "Stateful/shared changes are blocked while the shared release epoch is moving."
+    },
+    {
+      "id": "P32-SCOPE-001",
+      "category": "release",
+      "severity": "high",
+      "waivable": false,
+      "onFail": "block",
+      "description": "Changes intersecting current scoped fleet drift are blocked."
+    },
+    {
+      "id": "P32-ENV-001",
+      "category": "environment",
+      "severity": "high",
+      "waivable": false,
+      "onFail": "block",
+      "description": "Stateful changes require a healthy approved isolated stateful integration environment bound to the change."
+    },
+    {
+      "id": "P32-ENV-002",
+      "category": "environment",
+      "severity": "high",
+      "waivable": false,
+      "onFail": "block",
+      "description": "Hosted Supabase branch admission requires eligible plan and READY branch action state."
+    },
+    {
+      "id": "P32-COST-001",
+      "category": "cost",
+      "severity": "medium",
+      "waivable": false,
+      "onFail": "escalate",
+      "description": "Paid resources require explicit current-cost approval."
+    },
+    {
+      "id": "P32-PROD-001",
+      "category": "production",
+      "severity": "critical",
+      "waivable": false,
+      "onFail": "escalate",
+      "description": "Direct production mutation cannot be automatically admitted."
+    },
+    {
+      "id": "P32-DATA-001",
+      "category": "data_safety",
+      "severity": "critical",
+      "waivable": false,
+      "onFail": "escalate",
+      "description": "Destructive user-data/recovery/irreversible rewrite actions require governed human or incident approval."
+    },
+    {
+      "id": "P32-SEC-001",
+      "category": "security",
+      "severity": "critical",
+      "waivable": false,
+      "onFail": "block",
+      "description": "Client/browser code must never contain service-role or secret Supabase keys."
+    },
+    {
+      "id": "P32-SEC-002",
+      "category": "security",
+      "severity": "critical",
+      "waivable": false,
+      "onFail": "block",
+      "description": "User-editable metadata must not be used as an authorization source."
+    },
+    {
+      "id": "P32-SEC-003",
+      "category": "security",
+      "severity": "critical",
+      "waivable": false,
+      "onFail": "block",
+      "description": "New Data API tables/views must explicitly enable RLS before admission."
+    },
+    {
+      "id": "P32-SEC-004",
+      "category": "security",
+      "severity": "high",
+      "waivable": false,
+      "onFail": "block",
+      "description": "New public functions require explicit EXECUTE privilege decisions; SECURITY DEFINER requires restricted callable roles and an authorization design."
+    },
+    {
+      "id": "P32-SEC-005",
+      "category": "security",
+      "severity": "high",
+      "waivable": false,
+      "onFail": "block",
+      "description": "New public Data API objects require an explicit grant/revoke exposure decision."
+    },
+    {
+      "id": "P32-SUPPLY-001",
+      "category": "supply_chain",
+      "severity": "high",
+      "waivable": true,
+      "onFail": "block",
+      "description": "Production GitHub Actions must remain pinned to immutable commit SHAs."
+    },
+    {
+      "id": "P32-COMPAT-001",
+      "category": "compatibility",
+      "severity": "high",
+      "waivable": false,
+      "onFail": "block",
+      "description": "Breaking provider changes require complete P29 transitive-consumer impact evidence."
+    },
+    {
+      "id": "P32-TRAIN-001",
+      "category": "release",
+      "severity": "high",
+      "waivable": false,
+      "onFail": "block",
+      "description": "Shared/stateful changes must use a P30 stateful train, not app_fast."
+    },
+    {
+      "id": "P32-P31-001",
+      "category": "control_plane",
+      "severity": "high",
+      "waivable": false,
+      "onFail": "block",
+      "description": "Admission that claims P31 release eligibility must bind a current P31 allow decision for the same candidate/scopes."
+    },
+    {
+      "id": "P32-POLICY-001",
+      "category": "policy_integrity",
+      "severity": "critical",
+      "waivable": false,
+      "onFail": "escalate",
+      "description": "Policy bundle/engine/workflow changes require independent platform review and cannot self-approve."
+    },
+    {
+      "id": "P32-EXC-001",
+      "category": "exceptions",
+      "severity": "high",
+      "waivable": false,
+      "onFail": "block",
+      "description": "Exceptions must be exact, scoped, independently approved, time-bounded, and valid."
+    }
+  ],
+  "nonWaivablePolicyIds": [
+    "P32-OWN-001",
+    "P32-OWN-002",
+    "P32-REG-001",
+    "P32-FLEET-001",
+    "P32-EPOCH-001",
+    "P32-SCOPE-001",
+    "P32-ENV-001",
+    "P32-ENV-002",
+    "P32-COST-001",
+    "P32-PROD-001",
+    "P32-DATA-001",
+    "P32-SEC-001",
+    "P32-SEC-002",
+    "P32-SEC-003",
+    "P32-SEC-004",
+    "P32-SEC-005",
+    "P32-COMPAT-001",
+    "P32-TRAIN-001",
+    "P32-P31-001",
+    "P32-POLICY-001",
+    "P32-EXC-001"
+  ],
+  "exceptionPolicy": {
+    "maximumLifetimeHours": 168,
+    "wildcardPoliciesAllowed": false,
+    "wildcardScopesAllowed": false,
+    "selfApprovalAllowed": false,
+    "expiredExceptionDecision": "ignore_and_report",
+    "nonWaivablePolicyIds": [
+      "P32-OWN-001",
+      "P32-OWN-002",
+      "P32-REG-001",
+      "P32-FLEET-001",
+      "P32-EPOCH-001",
+      "P32-SCOPE-001",
+      "P32-ENV-001",
+      "P32-ENV-002",
+      "P32-COST-001",
+      "P32-PROD-001",
+      "P32-DATA-001",
+      "P32-SEC-001",
+      "P32-SEC-002",
+      "P32-SEC-003",
+      "P32-SEC-004",
+      "P32-SEC-005",
+      "P32-COMPAT-001",
+      "P32-TRAIN-001",
+      "P32-P31-001",
+      "P32-POLICY-001",
+      "P32-EXC-001"
+    ]
+  },
+  "modePolicy": {
+    "current": "warn",
+    "blocksMerge": false,
+    "recordsWouldBlock": true,
+    "recordsWouldEscalate": true,
+    "automaticModePromotion": false,
+    "enforceRequiresSeparateReviewedBundleChange": true
+  },
+  "supabaseSecurityBasis": {
+    "docsSnapshot": "2026-10-03",
+    "rules": [
+      "Data API grants and RLS are separate controls and both must be deliberate.",
+      "Exposed tables/views require RLS.",
+      "Functions require explicit EXECUTE grants/revokes.",
+      "SECURITY DEFINER functions require careful privilege and authorization review.",
+      "Client code must not expose service-role/secret credentials.",
+      "Authorization should use controlled claims/server-owned data rather than user-editable metadata."
+    ]
+  }
+}
