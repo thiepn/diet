@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://thiepn.dev/contracts/p33-ledger-entry.schema.json",
+  "title": "P33 anchored tamper-evident audit ledger entry",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "sequence",
+    "eventId",
+    "recordedAt",
+    "eventType",
+    "subject",
+    "actor",
+    "sourceClass",
+    "previousHash",
+    "evidence",
+    "entryHash"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 2
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "eventId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "recordedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "eventType": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subject": {
+      "type": "string",
+      "minLength": 1
+    },
+    "actor": {
+      "type": "object",
+      "required": [
+        "type",
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "sourceClass": {
+      "enum": [
+        "github_source",
+        "supabase_live",
+        "supabase_native_audit",
+        "human_approval",
+        "derived_policy"
+      ]
+    },
+    "previousHash": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "evidence": {
+      "type": "object"
+    },
+    "entryHash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "additionalProperties": false
+}
