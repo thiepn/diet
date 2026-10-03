@@ -31,7 +31,22 @@
     "excludeOperatorAndAdminWorkloadFromApplicationLatencyConclusions": true,
     "requireBeforeAfterEvidenceForEveryOptimization": true,
     "oneOptimizationClassAtATime": true,
-    "rollbackOnFunctionalRegression": true
+    "rollbackOnFunctionalRegression": true,
+    "publicSampling": {
+      "workflow": ".github/workflows/p26-steady-state-baseline.yml",
+      "cadenceHours": 4,
+      "cron": "23 */4 * * *",
+      "minimumObservationHours": 72,
+      "minimumScheduledSamples": 18,
+      "scheduledRunsRequireActivationReady": true,
+      "manualRunsAllowedWhileStaged": true,
+      "artifacts": [
+        "p26-activation-readiness.json",
+        "p26-optimization-triage.json",
+        "p26-public-steady-state.json"
+      ],
+      "retentionDays": 30
+    }
   },
   "provisionalBaseline": {
     "windowStart": "2026-10-01T07:54:44.803638Z",
