@@ -69,7 +69,7 @@ for(const key of [
 
 for(const token of [
   'active by explicit operator override','Production health: **green**',
-  'Release safety: **amber**','semester-os','gomoku-room is now **v48**',
+  'Release safety: **amber**','semester-os','`gomoku-room` is now **v48**',
   '94.44%','85.71%','observed but unmodeled',
   'expired leases remain evidence','does not promote production'
 ]) assert.ok(doc.includes(token),'P31 doc missing '+token);
