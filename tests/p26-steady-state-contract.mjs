@@ -56,6 +56,14 @@ assert.equal(live.performanceAdvisor.microArcadeForeignKeys,2);
 assert.equal(live.indexes.performanceAdvisorUnusedIndexFindings,108);
 assert.equal(live.indexes.zeroScanIndexesAtLeast1MiB,0);
 assert.equal(live.indexes.unusedIndexFindingsActionableNow,false);
+assert.equal(live.service24h.edgeGateway.rest.http5xx,0);
+assert.equal(live.service24h.edgeGateway.auth.http5xx,0);
+assert.ok(live.service24h.edgeGateway.rest.p95OriginMs<450);
+assert.ok(live.service24h.edgeGateway.auth.p95OriginMs<1422);
+assert.equal(live.service24h.authService.http5xx,0);
+assert.ok(live.service24h.authService.p95Ms<100);
+assert.equal(live.service24h.postgrestDiagnostics.timeoutManagerMessages,170);
+assert.equal(live.service24h.postgrestDiagnostics.userFacingEdge5xxObserved,0);
 
 for(const token of [
   'P26 is **staged, not active**',
@@ -68,6 +76,10 @@ for(const token of [
   'SELECT name FROM pg_timezone_names',
   '21 unindexed foreign keys',
   '108 unused indexes',
+  '23,359',
+  '326 ms',
+  '619 ms',
+  '170',
   'zero 5xx'
 ]) assert.ok(doc.includes(token),'P26 doc missing '+token);
 
