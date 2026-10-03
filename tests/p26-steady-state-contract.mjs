@@ -7,6 +7,7 @@ const p25=JSON.parse(fs.readFileSync('platform-p25-burn-in-plan.json','utf8'));
 const doc=fs.readFileSync('docs/P26-STEADY-STATE-BASELINE.md','utf8');
 const sql=fs.readFileSync('scripts/p26-steady-state-baseline.sql','utf8').toLowerCase();
 const gateScript=fs.readFileSync('scripts/p26-activation-readiness.mjs','utf8');
+const triageScript=fs.readFileSync('scripts/p26-optimization-triage.mjs','utf8');
 
 assert.equal(plan.phase,'P26');
 assert.ok(plan.schemaVersion>=2);
@@ -106,6 +107,30 @@ for(const required of [
   'historicalHostedUpgradeAttestation','postFinalSharedChangeEncryptedBackup',
   'frozen_epoch_changed'
 ]) assert.ok(gateScript.includes(required),'P26 activation gate missing '+required);
+
+for(const required of [
+  'automaticWritesAllowed=false','unused-indexes','unindexed-foreign-keys',
+  'postgrest-timeout-manager','temp-io','observe_and_measure'
+]) assert.ok(triageScript.includes(required),'P26 optimization triage missing '+required);
+
+const triageOut='p26-optimization-triage.test.json';
+try {
+  execFileSync(process.execPath,[
+    'scripts/p26-optimization-triage.mjs',
+    '--out',triageOut
+  ],{stdio:'pipe'});
+  const triage=JSON.parse(fs.readFileSync(triageOut,'utf8'));
+  assert.equal(triage.automaticWritesAllowed,false);
+  assert.equal(triage.decision,'observe_and_measure');
+  assert.equal(triage.summary.actionableNow,0);
+  assert.ok(triage.findings.some(x=>x.id==='db-lock-health' && x.state==='healthy'));
+  assert.ok(triage.findings.some(x=>x.id==='service-errors' && x.state==='healthy'));
+  assert.ok(triage.findings.some(x=>x.id==='unused-indexes' && x.state==='blocked'));
+  assert.ok(triage.findings.some(x=>x.id==='unindexed-foreign-keys' && x.state==='measure'));
+  assert.ok(triage.findings.some(x=>x.id==='postgrest-timeout-manager' && x.state==='watch'));
+} finally {
+  fs.rmSync(triageOut,{force:true});
+}
 
 const testOut='p26-activation-readiness.test.json';
 try {
