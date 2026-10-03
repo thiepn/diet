@@ -48,7 +48,7 @@ assert.equal(p25.generationState,'burn_in_active');
 assert.equal(p25.currentGenerationEligible,true);
 assert.equal(p25.generation,3);
 assert.equal(p25.nextGeneration,null);
-assert.equal(p25.generation3Sampling.nominalTriggerOpportunitiesPerHour,4);
+assert.equal(p25.generation3Sampling.nominalTriggerOpportunitiesPerHour,6);
 assert.equal(freeze.state,'invalidated_by_shared_epoch_change');
 
 for(const token of [
