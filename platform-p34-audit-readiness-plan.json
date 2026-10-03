@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 2,
+  "phase": "P34",
+  "title": "Security Control Mapping, Continuous Assurance & External Audit Readiness",
+  "state": "implementation_active_operator_override",
+  "startedAt": "2026-10-03T22:06:34.048444Z",
+  "sourceMainSha": "36793ca329a73fe7dba895e13ca753bc20349271",
+  "currentReadinessLevel": 2,
+  "targetBeforeExternalAudit": 4,
+  "externalCertificationClaimed": false,
+  "frameworkMapping": {
+    "nistCsf20": "Function-level internal crosswalk based on NIST CSF 2.0.",
+    "soc2": "High-level Trust Services Criteria domain crosswalk only; not an auditor-approved criterion mapping."
+  },
+  "continuousAssuranceRules": {
+    "controlCannotBeEffectiveFromDesignEvidenceAlone": true,
+    "operatingEffectivenessRequiresDefinedPeriod": true,
+    "staleEvidenceCannotPass": true,
+    "missingEvidenceIsNotTested": true,
+    "regressionReopensControl": true,
+    "deficiencyClosureRequiresRetest": true,
+    "riskAcceptanceRequiresExpiry": true,
+    "historicalDeficienciesNeverDeleted": true
+  },
+  "cadence": {
+    "per_change": [
+      "TH-GV-01",
+      "TH-GV-03",
+      "TH-ID-02",
+      "TH-PR-03",
+      "TH-PR-05",
+      "TH-PR-06",
+      "TH-DE-02"
+    ],
+    "daily": [
+      "TH-GV-02",
+      "TH-ID-01",
+      "TH-PR-01",
+      "TH-PR-02",
+      "TH-PR-04",
+      "TH-DE-01",
+      "TH-DE-03"
+    ],
+    "weekly": [
+      "deficiency aging",
+      "exception expiry",
+      "evidence freshness",
+      "control gaps"
+    ],
+    "monthly": [
+      "TH-RC-01",
+      "TH-RC-02",
+      "control-owner attestation"
+    ],
+    "quarterly": [
+      "TH-GV-04",
+      "catalog/framework mapping review"
+    ]
+  },
+  "currentBlockers": [
+    "P34-D001",
+    "P34-D002",
+    "P34-D003",
+    "P34-D004",
+    "P34-D005",
+    "P34-D006",
+    "P34-D007",
+    "P34-D008"
+  ],
+  "auditReadyGate": {
+    "maximumOpenCritical": 0,
+    "maximumOpenHigh": 0,
+    "staleControlsAllowed": 0,
+    "notTestedControlsAllowed": 0,
+    "operatingEffectivenessPeriodRequired": true,
+    "allControlOwnersAttested": true,
+    "externalAttestationStillFalseUntilActuallyObtained": true
+  },
+  "automation": {
+    "level": "L1_assess_package_report",
+    "productionMutationAllowed": false,
+    "automaticRemediationAllowed": false,
+    "externalCertificationClaimAllowed": false
+  },
+  "completionCriteria": [
+    "18-control catalog validates and maps all six NIST CSF 2.0 functions",
+    "assurance snapshot uses current live/advisor evidence",
+    "stale evidence and unsupported operating-effectiveness claims fail",
+    "deficiency lifecycle requires retest/evidence and bounded risk acceptance",
+    "audit-readiness package is deterministic and binds P33 ledger/anchor",
+    "package rejects unsupported certification/compliance claims",
+    "P34 performs no production mutation or automatic remediation"
+  ]
+}

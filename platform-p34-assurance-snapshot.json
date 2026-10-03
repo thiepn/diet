@@ -1,0 +1,300 @@
+{
+  "schemaVersion": 2,
+  "phase": "P34",
+  "snapshotVersion": "2026-10-03.1",
+  "snapshotAt": "2026-10-03T22:06:34.048444Z",
+  "overallState": "not_audit_ready",
+  "currentReadinessLevel": 2,
+  "readinessScale": {
+    "0": "no defined control program",
+    "1": "control catalog/design baseline",
+    "2": "implemented controls with point-in-time evidence",
+    "3": "continuous assurance operating over a defined period",
+    "4": "external-audit ready subject to auditor scope/criteria",
+    "5": "external attestation/certification obtained where applicable"
+  },
+  "externalAttestationClaim": false,
+  "livePlatform": {
+    "status": "ACTIVE_HEALTHY",
+    "migrationHead": "20261003202015",
+    "migrationName": "hub_h12_h13_notes_projection",
+    "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
+    "gomokuRoomVersion": 48,
+    "gomokuRoomSha256": "f0493fe400876a8d52f394724d6e44644978d2028b890c912ec283fdc32154cd",
+    "edgeFunctions": 12,
+    "cronJobs": 14,
+    "registeredApps": 7,
+    "releaseEpochState": "moving_since_p32_snapshot"
+  },
+  "securityAdvisor": {
+    "observedAt": "2026-10-03T22:06:31.170Z",
+    "warningCount": 44,
+    "infoCount": 71,
+    "findings": [
+      {
+        "lint": "authenticated_security_definer_function_executable",
+        "level": "WARN",
+        "count": 43,
+        "treatment": "priority_design_review"
+      },
+      {
+        "lint": "auth_leaked_password_protection",
+        "level": "WARN",
+        "count": 1,
+        "treatment": "configuration_gap"
+      },
+      {
+        "lint": "rls_enabled_no_policy",
+        "level": "INFO",
+        "count": 71,
+        "treatment": "exposure_and_access_model_classification"
+      }
+    ]
+  },
+  "performanceAdvisor": {
+    "observedAt": "2026-10-03T22:06:31.328Z",
+    "warningCount": 36,
+    "infoCount": 184,
+    "findings": [
+      {
+        "lint": "auth_rls_initplan",
+        "level": "WARN",
+        "count": 36,
+        "treatment": "performance_and_policy_review"
+      },
+      {
+        "lint": "unindexed_foreign_keys",
+        "level": "INFO",
+        "count": 61,
+        "treatment": "capacity_efficiency_review"
+      },
+      {
+        "lint": "unused_index",
+        "level": "INFO",
+        "count": 123,
+        "treatment": "longer_observation_before_removal"
+      }
+    ]
+  },
+  "governance": {
+    "p29GraphNodes": 17,
+    "p31ObservedComponents": 18,
+    "dependencyCoveragePct": 94.44,
+    "registeredAppsObserved": 7,
+    "registeredAppsGoverned": 6,
+    "registeredAppGovernanceCoveragePct": 85.71,
+    "unmodeledComponents": [
+      "semester-os"
+    ],
+    "p32AdmissionMode": "warn",
+    "p33LedgerAnchored": true,
+    "p33MergeSha": "36793ca329a73fe7dba895e13ca753bc20349271"
+  },
+  "controlAssessments": [
+    {
+      "controlId": "TH-GV-01",
+      "owner": "platform",
+      "designState": "implemented_point_in_time",
+      "operatingEffectiveness": "insufficient_period",
+      "evidenceObservedAt": "2026-10-03T22:06:34.048444Z",
+      "evidenceAgeHours": 0,
+      "maxEvidenceAgeHours": 168,
+      "freshness": "fresh",
+      "note": "P29-P33 release/governance contracts exist; P32 remains warn-only."
+    },
+    {
+      "controlId": "TH-GV-02",
+      "owner": "platform",
+      "designState": "needs_remediation",
+      "operatingEffectiveness": "insufficient_period",
+      "evidenceObservedAt": "2026-10-03T22:06:34.048444Z",
+      "evidenceAgeHours": 0,
+      "maxEvidenceAgeHours": 48,
+      "freshness": "fresh",
+      "note": "Semester OS is live-registered but ungoverned."
+    },
+    {
+      "controlId": "TH-GV-03",
+      "owner": "platform",
+      "designState": "implemented_point_in_time",
+      "operatingEffectiveness": "insufficient_period",
+      "evidenceObservedAt": "2026-10-03T22:06:34.048444Z",
+      "evidenceAgeHours": 0,
+      "maxEvidenceAgeHours": 168,
+      "freshness": "fresh",
+      "note": "P32 exception constraints are contract-tested."
+    },
+    {
+      "controlId": "TH-GV-04",
+      "owner": "platform",
+      "designState": "partial",
+      "operatingEffectiveness": "insufficient_period",
+      "evidenceObservedAt": "2026-10-03T22:06:34.048444Z",
+      "evidenceAgeHours": 0,
+      "maxEvidenceAgeHours": 2400,
+      "freshness": "fresh",
+      "note": "Provider boundaries documented; native audit capability is plan/config limited."
+    },
+    {
+      "controlId": "TH-ID-01",
+      "owner": "platform",
+      "designState": "needs_remediation",
+      "operatingEffectiveness": "insufficient_period",
+      "evidenceObservedAt": "2026-10-03T22:06:34.048444Z",
+      "evidenceAgeHours": 0,
+      "maxEvidenceAgeHours": 48,
+      "freshness": "fresh",
+      "note": "Fleet has 7 apps; Semester OS is observed_unmodeled."
+    },
+    {
+      "controlId": "TH-ID-02",
+      "owner": "platform",
+      "designState": "needs_remediation",
+      "operatingEffectiveness": "insufficient_period",
+      "evidenceObservedAt": "2026-10-03T22:06:34.048444Z",
+      "evidenceAgeHours": 0,
+      "maxEvidenceAgeHours": 168,
+      "freshness": "fresh",
+      "note": "P29 graph covers 17/18 observed fleet components."
+    },
+    {
+      "controlId": "TH-PR-01",
+      "owner": "account",
+      "designState": "needs_remediation",
+      "operatingEffectiveness": "insufficient_period",
+      "evidenceObservedAt": "2026-10-03T22:06:34.048444Z",
+      "evidenceAgeHours": 0,
+      "maxEvidenceAgeHours": 48,
+      "freshness": "fresh",
+      "note": "Leaked-password protection warning remains open."
+    },
+    {
+      "controlId": "TH-PR-02",
+      "owner": "platform",
+      "designState": "needs_review",
+      "operatingEffectiveness": "insufficient_period",
+      "evidenceObservedAt": "2026-10-03T22:06:34.048444Z",
+      "evidenceAgeHours": 0,
+      "maxEvidenceAgeHours": 48,
+      "freshness": "fresh",
+      "note": "71 RLS-no-policy findings and 36 auth RLS init-plan warnings need classification/disposition."
+    },
+    {
+      "controlId": "TH-PR-03",
+      "owner": "platform",
+      "designState": "implemented_point_in_time",
+      "operatingEffectiveness": "insufficient_period",
+      "evidenceObservedAt": "2026-10-03T22:06:34.048444Z",
+      "evidenceAgeHours": 0,
+      "maxEvidenceAgeHours": 168,
+      "freshness": "fresh",
+      "note": "P32/P33 negative-path secret/privacy controls pass."
+    },
+    {
+      "controlId": "TH-PR-04",
+      "owner": "platform",
+      "designState": "needs_remediation",
+      "operatingEffectiveness": "insufficient_period",
+      "evidenceObservedAt": "2026-10-03T22:06:34.048444Z",
+      "evidenceAgeHours": 0,
+      "maxEvidenceAgeHours": 48,
+      "freshness": "fresh",
+      "note": "43 authenticated-callable SECURITY DEFINER warnings remain open."
+    },
+    {
+      "controlId": "TH-PR-05",
+      "owner": "platform",
+      "designState": "implemented_point_in_time",
+      "operatingEffectiveness": "insufficient_period",
+      "evidenceObservedAt": "2026-10-03T22:06:34.048444Z",
+      "evidenceAgeHours": 0,
+      "maxEvidenceAgeHours": 168,
+      "freshness": "fresh",
+      "note": "Pinned workflow and policy-integrity contracts pass; P32 mode is warn."
+    },
+    {
+      "controlId": "TH-PR-06",
+      "owner": "account",
+      "designState": "implemented_point_in_time",
+      "operatingEffectiveness": "insufficient_period",
+      "evidenceObservedAt": "2026-10-03T22:06:34.048444Z",
+      "evidenceAgeHours": 0,
+      "maxEvidenceAgeHours": 168,
+      "freshness": "fresh",
+      "note": "Lifecycle and destructive-action guardrails exist."
+    },
+    {
+      "controlId": "TH-DE-01",
+      "owner": "platform",
+      "designState": "needs_remediation",
+      "operatingEffectiveness": "insufficient_period",
+      "evidenceObservedAt": "2026-10-03T22:06:34.048444Z",
+      "evidenceAgeHours": 0,
+      "maxEvidenceAgeHours": 48,
+      "freshness": "fresh",
+      "note": "Advisor snapshots are captured but open warnings remain."
+    },
+    {
+      "controlId": "TH-DE-02",
+      "owner": "platform",
+      "designState": "partial",
+      "operatingEffectiveness": "insufficient_period",
+      "evidenceObservedAt": "2026-10-03T22:06:34.048444Z",
+      "evidenceAgeHours": 0,
+      "maxEvidenceAgeHours": 168,
+      "freshness": "fresh",
+      "note": "P33 provides anchored internal provenance; native platform audit visibility is incomplete."
+    },
+    {
+      "controlId": "TH-DE-03",
+      "owner": "platform",
+      "designState": "partial",
+      "operatingEffectiveness": "insufficient_period",
+      "evidenceObservedAt": "2026-10-03T22:06:34.048444Z",
+      "evidenceAgeHours": 0,
+      "maxEvidenceAgeHours": 48,
+      "freshness": "fresh",
+      "note": "Drift detection exists; production migration advanced after P32 and period stability is not established."
+    },
+    {
+      "controlId": "TH-RS-01",
+      "owner": "platform",
+      "designState": "implemented_point_in_time",
+      "operatingEffectiveness": "insufficient_period",
+      "evidenceObservedAt": "2026-10-03T22:06:34.048444Z",
+      "evidenceAgeHours": 0,
+      "maxEvidenceAgeHours": 168,
+      "freshness": "fresh",
+      "note": "Incident/recovery decision controls are contract-tested."
+    },
+    {
+      "controlId": "TH-RC-01",
+      "owner": "platform",
+      "designState": "implemented_point_in_time",
+      "operatingEffectiveness": "insufficient_period",
+      "evidenceObservedAt": "2026-10-03T22:06:34.048444Z",
+      "evidenceAgeHours": 0,
+      "maxEvidenceAgeHours": 840,
+      "freshness": "fresh",
+      "note": "Recovery evidence exists; operating restore history over an audit period is not established."
+    },
+    {
+      "controlId": "TH-RC-02",
+      "owner": "platform",
+      "designState": "needs_review",
+      "operatingEffectiveness": "insufficient_period",
+      "evidenceObservedAt": "2026-10-03T22:06:34.048444Z",
+      "evidenceAgeHours": 0,
+      "maxEvidenceAgeHours": 840,
+      "freshness": "fresh",
+      "note": "SLO/capacity contracts exist; 36 RLS init-plan warnings and no operating-effectiveness period remain."
+    }
+  ],
+  "deficiencies": {
+    "open": 8,
+    "high": 4,
+    "medium": 4,
+    "critical": 0
+  },
+  "conclusion": "Control design and point-in-time evidence exist, but open security/governance gaps and lack of an operating-effectiveness period prevent external-audit-ready status."
+}
