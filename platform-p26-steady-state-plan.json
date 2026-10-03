@@ -47,7 +47,10 @@
       ],
       "retentionDays": 30,
       "sampleMath": "4-hour cadence across a full 72-hour span requires 18 intervals and therefore 19 endpoint-inclusive samples",
-      "qualifierScript": "scripts/p26-summarize-public-samples.py"
+      "qualifierScript": "scripts/p26-summarize-public-samples.py",
+      "authoritativePhaseState": "active_observation",
+      "authoritativeOperationsRelease": "P26.0",
+      "qualifierRequiresExactPhaseIdentity": true
     }
   },
   "provisionalBaseline": {
