@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 2,
+  "phase": "P31",
+  "registryVersion": "2026-10-03.2",
+  "publishedOperationsVersion": "P25.0",
+  "latestMergedGovernancePhase": "P30",
+  "latestMergedMainSha": "dd35a66826471b4cd94c1b9e8ead90be18dc1dc5",
+  "phases": [
+    {
+      "id": "P26",
+      "state": "merged_operator_override",
+      "mergeSha": "01f40c2ee4feaecd204bf5b87d6a79ac81da90a2",
+      "pr": 17
+    },
+    {
+      "id": "P27",
+      "state": "merged_operator_override",
+      "mergeSha": "f4e9c2f23a799426ea3a60046094df5436947ab9",
+      "pr": 18
+    },
+    {
+      "id": "P28",
+      "state": "merged_operator_override",
+      "mergeSha": "85f23ea62b6bd874100ba4d9a158bd9574431312",
+      "pr": 19
+    },
+    {
+      "id": "P29",
+      "state": "merged_operator_override",
+      "mergeSha": "2c1bd74dfab8c45425054e552ba92bc65713c6b5",
+      "pr": 20
+    },
+    {
+      "id": "P30",
+      "state": "merged_operator_override",
+      "mergeSha": "dd35a66826471b4cd94c1b9e8ead90be18dc1dc5",
+      "pr": 21
+    },
+    {
+      "id": "P31",
+      "state": "implementation_active_operator_override",
+      "pr": 22,
+      "branch": "p31-control-plane-release-registry"
+    }
+  ],
+  "trains": {
+    "active": [],
+    "production": [],
+    "observation": [],
+    "blocked": []
+  },
+  "invariants": {
+    "desiredStateMutationThroughReviewedGitOnly": true,
+    "oneProductionTrainPerConflictingScope": true,
+    "immutableP30CandidateRequired": true,
+    "p29CompatibilityEvidenceRequired": true,
+    "p30PromotionReceiptRequired": true,
+    "manualProductionApprovalRequired": true,
+    "liveObservationOverridesStaleRegistryFacts": true,
+    "unmodeledComponentCannotSelfAuthorize": true
+  }
+}
