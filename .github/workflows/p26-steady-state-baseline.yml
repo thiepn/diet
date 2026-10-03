@@ -1,0 +1,50 @@
+name: P26 Steady-State Baseline
+
+on:
+  schedule:
+    - cron: '23 */4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p26-steady-state-baseline
+  cancel-in-progress: true
+
+jobs:
+  steady-state-sample:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Verify staged P26 contract
+        run: node tests/p26-steady-state-contract.mjs
+      - name: Capture activation readiness
+        run: |
+          node scripts/p26-activation-readiness.mjs --out p26-activation-readiness.json
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            node scripts/p26-activation-readiness.mjs --require-ready --out p26-activation-readiness.json
+          fi
+      - name: Generate optimization triage
+        run: node scripts/p26-optimization-triage.mjs --out p26-optimization-triage.json
+      - name: Capture public steady-state sample
+        run: python tests/p26-public-steady-state.py --out p26-public-steady-state.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: p26-steady-state-${{ github.run_id }}
+          path: |
+            p26-activation-readiness.json
+            p26-optimization-triage.json
+            p26-public-steady-state.json
+          if-no-files-found: error
+          retention-days: 30
