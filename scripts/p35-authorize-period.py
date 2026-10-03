@@ -6,6 +6,11 @@ ORDER={"shadow":0,"warn":1,"enforce":2,"production":3}
 ALLOWED_HIGH={"closed","remediating","ready_for_retest","accepted_temporarily"}
 
 def load(p): return json.loads(Path(p).read_text(encoding="utf-8"))
+def file_sha(p):
+    h=hashlib.sha256()
+    with open(p,"rb") as f:
+        for b in iter(lambda:f.read(1048576),b""): h.update(b)
+    return h.hexdigest()
 def hash_obj(v):
     return hashlib.sha256(json.dumps(v,sort_keys=True,separators=(",",":"),ensure_ascii=False).encode()).hexdigest()
 
@@ -14,6 +19,9 @@ def main():
     ap.add_argument("gate")
     ap.add_argument("--plan",default="platform-p35-operating-effectiveness-plan.json")
     ap.add_argument("--out",default="p35-period-start-decision.json")
+    ap.add_argument("--p33-anchor",default="platform-p33-ledger-anchor.json")
+    ap.add_argument("--catalog",default="platform-p34-control-catalog.json")
+    ap.add_argument("--snapshot",default="platform-p34-assurance-snapshot.json")
     ap.add_argument("--require-allow",action="store_true")
     a=ap.parse_args()
     plan=load(a.plan); gate=load(a.gate)
@@ -42,6 +50,16 @@ def main():
     for key in ("p33HeadHash","p33AnchorSha256","controlCatalogSha256","p34SnapshotSha256"):
         v=gate.get(key)
         if not isinstance(v,str) or len(v)!=64: blockers.append("invalid_hash:"+key)
+
+    try:
+        anchor=load(a.p33_anchor)
+        if gate.get("p33HeadHash")!=anchor.get("headHash"): blockers.append("p33_head_hash_mismatch")
+        if gate.get("p33AnchorSha256")!=file_sha(a.p33_anchor): blockers.append("p33_anchor_sha_mismatch")
+        if gate.get("controlCatalogSha256")!=file_sha(a.catalog): blockers.append("control_catalog_sha_mismatch")
+        if gate.get("p34SnapshotSha256")!=file_sha(a.snapshot): blockers.append("p34_snapshot_sha_mismatch")
+    except Exception:
+        blockers.append("baseline_artifact_verification_failed")
+
     if not gate.get("authorizedBy") or gate.get("authorizedBy")==gate.get("requestedBy"):
         blockers.append("independent_authorizer_required")
 
