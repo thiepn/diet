@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://thiepn.dev/contracts/p35-audit-dry-run-manifest.schema.json",
+  "title": "P35 internal audit dry-run manifest",
+  "type": "object",
+  "required": [
+    "mode",
+    "statement",
+    "externalAttestation",
+    "operatingEffectivenessResultPath",
+    "p34AssessmentResultPath",
+    "remediationAssessmentPath",
+    "deficiencyRegisterPath",
+    "p33LedgerPath",
+    "p33AnchorPath",
+    "sections",
+    "artifacts"
+  ],
+  "properties": {
+    "mode": {
+      "enum": [
+        "simulation",
+        "operating"
+      ]
+    },
+    "statement": {
+      "type": "string",
+      "minLength": 1
+    },
+    "externalAttestation": {
+      "const": false
+    },
+    "operatingEffectivenessResultPath": {
+      "type": "string",
+      "minLength": 1
+    },
+    "p34AssessmentResultPath": {
+      "type": "string",
+      "minLength": 1
+    },
+    "remediationAssessmentPath": {
+      "type": "string",
+      "minLength": 1
+    },
+    "deficiencyRegisterPath": {
+      "type": "string",
+      "minLength": 1
+    },
+    "p33LedgerPath": {
+      "type": "string",
+      "minLength": 1
+    },
+    "p33AnchorPath": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sections": {
+      "type": "object"
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}

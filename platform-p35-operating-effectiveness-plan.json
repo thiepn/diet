@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 2,
+  "phase": "P35",
+  "title": "Operating-Effectiveness Evidence Period",
+  "state": "not_started_start_gate_blocked",
+  "sourceMainSha": "f50363813bddd86c6f2163f13254352685904afd",
+  "evidencePeriod": {
+    "internalDryRunMinimumCalendarDays": 30,
+    "externalReadinessPlanningTargetDays": 90,
+    "externalReadinessTargetNote": "Planning default only. The actual audit period, criteria and sample sizes are agreed with the eventual auditor/framework.",
+    "periodStart": null,
+    "periodEnd": null,
+    "startsAutomatically": false,
+    "backfillAllowed": false,
+    "syntheticEvidenceAllowedForOperatingPeriod": false
+  },
+  "baselineBinding": {
+    "p34CatalogVersion": "2026-10-03.1",
+    "p34SnapshotVersion": "2026-10-03.1",
+    "p33LedgerAnchorRequired": true,
+    "exactStartArtifactsMustBeHashed": true,
+    "baselineFrozenAtStart": true
+  },
+  "startGate": {
+    "minimumScopedEpochStableMinutes": 60,
+    "noCriticalOpenDeficiencies": true,
+    "highDeficienciesExcludingPeriodDeficiencyMustBe": [
+      "closed",
+      "remediating",
+      "ready_for_retest",
+      "accepted_temporarily"
+    ],
+    "highDeficienciesChecked": [
+      "P34-D001",
+      "P34-D002",
+      "P34-D005"
+    ],
+    "p32MinimumMode": "warn",
+    "p33CanonicalLedgerVerified": true,
+    "controlCatalogFrozen": true,
+    "evidenceCollectorContractPass": true,
+    "explicitStartAuthorizationRequired": true
+  },
+  "currentStartGateSnapshot": {
+    "observedAt": "2026-10-03T22:55:16.598746Z",
+    "canStart": false,
+    "blockers": [
+      "production migration advanced after P34 to 20261003221217_hub_h15_tms60_projection",
+      "P34-D001 is decision_required",
+      "P34-D002 is authorization_review_ready",
+      "P34-D005 is governance_onboarding_required",
+      "no explicit P35 start authorization exists"
+    ],
+    "periodClockStarted": false
+  },
+  "resetConditions": [
+    "material control redesign affecting sampled population",
+    "critical security/control failure",
+    "unexplained loss or corruption of required evidence",
+    "evidence tooling change that invalidates prior samples",
+    "control catalog change that changes sampled objectives without an approved period amendment"
+  ],
+  "evidenceCadence": {
+    "perChange": {
+      "minimumCoveragePct": 100,
+      "requiredControls": [
+        "TH-GV-01",
+        "TH-ID-02",
+        "TH-PR-03",
+        "TH-PR-05",
+        "TH-PR-06",
+        "TH-DE-02",
+        "TH-DE-03"
+      ]
+    },
+    "daily": {
+      "minimumSuccessfulDaysPct": 95,
+      "maximumConsecutiveMissedDays": 1,
+      "requiredControls": [
+        "TH-GV-02",
+        "TH-ID-01",
+        "TH-PR-01",
+        "TH-PR-02",
+        "TH-PR-04",
+        "TH-DE-01",
+        "TH-DE-03"
+      ]
+    },
+    "weekly": {
+      "minimumSuccessfulWeeksPct": 100,
+      "requiredChecks": [
+        "open_deficiency_aging",
+        "exception_aging",
+        "evidence_freshness"
+      ]
+    },
+    "monthly": {
+      "minimumSuccessfulCycles": 1,
+      "requiredChecks": [
+        "TH-RC-01",
+        "TH-RC-02",
+        "control_owner_attestation_platform",
+        "control_owner_attestation_account",
+        "readiness_summary"
+      ]
+    }
+  },
+  "populationRequirements": {
+    "changes": "all production-impacting changes in period",
+    "incidents": "all incidents; if zero, at least one documented incident-response drill",
+    "restore": "at least one restore/recovery sample or approved recovery drill",
+    "exceptions": "all policy/risk exceptions in period; zero is valid only with an explicit zero-population record",
+    "accessControl": "all changed privileged/RLS surfaces plus representative unchanged samples"
+  },
+  "failureTreatment": {
+    "everyFailRequiresLinkedIssue": true,
+    "failMustHaveSubsequentResolutionEvidenceToPassPeriod": true,
+    "unexplainedFailureFailsPeriod": true,
+    "hiddenOrDeletedFailureFailsPeriod": true
+  },
+  "completionGate": {
+    "minimumCalendarDays": 30,
+    "perChangeCoveragePct": 100,
+    "dailyCoverageThresholdPct": 95,
+    "maximumConsecutiveMissedDays": 1,
+    "weeklyReviewsComplete": true,
+    "monthlyCycleComplete": true,
+    "incidentPopulationReconciled": true,
+    "restoreSamplePresent": true,
+    "exceptionPopulationReconciled": true,
+    "allFailuresExplainedAndResolved": true,
+    "controlOwnerAttestationsComplete": true,
+    "externalCertificationClaim": false
+  }
+}
