@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 2,
+  "phase": "P27",
+  "title": "Capacity Planning, Long-Term SLOs & Autonomous Operations Hardening",
+  "state": "implementation_active_operator_override",
+  "startedAt": "2026-10-03T08:44:24.387083Z",
+  "sourceMainSha": "01f40c2ee4feaecd204bf5b87d6a79ac81da90a2",
+  "operatorOverride": {
+    "enabled": true,
+    "instruction": "Advance to P27 without waiting for P25/P26 time-based certification gates.",
+    "scope": "engineering phase progression",
+    "doesNotAuthorizeProductionMutation": true
+  },
+  "productionMutationMode": "human_approval_only",
+  "provisionalCapacitySnapshot": {
+    "observedAt": "2026-10-03T08:44:24.387083Z",
+    "databaseBytes": 36596883,
+    "databasePretty": "35 MB",
+    "maxConnections": 60,
+    "superuserReservedConnections": 3,
+    "usableConnections": 57,
+    "currentConnections": 10,
+    "currentConnectionUtilizationPct": 17.54,
+    "activeConnections": 1,
+    "activeConnectionUtilizationPct": 1.75,
+    "idleConnections": 8,
+    "idleInTransactionConnections": 0,
+    "longRunningTransactionsOver30s": 0,
+    "blockedSessions": 0,
+    "largestRelationBytes": 1400832,
+    "userTableBytes": 11722752,
+    "userIndexBytes": 8527872,
+    "walBytesSinceStatsReset": 56014422,
+    "statsResetAt": "2026-10-01T07:53:10.642053Z"
+  },
+  "shortWindowGrowthDiagnostic": {
+    "previousObservedAt": "2026-10-01T12:59:18.343021Z",
+    "previousDatabaseBytes": 26799251,
+    "currentObservedAt": "2026-10-03T08:44:24.387083Z",
+    "currentDatabaseBytes": 36596883,
+    "observedDays": 1.823,
+    "approximateDailyGrowthBytes": 5374495,
+    "forecastQualified": false,
+    "reason": "Window is shorter than the 14-day qualification minimum and includes active shared-platform development."
+  },
+  "trafficSnapshot": {
+    "observedPeakHour": "2026-10-03T08:00:00Z",
+    "observedPeakHourlyRequests": 10289,
+    "observedPeakHour5xx": 0,
+    "observedPeakHourP95OriginMs": 187,
+    "otherHighVolumeHours": [
+      {
+        "hour": "2026-10-02T09:00:00Z",
+        "requests": 6729,
+        "http5xx": 0,
+        "p95OriginMs": 305
+      },
+      {
+        "hour": "2026-10-02T15:00:00Z",
+        "requests": 5893,
+        "http5xx": 0,
+        "p95OriginMs": 326
+      },
+      {
+        "hour": "2026-10-02T20:00:00Z",
+        "requests": 4380,
+        "http5xx": 0,
+        "p95OriginMs": 342
+      }
+    ],
+    "lowTrafficHoursExcludedFromPercentileCalibration": true
+  },
+  "capacityPolicy": {
+    "connectionWarningPctOfUsable": 60,
+    "connectionCriticalPctOfUsable": 80,
+    "connectionSustainedMinutes": 15,
+    "idleInTransactionWarningCount": 1,
+    "blockedSessionWarningCount": 1,
+    "longRunningTransactionWarningSeconds": 30,
+    "databaseGrowthForecastMinimumDays": 14,
+    "databaseGrowthForecastMinimumSamples": 3,
+    "forecastHorizonDays": [
+      30,
+      90,
+      180,
+      365
+    ],
+    "diskCapacityThresholdsRequireKnownProvisionedLimit": true,
+    "computeScalingRequiresSustainedAttributedPressure": true,
+    "poolChangesRequireObservedPeakConnectionEvidence": true,
+    "replicaRequiresMeasuredReadPressureOrGeographicLatencyNeed": true,
+    "singleSpikeNeverTriggersCapacityMutation": true
+  },
+  "sloPolicy": {
+    "status": "active_candidate_policy_under_observation",
+    "measurementWindowDays": 30,
+    "availability": {
+      "targetPct": 99.9,
+      "monthlyErrorBudgetMinutesApprox": 43.2,
+      "errorBudgetFraction": 0.001,
+      "combineGatewayAndSyntheticEvidence": true
+    },
+    "latency": {
+      "sourceP26RestP95Ms": 326,
+      "sourceP26AuthP95Ms": 619,
+      "restP95WarningMs": 750,
+      "restP95CriticalMs": 1500,
+      "authP95WarningMs": 929,
+      "authP95CriticalMs": 1500,
+      "consecutiveBreachesForLatencyAlert": 3
+    },
+    "burnPolicy": {
+      "fastWindowMinutes": 60,
+      "fastBurnRateCritical": 14.4,
+      "slowWindowHours": 6,
+      "slowBurnRateCritical": 6,
+      "isolatedWarningPagesHuman": false
+    },
+    "database": {
+      "deadlocksTarget": 0,
+      "blockedSessionsSustainedTarget": 0,
+      "idleInTransactionSustainedTarget": 0,
+      "repeatedSlowQueryThresholdMs": 100,
+      "repeatedSlowQueryMinimumCalls": 10
+    }
+  },
+  "autonomyModel": {
+    "activeLevel": "L1_detect_classify_report",
+    "mutationAllowedWithoutHumanApproval": false,
+    "allowedWithoutApproval": [
+      "read-only metrics",
+      "synthetic probes",
+      "capacity/SLO calculations",
+      "error-budget classification",
+      "alert deduplication",
+      "evidence artifacts",
+      "runbook recommendation"
+    ],
+    "prohibitedWithoutApproval": [
+      "schema DDL",
+      "index creation",
+      "index deletion",
+      "VACUUM FULL",
+      "REINDEX",
+      "terminate sessions",
+      "compute resize",
+      "pool-size change",
+      "disk/IOPS change",
+      "read-replica creation/removal",
+      "Auth limit changes",
+      "RLS changes",
+      "secret rotation",
+      "pause/restore project",
+      "user-data deletion"
+    ],
+    "futureL2Requires": [
+      "explicit runbook",
+      "bounded blast radius",
+      "reversible action",
+      "simulation coverage",
+      "automatic verification",
+      "automatic rollback condition",
+      "no user-data mutation",
+      "P20 governance registration"
+    ]
+  },
+  "alertPolicy": {
+    "deduplicateBy": "signal+surface+severity",
+    "cooldownMinutes": 60,
+    "evidenceAnchorRequired": true,
+    "transientSingleWarningSuppressed": true,
+    "escalationOrder": [
+      "observe",
+      "correlate",
+      "classify",
+      "recommend",
+      "human-approved-mitigation"
+    ]
+  },
+  "completionCriteria": [
+    "capacity forecast has >=14 days and >=3 daily snapshots",
+    "30/90/180/365-day projections generated",
+    "SLO evaluator verified for healthy, slow-burn and fast-burn paths",
+    "public synthetic sampling operates hourly",
+    "autonomy decision engine proves mutationAllowed=false",
+    "no contract permits destructive autonomous action",
+    "current capacity snapshot refreshed and documented"
+  ]
+}
