@@ -10,6 +10,7 @@ const gateScript=fs.readFileSync('scripts/p26-activation-readiness.mjs','utf8');
 const triageScript=fs.readFileSync('scripts/p26-optimization-triage.mjs','utf8');
 const workflow=fs.readFileSync('.github/workflows/p26-steady-state-baseline.yml','utf8');
 const publicProbe=fs.readFileSync('tests/p26-public-steady-state.py','utf8');
+const promotionScript=fs.readFileSync('scripts/p26-build-promotion-plan.mjs','utf8');
 
 assert.equal(plan.phase,'P26');
 assert.ok(plan.schemaVersion>=2);
@@ -133,6 +134,11 @@ assert.ok(publicProbe.includes('platform-p26-steady-state-plan.json'));
 assert.ok(publicProbe.includes('"state":plan.get("state","unknown")'));
 assert.ok(publicProbe.includes('"activeOperationsRelease":plan.get("activeOperationsRelease")'));
 
+for(const required of [
+  'active_observation','P26.0','earliestAuthoritativeBaselineCompleteAt',
+  'mutationsAllowed:false','optimizationTriage.automaticWritesAllowed=false'
+]) assert.ok(promotionScript.includes(required),'P26 promotion plan missing '+required);
+
 const sampleDir='p26-public-samples.test';
 const summaryOut='p26-public-baseline-summary.test.json';
 try {
@@ -173,6 +179,55 @@ try {
 } finally {
   fs.rmSync(sampleDir,{recursive:true,force:true});
   fs.rmSync(summaryOut,{force:true});
+}
+
+const promotionP25='p26-promotion-p25.test.json';
+const promotionP26='p26-promotion-p26.test.json';
+const promotionOut='p26-promotion-plan.test.json';
+try {
+  const readyP25=structuredClone(p25);
+  readyP25.completionState={...(readyP25.completionState||{}),complete:true,remaining:[]};
+  readyP25.currentGenerationEligible=true;
+  readyP25.generation=plan.activationRequires.p25Generation;
+  readyP25.minimumCompleteAfter='2026-10-03T20:16:15.888200Z';
+  readyP25.historicalHostedUpgradeAttestation={...(readyP25.historicalHostedUpgradeAttestation||{}),status:'pass'};
+  readyP25.latestPostUpgradeOffsiteBackup={
+    ...(readyP25.latestPostUpgradeOffsiteBackup||{}),
+    conclusion:'success',afterLatestDatabaseMigration:true,afterLatestEdgeDeployment:true
+  };
+  readyP25.currentEpochFreezeEvidence={
+    ...(readyP25.currentEpochFreezeEvidence||{}),
+    p18Integrity:'clean',p20SchemaDrift:false,p21Readiness:'pass',p22Maintenance:'pass',
+    securityAdvisorReviewed:true,performanceAdvisorReviewed:true
+  };
+  readyP25.latestObservedEpoch={
+    ...(readyP25.latestObservedEpoch||{}),
+    migrationVersion:readyP25.currentEpochFreezeEvidence.migrationVersion,
+    semanticSchemaSha256:readyP25.currentEpochFreezeEvidence.semanticSchemaSha256,
+    gomokuRoomVersion:readyP25.currentEpochFreezeEvidence.gomokuRoomVersion,
+    gomokuRoomSha256:readyP25.currentEpochFreezeEvidence.gomokuRoomSha256
+  };
+  fs.writeFileSync(promotionP25,JSON.stringify(readyP25));
+  fs.writeFileSync(promotionP26,JSON.stringify(plan));
+  execFileSync(process.execPath,[
+    'scripts/p26-build-promotion-plan.mjs',
+    '--p25',promotionP25,
+    '--p26',promotionP26,
+    '--at','2026-10-03T20:20:00Z',
+    '--out',promotionOut
+  ],{stdio:'pipe'});
+  const promotion=JSON.parse(fs.readFileSync(promotionOut,'utf8'));
+  assert.equal(promotion.readyForPromotion,true);
+  assert.equal(promotion.mutationsAllowed,false);
+  assert.equal(promotion.proposedMetadata.state,'active_observation');
+  assert.equal(promotion.proposedMetadata.activeOperationsRelease,'P26.0');
+  assert.equal(promotion.proposedMetadata.minimumPublicSamples,19);
+  assert.equal(promotion.proposedMetadata.publicSampleCadenceHours,4);
+  assert.equal(promotion.proposedMetadata.earliestAuthoritativeBaselineCompleteAt,'2026-10-06T20:20:00.000Z');
+} finally {
+  fs.rmSync(promotionP25,{force:true});
+  fs.rmSync(promotionP26,{force:true});
+  fs.rmSync(promotionOut,{force:true});
 }
 
 const triageOut='p26-optimization-triage.test.json';
