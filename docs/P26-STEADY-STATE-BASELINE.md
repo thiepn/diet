@@ -125,7 +125,7 @@ P26 uses these rules:
 
 ## Authoritative observation collection
 
-The staged P26 workflow is prepared to collect one public steady-state sample every **4 hours** once P26 is active. Over the minimum **72-hour** authoritative window, that yields at least **18 scheduled samples** when GitHub scheduling behaves normally.
+The staged P26 workflow is prepared to collect one public steady-state sample every **4 hours** once P26 is active. A full **72-hour** span at 4-hour cadence requires **18 intervals and therefore 19 endpoint-inclusive samples**. P26 requires at least **19 valid samples** spanning at least 72 hours; sample count alone is never enough.
 
 Scheduled runs are fail-closed: they invoke the activation gate with `--require-ready`. A scheduled sample is therefore invalid if P25 has not been formally certified or if the frozen epoch/control prerequisites are no longer satisfied. Manual workflow runs remain available while P26 is staged for validation, but they do not count as authoritative post-activation evidence.
 
@@ -136,6 +136,8 @@ Each run retains three artifacts for 30 days:
 - public steady-state health/latency sample.
 
 The public probe derives its phase state from `platform-p26-steady-state-plan.json` rather than hard-coding staged state, so the same collector can transition to the active P26 epoch without changing probe semantics.
+
+`scripts/p26-summarize-public-samples.py` is the qualification layer. It refuses certification unless the sample set has at least 19 samples, spans at least 72 hours, every sample passes, no performance-warning sample is present, and the sample set represents one coherent P26 phase state. It also freezes p50/p95/max public latency distributions for the authoritative baseline.
 
 
 ## Automated optimization triage
