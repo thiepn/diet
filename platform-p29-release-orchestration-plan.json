@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 2,
+  "phase": "P29",
+  "title": "Cross-App Release Orchestration, Dependency Graph & Compatibility Certification",
+  "state": "implementation_active_operator_override",
+  "startedAt": "2026-10-03T10:53:23.237810Z",
+  "sourceMainSha": "85f23ea62b6bd874100ba4d9a158bd9574431312",
+  "operatorOverride": {
+    "enabled": true,
+    "instruction": "Advance to P29 without waiting for earlier time-based certification gates.",
+    "scope": "engineering phase progression",
+    "doesNotBypassFutureP29CompatibilityEvidence": true
+  },
+  "dependencyGraph": {
+    "file": "platform-p29-dependency-graph.json",
+    "version": "2026-10-03.1",
+    "nodeCount": 17,
+    "edgeCount": 47,
+    "ownershipSource": "platform-p28-resource-ownership.json",
+    "unresolvedP28Resources": 0
+  },
+  "currentEpoch": {
+    "observedAt": "2026-10-03T10:53:23.237810Z",
+    "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
+    "migrationHead": "20261003094639",
+    "migrationName": "arcade_p31_backend_recovery",
+    "edgeInventorySha256": "8400fe3f4f203d37e8208a8541c2e6ffc7d49ace98871ecdb80fef1026842da8",
+    "edgeFunctionCount": 12,
+    "cronInventorySha256": "22e21a59a108390b6f669698914e1c958ae4c357be36dce7947b137025e710bc",
+    "cronJobs": 13,
+    "gomokuRoom": {
+      "version": 47,
+      "sha256": "d603e6f1865eb6e1ef3d0565fdee9d3839dc0a50b2e1a7610b2eaaad161a2fce"
+    },
+    "microArcadeBackup": {
+      "version": 1,
+      "sha256": "364c23e05d762edf1cbf699613c3242b9ae8ce1557322b2beb57c7af9b3bf980"
+    }
+  },
+  "changeClasses": {
+    "provider_additive": {
+      "breaking": false,
+      "consumerScope": "direct",
+      "pattern": "backward_compatible_provider_then_consumers"
+    },
+    "provider_breaking": {
+      "breaking": true,
+      "consumerScope": "transitive",
+      "pattern": "expand_migrate_contract"
+    },
+    "consumer_only": {
+      "breaking": false,
+      "consumerScope": "self",
+      "pattern": "consumer_only"
+    },
+    "data_migration_no_contract": {
+      "breaking": false,
+      "consumerScope": "owner_plus_platform",
+      "pattern": "migration_then_owner_validation"
+    },
+    "infrastructure_contract": {
+      "breaking": true,
+      "consumerScope": "transitive",
+      "pattern": "platform_then_consumer_matrix"
+    },
+    "operational_job": {
+      "breaking": false,
+      "consumerScope": "owner_plus_platform",
+      "pattern": "job_then_operational_validation"
+    }
+  },
+  "releaseProtocol": {
+    "defaultBreakingPattern": "expand_migrate_contract",
+    "waves": [
+      "W0 freeze graph/change/epoch and calculate impact",
+      "W1 deploy backward-compatible providers",
+      "W2 certify provider health plus old-consumer compatibility",
+      "W3 release affected consumers in dependency order",
+      "W4 certify full affected compatibility matrix",
+      "W5 remove deprecated contracts only after explicit cleanup authorization",
+      "W6 issue immutable compatibility certificate"
+    ],
+    "providerBeforeConsumer": true,
+    "noImplicitAffectedConsumerExclusion": true,
+    "directBreakingCutoverRequires": [
+      "declared maintenance window",
+      "all affected consumers included",
+      "candidate consumer compatibility evidence",
+      "rollback or forward-fix plan",
+      "frozen release epoch"
+    ]
+  },
+  "certificationPolicy": {
+    "immutableInputs": [
+      "graphVersion",
+      "graphSha256",
+      "changeManifestSha256",
+      "semanticSchemaSha256",
+      "migrationHead",
+      "edgeInventorySha256",
+      "cronInventorySha256",
+      "changedComponents",
+      "affectedComponents",
+      "requiredScopes"
+    ],
+    "requiredEvidence": [
+      "all affected component results",
+      "all required certification scopes",
+      "baseline vs observed epoch equality",
+      "quiet-window evidence when shared provider/epoch changes are involved",
+      "provider and consumer compatibility results",
+      "security/integrity regression when required by impact"
+    ],
+    "invalidationTriggers": [
+      "dependency graph content or version change",
+      "change manifest content change",
+      "new migration",
+      "semantic schema fingerprint change",
+      "affected Edge inventory change",
+      "affected cron inventory change",
+      "missing or failed affected component",
+      "missing or failed required scope",
+      "insufficient required quiet window"
+    ],
+    "certificateId": "sha256 of canonical certified evidence",
+    "certificateIsImmutableReceipt": true
+  },
+  "quietWindowPolicy": {
+    "sharedProviderMinutes": 60,
+    "requiredFor": [
+      "provider_breaking",
+      "infrastructure_contract",
+      "release-epoch-changing provider_additive",
+      "operational job changing cron inventory"
+    ],
+    "unrelatedConsumerOnlyReleaseMayProceed": true,
+    "anyInScopeProviderEpochChangeRestartsWindow": true
+  },
+  "rollbackPolicy": {
+    "databaseDefault": "forward_fix_after_expand_migrate_contract",
+    "destructiveSchemaRollbackAutomatic": false,
+    "applicationRollbackAllowedOnlyIfProviderCompatibilityRemains": true,
+    "certificateInvalidatedByRollbackEpochChange": true
+  },
+  "automation": {
+    "level": "L1_plan_validate_certify",
+    "productionPromotionAllowed": false,
+    "productionMutationAllowed": false,
+    "allowed": [
+      "validate dependency graph",
+      "calculate impact",
+      "produce release waves",
+      "validate evidence",
+      "issue compatibility certificate artifact"
+    ]
+  },
+  "completionCriteria": [
+    "P28 ownership has zero unresolved known resources",
+    "dependency graph validates as acyclic and ownership-aligned",
+    "direct and transitive impact analysis is deterministic",
+    "provider-before-consumer release order is deterministic",
+    "certificate binds graph and change manifest content hashes",
+    "certificate rejects stale schema/migration/Edge/cron epochs",
+    "certificate rejects missing or failed affected consumers/scopes",
+    "certificate rejects insufficient quiet window when required",
+    "no P29 automation performs production promotion or mutation"
+  ]
+}
