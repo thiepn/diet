@@ -307,5 +307,24 @@
       },
       "interpretation": "No Auth or REST 5xx in the current 24h log window. REST p95 improved versus the initial provisional snapshot; Auth gateway p95 remains below the P25 warning threshold. Realtime broadcast includes long-lived/long-origin responses and is tracked separately."
     }
+  },
+  "optimizationTriage": {
+    "script": "scripts/p26-optimization-triage.mjs",
+    "workflowArtifact": "p26-optimization-triage.json",
+    "mode": "evidence_only",
+    "automaticWritesAllowed": false,
+    "defaultDecision": "observe_and_measure",
+    "classes": [
+      "database_lock_health",
+      "service_errors_and_latency",
+      "repeated_slow_statements",
+      "unindexed_foreign_keys",
+      "unused_indexes",
+      "postgrest_timeout_manager",
+      "temporary_io"
+    ],
+    "promotionRule": "A candidate may move from watch/measure to implementation only after P25 is certified and P26 has workload-specific before/after evidence plus rollback criteria.",
+    "indexRemovalRule": "Never auto-drop. Require minimum observation age, size/use evidence, and explicit constraint/authorization/cron/rare-path review.",
+    "capacityRule": "Never resize compute or tune pool/work_mem from aggregate counters without attribution and sustained pressure."
   }
 }
