@@ -268,6 +268,44 @@
         "idxScans": 0
       },
       "disposition": "tables remain too small to justify speculative covering indexes before authoritative P26 workload evidence"
+    },
+    "service24h": {
+      "edgeGateway": {
+        "rest": {
+          "requests": 23359,
+          "http5xx": 0,
+          "p50OriginMs": 120,
+          "p95OriginMs": 326,
+          "maxOriginMs": 4264
+        },
+        "auth": {
+          "requests": 303,
+          "http5xx": 0,
+          "p50OriginMs": 150,
+          "p95OriginMs": 619,
+          "maxOriginMs": 3242
+        },
+        "realtimeBroadcast": {
+          "requests": 1959,
+          "http5xx": 0,
+          "p50OriginMs": 21,
+          "p95OriginMs": 82,
+          "maxOriginMs": 18978
+        }
+      },
+      "authService": {
+        "completedRequests": 245,
+        "http5xx": 0,
+        "p50Ms": 1.053,
+        "p95Ms": 58.045,
+        "maxMs": 312.087
+      },
+      "postgrestDiagnostics": {
+        "timeoutManagerMessages": 170,
+        "userFacingEdge5xxObserved": 0,
+        "disposition": "watch_only_until_correlated_with_failed_requests_or_sustained_latency_regression"
+      },
+      "interpretation": "No Auth or REST 5xx in the current 24h log window. REST p95 improved versus the initial provisional snapshot; Auth gateway p95 remains below the P25 warning threshold. Realtime broadcast includes long-lived/long-origin responses and is tracked separately."
     }
   }
 }
