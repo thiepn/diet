@@ -1,0 +1,89 @@
+name: P34 Continuous Assurance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'platform-p3*.json'
+      - 'platform-p33-audit-ledger.jsonl'
+      - 'scripts/p3*.py'
+      - 'contracts/p3*.json'
+      - 'docs/P3*.md'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p34-assurance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  assurance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+
+      - name: Verify P34 structural contract
+        run: node tests/p34-assurance-contract.mjs
+
+      - name: Verify P34 assurance negative paths
+        run: python tests/p34-assurance-contract.py
+
+      - name: Produce assurance result
+        run: python scripts/p34-assess-controls.py --out p34-assurance-result.json
+
+      - name: Build internal audit-readiness package
+        shell: bash
+        run: |
+          cat > p34-package-manifest.json <<'JSON'
+          {
+            "scope":"THIEPN shared platform internal security-control readiness",
+            "periodStart":"2026-10-03T21:52:18Z",
+            "periodEnd":"2026-10-03T22:06:34Z",
+            "readinessStatement":"Internal readiness package with point-in-time evidence and open deficiencies; no external attestation is claimed.",
+            "readinessLevel":2,
+            "externalAttestation":false,
+            "frameworkMappings":[
+              "NIST CSF 2.0 function-level internal crosswalk",
+              "AICPA Trust Services Criteria high-level domain crosswalk"
+            ],
+            "openDeficiencyIds":[
+              "P34-D001","P34-D002","P34-D003","P34-D004",
+              "P34-D005","P34-D006","P34-D007","P34-D008"
+            ],
+            "assessmentResultPath":"p34-assurance-result.json",
+            "deficiencyRegisterPath":"platform-p34-deficiency-register.json",
+            "p33LedgerPath":"platform-p33-audit-ledger.jsonl",
+            "p33AnchorPath":"platform-p33-ledger-anchor.json",
+            "requiredArtifacts":[
+              {"name":"control-catalog","path":"platform-p34-control-catalog.json","kind":"control-catalog"},
+              {"name":"assurance-snapshot","path":"platform-p34-assurance-snapshot.json","kind":"assurance-snapshot"},
+              {"name":"deficiency-register","path":"platform-p34-deficiency-register.json","kind":"deficiency-register"},
+              {"name":"audit-readiness-plan","path":"platform-p34-audit-readiness-plan.json","kind":"readiness-plan"},
+              {"name":"p33-evidence-policy","path":"platform-p33-evidence-policy.json","kind":"provenance-policy"},
+              {"name":"p33-ledger-anchor","path":"platform-p33-ledger-anchor.json","kind":"ledger-anchor"}
+            ]
+          }
+          JSON
+          python scripts/p34-build-audit-package.py p34-package-manifest.json --out p34-audit-readiness-package.json
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: p34-assurance-${{ github.run_id }}
+          path: |
+            p34-assurance-result.json
+            p34-audit-readiness-package.json
+          if-no-files-found: error
+          retention-days: 90
