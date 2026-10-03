@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 2,
+  "phase": "P31",
+  "title": "Ecosystem Control Plane, Release Registry & Fleet-Wide Operational Coordination",
+  "state": "implementation_active_operator_override",
+  "startedAt": "2026-10-03T12:03:35.275973Z",
+  "sourceMainSha": "dd35a66826471b4cd94c1b9e8ead90be18dc1dc5",
+  "operatorOverride": {
+    "enabled": true,
+    "instruction": "Advance to P31 without waiting for earlier time-based certification gates.",
+    "scope": "engineering phase progression",
+    "doesNotAuthorizeProductionPromotion": true,
+    "doesNotAuthorizeProductionMutation": true,
+    "doesNotAuthorizePaidResourceProvisioning": true
+  },
+  "authorityOrder": [
+    "live observed platform state",
+    "P30 promotion/rollout evidence",
+    "P29 dependency/compatibility evidence",
+    "reviewed P31 registries",
+    "older planning snapshots"
+  ],
+  "currentControlPlane": {
+    "productionHealth": "green",
+    "releaseSafety": "amber",
+    "fleetState": "amber",
+    "coordinationMode": "registry_and_epoch_drift",
+    "reasons": [
+      "gomoku-room advanced to v48 after the P30 epoch snapshot",
+      "semester-os is live-registered but absent from P28 ownership and P29 dependency graph",
+      "Supabase main branch action state remains MIGRATIONS_FAILED for hosted-branch workflows"
+    ]
+  },
+  "fleetStates": {
+    "green": "production healthy and release coordination fully modeled/current",
+    "amber": "production healthy but release coordination has drift, governance, lock, or certification blockers",
+    "red": "functional outage, integrity/security failure, active incident, or critical recovery state"
+  },
+  "coordinationModes": [
+    "normal",
+    "release_train_active",
+    "certification_quiet",
+    "maintenance",
+    "incident",
+    "epoch_moving",
+    "registry_drift",
+    "registry_and_epoch_drift"
+  ],
+  "releasePolicy": {
+    "appFastMayProceedDuringUnrelatedDrift": true,
+    "sharedStatefulRequiresCurrentDependencyCoverage": true,
+    "unknownOrUngovernedComponentBlocksOwnRelease": true,
+    "sharedPromotionBlockedWhenFleetGraphCoverageIncomplete": true,
+    "productionAlwaysRequiresP30AndExplicitApproval": true
+  },
+  "leasePolicy": {
+    "types": [
+      "release",
+      "maintenance",
+      "certification_quiet",
+      "incident"
+    ],
+    "scopesAreExclusiveByDefault": true,
+    "platformGlobalConflictsWithEverything": true,
+    "incidentPreemptsRelease": true,
+    "expiredLeaseDoesNotBlock": true,
+    "expiredLeaseRemainsEvidence": true,
+    "noAutomaticLeaseStealing": true,
+    "leaseRequires": [
+      "id",
+      "type",
+      "owner",
+      "reason",
+      "scopes",
+      "issuedAt",
+      "expiresAt"
+    ]
+  },
+  "reconciliationPolicy": {
+    "desiredStateInGit": true,
+    "observedStateFromLivePlatform": true,
+    "neverRewriteGitFromLiveAutomatically": true,
+    "exactObservedDriftProducesEvidence": true,
+    "staleRegistryCannotAuthorizePromotion": true,
+    "discoveredUnmodeledComponentsMustBeGovernedBeforeOwnOrSharedRelease": true
+  },
+  "automation": {
+    "level": "L1_observe_reconcile_coordinate",
+    "allowed": [
+      "read live state",
+      "read registries",
+      "classify fleet state",
+      "calculate registry drift",
+      "calculate lease conflicts",
+      "answer can-release",
+      "produce coordination evidence"
+    ],
+    "productionPromotionAllowed": false,
+    "productionMutationAllowed": false,
+    "paidProvisioningAllowed": false
+  },
+  "completionCriteria": [
+    "fleet registry reflects all currently observed live components, including unmodeled discoveries",
+    "release registry reflects P26-P30 merged state and P31 current state",
+    "registry validator distinguishes valid registry structure from release-readiness drift",
+    "reconciliation detects live changes without rewriting desired state",
+    "can-release permits unrelated governed app_fast work while blocking affected/unmodeled/shared work",
+    "lease engine rejects conflicting active leases and ignores expired leases for blocking",
+    "production release requires exact P29/P30 pass plus traceable explicit approval",
+    "no P31 automation performs production mutation or paid provisioning"
+  ]
+}
