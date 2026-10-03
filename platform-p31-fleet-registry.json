@@ -1,0 +1,326 @@
+{
+  "schemaVersion": 2,
+  "phase": "P31",
+  "registryVersion": "2026-10-03.2",
+  "capturedAt": "2026-10-03T12:03:35.275973Z",
+  "canonicalProject": {
+    "ref": "hycegznamzjhwinegaai",
+    "name": "THIEPN Account",
+    "region": "eu-west-1",
+    "serviceStatus": "ACTIVE_HEALTHY",
+    "databaseBuild": "17.6.1.164",
+    "postgresEngine": "17",
+    "releaseChannel": "preview"
+  },
+  "productionHealth": "green",
+  "releaseSafety": "amber",
+  "controlPlaneState": "amber",
+  "coordinationMode": "registry_and_epoch_drift",
+  "releaseEpoch": {
+    "state": "moving",
+    "movementReasons": [
+      "gomoku_edge_changed_since_p30"
+    ],
+    "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
+    "migrationHead": "20261003105645",
+    "migrationName": "gomoku_p20_production_slos_error_budgets",
+    "cronJobs": 14,
+    "edgeFunctionCount": 12,
+    "edgeHighlights": {
+      "gomokuRoom": {
+        "version": 48,
+        "sha256": "f0493fe400876a8d52f394724d6e44644978d2028b890c912ec283fdc32154cd",
+        "status": "ACTIVE"
+      },
+      "platformHealth": {
+        "version": 4,
+        "sha256": "ba7fc889263de7ae858f2f870fad59d9cd7d146b3e75ceca4b9c8f355a2ac6dd",
+        "status": "ACTIVE"
+      },
+      "microArcadeBackup": {
+        "version": 1,
+        "sha256": "364c23e05d762edf1cbf699613c3242b9ae8ce1557322b2beb57c7af9b3bf980",
+        "status": "ACTIVE"
+      }
+    },
+    "previousP30": {
+      "observedAt": "2026-10-03T11:10:56.905973Z",
+      "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
+      "migrationHead": "20261003105645",
+      "cronJobs": 14,
+      "edgeInventorySha256": "8400fe3f4f203d37e8208a8541c2e6ffc7d49ace98871ecdb80fef1026842da8"
+    },
+    "sharedPromotionsBlocked": true
+  },
+  "coverage": {
+    "governedP29Nodes": 17,
+    "observedFleetComponents": 18,
+    "dependencyGraphCoveragePct": 94.44,
+    "registeredAppsObserved": 7,
+    "registeredAppsGoverned": 6,
+    "registeredAppGovernanceCoveragePct": 85.71
+  },
+  "components": [
+    {
+      "id": "database",
+      "class": "platform",
+      "owner": "platform",
+      "criticality": "tier0",
+      "lifecycle": "active",
+      "governance": "governed",
+      "releaseScopes": [
+        "database_schema"
+      ]
+    },
+    {
+      "id": "auth",
+      "class": "platform",
+      "owner": "platform",
+      "criticality": "tier0",
+      "lifecycle": "active",
+      "governance": "governed",
+      "releaseScopes": [
+        "identity_contract"
+      ]
+    },
+    {
+      "id": "data_api",
+      "class": "platform",
+      "owner": "platform",
+      "criticality": "tier0",
+      "lifecycle": "active",
+      "governance": "governed",
+      "releaseScopes": [
+        "database_api"
+      ]
+    },
+    {
+      "id": "realtime",
+      "class": "platform",
+      "owner": "platform",
+      "criticality": "tier0",
+      "lifecycle": "active",
+      "governance": "governed",
+      "releaseScopes": [
+        "realtime_contract"
+      ]
+    },
+    {
+      "id": "storage",
+      "class": "platform",
+      "owner": "platform",
+      "criticality": "tier1",
+      "lifecycle": "active",
+      "governance": "governed",
+      "releaseScopes": [
+        "storage_contract"
+      ]
+    },
+    {
+      "id": "edge_runtime",
+      "class": "platform",
+      "owner": "platform",
+      "criticality": "tier0",
+      "lifecycle": "active",
+      "governance": "governed",
+      "releaseScopes": [
+        "edge_runtime"
+      ]
+    },
+    {
+      "id": "account",
+      "class": "shared_service",
+      "owner": "account",
+      "criticality": "tier0",
+      "lifecycle": "active",
+      "governance": "governed",
+      "releaseScopes": [
+        "app:account",
+        "identity_contract"
+      ]
+    },
+    {
+      "id": "leaderboard",
+      "class": "shared_service",
+      "owner": "leaderboard",
+      "criticality": "tier1",
+      "lifecycle": "active",
+      "governance": "governed",
+      "releaseScopes": [
+        "app:leaderboard"
+      ]
+    },
+    {
+      "id": "micro_arcade",
+      "class": "shared_service",
+      "owner": "micro_arcade",
+      "criticality": "tier2",
+      "lifecycle": "active",
+      "governance": "governed",
+      "releaseScopes": [
+        "app:micro_arcade"
+      ]
+    },
+    {
+      "id": "canvas",
+      "class": "shared_service",
+      "owner": "canvas",
+      "criticality": "tier2",
+      "lifecycle": "active",
+      "governance": "governed",
+      "releaseScopes": [
+        "app:canvas"
+      ]
+    },
+    {
+      "id": "platform_control",
+      "class": "shared_service",
+      "owner": "platform",
+      "criticality": "tier0",
+      "lifecycle": "active",
+      "governance": "governed",
+      "releaseScopes": [
+        "platform_control"
+      ]
+    },
+    {
+      "id": "notes",
+      "class": "registered_app",
+      "owner": "thiepn",
+      "criticality": "tier1",
+      "lifecycle": "active",
+      "governance": "governed",
+      "route": "/notes/",
+      "releaseScopes": [
+        "app:notes"
+      ]
+    },
+    {
+      "id": "diet",
+      "class": "registered_app",
+      "owner": "thiepn",
+      "criticality": "tier1",
+      "lifecycle": "active",
+      "governance": "governed",
+      "route": "/diet/",
+      "releaseScopes": [
+        "app:diet"
+      ]
+    },
+    {
+      "id": "wordstrike",
+      "class": "registered_app",
+      "owner": "thiepn",
+      "criticality": "tier2",
+      "lifecycle": "active",
+      "governance": "governed",
+      "route": "/wordstrike/",
+      "releaseScopes": [
+        "app:wordstrike"
+      ]
+    },
+    {
+      "id": "gomoku",
+      "class": "registered_app",
+      "owner": "thiepn",
+      "criticality": "tier1",
+      "lifecycle": "active",
+      "governance": "governed",
+      "route": "/gomoku/",
+      "releaseScopes": [
+        "app:gomoku",
+        "cron:gomoku",
+        "edge:gomoku-room"
+      ]
+    },
+    {
+      "id": "wttn",
+      "class": "registered_app",
+      "owner": "thiepn",
+      "criticality": "tier1",
+      "lifecycle": "active",
+      "governance": "governed",
+      "route": "/wttn/",
+      "releaseScopes": [
+        "app:wttn"
+      ]
+    },
+    {
+      "id": "tms60",
+      "class": "registered_app",
+      "owner": "thiepn",
+      "criticality": "tier1",
+      "lifecycle": "active",
+      "governance": "governed",
+      "route": "/tms60/",
+      "releaseScopes": [
+        "app:tms60"
+      ]
+    },
+    {
+      "id": "semester-os",
+      "class": "registered_app",
+      "owner": null,
+      "criticality": "unclassified",
+      "lifecycle": "observed_active",
+      "governance": "observed_unmodeled",
+      "route": "/semester/",
+      "releaseScopes": [
+        "app:semester-os"
+      ]
+    }
+  ],
+  "observedDrift": [
+    {
+      "id": "p29-graph-missing-semester-os",
+      "type": "dependency_registry",
+      "severity": "blocks_component_and_shared_release",
+      "component": "semester-os",
+      "scopes": [
+        "app:semester-os",
+        "database_schema",
+        "identity_contract",
+        "database_api"
+      ],
+      "reason": "live account_apps contains semester-os, but P28 ownership and P29 dependency graph do not model it"
+    },
+    {
+      "id": "gomoku-edge-moved-since-p30",
+      "type": "release_epoch",
+      "severity": "blocks_shared_and_gomoku_release",
+      "component": "gomoku",
+      "scopes": [
+        "app:gomoku",
+        "edge:gomoku-room",
+        "database_schema"
+      ],
+      "reason": "gomoku-room is v48 after the P30 epoch snapshot"
+    },
+    {
+      "id": "supabase-main-branch-action-failed",
+      "type": "environment",
+      "severity": "blocks_hosted_branch_path_only",
+      "scopes": [
+        "environment:hosted_preview"
+      ],
+      "reason": "Supabase main branch action state is MIGRATIONS_FAILED while canonical production remains ACTIVE_HEALTHY"
+    }
+  ],
+  "governanceUnresolvedResources": [],
+  "environmentSummary": {
+    "logicalCi": {
+      "status": "available"
+    },
+    "localSupabaseEphemeral": {
+      "status": "available_on_demand",
+      "statefulIsolation": true
+    },
+    "hostedPreview": {
+      "status": "unavailable_on_free_plan",
+      "branchActionStatus": "MIGRATIONS_FAILED"
+    },
+    "production": {
+      "status": "ACTIVE_HEALTHY"
+    }
+  }
+}
