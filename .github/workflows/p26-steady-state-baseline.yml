@@ -1,6 +1,8 @@
 name: P26 Steady-State Baseline
 
 on:
+  schedule:
+    - cron: '23 */4 * * *'
   workflow_dispatch:
 
 permissions:
@@ -11,7 +13,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  staged-baseline:
+  steady-state-sample:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -27,7 +29,11 @@ jobs:
       - name: Verify staged P26 contract
         run: node tests/p26-steady-state-contract.mjs
       - name: Capture activation readiness
-        run: node scripts/p26-activation-readiness.mjs --out p26-activation-readiness.json
+        run: |
+          node scripts/p26-activation-readiness.mjs --out p26-activation-readiness.json
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            node scripts/p26-activation-readiness.mjs --require-ready --out p26-activation-readiness.json
+          fi
       - name: Generate optimization triage
         run: node scripts/p26-optimization-triage.mjs --out p26-optimization-triage.json
       - name: Capture public steady-state sample
