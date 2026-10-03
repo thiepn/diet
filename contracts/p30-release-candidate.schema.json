@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://thiepn.dev/contracts/p30-release-candidate.schema.json",
+  "title": "P30 immutable release candidate",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "phase",
+    "candidateId",
+    "immutable",
+    "status"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 2
+    },
+    "phase": {
+      "const": "P30"
+    },
+    "candidateId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "status": {
+      "const": "candidate"
+    },
+    "productionPromotionAllowed": {
+      "const": false
+    },
+    "productionMutationPerformed": {
+      "const": false
+    },
+    "immutable": {
+      "type": "object",
+      "required": [
+        "trainId",
+        "trainType",
+        "gitSha",
+        "dependencyGraphVersion",
+        "dependencyGraphSha256",
+        "p29CertificateId",
+        "changeManifestSha256",
+        "impactAnalysisSha256",
+        "semanticSchemaSha256",
+        "migrationHead",
+        "edgeInventorySha256",
+        "cronInventorySha256",
+        "environmentTopologyVersion"
+      ],
+      "properties": {
+        "trainId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "trainType": {
+          "enum": [
+            "app_fast",
+            "shared_standard",
+            "coordinated_breaking",
+            "platform_maintenance"
+          ]
+        },
+        "gitSha": {
+          "type": "string",
+          "minLength": 7
+        },
+        "dependencyGraphVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dependencyGraphSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "p29CertificateId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "changeManifestSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "impactAnalysisSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "semanticSchemaSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "migrationHead": {
+          "type": "string",
+          "minLength": 1
+        },
+        "edgeInventorySha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "cronInventorySha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "environmentTopologyVersion": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": true
+}

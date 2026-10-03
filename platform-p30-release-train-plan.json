@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 2,
+  "phase": "P30",
+  "title": "Ecosystem Release Trains, Environment Promotion & Coordinated Rollout Certification",
+  "state": "implementation_active_operator_override",
+  "startedAt": "2026-10-03T11:10:56.905973Z",
+  "sourceMainSha": "2c1bd74dfab8c45425054e552ba92bc65713c6b5",
+  "operatorOverride": {
+    "enabled": true,
+    "instruction": "Advance to P30 without waiting for earlier time-based certification gates.",
+    "scope": "engineering phase progression",
+    "doesNotAuthorizeProductionPromotion": true,
+    "doesNotAuthorizePaidEnvironmentProvisioning": true
+  },
+  "currentReleaseEpoch": {
+    "observedAt": "2026-10-03T11:10:56.905973Z",
+    "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
+    "migrationHead": "20261003105645",
+    "migrationName": "gomoku_p20_production_slos_error_budgets",
+    "edgeInventorySha256": "8400fe3f4f203d37e8208a8541c2e6ffc7d49ace98871ecdb80fef1026842da8",
+    "edgeFunctionCount": 12,
+    "cronInventorySha256": "9d229da38afa923fb839eaf59e5c3d19dbec96edd47abe008b7c7e00969f2396",
+    "cronJobs": 14,
+    "newlyObservedCron": "gomoku-p20-slo-sample",
+    "p29BaselineSuperseded": true,
+    "interpretation": "P29 tooling remains valid; any P29/P30 candidate must bind to the current epoch rather than the prior snapshot."
+  },
+  "trainTypes": {
+    "app_fast": {
+      "description": "consumer-only/static app release with no shared provider/schema/identity/Edge/cron contract change",
+      "statefulEnvironmentRequired": false,
+      "allowedIntegrationKinds": [
+        "logical",
+        "local_supabase_ephemeral",
+        "isolated_supabase_project",
+        "supabase_branch"
+      ],
+      "p29CertificateRequired": true,
+      "productionApprovalRequired": true,
+      "observationMinutes": 30
+    },
+    "shared_standard": {
+      "description": "backward-compatible shared provider/stateful operational release",
+      "statefulEnvironmentRequired": true,
+      "allowedIntegrationKinds": [
+        "local_supabase_ephemeral",
+        "isolated_supabase_project",
+        "supabase_branch"
+      ],
+      "p29CertificateRequired": true,
+      "productionApprovalRequired": true,
+      "observationMinutes": 60
+    },
+    "coordinated_breaking": {
+      "description": "breaking provider/infrastructure release coordinated across all affected consumers",
+      "statefulEnvironmentRequired": true,
+      "allowedIntegrationKinds": [
+        "local_supabase_ephemeral",
+        "isolated_supabase_project",
+        "supabase_branch"
+      ],
+      "p29CertificateRequired": true,
+      "productionApprovalRequired": true,
+      "maintenanceWindowRequired": true,
+      "observationMinutes": 120
+    },
+    "platform_maintenance": {
+      "description": "hosted DB/Auth/Realtime/Storage/Edge-runtime maintenance",
+      "statefulEnvironmentRequired": true,
+      "allowedIntegrationKinds": [
+        "local_supabase_ephemeral",
+        "isolated_supabase_project",
+        "supabase_branch"
+      ],
+      "p29CertificateRequired": true,
+      "productionApprovalRequired": true,
+      "maintenanceWindowRequired": true,
+      "observationMinutes": 120
+    }
+  },
+  "candidateIdentity": {
+    "immutableFields": [
+      "trainId",
+      "trainType",
+      "gitSha",
+      "dependencyGraphVersion",
+      "dependencyGraphSha256",
+      "p29CertificateId",
+      "changeManifestSha256",
+      "impactAnalysisSha256",
+      "semanticSchemaSha256",
+      "migrationHead",
+      "edgeInventorySha256",
+      "cronInventorySha256",
+      "environmentTopologyVersion"
+    ],
+    "anyImmutableChangeCreatesNewCandidate": true,
+    "noInPlaceMutation": true,
+    "candidateIdAlgorithm": "sha256(canonical immutable fields)"
+  },
+  "stages": [
+    "source",
+    "candidate",
+    "integration",
+    "production_ready",
+    "production",
+    "observation",
+    "certified"
+  ],
+  "promotionRules": {
+    "exactAdjacentTransitionsOnly": true,
+    "candidateIdMustMatchEvidence": true,
+    "p29CertificateIdMustMatchCandidate": true,
+    "candidateEpochMustMatchObservedEpoch": true,
+    "statefulReleaseRequiresApprovedIsolatedEnvironment": true,
+    "logicalCiAloneAllowedOnlyForAppFast": true,
+    "productionPromotionManualOnly": true,
+    "productionApprovalRequiresTraceableReference": true,
+    "coordinatedBreakingRequiresMaintenanceWindow": true,
+    "paidEnvironmentProvisioningManualOnly": true
+  },
+  "rolloutPolicy": {
+    "databaseSchemaCanarySupported": false,
+    "edgeTrafficCanaryConfigured": false,
+    "frontendTrafficCanaryConfigured": false,
+    "falseCanaryClaimsRejected": true,
+    "databaseStrategy": "expand_migrate_contract_observe",
+    "stopConditions": [
+      "required health check failure",
+      "new user-facing 5xx regression",
+      "P29 certificate stale or mismatched",
+      "candidate epoch drift",
+      "P18 integrity failure",
+      "P20 unexpected drift",
+      "P21 readiness failure",
+      "P22 maintenance failure",
+      "affected-consumer compatibility regression"
+    ]
+  },
+  "rollbackPolicy": {
+    "databaseDefault": "forward_fix",
+    "destructiveDatabaseRewindAutomatic": false,
+    "restoreOrPitrRequiresExplicitIncidentDecision": true,
+    "p15RecoveryEvidenceRequiredForDestructiveRecovery": true,
+    "applicationRollbackAllowedOnlyWhileProviderCompatible": true,
+    "edgeRollbackAllowedOnlyWhileProviderCompatible": true,
+    "anyEpochChangingRollbackInvalidatesCertificate": true
+  },
+  "rolloutCertificate": {
+    "requiresExactCandidate": true,
+    "requiresOrderedPromotionReceipts": true,
+    "requiresProductionApprovalReference": true,
+    "requiresMinimumObservationWindow": true,
+    "requiresPostReleaseHealthPass": true,
+    "requiresZeroActiveStopConditions": true,
+    "requiresProductionEpochMatch": true,
+    "deterministicCertificateId": true
+  },
+  "automation": {
+    "level": "L1_build_validate_certify",
+    "productionPromotionAllowed": false,
+    "productionMutationAllowed": false,
+    "paidProvisioningAllowed": false
+  },
+  "completionCriteria": [
+    "immutable candidate builder contract-tested",
+    "environment eligibility supports free-plan ephemeral stateful validation without pretending logical CI is stateful",
+    "hosted preview branch path correctly reflects current Free-plan unavailability",
+    "promotion gate rejects stage skips, stale candidates and P29 certificate mismatch",
+    "production gate requires traceable explicit approval",
+    "breaking trains require maintenance-window evidence",
+    "rollout certificate rejects short observation, stop conditions, false canary claims and epoch drift",
+    "no P30 automation promotes production or provisions paid resources"
+  ]
+}
