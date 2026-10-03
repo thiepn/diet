@@ -1,0 +1,294 @@
+{
+  "schemaVersion": 2,
+  "phase": "P28",
+  "title": "Long-Term Platform Lifecycle, Cost Efficiency & Multi-App Governance",
+  "state": "implementation_active_operator_override",
+  "startedAt": "2026-10-03T09:47:39.047060Z",
+  "sourceMainSha": "f4e9c2f23a799426ea3a60046094df5436947ab9",
+  "operatorOverride": {
+    "enabled": true,
+    "instruction": "Advance to P28 without waiting for earlier time-based certification gates.",
+    "scope": "engineering phase progression",
+    "doesNotAuthorizeDestructiveLifecycleOrBillingActions": true
+  },
+  "organization": {
+    "id": "abdxzyrnmefvubqtalvu",
+    "name": "Thiepn",
+    "plan": "free",
+    "tier": "tier_free",
+    "canonicalProject": {
+      "ref": "hycegznamzjhwinegaai",
+      "name": "THIEPN Account",
+      "region": "eu-west-1",
+      "status": "ACTIVE_HEALTHY",
+      "postgresBuild": "17.6.1.164",
+      "releaseChannel": "preview"
+    },
+    "projectCountInScope": 1,
+    "freeProjectAllowance": 2,
+    "nonDefaultPreviewBranches": 0,
+    "defaultBranchRegistryStatus": "MIGRATIONS_FAILED",
+    "defaultBranchPreviewProjectStatus": "ACTIVE_HEALTHY"
+  },
+  "billingDocsSnapshot": {
+    "observedAt": "2026-10-03",
+    "refreshBeforeAnyPlanCostOrQuotaDecision": true,
+    "sources": [
+      "https://supabase.com/docs/guides/platform/billing-on-supabase",
+      "https://supabase.com/docs/guides/platform/manage-your-usage/egress",
+      "https://supabase.com/docs/guides/storage/serving/bandwidth"
+    ],
+    "freePlan": {
+      "projects": 2,
+      "databaseBytesPerProject": 524288000,
+      "databaseDisplay": "500 MB per project",
+      "storageBytes": 1073741824,
+      "storageDisplay": "1 GB",
+      "egressUncachedBytes": 5368709120,
+      "egressCachedBytes": 5368709120,
+      "egressDisplay": "5 GB uncached + 5 GB cached",
+      "monthlyActiveUsers": 50000,
+      "edgeFunctionInvocations": 500000,
+      "realtimeMessages": 2000000,
+      "realtimePeakConnections": 200
+    },
+    "billingBoundary": "organization quotas aggregate applicable usage across projects; database size is per project",
+    "costRule": "Never infer currency cost from API-request share. Use current organization Usage/Billing data and current resource cost before purchase.",
+    "resourceCreationRule": "New project or branch requires a fresh cost check and explicit confirmation before creation."
+  },
+  "currentKnownQuotaUsage": {
+    "observedAt": "2026-10-03T09:47:39.047060Z",
+    "databaseBytes": 37055635,
+    "databaseQuotaBytes": 524288000,
+    "databaseUtilizationPct": 7.07,
+    "storageBytes": 2394,
+    "storageQuotaBytes": 1073741824,
+    "storageUtilizationPct": 0.0003,
+    "egress": "unknown_from_current_connector_evidence",
+    "monthlyActiveUsers": "unknown_from_current_connector_evidence",
+    "edgeFunctionBillingInvocations": "unknown_from_current_connector_evidence",
+    "realtimeBillingMessages": "unknown_from_current_connector_evidence",
+    "conclusion": "known_database_and_storage_pressure_low_other_quota_dimensions_require_usage_page_or_authoritative_meter"
+  },
+  "platformInventory": {
+    "registeredApps": 6,
+    "databaseRelations": 120,
+    "databaseFunctions": 322,
+    "edgeFunctions": 12,
+    "cronJobs": 13,
+    "storageBuckets": 1,
+    "storageObjects": 14
+  },
+  "lifecycleModel": {
+    "states": [
+      "incubating",
+      "active",
+      "maintenance",
+      "deprecated",
+      "archived",
+      "retired"
+    ],
+    "allowedTransitions": {
+      "incubating": [
+        "active",
+        "retired"
+      ],
+      "active": [
+        "maintenance",
+        "deprecated"
+      ],
+      "maintenance": [
+        "active",
+        "deprecated"
+      ],
+      "deprecated": [
+        "active",
+        "archived",
+        "retired"
+      ],
+      "archived": [
+        "active",
+        "retired"
+      ],
+      "retired": []
+    },
+    "transitionEvidence": {
+      "active": [
+        "declared owner",
+        "canonical route/repository",
+        "resource ownership",
+        "dependency declaration",
+        "data/export/deletion contract",
+        "release/security contract"
+      ],
+      "maintenance": [
+        "owner remains assigned",
+        "security/compatibility maintenance continues"
+      ],
+      "deprecated": [
+        "successor decision",
+        "migration/export path",
+        "retirement criteria",
+        "user notice when applicable"
+      ],
+      "archived": [
+        "normal writes disabled",
+        "required backup/export preserved",
+        "no dependency requires active writes"
+      ],
+      "retired": [
+        "zero live dependents",
+        "data disposition approved",
+        "backup decision",
+        "route/job/function/storage/secrets disposition",
+        "owner approval"
+      ]
+    }
+  },
+  "governancePolicy": {
+    "mandatoryResourceOwner": true,
+    "mandatoryLifecycleState": true,
+    "mandatoryDependencyDeclaration": true,
+    "mandatoryDataDispositionBeforeRetirement": true,
+    "resourceClasses": [
+      "app_owned",
+      "shared_service",
+      "platform_infrastructure"
+    ],
+    "newResourceNaming": "app prefix or dedicated app-owned schema; new unprefixed public resources require explicit shared classification",
+    "sharedChangeClasses": [
+      "cross_app_schema",
+      "identity_contract",
+      "shared_edge",
+      "shared_cron",
+      "platform_control",
+      "billing_or_plan",
+      "project_topology"
+    ],
+    "sharedChangeRequires": [
+      "affected owners",
+      "compatibility evidence",
+      "migration/deployment evidence",
+      "rollback or forward-fix plan",
+      "P20 governance registration"
+    ],
+    "projectSplitCriteria": [
+      "independent region or data-residency requirement",
+      "independent organization or billing boundary",
+      "team/access-control isolation",
+      "independent backup/restore or RTO",
+      "sustained attributable noisy-neighbor pressure",
+      "one app materially driving quota saturation",
+      "security/compliance isolation"
+    ],
+    "neverSplitOnlyBecause": "app count is large"
+  },
+  "costEfficiencyPolicy": {
+    "mode": "showback_before_chargeback",
+    "attributionUnit": "measured usage units",
+    "minimumClassificationCoveragePct": 90,
+    "quotaBandsPct": {
+      "observe": 60,
+      "plan": 80,
+      "protect": 90
+    },
+    "unknownUsageState": "unknown_not_zero",
+    "autoThrottleFromSingleSpike": false,
+    "automaticPurchase": false,
+    "automaticPlanUpgrade": false,
+    "directPools": [
+      "app API paths",
+      "app Edge Functions",
+      "app storage",
+      "app cron",
+      "app database surfaces"
+    ],
+    "sharedPools": [
+      "Auth",
+      "shared Realtime",
+      "Account",
+      "platform control",
+      "base database compute",
+      "shared logs"
+    ]
+  },
+  "attributionSnapshot": {
+    "windowStart": "2026-10-02T09:47:39Z",
+    "windowEnd": "2026-10-03T09:47:39Z",
+    "totalGatewayRequests": 27671,
+    "classifiedRequests": 27664,
+    "classificationCoveragePct": 99.97,
+    "observed5xx": 0,
+    "byPool": {
+      "gomoku": 22143,
+      "micro_arcade": 2830,
+      "shared_realtime": 2070,
+      "shared_auth": 293,
+      "diet": 157,
+      "platform": 66,
+      "leaderboard": 57,
+      "wordstrike": 29,
+      "account": 19,
+      "unattributed": 7
+    },
+    "warning": "Request share is showback evidence only and is not equivalent to invoice share, egress share, MAU share, Realtime billed messages, or Edge Function billing invocations."
+  },
+  "previewBranchPolicy": {
+    "currentNonDefaultBranches": 0,
+    "defaultLifecycle": "ephemeral",
+    "maxUnreviewedLifetimeHours": 24,
+    "deleteWhenWorkEnds": true,
+    "persistentRequiresExplicitReason": true,
+    "costMustBeFetchedAndConfirmedBeforeCreation": true,
+    "currentDefaultBranchActionState": "MIGRATIONS_FAILED",
+    "disposition": "watch_and_repair_before_relying_on_branch_promotion; production project itself is ACTIVE_HEALTHY"
+  },
+  "retirementPolicy": {
+    "automaticProductionDeletion": false,
+    "automaticUserDataDeletion": false,
+    "automaticProjectPauseOrDelete": false,
+    "automaticSecretRotation": false,
+    "requireZeroLiveConsumers": true,
+    "requireExportRetentionDecision": true,
+    "requireBackupDecision": true,
+    "requireOwnerApproval": true
+  },
+  "platformCompatibilityWatch": [
+    {
+      "id": "supabase-data-api-explicit-grants-2026-10-30",
+      "effectiveDate": "2026-10-30",
+      "status": "upcoming",
+      "requirement": "New public Data API tables/functions must use explicit grants and appropriate RLS; do not assume automatic exposure.",
+      "source": "https://supabase.com/changelog/45329-breaking-change-tables-not-exposed-to-data-and-graphql-api-automatically"
+    },
+    {
+      "id": "postgres-17-11-minor-upgrade",
+      "status": "tracked_by_p23_p24",
+      "requirement": "Keep ltree/pgcrypto/btree_gist/custom-operator hazard checks tied to hosted upgrade evidence; do not generic-REINDEX."
+    }
+  ],
+  "automation": {
+    "governanceLevel": "L1_audit_classify_report",
+    "destructiveActionAllowed": false,
+    "billingActionAllowed": false,
+    "allowed": [
+      "inventory validation",
+      "ownership audit",
+      "lifecycle validation",
+      "quota classification",
+      "showback attribution",
+      "report generation"
+    ]
+  },
+  "completionCriteria": [
+    "registered apps and shared services have lifecycle owners",
+    "Edge Functions, cron jobs and storage buckets have explicit owners",
+    "database ownership rules cover the current governed schemas with no unresolved known exceptions",
+    "change_log and training_distribution_settings ownership resolved with live semantic evidence",
+    "quota evaluator treats unknown usage as unknown rather than zero",
+    "showback classifier coverage >=90%",
+    "retirement validator rejects live-dependency/data-disposition violations",
+    "no destructive or billing action is autonomous",
+    "Supabase breaking-change watch is represented in governance"
+  ]
+}
