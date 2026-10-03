@@ -37,7 +37,7 @@
       "cadenceHours": 4,
       "cron": "23 */4 * * *",
       "minimumObservationHours": 72,
-      "minimumScheduledSamples": 18,
+      "minimumScheduledSamples": 19,
       "scheduledRunsRequireActivationReady": true,
       "manualRunsAllowedWhileStaged": true,
       "artifacts": [
@@ -45,7 +45,9 @@
         "p26-optimization-triage.json",
         "p26-public-steady-state.json"
       ],
-      "retentionDays": 30
+      "retentionDays": 30,
+      "sampleMath": "4-hour cadence across a full 72-hour span requires 18 intervals and therefore 19 endpoint-inclusive samples",
+      "qualifierScript": "scripts/p26-summarize-public-samples.py"
     }
   },
   "provisionalBaseline": {
