@@ -54,7 +54,7 @@ for(const k of [
 
 for(const token of [
   'active by explicit operator override','gomoku_p20_production_slos_error_budgets',
-  'cron jobs: **14**','Free plan','Branching requires Pro',
+  'cron jobs: **14**','Free plan','Branching requires **Pro**',
   'local_supabase_ephemeral','source → candidate → integration → production_ready → production → observation → certified',
   'expand → migrate → contract → observe','false canary','forward fix',
   'does not promote production'
