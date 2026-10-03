@@ -292,8 +292,8 @@
   ],
   "deficiencies": {
     "open": 8,
-    "high": 3,
-    "medium": 5,
+    "high": 4,
+    "medium": 4,
     "critical": 0
   },
   "conclusion": "Control design and point-in-time evidence exist, but open security/governance gaps and lack of an operating-effectiveness period prevent external-audit-ready status."
