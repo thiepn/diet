@@ -1,0 +1,218 @@
+{
+  "schemaVersion": 1,
+  "phase": "P32",
+  "bundleVersion": "2026-10-01.1",
+  "mode": "shadow",
+  "stagedAt": "2026-10-01T18:21:00.428555Z",
+  "defaultDecision": "block",
+  "decisions": [
+    "admit",
+    "block",
+    "escalate"
+  ],
+  "activationRequires": {
+    "p25Certification": "complete",
+    "p26Certification": "complete",
+    "p27Certification": "complete",
+    "p28Certification": "complete",
+    "p29Certification": "complete",
+    "p30Certification": "complete",
+    "p31Certification": "complete",
+    "p31FleetState": "green_or_explicitly_scoped_amber",
+    "releaseEpochStable": true,
+    "policyBundleSignedOrReviewed": true
+  },
+  "liveBaseline": {
+    "projectStatus": "ACTIVE_HEALTHY",
+    "migrationHead": "20261001162929_gomoku_p12_moderation_review",
+    "semanticSchemaSha256": "040813e9bfb672a8a1b8b9ba7af05ce3b729250d43c86110782a1c1dfe167a6b",
+    "gomokuRoomVersion": 38,
+    "gomokuRoomSha256": "6f4a52758d4dcd1b5ebcc2669396c1d65f5c36ba8d6947c724efeefa0b3a0def",
+    "cronJobs": 10,
+    "p31SnapshotSuperseded": true,
+    "releaseEpochState": "moving"
+  },
+  "nonWaivablePolicyIds": [
+    "P32-SEC-001",
+    "P32-SEC-002",
+    "P32-SEC-003",
+    "P32-DATA-001",
+    "P32-PROD-001",
+    "P32-POLICY-001"
+  ],
+  "policies": [
+    {
+      "id": "P32-OWN-001",
+      "category": "ownership",
+      "severity": "high",
+      "waivable": false,
+      "description": "Every changed component must exist in the fleet registry and declare an owner.",
+      "onFail": "block"
+    },
+    {
+      "id": "P32-LIFE-001",
+      "category": "lifecycle",
+      "severity": "high",
+      "waivable": true,
+      "description": "Retired components reject new feature changes; deprecated/archived components require lifecycle-compatible intent.",
+      "onFail": "block"
+    },
+    {
+      "id": "P32-GOV-001",
+      "category": "governance",
+      "severity": "high",
+      "waivable": false,
+      "description": "Changes touching unresolved governance resources are blocked.",
+      "onFail": "block"
+    },
+    {
+      "id": "P32-EPOCH-001",
+      "category": "release",
+      "severity": "high",
+      "waivable": false,
+      "description": "Stateful/shared changes are blocked while the shared release epoch is moving.",
+      "onFail": "block"
+    },
+    {
+      "id": "P32-ENV-001",
+      "category": "environment",
+      "severity": "high",
+      "waivable": false,
+      "description": "Stateful changes require a healthy isolated stateful integration environment.",
+      "onFail": "block"
+    },
+    {
+      "id": "P32-ENV-002",
+      "category": "environment",
+      "severity": "high",
+      "waivable": false,
+      "description": "A Supabase branch with MIGRATIONS_FAILED cannot admit stateful promotion work.",
+      "onFail": "block"
+    },
+    {
+      "id": "P32-COST-001",
+      "category": "cost",
+      "severity": "medium",
+      "waivable": false,
+      "description": "New paid resources require explicit human approval and current cost confirmation.",
+      "onFail": "escalate"
+    },
+    {
+      "id": "P32-PROD-001",
+      "category": "production",
+      "severity": "critical",
+      "waivable": false,
+      "description": "Direct production mutation cannot be automatically admitted; it requires explicit production approval and release-train gates.",
+      "onFail": "escalate"
+    },
+    {
+      "id": "P32-DATA-001",
+      "category": "data_safety",
+      "severity": "critical",
+      "waivable": false,
+      "description": "Destructive user-data deletion, destructive restore, or irreversible data rewrite cannot be automatically admitted.",
+      "onFail": "escalate"
+    },
+    {
+      "id": "P32-SEC-001",
+      "category": "security",
+      "severity": "critical",
+      "waivable": false,
+      "description": "Client/browser code must never contain service_role or secret Supabase keys.",
+      "onFail": "block"
+    },
+    {
+      "id": "P32-SEC-002",
+      "category": "security",
+      "severity": "critical",
+      "waivable": false,
+      "description": "User-editable metadata must not be used for authorization decisions.",
+      "onFail": "block"
+    },
+    {
+      "id": "P32-SEC-003",
+      "category": "security",
+      "severity": "critical",
+      "waivable": false,
+      "description": "New exposed tables require RLS before public API admission.",
+      "onFail": "block"
+    },
+    {
+      "id": "P32-SEC-004",
+      "category": "security",
+      "severity": "high",
+      "waivable": false,
+      "description": "New public SECURITY DEFINER functions require explicit callable-role restrictions and an internal authorization design.",
+      "onFail": "block"
+    },
+    {
+      "id": "P32-SEC-005",
+      "category": "security",
+      "severity": "high",
+      "waivable": true,
+      "description": "New authorization policies may not use deprecated auth.role() checks.",
+      "onFail": "block"
+    },
+    {
+      "id": "P32-SUPPLY-001",
+      "category": "supply_chain",
+      "severity": "high",
+      "waivable": true,
+      "description": "GitHub Actions used by production workflows must be pinned to immutable commit SHAs.",
+      "onFail": "block"
+    },
+    {
+      "id": "P32-COMPAT-001",
+      "category": "compatibility",
+      "severity": "high",
+      "waivable": false,
+      "description": "Breaking provider changes require all transitive consumers in the P29 impact set.",
+      "onFail": "block"
+    },
+    {
+      "id": "P32-TRAIN-001",
+      "category": "release",
+      "severity": "high",
+      "waivable": false,
+      "description": "Any admitted change that affects a shared contract must enter an appropriate P30 release train.",
+      "onFail": "block"
+    },
+    {
+      "id": "P32-POLICY-001",
+      "category": "policy_integrity",
+      "severity": "critical",
+      "waivable": false,
+      "description": "Policy bundle or admission-engine changes require platform ownership, explicit review, and cannot self-approve.",
+      "onFail": "escalate"
+    },
+    {
+      "id": "P32-EXC-001",
+      "category": "exceptions",
+      "severity": "high",
+      "waivable": false,
+      "description": "Exceptions require policy IDs, owner, approver, reason, issue/reference, creation and expiry; maximum lifetime 7 days.",
+      "onFail": "block"
+    }
+  ],
+  "exceptionPolicy": {
+    "maximumLifetimeHours": 168,
+    "wildcardPoliciesAllowed": false,
+    "wildcardScopesAllowed": false,
+    "selfApprovalAllowed": false,
+    "expiredExceptionDecision": "ignore_and_report",
+    "nonWaivablePolicyIds": [
+      "P32-SEC-001",
+      "P32-SEC-002",
+      "P32-SEC-003",
+      "P32-DATA-001",
+      "P32-PROD-001",
+      "P32-POLICY-001"
+    ]
+  },
+  "shadowMode": {
+    "blocksMerge": false,
+    "producesDecisionArtifact": true,
+    "recordsWouldBlock": true,
+    "activationChangeRequiresSeparateReviewedPhase": true
+  }
+}

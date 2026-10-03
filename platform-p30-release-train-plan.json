@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 1,
+  "phase": "P30",
+  "title": "Ecosystem Release Trains, Environment Promotion & Coordinated Rollout Certification",
+  "state": "staged_pending_p29",
+  "stagedAt": "2026-10-01T15:34:14.513446Z",
+  "activeOperationsRelease": "P25.0",
+  "dependencyChain": [
+    "P25",
+    "P26",
+    "P27",
+    "P28",
+    "P29",
+    "P30"
+  ],
+  "activationRequires": {
+    "p25Certification": "complete",
+    "p26Certification": "complete",
+    "p27Certification": "complete",
+    "p28Certification": "complete",
+    "p29Certification": "complete",
+    "p29DependencyGraphCoveragePct": 100,
+    "p29ReleaseCertificateEnforced": true,
+    "statefulPromotionEnvironmentHealthy": true,
+    "productionReleaseEpochStable": true
+  },
+  "currentReleaseEpoch": {
+    "p29SnapshotMigration": "20261001142949_gomoku_p9_competitive_operations",
+    "currentMigration": "20261001151625_gomoku_p10_competitive_identity",
+    "p29SnapshotSchemaSha256": "25749e27870c65113b7ddd2a9ad2724c6eb1622f17a44b4f57977bf01cda9d02",
+    "currentSchemaSha256": "2d95021a86c36e963c9619cdf05febbd6b31cb2feec391e5c9a8cde87b22cf3c",
+    "p29SnapshotGomokuRoomVersion": 30,
+    "currentGomokuRoomVersion": 32,
+    "currentGomokuRoomSha256": "b221097c5f277c2aae7ed25a4b6324b80ca6b3fe90706113ddbecd70c36c7726",
+    "cronJobs": 9,
+    "epochStable": false,
+    "interpretation": "P29 candidate snapshot was superseded before P30 staging; new shared changes require a new release train candidate."
+  },
+  "trainTypes": {
+    "app_fast": {
+      "description": "consumer-only release with no shared provider/schema/identity/Edge contract change",
+      "statefulPreviewRequired": false,
+      "p29CertificateRequired": true,
+      "productionApprovalRequired": true
+    },
+    "shared_standard": {
+      "description": "backward-compatible shared provider or coordinated operational release",
+      "statefulPreviewRequired": true,
+      "p29CertificateRequired": true,
+      "productionApprovalRequired": true
+    },
+    "coordinated_breaking": {
+      "description": "breaking provider or infrastructure contract release",
+      "statefulPreviewRequired": true,
+      "p29CertificateRequired": true,
+      "maintenanceWindowRequired": true,
+      "productionApprovalRequired": true
+    },
+    "platform_maintenance": {
+      "description": "hosted database/Auth/Realtime/Storage/Edge-runtime/platform maintenance",
+      "statefulPreviewRequiredWhenSupported": true,
+      "p29CertificateRequired": true,
+      "maintenanceWindowRequired": true,
+      "productionApprovalRequired": true
+    }
+  },
+  "candidateIdentity": {
+    "immutableFields": [
+      "trainId",
+      "candidateId",
+      "gitSha",
+      "dependencyGraphVersion",
+      "changeManifestSha256",
+      "impactAnalysisSha256",
+      "semanticSchemaSha256",
+      "migrationHead",
+      "edgeInventorySha256",
+      "cronInventorySha256",
+      "environmentTopologyVersion"
+    ],
+    "mutationPolicy": "any immutable input change creates a new candidateId",
+    "noInPlaceCandidateMutation": true
+  },
+  "stages": [
+    {
+      "id": "source",
+      "purpose": "changes collected, not promotable"
+    },
+    {
+      "id": "candidate",
+      "purpose": "immutable release candidate cut"
+    },
+    {
+      "id": "integration",
+      "purpose": "P29 impact + contracts + integration environment validation"
+    },
+    {
+      "id": "production_ready",
+      "purpose": "all gates frozen and human promotion approval pending"
+    },
+    {
+      "id": "production",
+      "purpose": "coordinated deployment waves execute"
+    },
+    {
+      "id": "observation",
+      "purpose": "post-release SLO/health/compatibility hold"
+    },
+    {
+      "id": "certified",
+      "purpose": "train closed with immutable rollout certificate"
+    }
+  ],
+  "promotionRules": {
+    "noStageSkipping": true,
+    "frontendOnlyMayUseLogicalCiIntegration": true,
+    "sharedStatefulChangesRequireIsolatedSupabaseEnvironment": true,
+    "productionPromotionManualOnly": true,
+    "productionDataNeverCopiedToPreviewByDefault": true,
+    "candidateMustMatchCurrentFrozenBaseline": true,
+    "p29CertificateStatus": "pass",
+    "securityAdvisorRequiredForStatefulRelease": true,
+    "p18p20p21p22RequiredForSharedRelease": true
+  },
+  "rolloutPolicy": {
+    "databaseSchemaCanarySupported": false,
+    "databaseStrategy": "expand_migrate_contract_then_post_deploy_observation",
+    "edgeCanaryConfigured": false,
+    "frontendCanaryConfigured": false,
+    "partialProductionRolloutMustNotBeClaimedUnlessTrafficRoutingExists": true,
+    "postProductionObservationMinutes": {
+      "app_fast": 30,
+      "shared_standard": 60,
+      "coordinated_breaking": 120,
+      "platform_maintenance": 120
+    },
+    "stopConditions": [
+      "required health check fails",
+      "new user-facing 5xx regression",
+      "P29 compatibility certificate becomes stale",
+      "schema/migration/Edge/cron inventory deviates from candidate",
+      "P18 integrity failure",
+      "P20 unexpected drift",
+      "P21 readiness failure",
+      "P22 maintenance failure"
+    ]
+  },
+  "rollbackPolicy": {
+    "defaultForDatabase": "forward_fix",
+    "reason": "stateful production writes can make destructive database rollback lose user data",
+    "codeRollbackAllowedWhenContractCompatible": true,
+    "edgeRollbackAllowedWhenContractCompatible": true,
+    "destructiveDatabaseRestoreRequiresExplicitIncidentDecision": true,
+    "p15RecoveryEvidenceRequiredForDestructiveRecovery": true
+  },
+  "trainClosureRequires": [
+    "exact immutable candidate promoted",
+    "all P29 affected components pass",
+    "production inventories match candidate",
+    "minimum observation window elapsed",
+    "no unresolved stop condition",
+    "post-release health evidence attached",
+    "rollout certificate committed"
+  ],
+  "completionRequires": [
+    "P29 certified complete",
+    "stateful non-production promotion environment healthy or explicitly approved equivalent exists",
+    "immutable candidate builder and promotion gate verified",
+    "promotion gate blocks stale candidate and skipped stages",
+    "stateful change cannot promote using CI-only environment",
+    "production promotion remains manual-only",
+    "at least one app_fast train completes",
+    "at least one shared_standard train completes",
+    "rollout certificates detect release-epoch drift",
+    "final release-train handbook committed"
+  ]
+}

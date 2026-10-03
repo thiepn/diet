@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "phase": "P35",
+  "title": "Control Remediation Register",
+  "capturedAt": "2026-10-02T09:27:45.091422Z",
+  "state": "staged_no_production_remediation_applied",
+  "liveBaseline": {
+    "projectStatus": "ACTIVE_HEALTHY",
+    "migrationHead": "20261002062342_gomoku_p15_operations_rollouts_drills",
+    "semanticSchemaSha256": "07a1da3fab56e7e3d3efe28775773eb5a295212bf3f965c421d46314fd61b0e4",
+    "cronJobs": 11,
+    "releaseEpochState": "moving"
+  },
+  "advisorBaseline": {
+    "rlsEnabledNoPolicy": {
+      "level": "INFO",
+      "count": 53
+    },
+    "authenticatedSecurityDefinerExecutable": {
+      "level": "WARN",
+      "count": 39
+    },
+    "leakedPasswordProtection": {
+      "level": "WARN",
+      "count": 1
+    }
+  },
+  "technicalTriage": {
+    "rlsNoPolicy": {
+      "tables": 53,
+      "withAnonAnyDmlGrant": 0,
+      "withAuthenticatedAnyDmlGrant": 0,
+      "interpretation": "Current tables are deny-by-default for anon/authenticated at both privilege and RLS-policy layers. Supabase documents that RLS with no policy denies Data API row access; explicit reject policies may be used to make intent clearer.",
+      "closureCandidate": false,
+      "reasonNotClosed": "Table classes/intended caller model and future-grant regression tests still need documented evidence."
+    },
+    "securityDefiner": {
+      "functions": 39,
+      "anonExecutable": 0,
+      "authenticatedExecutable": 39,
+      "referencesAuthUid": 39,
+      "referencesAuthJwt": 21,
+      "controlledSearchPath": 39,
+      "emptySearchPath": 39,
+      "explicitRejectPath": 33,
+      "interpretation": "The flagged functions follow an intentional authenticated privileged-RPC pattern. The static signals materially reduce concern but do not prove function-level authorization correctness.",
+      "closureCandidate": false,
+      "reasonNotClosed": "Six functions lack explicit RAISE paths and all 39 require class/function review for cross-user authorization and least privilege."
+    },
+    "leakedPasswordProtection": {
+      "enabled": false,
+      "currentPlan": "free",
+      "currentSupabaseDocsRequirement": "Pro Plan or above",
+      "closureCandidate": false,
+      "requiredDecision": "upgrade/enable through governed cost+Auth change, or document temporary risk treatment and compensating controls"
+    }
+  },
+  "deficiencies": [
+    {
+      "id": "P34-D001",
+      "state": "decision_required",
+      "severity": "high",
+      "action": "Cost/security decision: leaked-password protection requires Pro or above. Do not silently upgrade.",
+      "noCostCompensatingEvidence": [
+        "minimum password strength settings",
+        "email confirmation",
+        "session/auth assurance",
+        "MFA strategy if applicable"
+      ],
+      "productionChangePrepared": false
+    },
+    {
+      "id": "P34-D002",
+      "state": "remediation_review_ready",
+      "severity": "high",
+      "action": "Review 39 privileged RPCs by owner/class. Preserve authenticated-only EXECUTE and empty search_path; prove auth.uid-based subject binding and cross-user denial.",
+      "evidenceSummary": {
+        "functions": 39,
+        "anonExecutable": 0,
+        "authUid": 39,
+        "emptySearchPath": 39,
+        "explicitReject": 33
+      },
+      "productionChangePrepared": false
+    },
+    {
+      "id": "P34-D003",
+      "state": "classification_review_ready",
+      "severity": "medium",
+      "action": "Classify 53 RLS/no-policy tables as intentional service-only deny or user-facing table. Keep direct anon/auth grants at zero for service-only tables; add policy only where user API access is actually required.",
+      "evidenceSummary": {
+        "tables": 53,
+        "anonAnyDmlGrant": 0,
+        "authenticatedAnyDmlGrant": 0
+      },
+      "productionChangePrepared": false
+    },
+    {
+      "id": "P34-D004",
+      "state": "decision_required",
+      "severity": "medium",
+      "action": "Define required audit visibility before paying for provider audit logs or changing Postgres logging. Preserve P33 Git/provenance evidence as current canonical trail.",
+      "productionChangePrepared": false
+    },
+    {
+      "id": "P34-D005",
+      "state": "owner_resolution_required",
+      "severity": "high",
+      "action": "Resolve public.change_log ownership/disposition and confirm training_distribution_settings ownership before P28/P34 closure.",
+      "productionChangePrepared": false
+    },
+    {
+      "id": "P34-D006",
+      "state": "blocked_by_moving_epoch",
+      "severity": "high",
+      "action": "Stop shared platform churn, freeze a new baseline, restart P25 burn-in, then begin operating-effectiveness window.",
+      "productionChangePrepared": false
+    },
+    {
+      "id": "P34-D007",
+      "state": "cost_environment_decision_required",
+      "severity": "medium",
+      "action": "Create a stateful isolated preview only when a shared/stateful train requires it and current Supabase branch cost is explicitly approved.",
+      "productionChangePrepared": false
+    }
+  ],
+  "remediationOrder": [
+    "P34-D005 ownership resolution",
+    "P34-D002 privileged RPC authorization review",
+    "P34-D003 service-only table classification",
+    "P34-D001 Auth/cost decision",
+    "P34-D004 audit-evidence capability decision",
+    "stabilize release epoch and complete P34-D006",
+    "provision P34-D007 only if/when a stateful release train requires it"
+  ],
+  "closureRules": {
+    "noAutomaticClosure": true,
+    "advisorDisappearanceAloneInsufficient": true,
+    "documentedJustificationMayCloseInfoOrIntentionalDesignFinding": true,
+    "codeOrConfigRemediationRequiresP32P30P31Flow": true,
+    "retestRequired": true,
+    "p33EvidenceRequired": true
+  }
+}

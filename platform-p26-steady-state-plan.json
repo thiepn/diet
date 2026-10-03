@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "phase": "P26",
+  "title": "Post-Migration Steady-State Baseline, Performance & Operational Optimization",
+  "state": "staged_pending_p25",
+  "stagedAt": "2026-10-01T12:50:04.875300Z",
+  "activeOperationsRelease": "P25.0",
+  "activationRequires": {
+    "p25Certification": "complete",
+    "p25MinimumBurnInHours": 24,
+    "p25MinimumSuccessfulSamples": 12,
+    "p25SamplesSpanBurnInWindow": true,
+    "firstPostUpgradeEncryptedBackup": "success",
+    "p24PostUpgradeValidation": "pass",
+    "p18Integrity": "clean",
+    "p20SchemaDrift": false,
+    "p21Readiness": "pass",
+    "p22Maintenance": "pass",
+    "minimumDatabaseAndEdgeQuietMinutesForBaseline": 60
+  },
+  "baselinePolicy": {
+    "provisionalNow": true,
+    "authoritativeOnlyAfterP25": true,
+    "authoritativeObservationHours": 72,
+    "unusedIndexMinimumObservationDays": 7,
+    "neverResetPgStatStatementsForMeasurement": true,
+    "excludeOperatorAndAdminWorkloadFromApplicationLatencyConclusions": true,
+    "requireBeforeAfterEvidenceForEveryOptimization": true,
+    "oneOptimizationClassAtATime": true,
+    "rollbackOnFunctionalRegression": true
+  },
+  "provisionalBaseline": {
+    "windowStart": "2026-10-01T07:54:44.803638Z",
+    "observedAt": "2026-10-01T12:50:04.875300Z",
+    "statsResetAt": "2026-10-01T07:53:10.642053Z",
+    "database": {
+      "overallCacheHitPct": 99.6894,
+      "tableBlockHitPct": 94.1227,
+      "indexBlockHitPct": 90.7737,
+      "connections": {
+        "active": 1,
+        "idle": 7,
+        "other": 1
+      },
+      "waitingLocks": 0,
+      "deadlocks": 0,
+      "conflicts": 0,
+      "tempFiles": 370,
+      "tempBytes": 990918640,
+      "pgStatStatementsTracked": 4072,
+      "pgStatStatementsCalls": 9548,
+      "pgStatStatementsWeightedMeanExecMs": 2.754,
+      "repeatedSlowStatementsMeanOver100msCallsAtLeast10": 0
+    },
+    "applicationRoles": {
+      "authenticator": {
+        "calls": 197,
+        "weightedMeanExecMs": 29.036,
+        "repeatedSlowStatements": 0
+      },
+      "authenticated": {
+        "calls": 86,
+        "weightedMeanExecMs": 7.302,
+        "repeatedSlowStatements": 0
+      },
+      "service_role": {
+        "calls": 2050,
+        "weightedMeanExecMs": 0.341,
+        "repeatedSlowStatements": 0
+      },
+      "anon": {
+        "calls": 40,
+        "weightedMeanExecMs": 0.254,
+        "repeatedSlowStatements": 0
+      }
+    },
+    "edgeGateway": {
+      "auth": {
+        "requests": 38,
+        "http5xx": 0,
+        "p50OriginMs": 162,
+        "p95OriginMs": 541,
+        "maxOriginMs": 911
+      },
+      "rest": {
+        "requests": 1022,
+        "http5xx": 0,
+        "p50OriginMs": 151,
+        "p95OriginMs": 450,
+        "maxOriginMs": 1639
+      },
+      "other": {
+        "requests": 107,
+        "http5xx": 0,
+        "p50OriginMs": 24,
+        "p95OriginMs": 312,
+        "maxOriginMs": 848
+      }
+    },
+    "authService": {
+      "completedRequests": 24,
+      "http5xx": 0,
+      "p50Ms": 7.993,
+      "p95Ms": 287.445,
+      "maxMs": 307.043
+    },
+    "postgrestDiagnostics": {
+      "timeoutManagerMessages": 19,
+      "userFacingEdge5xxObserved": 0,
+      "disposition": "watch_only_until_correlated_with_user_facing_failures"
+    },
+    "advisors": {
+      "unindexedForeignKeys": 2,
+      "unusedIndexFindings": 71,
+      "totalUserIndexes": 188,
+      "userIndexBytes": 3702784,
+      "zeroScanIndexes": 152,
+      "zeroScanIndexesAtLeast1MiB": 0,
+      "unusedIndexFindingsActionableNow": false,
+      "reason": "statistics reset during hosted upgrade; workload observation is too young"
+    }
+  },
+  "optimizationGuardrails": {
+    "noDatabaseDdlBeforeP25Completion": true,
+    "noIndexDropsFromFreshlyResetStats": true,
+    "noSpeculativeIndexes": true,
+    "noVacuumFullWithoutMeasuredBloatAndMaintenanceWindow": true,
+    "noReindexWithoutSpecificCorruptionOrVersionHazardEvidence": true,
+    "noComputeOrPoolTuningWithoutSustainedCapacityPressure": true,
+    "noAutomaticAdvisorRemediation": true,
+    "preserveRlsAndOwnerIsolation": true,
+    "preserveP18P20P21P22Contracts": true
+  },
+  "candidateWork": {
+    "unindexedForeignKeys": [
+      "public.micro_arcade_best_scores(player_id)",
+      "public.micro_arcade_lb_reviews(run_id)"
+    ],
+    "disposition": "measure_after_p25_before_adding_covering_indexes",
+    "postgrestTimeoutManagerMessages": "correlate_with_edge_5xx_and_request_latency_before_action",
+    "tempIo": "attribute_to_admin_vs_application_workload_before_action",
+    "unusedIndexes": "observe_for_at_least_7_days_and protect constraint/unique/access-path indexes"
+  },
+  "completionRequires": [
+    "P25 certification complete",
+    "authoritative 72h steady-state baseline captured",
+    "service and database SLO guardrails frozen from authoritative data",
+    "query workload separated into admin/platform/application roles",
+    "performance advisor findings reviewed with workload evidence",
+    "any accepted optimization has before/after measurements and rollback plan",
+    "no P18/P20/P21/P22 regression",
+    "no sustained Auth/REST/Edge/DB latency regression",
+    "final steady-state operational report committed"
+  ]
+}

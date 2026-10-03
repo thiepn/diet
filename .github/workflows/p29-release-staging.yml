@@ -1,0 +1,55 @@
+name: P29 Release Orchestration Staging
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p29-release-orchestration-staging
+  cancel-in-progress: true
+
+jobs:
+  staged:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Verify P29 release contract
+        run: node tests/p29-release-orchestration-contract.mjs
+      - name: Verify impact and certification engines
+        run: python tests/p29-orchestration-contract.py
+      - name: Capture current Gomoku P9 impact example
+        shell: bash
+        run: |
+          cat > p29-change.json <<'JSON'
+          {
+            "changeId":"gomoku-p9-competitive-operations",
+            "graphVersion":"2026-10-01.1",
+            "changes":[
+              {
+                "component":"gomoku",
+                "class":"operational_job",
+                "changesSharedSchema":true,
+                "changesCronInventory":true,
+                "changesEdgeContract":true
+              }
+            ]
+          }
+          JSON
+          python scripts/p29-impact-analysis.py p29-change.json --out p29-impact-analysis.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: p29-release-impact-${{ github.run_id }}
+          path: p29-impact-analysis.json
+          if-no-files-found: error
+          retention-days: 30

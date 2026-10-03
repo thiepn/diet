@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://thiepn.dev/contracts/p35-evidence-record.schema.json",
+  "title": "P35 operating-effectiveness evidence record",
+  "type": "object",
+  "required": [
+    "timestamp",
+    "controlId",
+    "testId",
+    "status",
+    "evidenceRefs",
+    "source",
+    "periodId"
+  ],
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "controlId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "testId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "pass",
+        "fail",
+        "not_tested",
+        "not_applicable"
+      ]
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "source": {
+      "enum": [
+        "per_change",
+        "daily",
+        "weekly",
+        "monthly",
+        "quarterly",
+        "incident",
+        "drill",
+        "manual_review"
+      ]
+    },
+    "periodId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "changeId": {
+      "type": "string"
+    },
+    "linkedIssue": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "phase": "P34",
+  "title": "Security Control Mapping, Continuous Assurance & External Audit Readiness",
+  "state": "staged_pending_p33",
+  "stagedAt": "2026-10-02T06:11:00Z",
+  "activeOperationsRelease": "P25.0",
+  "dependencyChain": [
+    "P25",
+    "P26",
+    "P27",
+    "P28",
+    "P29",
+    "P30",
+    "P31",
+    "P32",
+    "P33",
+    "P34"
+  ],
+  "activationRequires": {
+    "p33Certification": "complete",
+    "p32EnforcementDecisionReviewed": true,
+    "controlCatalogReviewed": true,
+    "criticalControlOwnersAssigned": true,
+    "liveSecurityAdvisorSnapshotAvailable": true
+  },
+  "assuranceCadence": {
+    "perChange": [
+      "TH-GV-01",
+      "TH-ID-02",
+      "TH-PR-03",
+      "TH-PR-05",
+      "TH-PR-06",
+      "TH-DE-02",
+      "TH-DE-03"
+    ],
+    "daily": [
+      "TH-GV-02",
+      "TH-ID-01",
+      "TH-PR-01",
+      "TH-PR-02",
+      "TH-PR-04",
+      "TH-DE-01",
+      "TH-DE-03"
+    ],
+    "weekly": [
+      "open_deficiencies",
+      "exception_aging",
+      "control_evidence_freshness"
+    ],
+    "monthly": [
+      "TH-RC-02",
+      "control_owner_attestation",
+      "readiness_summary"
+    ],
+    "quarterly": [
+      "TH-GV-04",
+      "control_catalog_review",
+      "provider_due_diligence_refresh"
+    ]
+  },
+  "continuousAssuranceRules": {
+    "evidenceFreshnessDays": {
+      "daily": 2,
+      "weekly": 10,
+      "monthly": 40,
+      "quarterly": 120
+    },
+    "staleEvidenceCannotPass": true,
+    "missingEvidenceState": "not_tested",
+    "advisorWarnRequiresDisposition": true,
+    "advisorInfoRequiresClassificationWhenSecurityRelevant": true,
+    "regressionReopensControl": true,
+    "controlCannotBeEffectiveFromDesignEvidenceAlone": true
+  },
+  "deficiencyStates": [
+    "open",
+    "accepted_temporarily",
+    "remediating",
+    "ready_for_retest",
+    "closed"
+  ],
+  "deficiencySeverity": [
+    "low",
+    "medium",
+    "high",
+    "critical"
+  ],
+  "auditReadinessLevels": {
+    "0": "unstructured",
+    "1": "control_design_documented",
+    "2": "controls_implemented_with_point_in_time_evidence",
+    "3": "operating_effectiveness_observed_over_defined_period",
+    "4": "external_audit_ready_subject_to_auditor_scope",
+    "5": "externally_attested_for_specific_scope_and_period"
+  },
+  "currentReadinessLevel": 2,
+  "currentReadinessLabel": "controls_implemented_with_point_in_time_evidence",
+  "targetBeforeExternalAudit": 4,
+  "auditPackageSections": [
+    "system_scope_and_boundary",
+    "control_catalog_and_framework_crosswalk",
+    "control_owner_matrix",
+    "risk_and_exception_register",
+    "change_management_samples",
+    "access_and_privilege_evidence",
+    "security_advisor_and_vulnerability_dispositions",
+    "incident_and_recovery_evidence",
+    "backup_restore_evidence",
+    "availability_and_change_observation",
+    "provider_shared_responsibility_and_due_diligence",
+    "P33 provenance_index"
+  ],
+  "completionRequires": [
+    "P33 certified complete",
+    "all 18 controls have owner/objective/test/evidence mapping",
+    "security advisor WARN findings are remediated or explicitly justified and retested",
+    "security-relevant INFO findings are classified",
+    "resource ownership blockers resolved",
+    "stable release epoch and replacement P25 burn-in certified",
+    "P32/P33 active assurance evidence exists over a defined period",
+    "control operating-effectiveness period completed",
+    "audit package builds deterministically with no stale/missing required evidence",
+    "external-audit readiness report explicitly states scope, period and unresolved deficiencies",
+    "no claim of certification before independent attestation"
+  ]
+}

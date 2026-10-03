@@ -1,0 +1,290 @@
+{
+  "schemaVersion": 1,
+  "phase": "P28",
+  "snapshotAt": "2026-10-01T14:18:00Z",
+  "canonicalProjectRef": "hycegznamzjhwinegaai",
+  "status": "provisional_requires_full_semantic_inventory",
+  "registeredApps": [
+    {
+      "id": "notes",
+      "displayName": "Notes",
+      "lifecycle": "active",
+      "route": "/notes/"
+    },
+    {
+      "id": "diet",
+      "displayName": "Diet Copilot",
+      "lifecycle": "active",
+      "route": "/diet/"
+    },
+    {
+      "id": "wordstrike",
+      "displayName": "WORDSTRIKE",
+      "lifecycle": "active",
+      "route": "/wordstrike/"
+    },
+    {
+      "id": "gomoku",
+      "displayName": "Gomoku Studio",
+      "lifecycle": "active",
+      "route": "/gomoku/"
+    },
+    {
+      "id": "wttn",
+      "displayName": "Word to the Nations",
+      "lifecycle": "active",
+      "route": "/wttn/"
+    },
+    {
+      "id": "tms60",
+      "displayName": "TMS60",
+      "lifecycle": "active",
+      "route": "/tms60/"
+    }
+  ],
+  "sharedServices": [
+    {
+      "id": "account",
+      "lifecycle": "active",
+      "classification": "identity_and_ecosystem"
+    },
+    {
+      "id": "canvas",
+      "lifecycle": "active",
+      "classification": "shared_application_service"
+    },
+    {
+      "id": "leaderboard",
+      "lifecycle": "active",
+      "classification": "shared_game_service"
+    },
+    {
+      "id": "micro_arcade",
+      "lifecycle": "active",
+      "classification": "shared_game_service"
+    },
+    {
+      "id": "platform",
+      "lifecycle": "active",
+      "classification": "control_plane"
+    }
+  ],
+  "databaseSurfaceSnapshot": [
+    {
+      "owner": "account",
+      "relations": 14,
+      "functionsByPrefix": 11
+    },
+    {
+      "owner": "canvas",
+      "relations": 4,
+      "functionsByPrefix": 4
+    },
+    {
+      "owner": "diet",
+      "relations": 25,
+      "functionsByPrefix": 75
+    },
+    {
+      "owner": "gomoku",
+      "relations": 14,
+      "functionsByPrefix": 12
+    },
+    {
+      "owner": "leaderboard",
+      "relations": 3,
+      "functionsByPrefix": 0
+    },
+    {
+      "owner": "micro_arcade",
+      "relations": 10,
+      "functionsByPrefix": 24
+    },
+    {
+      "owner": "notes",
+      "relations": 3,
+      "functionsByPrefix": 2
+    },
+    {
+      "owner": "platform",
+      "relations": 2,
+      "functionsByPrefix": 10
+    },
+    {
+      "owner": "tms60",
+      "relations": 2,
+      "functionsByPrefix": 1
+    },
+    {
+      "owner": "wordstrike",
+      "relations": 1,
+      "functionsByPrefix": 0
+    },
+    {
+      "owner": "wttn",
+      "relations": 2,
+      "functionsByPrefix": 4
+    }
+  ],
+  "edgeFunctions": [
+    {
+      "slug": "leaderboard-profile",
+      "owner": "leaderboard",
+      "version": 7
+    },
+    {
+      "slug": "get-leaderboard",
+      "owner": "leaderboard",
+      "version": 11
+    },
+    {
+      "slug": "submit-score",
+      "owner": "leaderboard",
+      "version": 17
+    },
+    {
+      "slug": "micro-arcade-leaderboards",
+      "owner": "micro_arcade",
+      "version": 4
+    },
+    {
+      "slug": "platform-health",
+      "owner": "platform",
+      "version": 4
+    },
+    {
+      "slug": "gomoku-room",
+      "owner": "gomoku",
+      "version": 29
+    },
+    {
+      "slug": "diet-health-sync",
+      "owner": "diet",
+      "version": 7
+    },
+    {
+      "slug": "gomoku-room-debug",
+      "owner": "gomoku",
+      "version": 6
+    },
+    {
+      "slug": "wordstrike-profile-sync",
+      "owner": "wordstrike",
+      "version": 5
+    },
+    {
+      "slug": "diet-copilot-ai",
+      "owner": "diet",
+      "version": 4
+    },
+    {
+      "slug": "diet-p15-backup-export",
+      "owner": "diet",
+      "version": 2
+    }
+  ],
+  "cronJobs": [
+    {
+      "jobname": "diet-p15-daily-snapshot",
+      "owner": "diet"
+    },
+    {
+      "jobname": "diet-p15-monthly-snapshot",
+      "owner": "diet"
+    },
+    {
+      "jobname": "diet-p18-integrity-daily",
+      "owner": "diet"
+    },
+    {
+      "jobname": "diet-p19-idempotency-prune",
+      "owner": "diet"
+    },
+    {
+      "jobname": "account-deletion-finalizer",
+      "owner": "account"
+    },
+    {
+      "jobname": "diet-p20-schema-drift-daily",
+      "owner": "diet"
+    },
+    {
+      "jobname": "diet-p21-readiness-daily",
+      "owner": "diet"
+    },
+    {
+      "jobname": "diet-p22-maintenance-weekly",
+      "owner": "diet"
+    }
+  ],
+  "storageBuckets": [
+    {
+      "bucket": "canvas-ci-assets",
+      "owner": "canvas",
+      "objects": 14,
+      "bytes": 2394
+    }
+  ],
+  "legacyNamingExceptions": {
+    "reason": "pre-governance resources exist without owner prefixes",
+    "policy": "do not rename during P25/P26/P27 staging; assign semantic owner first, migrate names only with compatibility plan",
+    "examples": [
+      {
+        "resource": "private.log_meal(...)",
+        "owner": "diet"
+      },
+      {
+        "resource": "private.get_context(...)",
+        "owner": "diet"
+      },
+      {
+        "resource": "public.log_meal_from_ai(...)",
+        "owner": "diet"
+      },
+      {
+        "resource": "public.delete_thiepn_account(...)",
+        "owner": "account"
+      },
+      {
+        "resource": "public.get_thiepn_account_data_inventory(...)",
+        "owner": "account"
+      },
+      {
+        "resource": "public.claim_notes_sync_access(...)",
+        "owner": "notes"
+      },
+      {
+        "resource": "public.delete_tms60_cloud_data(...)",
+        "owner": "tms60"
+      },
+      {
+        "resource": "public.get_public_leaderboard(...)",
+        "owner": "leaderboard"
+      },
+      {
+        "resource": "canvas_admin.capture_element_history()",
+        "owner": "canvas"
+      },
+      {
+        "resource": "wttn_private.command(...)",
+        "owner": "wttn"
+      }
+    ]
+  },
+  "unresolved": [
+    {
+      "resource": "public.change_log",
+      "type": "relation",
+      "reason": "empty legacy generic table; owner cannot be proven safely from current data/name alone",
+      "activationBlocker": true
+    }
+  ],
+  "probableLegacyAssignments": [
+    {
+      "resource": "public.training_distribution_settings",
+      "probableOwner": "diet",
+      "reason": "diet/training domain; empty table",
+      "requiresExplicitConfirmationBeforeGovernanceCertification": true
+    }
+  ]
+}

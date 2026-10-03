@@ -1,0 +1,50 @@
+name: P28 Governance Staging
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p28-governance-staging
+  cancel-in-progress: true
+
+jobs:
+  staged:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Verify P28 governance contract
+        run: node tests/p28-governance-contract.mjs
+      - name: Verify P28 attribution contract
+        run: python tests/p28-cost-attribution-contract.py
+      - name: Produce sample attribution artifact
+        shell: bash
+        run: |
+          cat > p28-sample-input.json <<'JSON'
+          {"events":[
+            {"path":"/rest/v1/gomoku_rooms","requests":100},
+            {"path":"/realtime/v1/api/broadcast","requests":20},
+            {"path":"/auth/v1/user","requests":10},
+            {"path":"/rest/v1/account_apps","requests":5},
+            {"path":"/rest/v1/rpc/diet_p18_integrity_report","requests":4},
+            {"path":"/rest/v1/unknown_legacy","requests":1}
+          ]}
+          JSON
+          python scripts/p28-cost-attribution.py p28-sample-input.json --out p28-cost-attribution.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: p28-governance-${{ github.run_id }}
+          path: p28-cost-attribution.json
+          if-no-files-found: error
+          retention-days: 30

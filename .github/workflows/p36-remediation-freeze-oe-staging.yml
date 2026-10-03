@@ -1,0 +1,57 @@
+name: P36 Remediation Freeze OE Staging
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'platform-p3*.json'
+      - 'scripts/p3*.py'
+      - 'scripts/p3*.sql'
+      - 'contracts/p3*.json'
+      - 'tests/p3*'
+      - 'docs/P3*.md'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p36-remediation-freeze-oe-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Verify P36 static contract
+        run: node tests/p36-remediation-activation-contract.mjs
+      - name: Verify P36 remediation/freeze/OE gates
+        run: python tests/p36-remediation-activation-contract.py
+      - name: Verify activation evaluator CLI
+        run: python scripts/p36-evaluate-activation.py --help > /dev/null
+      - name: Verify non-retroactive activation CLI
+        run: python scripts/p36-activate-oe.py --help > /dev/null
+      - name: Archive staged P36 state
+        shell: bash
+        run: |
+          mkdir -p p36-state
+          cp platform-p36-remediation-execution.json p36-state/
+          cp platform-p36-stable-epoch-freeze.json p36-state/
+          cp platform-p36-operating-effectiveness-state.json p36-state/
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: p36-state-${{ github.run_id }}
+          path: p36-state/
+          if-no-files-found: error
+          retention-days: 90

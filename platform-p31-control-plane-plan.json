@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "phase": "P31",
+  "title": "Ecosystem Control Plane, Release Registry & Fleet-Wide Operational Coordination",
+  "state": "staged_pending_p30",
+  "stagedAt": "2026-10-01T16:10:17.047692Z",
+  "activeOperationsRelease": "P25.0",
+  "dependencyChain": [
+    "P25",
+    "P26",
+    "P27",
+    "P28",
+    "P29",
+    "P30",
+    "P31"
+  ],
+  "activationRequires": {
+    "p25Certification": "complete",
+    "p26Certification": "complete",
+    "p27Certification": "complete",
+    "p28Certification": "complete",
+    "p29Certification": "complete",
+    "p30Certification": "complete",
+    "releaseRegistryValid": true,
+    "fleetRegistryCoveragePct": 100,
+    "statefulPromotionEnvironmentHealthy": true,
+    "releaseEpochStable": true
+  },
+  "sourceOfTruthPriority": [
+    "live production observation",
+    "immutable P30 rollout certificate",
+    "immutable P29 compatibility certificate",
+    "reviewed release registry",
+    "staged planning documents"
+  ],
+  "fleetStates": {
+    "green": "stable release epoch, no blocking health/governance condition, certified trains only",
+    "amber": "healthy production with release/governance coordination blockers or moving epoch",
+    "red": "functional outage, integrity/security failure, or incident state"
+  },
+  "currentFleetState": "amber",
+  "coordinationModes": [
+    "normal",
+    "release_train_active",
+    "certification_quiet",
+    "maintenance",
+    "incident",
+    "epoch_moving"
+  ],
+  "currentCoordinationMode": "epoch_moving",
+  "scopes": [
+    "platform_global",
+    "database_schema",
+    "database_api",
+    "identity_contract",
+    "realtime_contract",
+    "storage_contract",
+    "edge_runtime",
+    "platform_control",
+    "environment:preview",
+    "environment:staging",
+    "app:<id>",
+    "edge:<slug>",
+    "cron:<owner>",
+    "observation:<trainId>"
+  ],
+  "lockPolicy": {
+    "leasesRequired": true,
+    "lockMustDeclareOwnerReasonScopesAndExpiry": true,
+    "noAutomaticLockStealing": true,
+    "expiredLeaseNotReusableWithoutNewLease": true,
+    "incidentLockPreemptsNormalPromotion": true,
+    "platformGlobalConflictsWithEverything": true,
+    "sameScopeExclusiveByDefault": true,
+    "sharedProviderScopeConflictsWithDependentConsumerPromotion": true,
+    "readOnlyObservationDoesNotBlockUnrelatedAppFastByDefault": true
+  },
+  "controlPlaneQueries": [
+    "fleet status",
+    "current release epoch",
+    "active/staged release trains",
+    "can this candidate promote",
+    "which scopes block this release",
+    "which apps are affected",
+    "which certificate is stale",
+    "which environment is required",
+    "which staged phase may advance next"
+  ],
+  "controlPlaneActions": {
+    "withoutApproval": [
+      "read registries",
+      "read live health/inventory",
+      "calculate impact",
+      "calculate lock conflicts",
+      "classify fleet state",
+      "produce release decision",
+      "produce evidence artifact"
+    ],
+    "requireHumanApproval": [
+      "production promotion",
+      "create paid/stateful Supabase environment",
+      "acquire incident-affecting production maintenance lock",
+      "production DDL/configuration mutation",
+      "terminate sessions",
+      "pause/restore",
+      "destructive rollback"
+    ]
+  },
+  "reconciliationPolicy": {
+    "desiredStateInGit": true,
+    "observedStateFromLivePlatform": true,
+    "neverSilentlyRewriteDesiredStateFromProduction": true,
+    "driftProducesBlockOrNewCandidate": true,
+    "staleRegistryCannotAuthorizePromotion": true
+  },
+  "completionRequires": [
+    "P30 certified complete",
+    "all P29 graph nodes present in fleet registry",
+    "release registry covers active and staged phases",
+    "control-plane status command verified",
+    "scope conflict engine verified",
+    "can-release decision blocks moving shared epoch",
+    "unrelated app_fast decision remains possible when scopes do not conflict",
+    "stale registry cannot override newer production observation",
+    "maintenance lease model verified",
+    "at least one release train registered and closed through P31",
+    "final fleet operations handbook committed"
+  ]
+}

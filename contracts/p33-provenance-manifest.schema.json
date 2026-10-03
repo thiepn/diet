@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://thiepn.dev/contracts/p33-provenance-manifest.schema.json",
+  "title": "P33 provenance pack manifest",
+  "type": "object",
+  "required": [
+    "changeId",
+    "subject",
+    "repository",
+    "commitSha",
+    "workflow",
+    "privacy",
+    "requiredArtifacts"
+  ],
+  "properties": {
+    "changeId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "subject": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repository": {
+      "type": "string",
+      "minLength": 1
+    },
+    "commitSha": {
+      "type": "string",
+      "minLength": 7
+    },
+    "pullRequest": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "workflow": {
+      "type": "object",
+      "required": [
+        "runId",
+        "name"
+      ],
+      "properties": {
+        "runId": {
+          "type": [
+            "string",
+            "integer"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "liveAttestation": {
+      "type": "object"
+    },
+    "approvals": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "required": [
+        "containsRawSecrets",
+        "containsRawPersonalAuditData"
+      ],
+      "properties": {
+        "containsRawSecrets": {
+          "const": false
+        },
+        "containsRawPersonalAuditData": {
+          "const": false
+        }
+      }
+    },
+    "requiredArtifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "path"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}
