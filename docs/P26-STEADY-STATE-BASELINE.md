@@ -137,7 +137,7 @@ Each run retains three artifacts for 30 days:
 
 The public probe derives its phase state from `platform-p26-steady-state-plan.json` rather than hard-coding staged state, so the same collector can transition to the active P26 epoch without changing probe semantics.
 
-`scripts/p26-summarize-public-samples.py` is the qualification layer. It refuses certification unless the sample set has at least 19 samples, spans at least 72 hours, every sample passes, no performance-warning sample is present, and the sample set represents one coherent P26 phase state. It also freezes p50/p95/max public latency distributions for the authoritative baseline.
+`scripts/p26-summarize-public-samples.py` is the qualification layer. It refuses certification unless the sample set has at least 19 samples, spans at least 72 hours, every sample passes, no performance-warning sample is present, and every sample belongs to the exact authoritative identity: phase state `active_observation` and operations release `P26.0`. Staged P25/P26 samples therefore cannot accidentally qualify the authoritative baseline. The qualifier also freezes p50/p95/max public latency distributions.
 
 
 ## Automated optimization triage
