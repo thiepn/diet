@@ -8,6 +8,8 @@ const doc=fs.readFileSync('docs/P26-STEADY-STATE-BASELINE.md','utf8');
 const sql=fs.readFileSync('scripts/p26-steady-state-baseline.sql','utf8').toLowerCase();
 const gateScript=fs.readFileSync('scripts/p26-activation-readiness.mjs','utf8');
 const triageScript=fs.readFileSync('scripts/p26-optimization-triage.mjs','utf8');
+const workflow=fs.readFileSync('.github/workflows/p26-steady-state-baseline.yml','utf8');
+const publicProbe=fs.readFileSync('tests/p26-public-steady-state.py','utf8');
 
 assert.equal(plan.phase,'P26');
 assert.ok(plan.schemaVersion>=2);
@@ -34,6 +36,10 @@ assert.equal(plan.currentGateSnapshot.successfulSamplesKnownAtScheduleChange,5);
 assert.equal(plan.baselinePolicy.authoritativeOnlyAfterP25,true);
 assert.ok(plan.baselinePolicy.authoritativeObservationHours>=72);
 assert.ok(plan.baselinePolicy.unusedIndexMinimumObservationDays>=7);
+assert.equal(plan.baselinePolicy.publicSampling.cadenceHours,4);
+assert.equal(plan.baselinePolicy.publicSampling.minimumObservationHours,72);
+assert.ok(plan.baselinePolicy.publicSampling.minimumScheduledSamples>=18);
+assert.equal(plan.baselinePolicy.publicSampling.scheduledRunsRequireActivationReady,true);
 assert.equal(plan.optimizationGuardrails.noDatabaseDdlBeforeP25Completion,true);
 assert.equal(plan.optimizationGuardrails.noIndexDropsFromFreshlyResetStats,true);
 assert.equal(plan.optimizationGuardrails.noSpeculativeIndexes,true);
@@ -112,6 +118,16 @@ for(const required of [
   'automaticWritesAllowed=false','unused-indexes','unindexed-foreign-keys',
   'postgrest-timeout-manager','temp-io','observe_and_measure'
 ]) assert.ok(triageScript.includes(required),'P26 optimization triage missing '+required);
+
+for(const required of [
+  "cron: '23 */4 * * *'",
+  'scripts/p26-activation-readiness.mjs --require-ready',
+  'p26-optimization-triage.json',
+  'p26-public-steady-state.json'
+]) assert.ok(workflow.includes(required),'P26 sampling workflow missing '+required);
+
+assert.ok(publicProbe.includes('platform-p26-steady-state-plan.json'));
+assert.ok(publicProbe.includes('"state":plan.get("state","unknown")'));
 
 const triageOut='p26-optimization-triage.test.json';
 try {
