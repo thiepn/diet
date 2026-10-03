@@ -123,6 +123,21 @@ P26 uses these rules:
 8. Do not use `VACUUM FULL`, `REINDEX`, connection-pool changes, or compute upgrades as generic cleanup.
 9. Preserve all P14–P25 security, recovery, integrity, concurrency and governance controls.
 
+## Authoritative observation collection
+
+The staged P26 workflow is prepared to collect one public steady-state sample every **4 hours** once P26 is active. Over the minimum **72-hour** authoritative window, that yields at least **18 scheduled samples** when GitHub scheduling behaves normally.
+
+Scheduled runs are fail-closed: they invoke the activation gate with `--require-ready`. A scheduled sample is therefore invalid if P25 has not been formally certified or if the frozen epoch/control prerequisites are no longer satisfied. Manual workflow runs remain available while P26 is staged for validation, but they do not count as authoritative post-activation evidence.
+
+Each run retains three artifacts for 30 days:
+
+- activation readiness;
+- optimization triage;
+- public steady-state health/latency sample.
+
+The public probe derives its phase state from `platform-p26-steady-state-plan.json` rather than hard-coding staged state, so the same collector can transition to the active P26 epoch without changing probe semantics.
+
+
 ## Automated optimization triage
 
 P26 now includes `scripts/p26-optimization-triage.mjs`. It converts the captured evidence into a machine-readable triage artifact without performing any write or tuning action.
