@@ -24,6 +24,8 @@ def main():
     ap.add_argument("--out", default="p26-public-baseline-summary.json")
     ap.add_argument("--minimum-samples", type=int, default=19)
     ap.add_argument("--minimum-span-hours", type=float, default=72.0)
+    ap.add_argument("--required-state", default="active_observation")
+    ap.add_argument("--required-release", default="P26.0")
     args=ap.parse_args()
 
     files=[]
@@ -89,6 +91,10 @@ def main():
         "allSamplesPassed":passed==len(samples),
         "noPerformanceWarnings":warnings==0,
         "singlePhaseState":len(states)==1,
+        "requiredPhaseState":args.required_state,
+        "requiredPhaseStateMet":states==[args.required_state],
+        "requiredOperationsRelease":args.required_release,
+        "requiredOperationsReleaseMet":releases==[args.required_release],
         "qualified":False,
     }
     qualification["qualified"]=all([
@@ -97,6 +103,8 @@ def main():
         qualification["allSamplesPassed"],
         qualification["noPerformanceWarnings"],
         qualification["singlePhaseState"],
+        qualification["requiredPhaseStateMet"],
+        qualification["requiredOperationsReleaseMet"],
     ])
 
     report={
