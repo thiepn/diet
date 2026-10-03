@@ -1,0 +1,62 @@
+name: P28 Lifecycle and Cost Governance
+
+on:
+  schedule:
+    - cron: '31 4 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p28-governance-audit
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Verify P28 governance contract
+        run: node tests/p28-governance-contract.mjs
+      - name: Verify P28 cost attribution
+        run: python tests/p28-cost-attribution-contract.py
+      - name: Verify P28 quota semantics
+        run: python tests/p28-quota-contract.py
+      - name: Produce governance audit
+        run: node scripts/p28-governance-audit.mjs --out p28-governance-audit.json
+      - name: Enforce post-P28 Data API exposure governance
+        run: node scripts/p28-data-api-governance.mjs --out p28-data-api-governance.json
+      - name: Evaluate current known quota dimensions
+        shell: bash
+        run: |
+          cat > p28-current-quota.json <<'JSON'
+          {"usage":{
+            "database":{"used":37055635,"quota":524288000},
+            "storage":{"used":2394,"quota":1073741824},
+            "egress":{"used":null,"quota":5368709120},
+            "monthlyActiveUsers":{"used":null,"quota":50000},
+            "edgeFunctionInvocations":{"used":null,"quota":500000},
+            "realtimeMessages":{"used":null,"quota":2000000}
+          }}
+          JSON
+          python scripts/p28-quota-evaluate.py p28-current-quota.json --out p28-quota-evaluation.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: p28-governance-${{ github.run_id }}
+          path: |
+            p28-governance-audit.json
+            p28-data-api-governance.json
+            p28-quota-evaluation.json
+          if-no-files-found: error
+          retention-days: 30
