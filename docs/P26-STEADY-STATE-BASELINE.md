@@ -123,6 +123,24 @@ P26 uses these rules:
 8. Do not use `VACUUM FULL`, `REINDEX`, connection-pool changes, or compute upgrades as generic cleanup.
 9. Preserve all P14–P25 security, recovery, integrity, concurrency and governance controls.
 
+## Automated optimization triage
+
+P26 now includes `scripts/p26-optimization-triage.mjs`. It converts the captured evidence into a machine-readable triage artifact without performing any write or tuning action.
+
+Current classification:
+
+- database lock health: **healthy**;
+- Auth/REST error health: **healthy**;
+- service latency: **healthy against current P25 warning bounds**;
+- `pg_timezone_names` statement: **watch**, classified as platform/introspection;
+- unindexed foreign keys: **measure**, not implement;
+- unused indexes: **blocked** until the minimum observation age is reached and each candidate is explicitly reviewed;
+- PostgREST timeout-manager messages: **watch** until correlated with user-facing failure;
+- temporary I/O: **attribution required** before any memory/compute/pool change.
+
+The triage engine deliberately sets `automaticWritesAllowed: false` and currently produces **0 automatically actionable changes**. Its job is to prevent advisor output or noisy counters from being mistaken for permission to mutate production.
+
+
 ## Steady-state guardrails
 
 The final thresholds are derived from the authoritative P26 baseline rather than invented now. The policy will use both absolute functional failures and relative regressions:
