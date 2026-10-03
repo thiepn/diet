@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "phase": "P26",
   "title": "Post-Migration Steady-State Baseline, Performance & Operational Optimization",
   "state": "staged_pending_p25",
@@ -7,11 +7,15 @@
   "activeOperationsRelease": "P25.0",
   "activationRequires": {
     "p25Certification": "complete",
+    "p25Generation": 3,
     "p25MinimumBurnInHours": 24,
     "p25MinimumSuccessfulSamples": 12,
     "p25SamplesSpanBurnInWindow": true,
-    "firstPostUpgradeEncryptedBackup": "success",
-    "p24PostUpgradeValidation": "pass",
+    "p25AllSixFourHourCoverageBuckets": true,
+    "p25TerminalSampleAtOrAfterMinimumCompleteAfter": true,
+    "p25FrozenEpochUnchanged": true,
+    "historicalHostedUpgradeAttestation": "pass",
+    "postFinalSharedChangeEncryptedBackup": "success",
     "p18Integrity": "clean",
     "p20SchemaDrift": false,
     "p21Readiness": "pass",
@@ -132,14 +136,24 @@
     "preserveP18P20P21P22Contracts": true
   },
   "candidateWork": {
-    "unindexedForeignKeys": [
-      "public.micro_arcade_best_scores(player_id)",
-      "public.micro_arcade_lb_reviews(run_id)"
-    ],
-    "disposition": "measure_after_p25_before_adding_covering_indexes",
+    "unindexedForeignKeys": {
+      "currentAdvisorCount": 21,
+      "gomokuCount": 19,
+      "microArcadeCount": 2,
+      "dietRelevantExamples": [
+        "public.micro_arcade_best_scores(player_id)",
+        "public.micro_arcade_lb_reviews(run_id)"
+      ],
+      "disposition": "measure delete/update/join workload after P25 before adding covering indexes"
+    },
+    "repeatedSlowStatement": {
+      "query": "SELECT name FROM pg_timezone_names",
+      "repositorySearch": "no Diet Copilot source reference",
+      "disposition": "classify as platform/introspection traffic; do not optimize application schema from this signal"
+    },
     "postgrestTimeoutManagerMessages": "correlate_with_edge_5xx_and_request_latency_before_action",
-    "tempIo": "attribute_to_admin_vs_application_workload_before_action",
-    "unusedIndexes": "observe_for_at_least_7_days_and protect constraint/unique/access-path indexes"
+    "tempIo": "attribute_to_admin_platform_vs_application_workload_before_work_mem_or_compute_changes",
+    "unusedIndexes": "observe_for_at_least_7_days_and_protect_constraint_unique_authorization_cron_and_rare_operational_paths"
   },
   "completionRequires": [
     "P25 certification complete",
@@ -151,5 +165,109 @@
     "no P18/P20/P21/P22 regression",
     "no sustained Auth/REST/Edge/DB latency regression",
     "final steady-state operational report committed"
-  ]
+  ],
+  "currentGateSnapshot": {
+    "observedAt": "2026-10-03T08:09:28.650287Z",
+    "p25State": "burn_in_active",
+    "p25Generation": 3,
+    "generationEligible": true,
+    "generationActivatedAt": "2026-10-02T20:16:15.888200Z",
+    "earliestCertificationAt": "2026-10-03T20:16:15.888200Z",
+    "timeGateMetAtSnapshot": false,
+    "successfulSamplesKnownAtScheduleChange": 5,
+    "successfulSamplesEvidenceObservedAt": "2026-10-03T07:57:11Z",
+    "minimumSuccessfulSamples": 12,
+    "evidenceRule": "samples must span the full 24h window, cover all six 4h buckets, and include a terminal healthy sample at or after earliestCertificationAt",
+    "blocker": "P25 generation 3 has not reached its minimum certification time; P26 activation remains prohibited"
+  },
+  "liveProvisionalRefresh": {
+    "observedAt": "2026-10-03T08:09:28.650287Z",
+    "statsResetAt": "2026-10-01T07:53:10.642053Z",
+    "serverVersion": "17.6",
+    "postmasterStartedAt": "2026-10-01T07:54:44.803638Z",
+    "database": {
+      "overallCacheHitPct": 99.9657,
+      "tableBlockHitPct": 99.7695,
+      "indexBlockHitPct": 99.6943,
+      "connections": {
+        "active": 1,
+        "idle": 10,
+        "other": 1
+      },
+      "waitingLocks": 0,
+      "deadlocks": 0,
+      "conflicts": 0,
+      "tempFiles": 3357,
+      "tempBytes": 11150363148,
+      "pgStatStatementsTracked": 4909,
+      "pgStatStatementsCalls": 160516,
+      "pgStatStatementsWeightedMeanExecMs": 1.199,
+      "repeatedSlowStatementsMeanOver100msCallsAtLeast10": 1
+    },
+    "applicationRoles": {
+      "authenticator": {
+        "calls": 2322,
+        "weightedMeanExecMs": 16.29,
+        "repeatedSlowStatements": 1
+      },
+      "authenticated": {
+        "calls": 181,
+        "weightedMeanExecMs": 5.753,
+        "repeatedSlowStatements": 0
+      },
+      "service_role": {
+        "calls": 103855,
+        "weightedMeanExecMs": 0.265,
+        "repeatedSlowStatements": 0
+      },
+      "anon": {
+        "calls": 309,
+        "weightedMeanExecMs": 0.122,
+        "repeatedSlowStatements": 0
+      }
+    },
+    "repeatedSlowStatement": {
+      "role": "authenticator",
+      "query": "SELECT name FROM pg_timezone_names",
+      "calls": 45,
+      "meanExecMs": 672.4,
+      "maxExecMs": 1231.413,
+      "totalExecMs": 30257.988,
+      "rows": 53820,
+      "dietRepositoryReferenceFound": false,
+      "disposition": "platform_or_introspection_watch_only_unless_correlated_with_user_facing_latency"
+    },
+    "indexes": {
+      "totalUserIndexes": 467,
+      "totalUserIndexBytes": 8265728,
+      "zeroScanIndexes": 342,
+      "zeroScanIndexesAtLeast1MiB": 0,
+      "performanceAdvisorUnusedIndexFindings": 108,
+      "unusedIndexFindingsActionableNow": false
+    },
+    "performanceAdvisor": {
+      "unindexedForeignKeys": 21,
+      "gomokuForeignKeys": 19,
+      "microArcadeForeignKeys": 2,
+      "disposition": "review_only_no_speculative_ddl_during_p25"
+    },
+    "candidateTableEvidence": {
+      "largestCandidateTableBytes": 147456,
+      "microArcadeBestScores": {
+        "liveRows": 8,
+        "deadRows": 45,
+        "totalBytes": 49152,
+        "seqScans": 4,
+        "idxScans": 0
+      },
+      "microArcadeLbReviews": {
+        "liveRows": 5,
+        "deadRows": 0,
+        "totalBytes": 32768,
+        "seqScans": 2,
+        "idxScans": 0
+      },
+      "disposition": "tables remain too small to justify speculative covering indexes before authoritative P26 workload evidence"
+    }
+  }
 }
