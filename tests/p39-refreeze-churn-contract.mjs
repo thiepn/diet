@@ -32,7 +32,7 @@ assert.equal(p25.pendingGeneration5.state,'activated');
 assert.equal(p25.pendingGeneration5.candidateEpoch.gomokuRoomVersion,50);
 assert.equal(p25.pendingGeneration5.latestSuccessfulBackup.runId,37222829955);
 assert.equal(p25.pendingGeneration5.latestSuccessfulBackup.freshForCandidate,true);
-assert.equal(p25.refreezePolicy.earliestRefreezeAt,'2026-10-04T20:29:02Z');
+assert.equal(p25.refreezePolicy.earliestRefreezeAt,'2026-10-04T20:56:54.779364Z');
 
 assert.equal(backend.generation5_state,'invalidated_epoch_changed');
 assert.equal(backend.generation5_candidate_revision,2);
