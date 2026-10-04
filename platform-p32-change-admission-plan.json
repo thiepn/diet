@@ -4,7 +4,7 @@
   "title": "Policy-as-Code Enforcement, Automated Change Admission & Fleet Guardrails",
   "state": "implementation_active_operator_override",
   "startedAt": "2026-10-03T12:21:26.764331Z",
-  "sourceMainSha": "fd0f541fef82539c75ce3c4b429a222b4a20663f",
+  "sourceMainSha": "7b73e0b36cc55b7e7d6c6ea44162d97b16cdd59b",
   "operatorOverride": {
     "enabled": true,
     "instruction": "Advance to P32 without waiting for earlier time-based certification gates.",
@@ -28,23 +28,21 @@
     "productionRequiresCentralizedEvidenceAndCrossRepoRollout": true
   },
   "liveBaseline": {
-    "observedAt": "2026-10-03T12:21:26.764331Z",
+    "observedAt": "2026-10-04T12:55:17.146329Z",
     "projectStatus": "ACTIVE_HEALTHY",
     "organizationPlan": "free",
-    "migrationHead": "20261003105645",
-    "migrationName": "gomoku_p20_production_slos_error_budgets",
+    "migrationHead": "20261003221217",
+    "migrationName": "hub_h15_tms60_projection",
     "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
     "edgeFunctionCount": 12,
     "gomokuRoomVersion": 48,
     "gomokuRoomSha256": "f0493fe400876a8d52f394724d6e44644978d2028b890c912ec283fdc32154cd",
     "cronJobs": 14,
     "registeredApps": 7,
-    "dependencyGraphCoveragePct": 94.44,
-    "registeredAppGovernanceCoveragePct": 85.71,
-    "unmodeledComponents": [
-      "semester-os"
-    ],
-    "releaseEpochState": "moving",
+    "dependencyGraphCoveragePct": 100,
+    "registeredAppGovernanceCoveragePct": 100,
+    "unmodeledComponents": [],
+    "releaseEpochState": "frozen_candidate_burn_in",
     "fleetReleaseSafety": "amber",
     "hostedBranchActionStatus": "MIGRATIONS_FAILED"
   },
@@ -104,5 +102,10 @@
     "exceptions reject self-approval wildcards expiry overflow and non-waivable policies",
     "policy self-modification cannot self-approve",
     "admit never grants production approval"
-  ]
+  ],
+  "capturedAt": "2026-10-04T12:55:17.146329Z",
+  "fleetRegistryVersion": "2026-10-04.1",
+  "releaseRegistryVersion": "2026-10-04.1",
+  "dependencyGraphVersion": "2026-10-04.1",
+  "mode": "warn"
 }
