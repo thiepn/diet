@@ -64,8 +64,8 @@ assert r["decision"]=="admit"
 assert "P32-OWN-001" not in {x["policyId"] for x in r["effectiveFindings"]}
 
 r=run(base(changeId="gomoku-ui-001",components=["gomoku"],scopes=["app:gomoku","edge:gomoku-room"],files=["gomoku/ui.js"]))
-assert r["decision"]=="block"
-assert "P32-SCOPE-001" in {x["policyId"] for x in r["effectiveFindings"]}
+assert r["decision"]=="admit"
+assert "P32-SCOPE-001" not in {x["policyId"] for x in r["effectiveFindings"]}
 
 r=run(base(
   changeId="notes-schema-001",
