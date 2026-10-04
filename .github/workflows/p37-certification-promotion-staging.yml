@@ -1,0 +1,135 @@
+name: P37 Burn-In Certification and OE Launch
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'platform-p2*.json'
+      - 'platform-p3*.json'
+      - 'contracts/p3*.json'
+      - 'supabase/backend.json'
+      - '.well-known/thiepn-app.json'
+      - 'scripts/p2*.mjs'
+      - 'scripts/p3*.py'
+      - 'tests/p2*'
+      - 'tests/p3*'
+      - 'docs/P2*.md'
+      - 'docs/P3*.md'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p37-certification-launch-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  certification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+
+      - name: Verify P37 structural contract
+        run: node tests/p37-certification-promotion-contract.mjs
+
+      - name: Verify P37 refreeze, certification, stack and launch negative paths
+        run: python tests/p37-certification-promotion-contract.py
+
+      - name: Verify P37 CLIs
+        run: |
+          python scripts/p37-evaluate-refreeze.py --help > /dev/null
+          python scripts/p37-certify-burnin.py --help > /dev/null
+          python scripts/p37-certify-governance-stack.py --help > /dev/null
+          python scripts/p37-build-oe-launch.py --help > /dev/null
+
+      - name: Build current P37 blocked-state evidence
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+
+          def load(p): return json.loads(Path(p).read_text())
+          def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+
+          p25=load('platform-p25-burn-in-plan.json')
+          c=p25['pendingGeneration5']['candidateEpoch']
+          obs={
+            'observedAt':'2026-10-04T16:21:43.552540Z',
+            'projectStatus':'ACTIVE_HEALTHY',**c,
+            'crossAppSmokePassed':True,'authHealthy':True,'realtimeHealthy':True,
+            'postgrestHealthy':True,'storageHealthy':True,
+            'securityAdvisorsReviewed':True,'performanceAdvisorsReviewed':True,
+            'postFinalSharedChangeBackupVerified':False,'backupEvidenceRef':None
+          }
+          Path('current-p37-observation.json').write_text(json.dumps(obs,indent=2)+'\n')
+          Path('current-p37-samples.json').write_text('{"samples":[]}\n')
+          PY
+
+          python scripts/p37-evaluate-refreeze.py current-p37-observation.json --out p37-current-refreeze.json
+          python scripts/p37-certify-burnin.py current-p37-observation.json current-p37-samples.json --out p37-current-burnin.json
+          python scripts/p37-certify-governance-stack.py --out p37-current-governance.json --require-certified
+
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          def load(p): return json.loads(Path(p).read_text())
+          def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          b=load('p37-current-burnin.json'); g=load('p37-current-governance.json')
+          anchor=load('platform-p33-ledger-anchor.json')
+          ctx={
+            'observedAt':'2026-10-04T16:21:43.552540Z',
+            'p32Mode':'warn','p33CanonicalEvidenceActive':True,
+            'controlCatalogFrozen':True,'controlCatalogVersion':'2026-10-03.1',
+            'evidenceCollectionDryRunPass':True,'criticalOpenDeficiencies':0,
+            'highDeficiencyStates':{'P34-D001':'decision_required','P34-D002':'remediating','P34-D005':'closed','P34-D006':'remediating'},
+            'passwordAuthUsers':0,'explicitLaunchAuthorization':False,
+            'requestedBy':'platform','authorizedBy':'independent-reviewer',
+            'certifiedGeneration':5,'burninCertificateId':b.get('certificateId'),
+            'governanceCertificateId':g.get('certificateId'),
+            'p33HeadHash':anchor['headHash'],
+            'p33AnchorSha256':sha('platform-p33-ledger-anchor.json'),
+            'controlCatalogSha256':sha('platform-p34-control-catalog.json'),
+            'p34SnapshotSha256':sha('platform-p34-assurance-snapshot.json')
+          }
+          Path('current-p37-launch-context.json').write_text(json.dumps(ctx,indent=2)+'\n')
+          PY
+          python scripts/p37-build-oe-launch.py             p37-current-burnin.json p37-current-governance.json current-p37-launch-context.json             --out p37-current-launch.json
+
+          python - <<'PY'
+          import json
+          r=json.load(open('p37-current-refreeze.json'))
+          b=json.load(open('p37-current-burnin.json'))
+          g=json.load(open('p37-current-governance.json'))
+          l=json.load(open('p37-current-launch.json'))
+          assert r['decision']=='blocked'
+          assert b['decision']=='blocked'
+          assert g['decision']=='certified'
+          assert l['decision']=='blocked' and l['oeState']=='not_started'
+          print('Current P37 state is correctly blocked for operational launch.')
+          PY
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: p37-certification-${{ github.run_id }}
+          path: |
+            p37-current-refreeze.json
+            p37-current-burnin.json
+            p37-current-governance.json
+            p37-current-launch.json
+            current-p37-observation.json
+            current-p37-launch-context.json
+          if-no-files-found: error
+          retention-days: 90

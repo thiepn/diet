@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "phase": "P37",
+  "title": "P34-D001 Proposed Bounded Risk Treatment",
+  "state": "prepared_pending_independent_risk_approval",
+  "deficiencyId": "P34-D001",
+  "severity": "high",
+  "providerCapability": {
+    "leakedPasswordProtectionEnabled": false,
+    "currentPlan": "free",
+    "documentedRequirement": "Leaked password protection is available on the Pro Plan and above."
+  },
+  "liveEvidence": {
+    "observedAt": "2026-10-04T16:21:43.552540Z",
+    "totalUsers": 11,
+    "googleIdentityUsers": 11,
+    "passwordAuthUsers": 0,
+    "verifiedMfaFactors": 0,
+    "rawUserRecordsCopiedToEvidence": false
+  },
+  "proposedTreatment": "temporarily_accepted_with_fail_closed_reopen_conditions",
+  "rationale": "There is currently no password-auth population, which reduces present leaked-password exposure, but this does not close the provider capability gap.",
+  "activationRequires": {
+    "explicitRiskAcceptance": true,
+    "independentApproverRequired": true,
+    "approverMustDifferFromRequester": true,
+    "livePasswordAuthUsersMustRemain": 0,
+    "exactCurrentAuthEvidenceRequired": true,
+    "expiryRequired": true
+  },
+  "proposedMaximumDays": 90,
+  "activatedAt": null,
+  "expiresAt": null,
+  "requestedBy": null,
+  "approvedBy": null,
+  "approvalRef": null,
+  "riskAcceptanceAuthorized": false,
+  "permanentClosure": false,
+  "paidPlanUpgradeAuthorized": false,
+  "reopenImmediatelyIf": [
+    "passwordAuthUsers > 0",
+    "email/password sign-in is introduced",
+    "unexpected non-reviewed password credential path appears",
+    "leaked-password protection becomes available on the current plan and remains disabled without review",
+    "credential-stuffing or password-auth incident occurs"
+  ]
+}

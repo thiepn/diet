@@ -6,9 +6,9 @@ ROOT=Path(__file__).resolve().parents[1]
 ENGINE=ROOT/"scripts/p32-admit-change.py"
 
 VERSIONS={
-  "policyBundleVersion":"2026-10-04.1",
-  "fleetRegistryVersion":"2026-10-04.1",
-  "releaseRegistryVersion":"2026-10-04.1"
+  "policyBundleVersion":"2026-10-04.2",
+  "fleetRegistryVersion":"2026-10-04.2",
+  "releaseRegistryVersion":"2026-10-04.2"
 }
 
 def run(manifest,fail=False):

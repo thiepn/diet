@@ -326,3 +326,19 @@ P36 onboards `semester-os` into P28/P29/P31 governance and refreshes P32's regis
 - unmodeled components: **0**
 
 This is registry reconciliation only. It does not grant production approval and does not switch P32 to enforce mode.
+
+
+## P37 policy-binding refresh — 2026-10-04
+
+P32 remains **warn** mode.
+
+Its current bundle/registry binding is:
+
+- policy bundle: `2026-10-04.2`
+- fleet registry: `2026-10-04.2`
+- release registry: `2026-10-04.2`
+- dependency graph: `2026-10-04.1`
+- latest merged governance phase: P36
+- shared release state: `refreeze_pending_generation5`
+
+This refresh records current facts only. It does not promote P32 to enforce mode or grant production approval.

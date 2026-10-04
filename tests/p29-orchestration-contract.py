@@ -52,8 +52,8 @@ assert diet["requiredQuietWindowMinutes"]==0
 
 common_epoch={
  "semanticSchemaSha256":"5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
- "migrationHead":"20261003221217",
- "edgeInventorySha256":"4d9c066197de1f456665dfa4b328917deaeab6b427860bfd9e23786e14e311bd",
+ "migrationHead":"20261004132839",
+ "edgeInventorySha256":"e2aa661fd331640fba473b9a8fe4bc5c9084731900c569e7d2aa4d8ed57fdbc9",
  "cronInventorySha256":"652724f6d80db7f2382637925f3eba6205d114b02204ed68fdf115e5bfc20692"
 }
 good={

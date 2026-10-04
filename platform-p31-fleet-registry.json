@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "phase": "P31",
-  "registryVersion": "2026-10-04.1",
-  "capturedAt": "2026-10-04T12:55:17.146329Z",
+  "registryVersion": "2026-10-04.2",
+  "capturedAt": "2026-10-04T16:21:43.552540Z",
   "canonicalProject": {
     "ref": "hycegznamzjhwinegaai",
     "name": "THIEPN Account",
@@ -17,34 +17,35 @@
   "controlPlaneState": "amber",
   "coordinationMode": "registry_and_epoch_drift",
   "releaseEpoch": {
-    "state": "frozen_candidate_burn_in",
-    "movementReasons": [],
+    "state": "refreeze_pending_generation5",
+    "movementReasons": [
+      "database advanced to gomoku_p21_capacity_admission_gate after P36 generation-4 freeze",
+      "gomoku-room advanced to v49",
+      "micro-arcade-p31-backup-export advanced to v2 at 2026-10-04T16:20:09.879Z"
+    ],
     "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
-    "migrationHead": "20261003221217",
-    "migrationName": "hub_h15_tms60_projection",
+    "migrationHead": "20261004132839",
+    "migrationName": "gomoku_p21_capacity_admission_gate",
     "cronJobs": 14,
     "edgeFunctionCount": 12,
-    "edgeInventorySha256": "4d9c066197de1f456665dfa4b328917deaeab6b427860bfd9e23786e14e311bd",
+    "edgeInventorySha256": "e2aa661fd331640fba473b9a8fe4bc5c9084731900c569e7d2aa4d8ed57fdbc9",
     "cronInventorySha256": "652724f6d80db7f2382637925f3eba6205d114b02204ed68fdf115e5bfc20692",
     "edgeHighlights": {
       "gomokuRoom": {
-        "version": 48,
-        "sha256": "f0493fe400876a8d52f394724d6e44644978d2028b890c912ec283fdc32154cd",
-        "status": "ACTIVE"
-      },
-      "platformHealth": {
-        "version": 4,
-        "sha256": "ba7fc889263de7ae858f2f870fad59d9cd7d146b3e75ceca4b9c8f355a2ac6dd",
+        "version": 49,
+        "sha256": "64e5cfdd7a9d027e178eb4e8466b954504eb2bec1021bcb40c19afe8cd05b900",
         "status": "ACTIVE"
       },
       "microArcadeBackup": {
-        "version": 1,
-        "sha256": "364c23e05d762edf1cbf699613c3242b9ae8ce1557322b2beb57c7af9b3bf980",
+        "version": 2,
+        "sha256": "84081a183835e6ea8c6791912a4e261b97d1e09c24c4fa6fdfc9a87f9e9460d2",
         "status": "ACTIVE"
       }
     },
     "sharedPromotionsBlocked": true,
-    "freezeReason": "P36 generation-4 burn-in candidate; shared promotions remain blocked until certification/activation gates pass."
+    "nextGeneration": 5,
+    "earliestRefreezeAt": "2026-10-04T17:20:09.879000Z",
+    "freezeReason": "P37 requires a fresh 60-minute quiet window before generation 5 can activate."
   },
   "coverage": {
     "governedP29Nodes": 18,

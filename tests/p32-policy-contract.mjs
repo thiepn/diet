@@ -14,17 +14,17 @@ const workflow=fs.readFileSync('.github/workflows/p32-change-admission-warn.yml'
 assert.equal(plan.phase,'P32');
 assert.ok(plan.schemaVersion>=2);
 assert.equal(plan.state,'implementation_active_operator_override');
-assert.equal(plan.sourceMainSha,'7b73e0b36cc55b7e7d6c6ea44162d97b16cdd59b');
+assert.equal(plan.sourceMainSha,'c8c374917d739c971fe142cf16c3449d6c64e8cd');
 assert.equal(plan.currentMode,'warn');
 assert.equal(plan.operatorOverride.enabled,true);
 assert.equal(plan.operatorOverride.doesNotAuthorizePolicySelfEnforcement,true);
 assert.equal(plan.liveBaseline.projectStatus,'ACTIVE_HEALTHY');
-assert.equal(plan.liveBaseline.migrationHead,'20261003221217');
-assert.equal(plan.liveBaseline.gomokuRoomVersion,48);
+assert.equal(plan.liveBaseline.migrationHead,'20261004132839');
+assert.equal(plan.liveBaseline.gomokuRoomVersion,49);
 assert.equal(plan.liveBaseline.cronJobs,14);
 assert.equal(plan.liveBaseline.registeredApps,7);
 assert.deepEqual(plan.liveBaseline.unmodeledComponents,[]);
-assert.equal(plan.liveBaseline.releaseEpochState,'frozen_candidate_burn_in');
+assert.equal(plan.liveBaseline.releaseEpochState,'refreeze_pending_generation5');
 assert.equal(plan.fleetGuardrails.localSupabaseEphemeralAllowedForStatefulValidation,true);
 assert.equal(plan.automation.mergeBlockingAllowedInCurrentMode,false);
 assert.equal(plan.automation.productionPromotionAllowed,false);
@@ -32,11 +32,11 @@ assert.equal(plan.automation.productionMutationAllowed,false);
 
 assert.equal(bundle.phase,'P32');
 assert.equal(bundle.schemaVersion,2);
-assert.equal(bundle.bundleVersion,'2026-10-04.1');
+assert.equal(bundle.bundleVersion,'2026-10-04.2');
 assert.equal(bundle.mode,'warn');
 assert.equal(bundle.defaultDecision,'block');
-assert.equal(bundle.fleetRegistryVersion,'2026-10-04.1');
-assert.equal(bundle.releaseRegistryVersion,'2026-10-04.1');
+assert.equal(bundle.fleetRegistryVersion,'2026-10-04.2');
+assert.equal(bundle.releaseRegistryVersion,'2026-10-04.2');
 assert.equal(bundle.dependencyGraphVersion,'2026-10-04.1');
 assert.equal(bundle.policies.length,23);
 assert.equal(bundle.nonWaivablePolicyIds.length,21);
@@ -48,13 +48,14 @@ for(const id of ['P32-SEC-001','P32-SEC-002','P32-SEC-003','P32-PROD-001','P32-D
   assert.ok(bundle.nonWaivablePolicyIds.includes(id),id+' must be non-waivable');
 }
 
-assert.equal(fleet.registryVersion,'2026-10-04.1');
+assert.equal(fleet.registryVersion,'2026-10-04.2');
 assert.equal(fleet.releaseSafety,'amber');
-assert.equal(fleet.releaseEpoch.edgeHighlights.gomokuRoom.version,48);
+assert.equal(fleet.releaseEpoch.edgeHighlights.gomokuRoom.version,49);
+assert.equal(fleet.releaseEpoch.edgeHighlights.microArcadeBackup.version,2);
 assert.equal(fleet.coverage.registeredAppsObserved,7);
 assert.equal(fleet.coverage.registeredAppsGoverned,7);
 assert.equal(fleet.components.find(x=>x.id==='semester-os').governance,'governed');
-assert.equal(releases.latestMergedGovernancePhase,'P35');
+assert.equal(releases.latestMergedGovernancePhase,'P36');
 assert.equal(graph.nodes.length,18);
 assert.equal(app.operationsVersion,'P25.0');
 

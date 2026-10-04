@@ -10,7 +10,7 @@ const gateMigration=read('supabase/migrations/20260930014316_platform_p24_contro
 const postMigration=read('supabase/migrations/20261001121450_platform_p24_post_upgrade_hosted_build_validation.sql');
 const browser=fs.readdirSync('v2',{recursive:true})
   .filter(p=>/\.(?:js|mjs)$/.test(String(p)))
-  .map(p=>read('v2/'+p)).join('\n');
+  .map(p=>read('v2/'+p)).join('\\n');
 
 assert.equal(app.webRelease,'2.0.3');
 assert.equal(app.operationsVersion,'P25.0');
@@ -24,8 +24,10 @@ assert.equal(app.health.platformManagedBuildAfter,'17.6.1.164');
 assert.equal(app.health.platformSemanticFingerprintFormat,'platform-p23-shared-schema-v2');
 assert.equal(app.health.postgres1711CompatibilityBaselineMet,false);
 assert.equal(app.health.postgres1711TrackedSeparately,true);
-assert.equal(app.health.p25BurnInActive,true);
-assert.equal(app.health.p25BurnInGenerationState,'burn_in_active');
+assert.equal(app.health.p25BurnInActive,false);
+assert.equal(app.health.p25CurrentGenerationValid,false);
+assert.equal(app.health.p25NextGeneration,5);
+assert.equal(app.health.p25BurnInGenerationState,'invalidated_epoch_changed');
 
 const policy=backend.platform_upgrade_execution_policy;
 assert.equal(policy.release,'P24');
@@ -52,7 +54,9 @@ assert.equal(policy.postgres_17_11_tracked_separately,true);
 assert.deepEqual(policy.completion_requires,[]);
 
 assert.equal(backend.post_upgrade_burn_in_policy.release,'P25');
-assert.equal(backend.post_upgrade_burn_in_policy.state,'burn_in_active');
+assert.equal(backend.post_upgrade_burn_in_policy.state,'refreeze_pending');
+assert.equal(backend.post_upgrade_burn_in_policy.next_generation,5);
+assert.equal(backend.post_upgrade_burn_in_policy.current_generation_eligible,false);
 assert.equal(backend.post_upgrade_burn_in_policy.p24_post_upgrade_validation,'pass');
 assert.equal(backend.post_upgrade_burn_in_policy.semantic_schema_sha256,policy.post_upgrade_semantic_schema_sha256);
 

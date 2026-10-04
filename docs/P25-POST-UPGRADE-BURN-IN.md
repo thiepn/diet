@@ -165,3 +165,45 @@ Generation 4 still requires at least 12 healthy public samples spanning all six 
 The previous generation-3 backup run `37040772134` remains historical evidence and is not treated as satisfying the new generation-4 post-final-change backup gate.
 
 Generation 4 is **active but not yet certifiable**.
+
+
+## P37 generation-4 invalidation and generation-5 candidate — 2026-10-04
+
+Generation 4 is now **invalidated**. It cannot be certified.
+
+After the P36 freeze, the shared platform changed again:
+
+- migration advanced to `20261004132839_gomoku_p21_capacity_admission_gate`;
+- `gomoku-room` advanced to **v49** / `64e5cfdd7a9d027e178eb4e8466b954504eb2bec1021bcb40c19afe8cd05b900`;
+- `micro-arcade-p31-backup-export` advanced to **v2** / `84081a183835e6ea8c6791912a4e261b97d1e09c24c4fa6fdfc9a87f9e9460d2` at `2026-10-04T16:20:09.879000Z`.
+
+The semantic schema fingerprint remains `5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375`, but migration and Edge identity are part of the frozen release epoch, so the generation-4 certificate is stale regardless of semantic-schema stability.
+
+### Generation 5 is not active yet
+
+Generation 5 is currently a **refreeze candidate**, not an active burn-in generation.
+
+The 60-minute quiet clock starts after the latest observed shared release change at:
+
+`2026-10-04T16:20:09.879000Z`
+
+Earliest possible refreeze:
+
+`2026-10-04T17:20:09.879000Z`
+
+At the P37 observation the latest Edge change had been quiet for only about **1.56 minutes**, so the refreeze gate is open.
+
+A new encrypted offsite backup after the final shared change is also required before generation 5 may activate under the existing strict refreeze policy.
+
+### Sample identity
+
+The P25 public probe now records:
+
+- generation;
+- generation state;
+- current-generation eligibility;
+- `qualifiesForBurnIn`.
+
+While P25 is `refreeze_pending`, public health samples remain useful operational observations but **pre-refreeze samples do not qualify** for generation-5 certification.
+
+Once generation 5 is legitimately activated, only samples carrying the matching active generation and `qualifiesForBurnIn: true` may satisfy its 24-hour / 12-sample / six-bucket / terminal-sample evidence requirements.
