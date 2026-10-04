@@ -40,11 +40,11 @@ assert.equal(backend.latest_backup_run,37222829955);
 assert.equal(app.health.p25Generation5State,'invalidated_epoch_changed');
 assert.equal(app.health.p25Generation5CandidateRevision,2);
 
-assert.equal(fleet.registryVersion,'2026-10-04.5');
-assert.equal(fleet.releaseEpoch.state,'refreeze_pending_generation6_candidate_revision1');
+assert.equal(fleet.registryVersion,'2026-10-04.6');
+assert.equal(fleet.releaseEpoch.state,'refreeze_pending_generation6_candidate_revision2');
 assert.equal(fleet.releaseEpoch.edgeHighlights.gomokuRoom.version,50);
 assert.equal(fleet.releaseEpoch.latestSuccessfulBackupFreshForCandidate,false);
-assert.equal(policy.bundleVersion,'2026-10-04.5');
+assert.equal(policy.bundleVersion,'2026-10-04.6');
 assert.equal(policy.fleetRegistryVersion,'2026-10-04.5');
 assert.equal(policy.liveBaseline.gomokuRoomVersion,50);
 
