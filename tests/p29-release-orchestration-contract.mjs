@@ -34,7 +34,7 @@ assert.equal(graph.edges.length,51);
 assert.equal(graph.resourceOwners.edgeFunctions['micro-arcade-p31-backup-export'],'micro_arcade');
 assert.equal(graph.resourceOwners.cronJobs['micro-arcade-p31-monthly'],'micro_arcade');
 assert.equal(graph.liveBaseline.cronJobs,14);
-assert.equal(graph.liveBaseline.releaseEpochState,'refreeze_pending_generation5_candidate_revision2');
+assert.equal(graph.liveBaseline.releaseEpochState,'refreeze_pending_generation6_candidate_revision1');
 assert.equal(graph.liveBaseline.edgeHighlights.gomokuRoom.version,50);
 assert.equal(graph.liveBaseline.edgeHighlights.microArcadeBackup.version,2);
 assert.equal(graph.liveBaseline.edgeFunctionCount,12);
