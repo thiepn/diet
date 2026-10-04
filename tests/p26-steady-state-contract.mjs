@@ -103,8 +103,7 @@ for(const banned of [
   /\balter\s+(table|function|role|database|system)\b/,
   /\bdrop\s+(table|index|function|view|policy)\b/,
   /\binsert\s+into\b/,
-  /\bupdate\s+[^
-]+\s+set\b/,
+  /\bupdate\s+[^\n]+\s+set\b/,
   /\bdelete\s+from\b/,
   /\btruncate\b/,
   /\breindex\b/,
