@@ -55,16 +55,16 @@ sem=next(x for x in p31["components"] if x["id"]=="semester-os")
 assert sem["governance"]=="governed" and sem["owner"]=="thiepn"
 assert not any(x.get("id")=="p29-graph-missing-semester-os" for x in p31.get("observedDrift",[]))
 assert p32["mode"]=="warn"
-assert p32["fleetRegistryVersion"]=="2026-10-04.4"
+assert p32["fleetRegistryVersion"]=="2026-10-04.6"
 assert p32["dependencyGraphVersion"]=="2026-10-04.1"
 
 # Historical P34 register remains immutable; P36 is the closure event.
 assert next(x for x in p34defs["items"] if x["id"]=="P34-D005")["state"]=="open"
 
 assert p25["generation"]==5
-assert p25["currentGenerationEligible"] is True
-assert p25["state"]=="burn_in_active"
-assert p25["nextGeneration"] is None
+assert p25["currentGenerationEligible"] is False
+assert p25["state"]=="refreeze_pending"
+assert p25["nextGeneration"]==6
 assert p25["previousGeneration"]["generation"]==4
 assert p25["previousGeneration"]["invalidated"] is True
 assert p25["currentEpochFreezeEvidence"]["migrationHead"]!=freeze["frozenEpoch"]["migrationHead"]
