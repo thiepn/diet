@@ -25,7 +25,14 @@ def main():
     if p25.get("state")!="refreeze_pending": errors.append("p25_not_refreeze_pending")
     if p25.get("currentGenerationEligible") is not False: errors.append("old_generation_still_eligible")
     if p25.get("nextGeneration")!=5 or pending.get("generation")!=5: errors.append("generation5_not_next_candidate")
-    if pending.get("state")!="waiting_quiet_window": errors.append("generation5_candidate_state_invalid")
+    allowed_pending_states={
+        "waiting_quiet_window",
+        "waiting_quiet_window_and_fresh_backup",
+        "waiting_fresh_backup",
+        "ready_to_activate",
+    }
+    if pending.get("state") not in allowed_pending_states:
+        errors.append("generation5_candidate_state_invalid")
 
     for key in ("migrationHead","semanticSchemaSha256","edgeInventorySha256","edgeFunctionCount",
                 "gomokuRoomVersion","gomokuRoomSha256","cronJobs","cronInventorySha256"):
