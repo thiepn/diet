@@ -182,3 +182,14 @@ P26 will produce:
 - a final operations policy suitable for long-term monitoring.
 
 Until P25 closes, P26 remains **staged_pending_p25** and performs no production DDL.
+
+
+## P36 generation-4 gate refresh — 2026-10-04
+
+P26 remains **staged, not active**.
+
+Its prerequisite is now P25 **generation 4**, frozen at `2026-10-04T12:55:17.146329Z` on `20261003221217_hub_h15_tms60_projection`.
+
+Earliest generation-4 certification is **2026-10-05 12:55:17 UTC**. The P26 gate additionally requires a verified encrypted backup after the generation-4 final shared change; the older generation-3 backup is not sufficient.
+
+No database DDL while P25 is still burning in. The existing minimum steady-state observation remains at least 72 hours, and unused-index decisions remain blocked until at least seven days of appropriate evidence.
