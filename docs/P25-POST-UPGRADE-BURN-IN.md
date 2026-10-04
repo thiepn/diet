@@ -1,8 +1,8 @@
 # P25 — Post-Upgrade Burn-In, Stability & Shared-Platform Production Certification
 
-P25 is **active**.
+P25 is currently **refreeze pending**.
 
-The hosted Supabase upgrade remains historically validated. The current certifiable burn-in is **generation 3**, frozen on the final Gomoku P17 health-isolation epoch after the required quiet window and a successful encrypted backup after the final shared change.
+The hosted Supabase upgrade remains historically validated, but no burn-in generation is currently eligible for certification. Generation 4 was invalidated by later shared-platform changes; generation 5 is the next candidate and has not yet activated. The historical generation sections below are retained as immutable operational history.
 
 ## Hosted-upgrade attestation
 
@@ -207,3 +207,30 @@ The P25 public probe now records:
 While P25 is `refreeze_pending`, public health samples remain useful operational observations but **pre-refreeze samples do not qualify** for generation-5 certification.
 
 Once generation 5 is legitimately activated, only samples carrying the matching active generation and `qualifiesForBurnIn: true` may satisfy its 24-hour / 12-sample / six-bucket / terminal-sample evidence requirements.
+
+
+## P38 generation-5 refreeze progress — 2026-10-04
+
+P38 rechecked the same generation-5 candidate at `2026-10-04T17:01:57.419724Z`.
+
+The shared release epoch remained unchanged:
+
+- migration: `20261004132839_gomoku_p21_capacity_admission_gate`
+- semantic SHA: `5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375`
+- Gomoku Edge: v49
+- Micro Arcade backup Edge: v2
+- Edge Functions: 12 / all active
+- cron: 14/14 active
+- cron failures: 0
+- blocking replication slots: 0
+- P18 clean / P20 drift false / P21 pass / P22 pass
+
+At that observation the quiet window had reached **41.79 minutes out of the required 60 minutes**.
+
+The earliest possible quiet-window completion remains:
+
+`2026-10-04T17:20:09.879000Z`
+
+The required post-final-change encrypted backup was still not verified, so generation 5 remained **blocked** and inactive.
+
+P38 adds a reviewed preview-only activation mechanism and a generation-aware evidence ledger. Neither changes this current operational truth.
