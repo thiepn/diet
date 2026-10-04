@@ -18,10 +18,10 @@ assert.equal(plan.operatorOverride.doesNotBypassFutureP29CompatibilityEvidence,t
 assert.equal(plan.dependencyGraph.nodeCount,18);
 assert.equal(plan.dependencyGraph.edgeCount,51);
 assert.equal(plan.dependencyGraph.unresolvedP28Resources,0);
-assert.equal(plan.currentEpoch.migrationHead,'20261003221217');
+assert.equal(plan.currentEpoch.migrationHead,'20261004132839');
 assert.equal(plan.currentEpoch.edgeFunctionCount,12);
 assert.equal(plan.currentEpoch.cronJobs,14);
-assert.equal(plan.currentEpoch.gomokuRoom.version,48);
+assert.equal(plan.currentEpoch.gomokuRoom.version,49);
 assert.equal(plan.releaseProtocol.providerBeforeConsumer,true);
 assert.equal(plan.certificationPolicy.certificateIsImmutableReceipt,true);
 assert.equal(plan.automation.productionPromotionAllowed,false);
@@ -33,7 +33,7 @@ assert.equal(graph.nodes.length,18);
 assert.equal(graph.edges.length,51);
 assert.equal(graph.resourceOwners.edgeFunctions['micro-arcade-p31-backup-export'],'micro_arcade');
 assert.equal(graph.resourceOwners.cronJobs['micro-arcade-p31-monthly'],'micro_arcade');
-assert.equal(graph.liveBaseline.cronJobs,14);
+assert.equal(graph.liveBaseline.cronJobs,14);\nassert.equal(graph.liveBaseline.releaseEpochState,'refreeze_pending_generation5');\nassert.equal(graph.liveBaseline.edgeHighlights.gomokuRoom.version,49);\nassert.equal(graph.liveBaseline.edgeHighlights.microArcadeBackup.version,2);
 assert.equal(graph.liveBaseline.edgeFunctionCount,12);
 assert.equal(graph.liveBaseline.p28ResourceOwnershipUnresolved,0);
 
