@@ -62,10 +62,13 @@ assert p32["dependencyGraphVersion"]=="2026-10-04.1"
 assert next(x for x in p34defs["items"] if x["id"]=="P34-D005")["state"]=="open"
 
 assert p25["generation"]==4
-assert p25["currentGenerationEligible"] is False\nassert p25["state"]=="refreeze_pending"\nassert p25["nextGeneration"]==5
+assert p25["currentGenerationEligible"] is False
+assert p25["state"]=="refreeze_pending"
+assert p25["nextGeneration"]==5
 assert p25["previousGeneration"]["generation"]==4
 assert p25["previousGeneration"]["invalidated"] is True
-assert p25["currentEpochFreezeEvidence"]["migrationHead"]==freeze["frozenEpoch"]["migrationHead"]\nassert p25["latestObservedEpoch"]["migrationHead"]!=freeze["frozenEpoch"]["migrationHead"]
+assert p25["currentEpochFreezeEvidence"]["migrationHead"]==freeze["frozenEpoch"]["migrationHead"]
+assert p25["latestObservedEpoch"]["migrationHead"]!=freeze["frozenEpoch"]["migrationHead"]
 assert p25["currentEpochFreezeEvidence"]["postFinalChangeEncryptedBackupVerified"] is False
 
 assert oe["active"] is False
