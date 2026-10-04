@@ -2,7 +2,7 @@
   "schemaVersion": 3,
   "phase": "P25",
   "title": "Post-Upgrade Burn-In, Stability & Shared-Platform Production Certification",
-  "state": "burn_in_active",
+  "state": "refreeze_pending",
   "activatedAt": "2026-10-04T12:55:17.146329Z",
   "minimumCompleteAfter": "2026-10-05T12:55:17.146329Z",
   "activationEvidence": {
@@ -74,16 +74,16 @@
   },
   "completionState": {
     "complete": false,
-    "invalidated": false,
+    "invalidated": true,
     "remaining": [
-      "wait until at least 2026-10-05T12:55:17.146329Z",
-      "collect at least 12 successful healthy generation-4 samples spanning the full 24-hour window and all six 4-hour coverage buckets",
-      "confirm migration/schema/Edge/cron epoch remains unchanged",
-      "obtain a successful encrypted offsite backup after the latest shared migration if one is not already available",
-      "rerun final P18/P20/P21/P22/cron/replication checks",
-      "rerun cross-app smoke and Edge/Auth/Realtime/PostgREST/Storage health",
-      "review Security and Performance advisors at closure",
-      "certify generation 4 before OE activation"
+      "wait for 60 continuous minutes of database/Edge/cron release-epoch quiet after the latest shared change",
+      "recheck migration/schema/Edge/cron identity and P18/P20/P21/P22/cron/replication health",
+      "activate generation 5 only after the quiet gate passes",
+      "obtain a successful encrypted offsite backup after the final shared change",
+      "collect at least 12 successful healthy generation-5 samples spanning all six 4-hour buckets",
+      "include a terminal generation-5 sample at or after the 24-hour boundary",
+      "recheck service health and Security/Performance advisors before certification",
+      "certify the current eligible generation before OE launch"
     ]
   },
   "latestKnownPreUpgradeOffsiteBackup": {
@@ -177,9 +177,9 @@
     "sampleWindowMustSpanBurnIn": true,
     "frozenEpochImpact": "none"
   },
-  "generationState": "burn_in_active",
-  "currentGenerationEligible": true,
-  "invalidatedAt": "2026-10-02T15:26:53.149918Z",
+  "generationState": "invalidated_epoch_changed",
+  "currentGenerationEligible": false,
+  "invalidatedAt": "2026-10-04T16:21:43.552540Z",
   "invalidationEvidence": {
     "reason": "shared_release_epoch_changed",
     "previousMigrationVersion": "20261002095255",
@@ -194,26 +194,41 @@
     "observedGomokuRoomSha256": "147046c90c849225c9a862f5607b725adb254b919dd756d9092caa4e0fe39b3d",
     "observedGomokuEdgeUpdatedAt": "2026-10-02T15:16:36.270Z"
   },
-  "nextGeneration": null,
+  "nextGeneration": 5,
   "refreezePolicy": {
     "minimumQuietMinutes": 60,
-    "quietClockStartsAfterLatestObservedSharedChange": "2026-10-02T17:21:44.278Z",
-    "earliestRefreezeAt": "2026-10-02T18:21:44.278Z",
+    "quietClockStartsAfterLatestObservedSharedChange": "2026-10-04T16:20:09.879000Z",
+    "earliestRefreezeAt": "2026-10-04T17:20:09.879000Z",
     "requireMigrationSchemaEdgeCronRecheck": true,
     "requireControlsAndBackupRecheck": true,
     "requirePostFinalChangeEncryptedBackup": true
   },
   "latestObservedEpoch": {
-    "observedAt": "2026-10-04T12:55:17.146329Z",
-    "migrationVersion": "20261003221217",
-    "migrationName": "hub_h15_tms60_projection",
+    "observedAt": "2026-10-04T16:21:43.552540Z",
+    "migrationVersion": "20261004132839",
+    "migrationName": "gomoku_p21_capacity_admission_gate",
+    "migrationHead": "20261004132839_gomoku_p21_capacity_admission_gate",
     "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
-    "gomokuRoomVersion": 48,
-    "gomokuRoomSha256": "f0493fe400876a8d52f394724d6e44644978d2028b890c912ec283fdc32154cd",
-    "gomokuRoomUpdatedAt": "2026-10-03T11:18:50.541Z",
+    "gomokuRoomVersion": 49,
+    "gomokuRoomSha256": "64e5cfdd7a9d027e178eb4e8466b954504eb2bec1021bcb40c19afe8cd05b900",
+    "gomokuRoomUpdatedAt": "2026-10-04T13:33:35.816000Z",
+    "edgeInventorySha256": "e2aa661fd331640fba473b9a8fe4bc5c9084731900c569e7d2aa4d8ed57fdbc9",
+    "edgeFunctionCount": 12,
+    "edgeFunctionsAllActive": true,
+    "latestEdgeChangeAt": "2026-10-04T16:20:09.879000Z",
+    "latestEdgeChangeComponent": "micro-arcade-p31-backup-export",
+    "latestEdgeChangeVersion": 2,
+    "latestEdgeChangeSha256": "84081a183835e6ea8c6791912a4e261b97d1e09c24c4fa6fdfc9a87f9e9460d2",
     "cronJobs": 14,
     "activeCronJobs": 14,
-    "cronFailures24h": 0
+    "cronInventorySha256": "652724f6d80db7f2382637925f3eba6205d114b02204ed68fdf115e5bfc20692",
+    "cronRuns24h": 5791,
+    "cronFailures24h": 0,
+    "blockingReplicationSlots": 0,
+    "p18Integrity": "clean",
+    "p20SchemaDrift": false,
+    "p21Readiness": "pass",
+    "p22Maintenance": "pass"
   },
   "generation3Sampling": {
     "workflow": ".github/workflows/p25-post-upgrade-burnin.yml",
@@ -231,12 +246,12 @@
     "reason": "GitHub scheduled delivery remained sparse during generation 3 (5 successful samples in the first ~10 hours). Increase schedule opportunities without changing probe semantics, frozen production epoch, thresholds, or evidence requirements."
   },
   "previousGeneration": {
-    "generation": 3,
-    "activatedAt": "2026-10-02T20:16:15.888200Z",
-    "minimumCompleteAfter": "2026-10-03T20:16:15.888200Z",
+    "generation": 4,
+    "activatedAt": "2026-10-04T12:55:17.146329Z",
+    "minimumCompleteAfter": "2026-10-05T12:55:17.146329Z",
     "invalidated": true,
-    "invalidationReason": "shared_release_epoch_changed_after_generation3",
-    "previousMigrationHead": "20261002172133_gomoku_p17_certification_health_isolation"
+    "invalidationReason": "shared_release_epoch_changed_after_generation4",
+    "previousMigrationHead": "20261003221217_hub_h15_tms60_projection"
   },
   "generation4Sampling": {
     "workflow": ".github/workflows/p25-post-upgrade-burnin.yml",
@@ -247,5 +262,65 @@
     "terminalSampleRequiredAtOrAfterMinimumCompleteAfter": true,
     "frozenEpochImpact": "generation4_is_new_epoch",
     "evidenceRuleUnchanged": true
+  },
+  "generation4Invalidation": {
+    "generation": 4,
+    "invalidatedAt": "2026-10-04T16:21:43.552540Z",
+    "reason": "shared_release_epoch_changed_after_generation4",
+    "frozenMigrationHead": "20261003221217_hub_h15_tms60_projection",
+    "frozenGomokuRoomVersion": 48,
+    "observedMigrationHead": "20261004132839_gomoku_p21_capacity_admission_gate",
+    "observedGomokuRoomVersion": 49,
+    "observedEdgeInventorySha256": "e2aa661fd331640fba473b9a8fe4bc5c9084731900c569e7d2aa4d8ed57fdbc9",
+    "latestSharedChangeAt": "2026-10-04T16:20:09.879000Z",
+    "note": "Generation 4 is historical and cannot be certified."
+  },
+  "pendingGeneration5": {
+    "generation": 5,
+    "state": "waiting_quiet_window",
+    "candidateObservedAt": "2026-10-04T16:21:43.552540Z",
+    "candidateEpoch": {
+      "observedAt": "2026-10-04T16:21:43.552540Z",
+      "migrationVersion": "20261004132839",
+      "migrationName": "gomoku_p21_capacity_admission_gate",
+      "migrationHead": "20261004132839_gomoku_p21_capacity_admission_gate",
+      "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
+      "gomokuRoomVersion": 49,
+      "gomokuRoomSha256": "64e5cfdd7a9d027e178eb4e8466b954504eb2bec1021bcb40c19afe8cd05b900",
+      "gomokuRoomUpdatedAt": "2026-10-04T13:33:35.816000Z",
+      "edgeInventorySha256": "e2aa661fd331640fba473b9a8fe4bc5c9084731900c569e7d2aa4d8ed57fdbc9",
+      "edgeFunctionCount": 12,
+      "edgeFunctionsAllActive": true,
+      "latestEdgeChangeAt": "2026-10-04T16:20:09.879000Z",
+      "latestEdgeChangeComponent": "micro-arcade-p31-backup-export",
+      "latestEdgeChangeVersion": 2,
+      "latestEdgeChangeSha256": "84081a183835e6ea8c6791912a4e261b97d1e09c24c4fa6fdfc9a87f9e9460d2",
+      "cronJobs": 14,
+      "activeCronJobs": 14,
+      "cronInventorySha256": "652724f6d80db7f2382637925f3eba6205d114b02204ed68fdf115e5bfc20692",
+      "cronRuns24h": 5791,
+      "cronFailures24h": 0,
+      "blockingReplicationSlots": 0,
+      "p18Integrity": "clean",
+      "p20SchemaDrift": false,
+      "p21Readiness": "pass",
+      "p22Maintenance": "pass"
+    },
+    "minimumQuietMinutes": 60,
+    "migrationQuietMinutesObserved": 173.08,
+    "edgeQuietMinutesObserved": 1.56,
+    "earliestRefreezeAt": "2026-10-04T17:20:09.879000Z",
+    "postFinalChangeEncryptedBackupVerified": false,
+    "eligibleToActivate": false
+  },
+  "generation5Sampling": {
+    "workflow": ".github/workflows/p25-post-upgrade-burnin.yml",
+    "minimumSuccessfulSamples": 12,
+    "sampleWindowMustSpanBurnIn": true,
+    "minimumCoverageBuckets": 6,
+    "coverageBucketHours": 4,
+    "terminalSampleRequiredAtOrAfterMinimumCompleteAfter": true,
+    "evidenceRuleUnchanged": true,
+    "preActivationSamplesQualify": false
   }
 }
