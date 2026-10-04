@@ -24,7 +24,7 @@ assert.equal(plan.activationRequires.p25AllSixFourHourCoverageBuckets,true);
 assert.equal(plan.activationRequires.p25TerminalSampleAtOrAfterMinimumCompleteAfter,true);
 assert.equal(plan.activationRequires.p25FrozenEpochUnchanged,true);
 assert.equal(plan.activationRequires.historicalHostedUpgradeAttestation,'pass');
-assert.equal(plan.activationRequires.postFinalSharedChangeEncryptedBackup,'success');
+assert.equal(plan.activationRequires.postFinalSharedChangeEncryptedBackup,'success_current_freeze');
 assert.equal(Object.hasOwn(plan.activationRequires,'p24PostUpgradeValidation'),false);
 
 assert.equal(p25.generation,4);
