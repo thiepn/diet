@@ -1,9 +1,9 @@
 {
   "schemaVersion": 2,
   "phase": "P32",
-  "bundleVersion": "2026-10-04.3",
+  "bundleVersion": "2026-10-04.4",
   "mode": "warn",
-  "capturedAt": "2026-10-04T17:40:47.662109Z",
+  "capturedAt": "2026-10-04T18:52:01.712991Z",
   "sourceMainSha": "c8c374917d739c971fe142cf16c3449d6c64e8cd",
   "defaultDecision": "block",
   "decisions": [
@@ -11,11 +11,11 @@
     "block",
     "escalate"
   ],
-  "fleetRegistryVersion": "2026-10-04.3",
+  "fleetRegistryVersion": "2026-10-04.4",
   "releaseRegistryVersion": "2026-10-04.2",
   "dependencyGraphVersion": "2026-10-04.1",
   "liveBaseline": {
-    "observedAt": "2026-10-04T17:40:47.662109Z",
+    "observedAt": "2026-10-04T18:52:01.712991Z",
     "projectStatus": "ACTIVE_HEALTHY",
     "organizationPlan": "free",
     "migrationHead": "20261004173117",
@@ -29,11 +29,10 @@
     "microArcadeBackupSha256": "84081a183835e6ea8c6791912a4e261b97d1e09c24c4fa6fdfc9a87f9e9460d2",
     "cronJobs": 14,
     "cronInventorySha256": "652724f6d80db7f2382637925f3eba6205d114b02204ed68fdf115e5bfc20692",
-    "releaseEpochState": "refreeze_pending_generation5_candidate_revision2",
+    "releaseEpochState": "generation5_burn_in_active",
     "sharedPromotionsBlocked": true,
     "generation4Valid": false,
-    "nextGeneration": 5,
-    "earliestRefreezeAt": "2026-10-04T18:36:39.032000Z",
+    "nextGeneration": null,
     "dependencyGraphCoveragePct": 100,
     "registeredAppGovernanceCoveragePct": 100,
     "unmodeledComponents": [],
@@ -41,8 +40,11 @@
     "hostedBranchActionStatus": "MIGRATIONS_FAILED",
     "fleetReleaseSafety": "amber",
     "generation5CandidateRevision": 2,
-    "latestSuccessfulBackupRun": 37218356705,
-    "latestSuccessfulBackupFreshForCandidate": false
+    "latestSuccessfulBackupRun": 37222829955,
+    "latestSuccessfulBackupFreshForCandidate": true,
+    "currentGeneration": 5,
+    "generation5ActivatedAt": "2026-10-04T18:52:01.712991Z",
+    "generation5MinimumCompleteAfter": "2026-10-05T18:52:01.712991Z"
   },
   "policies": [
     {
