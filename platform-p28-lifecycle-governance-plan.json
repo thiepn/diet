@@ -71,13 +71,15 @@
     "conclusion": "known_database_and_storage_pressure_low_other_quota_dimensions_require_usage_page_or_authoritative_meter"
   },
   "platformInventory": {
-    "registeredApps": 6,
+    "registeredApps": 7,
     "databaseRelations": 120,
     "databaseFunctions": 322,
     "edgeFunctions": 12,
-    "cronJobs": 13,
+    "cronJobs": 14,
     "storageBuckets": 1,
-    "storageObjects": 14
+    "storageObjects": 14,
+    "inventoryReconciledAt": "2026-10-04T12:55:17.146329Z",
+    "notes": "P36 reconciled active app/cron inventory after Semester OS onboarding and Gomoku P20 cron addition."
   },
   "lifecycleModel": {
     "states": [

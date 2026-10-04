@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "phase": "P29",
-  "graphVersion": "2026-10-03.1",
-  "capturedAt": "2026-10-03T10:53:23.237810Z",
+  "graphVersion": "2026-10-04.1",
+  "capturedAt": "2026-10-04T12:55:17.146329Z",
   "canonicalProjectRef": "hycegznamzjhwinegaai",
   "scope": "THIEPN shared Supabase platform and known registered consumers",
   "nodes": [
@@ -106,6 +106,12 @@
       "id": "tms60",
       "kind": "registered_app",
       "owner": "tms60",
+      "releaseRole": "consumer"
+    },
+    {
+      "id": "semester-os",
+      "kind": "registered_app",
+      "owner": "semester-os",
       "releaseRole": "consumer"
     }
   ],
@@ -398,6 +404,30 @@
       "provider": "database",
       "contract": "persistence",
       "strength": "hard"
+    },
+    {
+      "consumer": "semester-os",
+      "provider": "auth",
+      "contract": "shared_identity",
+      "strength": "hard"
+    },
+    {
+      "consumer": "semester-os",
+      "provider": "account",
+      "contract": "account_manifest_and_lifecycle",
+      "strength": "hard"
+    },
+    {
+      "consumer": "semester-os",
+      "provider": "data_api",
+      "contract": "database_api",
+      "strength": "hard"
+    },
+    {
+      "consumer": "semester-os",
+      "provider": "database",
+      "contract": "persistence",
+      "strength": "hard"
     }
   ],
   "resourceOwners": {
@@ -428,29 +458,30 @@
       "gomoku-p11-social-tick": "gomoku",
       "gomoku-p13-reliability-tick": "gomoku",
       "micro-arcade-p31-daily": "micro_arcade",
-      "micro-arcade-p31-monthly": "micro_arcade"
+      "micro-arcade-p31-monthly": "micro_arcade",
+      "gomoku-p20-slo-sample": "gomoku"
     }
   },
   "liveBaseline": {
-    "observedAt": "2026-10-03T10:53:23.237810Z",
+    "observedAt": "2026-10-04T12:55:17.146329Z",
     "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
-    "latestMigrationVersion": "20261003094639",
-    "latestMigrationName": "arcade_p31_backend_recovery",
-    "edgeInventorySha256": "8400fe3f4f203d37e8208a8541c2e6ffc7d49ace98871ecdb80fef1026842da8",
+    "latestMigrationVersion": "20261003221217",
+    "latestMigrationName": "hub_h15_tms60_projection",
+    "edgeInventorySha256": "4d9c066197de1f456665dfa4b328917deaeab6b427860bfd9e23786e14e311bd",
     "edgeFunctionCount": 12,
     "edgeHighlights": {
       "gomokuRoom": {
-        "version": 47,
-        "sha256": "d603e6f1865eb6e1ef3d0565fdee9d3839dc0a50b2e1a7610b2eaaad161a2fce"
+        "version": 48,
+        "sha256": "f0493fe400876a8d52f394724d6e44644978d2028b890c912ec283fdc32154cd"
       },
       "microArcadeBackup": {
         "version": 1,
         "sha256": "364c23e05d762edf1cbf699613c3242b9ae8ce1557322b2beb57c7af9b3bf980"
       }
     },
-    "cronInventorySha256": "22e21a59a108390b6f669698914e1c958ae4c357be36dce7947b137025e710bc",
-    "cronJobs": 13,
+    "cronInventorySha256": "652724f6d80db7f2382637925f3eba6205d114b02204ed68fdf115e5bfc20692",
+    "cronJobs": 14,
     "p28ResourceOwnershipUnresolved": 0,
-    "note": "P29 certificates bind to this exact release epoch at certificate creation time; later unrelated epochs require a fresh baseline rather than rewriting old evidence."
+    "note": "P36 refreshed the dependency baseline after onboarding semester-os. Future certificates remain epoch-bound."
   }
 }

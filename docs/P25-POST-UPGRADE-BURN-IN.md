@@ -134,3 +134,34 @@ At closure P25 must still verify:
 Generation 3 is **active but not yet certifiable**.
 
 No P26 promotion may occur until the generation-3 minimum window, spanning sample requirements, frozen-epoch checks, and final control review all pass.
+
+
+## P36 generation-4 refreeze — 2026-10-04
+
+Generation 3 is retained as historical evidence but is no longer the active release epoch because the shared platform advanced after the Gomoku P17 freeze.
+
+### Generation 4 active freeze
+
+P25 generation 4 is **active but not yet certifiable**.
+
+Frozen at `2026-10-04T12:55:17.146329Z`:
+
+- migration: `20261003221217_hub_h15_tms60_projection`
+- semantic schema SHA: `5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375`
+- Gomoku Edge: v48 / `f0493fe400876a8d52f394724d6e44644978d2028b890c912ec283fdc32154cd`
+- Edge Functions: 12
+- cron jobs: 14
+- P18: **clean**
+- P20 schema drift: **false**
+- P21 readiness: **pass**
+- P22 maintenance: **pass**
+- migration quiet at freeze: 883 minutes
+- Edge quiet at freeze: 1536 minutes
+
+Earliest certification is `2026-10-05T12:55:17.146329Z`.
+
+Generation 4 still requires at least 12 healthy public samples spanning all six 4-hour buckets, a terminal sample at or after the 24-hour boundary, an unchanged release epoch, and a successful encrypted offsite backup captured after the final shared-platform change.
+
+The previous generation-3 backup run `37040772134` remains historical evidence and is not treated as satisfying the new generation-4 post-final-change backup gate.
+
+Generation 4 is **active but not yet certifiable**.

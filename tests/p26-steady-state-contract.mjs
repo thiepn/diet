@@ -17,22 +17,22 @@ assert.ok(plan.schemaVersion>=2);
 assert.equal(plan.state,'staged_pending_p25');
 assert.equal(plan.activeOperationsRelease,'P25.0');
 assert.equal(plan.activationRequires.p25Certification,'complete');
-assert.equal(plan.activationRequires.p25Generation,3);
+assert.equal(plan.activationRequires.p25Generation,4);
 assert.equal(plan.activationRequires.p25MinimumBurnInHours,24);
 assert.ok(plan.activationRequires.p25MinimumSuccessfulSamples>=12);
 assert.equal(plan.activationRequires.p25AllSixFourHourCoverageBuckets,true);
 assert.equal(plan.activationRequires.p25TerminalSampleAtOrAfterMinimumCompleteAfter,true);
 assert.equal(plan.activationRequires.p25FrozenEpochUnchanged,true);
 assert.equal(plan.activationRequires.historicalHostedUpgradeAttestation,'pass');
-assert.equal(plan.activationRequires.postFinalSharedChangeEncryptedBackup,'success');
+assert.equal(plan.activationRequires.postFinalSharedChangeEncryptedBackup,'success_current_freeze');
 assert.equal(Object.hasOwn(plan.activationRequires,'p24PostUpgradeValidation'),false);
 
-assert.equal(p25.generation,3);
+assert.equal(p25.generation,4);
 assert.equal(p25.currentGenerationEligible,true);
-assert.equal(plan.currentGateSnapshot.p25Generation,3);
+assert.equal(plan.currentGateSnapshot.p25Generation,4);
 assert.equal(plan.currentGateSnapshot.timeGateMetAtSnapshot,false);
 assert.equal(plan.currentGateSnapshot.earliestCertificationAt,p25.minimumCompleteAfter);
-assert.equal(plan.currentGateSnapshot.successfulSamplesKnownAtScheduleChange,5);
+assert.equal(plan.currentGateSnapshot.successfulSamplesKnownAtScheduleChange,0);
 
 assert.equal(plan.baselinePolicy.authoritativeOnlyAfterP25,true);
 assert.ok(plan.baselinePolicy.authoritativeObservationHours>=72);
@@ -78,7 +78,7 @@ assert.equal(live.service24h.postgrestDiagnostics.userFacingEdge5xxObserved,0);
 
 for(const token of [
   'P26 is **staged, not active**',
-  '2026-10-03 20:16:15 UTC',
+  '2026-10-05 12:55:17 UTC',
   'historical hosted-upgrade attestation',
   'No database DDL while P25 is still burning in',
   'at least 72 hours',
@@ -114,7 +114,7 @@ for(const required of [
 
 for(const required of [
   '--require-ready','p25_not_certified','minimum_window_open',
-  'historicalHostedUpgradeAttestation','postFinalSharedChangeEncryptedBackup',
+  'historicalHostedUpgradeAttestation','postFinalChangeEncryptedBackupVerified',
   'frozen_epoch_changed'
 ]) assert.ok(gateScript.includes(required),'P26 activation gate missing '+required);
 
@@ -189,7 +189,7 @@ try {
   readyP25.completionState={...(readyP25.completionState||{}),complete:true,remaining:[]};
   readyP25.currentGenerationEligible=true;
   readyP25.generation=plan.activationRequires.p25Generation;
-  readyP25.minimumCompleteAfter='2026-10-03T20:16:15.888200Z';
+  readyP25.minimumCompleteAfter='2026-10-05T12:55:17.146329Z';
   readyP25.historicalHostedUpgradeAttestation={...(readyP25.historicalHostedUpgradeAttestation||{}),status:'pass'};
   readyP25.latestPostUpgradeOffsiteBackup={
     ...(readyP25.latestPostUpgradeOffsiteBackup||{}),
@@ -198,7 +198,7 @@ try {
   readyP25.currentEpochFreezeEvidence={
     ...(readyP25.currentEpochFreezeEvidence||{}),
     p18Integrity:'clean',p20SchemaDrift:false,p21Readiness:'pass',p22Maintenance:'pass',
-    securityAdvisorReviewed:true,performanceAdvisorReviewed:true
+    securityAdvisorReviewed:true,performanceAdvisorReviewed:true,postFinalChangeEncryptedBackupVerified:true
   };
   readyP25.latestObservedEpoch={
     ...(readyP25.latestObservedEpoch||{}),
@@ -213,7 +213,7 @@ try {
     'scripts/p26-build-promotion-plan.mjs',
     '--p25',promotionP25,
     '--p26',promotionP26,
-    '--at','2026-10-03T20:20:00Z',
+    '--at','2026-10-05T13:00:00Z',
     '--out',promotionOut
   ],{stdio:'pipe'});
   const promotion=JSON.parse(fs.readFileSync(promotionOut,'utf8'));
@@ -223,7 +223,7 @@ try {
   assert.equal(promotion.proposedMetadata.activeOperationsRelease,'P26.0');
   assert.equal(promotion.proposedMetadata.minimumPublicSamples,19);
   assert.equal(promotion.proposedMetadata.publicSampleCadenceHours,4);
-  assert.equal(promotion.proposedMetadata.earliestAuthoritativeBaselineCompleteAt,'2026-10-06T20:20:00.000Z');
+  assert.equal(promotion.proposedMetadata.earliestAuthoritativeBaselineCompleteAt,'2026-10-08T13:00:00.000Z');
 } finally {
   fs.rmSync(promotionP25,{force:true});
   fs.rmSync(promotionP26,{force:true});
@@ -253,7 +253,7 @@ const testOut='p26-activation-readiness.test.json';
 try {
   execFileSync(process.execPath,[
     'scripts/p26-activation-readiness.mjs',
-    '--at','2026-10-03T08:09:28.650287Z',
+    '--at','2026-10-04T13:00:00Z',
     '--out',testOut
   ],{stdio:'pipe'});
   const report=JSON.parse(fs.readFileSync(testOut,'utf8'));
@@ -265,4 +265,4 @@ try {
   fs.rmSync(testOut,{force:true});
 }
 
-console.log('P26 staged steady-state contract passed; activation gate remains closed until P25 generation 3 is formally certified.');
+console.log('P26 staged steady-state contract passed; activation gate remains closed until P25 generation 4 is formally certified.');

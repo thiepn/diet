@@ -89,18 +89,36 @@ def validate(fleet,releases,graph,plan):
 
     phases=releases.get("phases",[])
     ids=[x.get("id") for x in phases]
-    if ids!=["P26","P27","P28","P29","P30","P31"]:
+    expected=[f"P{i}" for i in range(26,26+len(ids))]
+    if not ids or ids!=expected or "P31" not in ids:
         errors.append("release_phase_sequence_invalid")
-    for p in phases[:-1]:
-        if not str(p.get("state","")).startswith("merged_"):
-            errors.append("historical_phase_not_merged:"+str(p.get("id")))
-        if not p.get("mergeSha"):
-            errors.append("historical_phase_missing_merge_sha:"+str(p.get("id")))
-    if phases and phases[-1].get("state")!="implementation_active_operator_override":
-        errors.append("p31_state_invalid")
 
-    if releases.get("latestMergedMainSha")!=plan.get("sourceMainSha"):
-        errors.append("release_registry_main_sha_mismatch")
+    active=[]
+    merged=[]
+    for i,p in enumerate(phases):
+        state=str(p.get("state",""))
+        pid=str(p.get("id"))
+        if state.startswith("merged_"):
+            merged.append(p)
+            sha=str(p.get("mergeSha") or "")
+            if len(sha)!=40 or any(ch not in "0123456789abcdef" for ch in sha):
+                errors.append("historical_phase_missing_merge_sha:"+pid)
+        elif state=="implementation_active_operator_override" and i==len(phases)-1:
+            active.append(p)
+        else:
+            errors.append("release_phase_state_invalid:"+pid)
+
+    if len(active)>1:
+        errors.append("multiple_active_governance_phases")
+
+    if merged:
+        latest=merged[-1]
+        if releases.get("latestMergedGovernancePhase")!=latest.get("id"):
+            errors.append("latest_merged_phase_mismatch")
+        if releases.get("latestMergedMainSha")!=latest.get("mergeSha"):
+            errors.append("release_registry_main_sha_mismatch")
+    elif releases.get("latestMergedGovernancePhase") or releases.get("latestMergedMainSha"):
+        errors.append("release_registry_claims_missing_merged_phase")
     if plan.get("automation",{}).get("productionPromotionAllowed") is not False:
         errors.append("production_promotion_automation_enabled")
     if plan.get("automation",{}).get("productionMutationAllowed") is not False:

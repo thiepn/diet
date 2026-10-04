@@ -34,7 +34,8 @@ block(p25.generation!==req.p25Generation,'wrong_generation',`Expected P25 genera
 block(p25.currentGenerationEligible!==true,'generation_not_eligible','P25 current generation is not eligible.');
 block(checkedAt < minimumCompleteAfter,'minimum_window_open',`P25 cannot certify before ${p25.minimumCompleteAfter}.`);
 block(hosted.status!==req.historicalHostedUpgradeAttestation,'hosted_upgrade_attestation','Historical hosted-upgrade attestation is not pass.');
-block(backup.conclusion!==req.postFinalSharedChangeEncryptedBackup,'backup_not_green','Latest post-final-shared-change encrypted backup is not successful.');
+block(freeze.postFinalChangeEncryptedBackupVerified!==true,'backup_not_current_freeze','Current frozen generation does not have a verified post-final-shared-change backup.');
+block(backup.conclusion!=='success','backup_not_green','Latest encrypted backup is not successful.');
 block(backup.afterLatestDatabaseMigration!==true || backup.afterLatestEdgeDeployment!==true,'backup_not_after_final_change','Backup does not attest both latest database migration and Edge deployment.');
 block(freeze.p18Integrity!==req.p18Integrity,'p18_not_clean','P18 integrity is not clean.');
 block(freeze.p20SchemaDrift!==req.p20SchemaDrift,'p20_drift','P20 schema drift is not false.');

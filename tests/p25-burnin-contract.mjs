@@ -9,28 +9,28 @@ const migration=fs.readFileSync('supabase/migrations/20261001121450_platform_p24
 
 assert.equal(baseline.phase,'P25');
 assert.equal(baseline.state,'burn_in_active');
-assert.equal(baseline.generation,3);
+assert.equal(baseline.generation,4);
 assert.equal(baseline.generationState,'burn_in_active');
 assert.equal(baseline.currentGenerationEligible,true);
 assert.equal(baseline.nextGeneration,null);
 assert.equal(baseline.invalidationEvidence.observedMigrationName,'gomoku_p17_release_environments_preview_promotion');
 assert.equal(baseline.invalidationEvidence.observedGomokuRoomVersion,43);
 assert.equal(baseline.refreezePolicy.minimumQuietMinutes,60);
-assert.equal(baseline.latestObservedEpoch.migrationName,'gomoku_p17_certification_health_isolation');
-assert.equal(baseline.latestObservedEpoch.gomokuRoomVersion,45);
+assert.equal(baseline.latestObservedEpoch.migrationName,'hub_h15_tms60_projection');
+assert.equal(baseline.latestObservedEpoch.gomokuRoomVersion,48);
 assert.equal(baseline.latestPostUpgradeOffsiteBackup.sufficientForGeneration3Refreeze,true);
 assert.equal(baseline.latestPostUpgradeOffsiteBackup.runId,37040772134);
-assert.equal(baseline.latestObservedEpoch.migrationVersion,'20261002172133');
-assert.equal(baseline.latestObservedEpoch.gomokuRoomVersion,45);
-assert.equal(baseline.currentEpochFreezeEvidence.migrationHead,'20261002172133_gomoku_p17_certification_health_isolation');
-assert.equal(baseline.currentEpochFreezeEvidence.gomokuRoomVersion,45);
-assert.equal(baseline.currentEpochFreezeEvidence.cronJobs,11);
+assert.equal(baseline.latestObservedEpoch.migrationVersion,'20261003221217');
+assert.equal(baseline.latestObservedEpoch.gomokuRoomVersion,48);
+assert.equal(baseline.currentEpochFreezeEvidence.migrationHead,'20261003221217_hub_h15_tms60_projection');
+assert.equal(baseline.currentEpochFreezeEvidence.gomokuRoomVersion,48);
+assert.equal(baseline.currentEpochFreezeEvidence.cronJobs,14);
 assert.equal(baseline.currentEpochFreezeEvidence.cronFailures24h,0);
-assert.equal(baseline.currentEpochFreezeEvidence.edgeFunctionCount,11);
+assert.equal(baseline.currentEpochFreezeEvidence.edgeFunctionCount,12);
 assert.equal(baseline.currentEpochFreezeEvidence.edgeFunctionsAllActive,true);
-assert.equal(baseline.currentEpochFreezeEvidence.postgres1711Hazards.applicationRegTypeColumns,0);
-assert.equal(baseline.currentEpochFreezeEvidence.postgres1711Hazards.md5LoginRoles,0);
-assert.equal(baseline.currentEpochFreezeEvidence.hostedUpgradeRegressionDetected,false);
+assert.equal(baseline.currentEpochFreezeEvidence.postFinalChangeEncryptedBackupVerified,false);
+assert.equal(baseline.previousGeneration.generation,3);
+assert.equal(baseline.previousGeneration.invalidated,true);
 assert.equal(baseline.burnInRequirements.requireFrozenReleaseEpoch,true);
 assert.equal(baseline.burnInRequirements.requireNoSharedEpochChangeDuringWindow,true);
 assert.equal(baseline.burnInRequirements.requireCurrentP24ValidatorPass,false);
@@ -56,14 +56,14 @@ assert.equal(baseline.preUpgradeHealthBaseline.allSamplesHealthy,true);
 for(const token of [
   'P25 is **active**',
   'Generation 2',
-  'Generation 3 active freeze',
+  'Generation 4 active freeze',
   '20261002095255_gomoku_p16_certification_null_fix',
   'gomoku_p17_release_environments_preview_promotion',
-  '20261002172133_gomoku_p17_certification_health_isolation',
+  '20261003221217_hub_h15_tms60_projection',
   '17.6.1.127',
   '17.6.1.164',
   'platform-p23-shared-schema-v2',
-  'Generation 3 is **active but not yet certifiable**',
+  'Generation 4 is **active but not yet certifiable**',
   'P18: **clean**',
   'P20 schema drift: **false**',
   'P21 readiness: **pass**',
@@ -90,9 +90,9 @@ for(const token of [
 
 assert.ok(workflow.includes("cron: '17 * * * *'"));
 assert.ok(workflow.includes("cron: '7,27,37,47,57 * * * *'"));
-assert.equal(baseline.generation3Sampling.evidenceRuleUnchanged,true);
-assert.equal(baseline.generation3Sampling.nominalTriggerOpportunitiesPerHour,6);
-assert.equal(baseline.generation3Sampling.minimumCoverageBuckets,6);
+assert.equal(baseline.generation4Sampling.evidenceRuleUnchanged,true);
+assert.equal(baseline.generation4Sampling.minimumCoverageBuckets,6);
+assert.equal(baseline.generation4Sampling.terminalSampleRequiredAtOrAfterMinimumCompleteAfter,true);
 assert.ok(workflow.includes('p25-public-burnin.py'));
 assert.ok(workflow.includes('retention-days: 30'));
 

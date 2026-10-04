@@ -13,24 +13,24 @@
   },
   "dependencyGraph": {
     "file": "platform-p29-dependency-graph.json",
-    "version": "2026-10-03.1",
-    "nodeCount": 17,
-    "edgeCount": 47,
+    "version": "2026-10-04.1",
+    "nodeCount": 18,
+    "edgeCount": 51,
     "ownershipSource": "platform-p28-resource-ownership.json",
     "unresolvedP28Resources": 0
   },
   "currentEpoch": {
-    "observedAt": "2026-10-03T10:53:23.237810Z",
+    "observedAt": "2026-10-04T12:55:17.146329Z",
     "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
-    "migrationHead": "20261003094639",
-    "migrationName": "arcade_p31_backend_recovery",
-    "edgeInventorySha256": "8400fe3f4f203d37e8208a8541c2e6ffc7d49ace98871ecdb80fef1026842da8",
+    "migrationHead": "20261003221217",
+    "migrationName": "hub_h15_tms60_projection",
+    "edgeInventorySha256": "4d9c066197de1f456665dfa4b328917deaeab6b427860bfd9e23786e14e311bd",
     "edgeFunctionCount": 12,
-    "cronInventorySha256": "22e21a59a108390b6f669698914e1c958ae4c357be36dce7947b137025e710bc",
-    "cronJobs": 13,
+    "cronInventorySha256": "652724f6d80db7f2382637925f3eba6205d114b02204ed68fdf115e5bfc20692",
+    "cronJobs": 14,
     "gomokuRoom": {
-      "version": 47,
-      "sha256": "d603e6f1865eb6e1ef3d0565fdee9d3839dc0a50b2e1a7610b2eaaad161a2fce"
+      "version": 48,
+      "sha256": "f0493fe400876a8d52f394724d6e44644978d2028b890c912ec283fdc32154cd"
     },
     "microArcadeBackup": {
       "version": 1,

@@ -310,3 +310,19 @@ P32 may not:
 - self-promote from warn to enforce.
 
 The current workflow is intentionally warn-only.
+
+
+## P36 registry reconciliation — 2026-10-04
+
+P32 remains in **warn** mode.
+
+P36 onboards `semester-os` into P28/P29/P31 governance and refreshes P32's registry bindings:
+
+- P29 graph: `2026-10-04.1`
+- P31 fleet registry: `2026-10-04.1`
+- P31 release registry: `2026-10-04.1`
+- dependency coverage: **100%**
+- registered-app governance coverage: **100%**
+- unmodeled components: **0**
+
+This is registry reconciliation only. It does not grant production approval and does not switch P32 to enforce mode.

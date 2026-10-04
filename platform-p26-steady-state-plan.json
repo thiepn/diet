@@ -7,7 +7,7 @@
   "activeOperationsRelease": "P25.0",
   "activationRequires": {
     "p25Certification": "complete",
-    "p25Generation": 3,
+    "p25Generation": 4,
     "p25MinimumBurnInHours": 24,
     "p25MinimumSuccessfulSamples": 12,
     "p25SamplesSpanBurnInWindow": true,
@@ -15,7 +15,7 @@
     "p25TerminalSampleAtOrAfterMinimumCompleteAfter": true,
     "p25FrozenEpochUnchanged": true,
     "historicalHostedUpgradeAttestation": "pass",
-    "postFinalSharedChangeEncryptedBackup": "success",
+    "postFinalSharedChangeEncryptedBackup": "success_current_freeze",
     "p18Integrity": "clean",
     "p20SchemaDrift": false,
     "p21Readiness": "pass",
@@ -187,18 +187,18 @@
     "final steady-state operational report committed"
   ],
   "currentGateSnapshot": {
-    "observedAt": "2026-10-03T08:09:28.650287Z",
+    "observedAt": "2026-10-04T12:55:17.146329Z",
     "p25State": "burn_in_active",
-    "p25Generation": 3,
+    "p25Generation": 4,
     "generationEligible": true,
-    "generationActivatedAt": "2026-10-02T20:16:15.888200Z",
-    "earliestCertificationAt": "2026-10-03T20:16:15.888200Z",
+    "generationActivatedAt": "2026-10-04T12:55:17.146329Z",
+    "earliestCertificationAt": "2026-10-05T12:55:17.146329Z",
     "timeGateMetAtSnapshot": false,
-    "successfulSamplesKnownAtScheduleChange": 5,
-    "successfulSamplesEvidenceObservedAt": "2026-10-03T07:57:11Z",
+    "successfulSamplesKnownAtScheduleChange": 0,
+    "successfulSamplesEvidenceObservedAt": "2026-10-04T12:55:17.146329Z",
     "minimumSuccessfulSamples": 12,
-    "evidenceRule": "samples must span the full 24h window, cover all six 4h buckets, and include a terminal healthy sample at or after earliestCertificationAt",
-    "blocker": "P25 generation 3 has not reached its minimum certification time; P26 activation remains prohibited"
+    "evidenceRule": "samples must span the full 24h window, cover all six 4h buckets, include a terminal healthy sample, and use a backup after the generation-4 final shared change",
+    "blocker": "P25 generation 4 is in a fresh burn-in and its post-final-shared-change backup is not yet verified; P26 activation remains prohibited"
   },
   "liveProvisionalRefresh": {
     "observedAt": "2026-10-03T08:09:28.650287Z",

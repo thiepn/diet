@@ -1,10 +1,10 @@
 {
   "schemaVersion": 2,
   "phase": "P31",
-  "registryVersion": "2026-10-03.2",
+  "registryVersion": "2026-10-04.1",
   "publishedOperationsVersion": "P25.0",
-  "latestMergedGovernancePhase": "P30",
-  "latestMergedMainSha": "dd35a66826471b4cd94c1b9e8ead90be18dc1dc5",
+  "latestMergedGovernancePhase": "P35",
+  "latestMergedMainSha": "7b73e0b36cc55b7e7d6c6ea44162d97b16cdd59b",
   "phases": [
     {
       "id": "P26",
@@ -38,9 +38,33 @@
     },
     {
       "id": "P31",
-      "state": "implementation_active_operator_override",
-      "pr": 22,
-      "branch": "p31-control-plane-release-registry"
+      "state": "merged_operator_override",
+      "mergeSha": "fd0f541fef82539c75ce3c4b429a222b4a20663f",
+      "pr": 22
+    },
+    {
+      "id": "P32",
+      "state": "merged_operator_override",
+      "mergeSha": "0e7e48c57cc505ec0d42dcc706e364763b8e8c63",
+      "pr": 23
+    },
+    {
+      "id": "P33",
+      "state": "merged_operator_override",
+      "mergeSha": "36793ca329a73fe7dba895e13ca753bc20349271",
+      "pr": 24
+    },
+    {
+      "id": "P34",
+      "state": "merged_operator_override",
+      "mergeSha": "f50363813bddd86c6f2163f13254352685904afd",
+      "pr": 25
+    },
+    {
+      "id": "P35",
+      "state": "merged_operator_override",
+      "mergeSha": "7b73e0b36cc55b7e7d6c6ea44162d97b16cdd59b",
+      "pr": 26
     }
   ],
   "trains": {
