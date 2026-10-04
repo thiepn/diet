@@ -344,7 +344,7 @@
       "snapshotCount": 1,
       "totalRows": 282,
       "backupSchemaSha256": "9960c954d3812a1fb178e823830c247aa5e67f115c58dad4170faa9218dce02c",
-      "freshForCurrentCandidate": false
+      "freshForCandidate": false
     }
   },
   "generation5Sampling": {
@@ -374,6 +374,6 @@
     "snapshotCount": 1,
     "totalRows": 282,
     "backupSchemaSha256": "9960c954d3812a1fb178e823830c247aa5e67f115c58dad4170faa9218dce02c",
-    "freshForCurrentCandidate": false
+    "freshForCandidate": false
   }
 }
