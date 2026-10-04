@@ -7,7 +7,7 @@
   "activeOperationsRelease": "P25.0",
   "activationRequires": {
     "p25Certification": "complete",
-    "p25Generation": 4,
+    "p25Generation": "current_eligible_generation",
     "p25MinimumBurnInHours": 24,
     "p25MinimumSuccessfulSamples": 12,
     "p25SamplesSpanBurnInWindow": true,
@@ -187,18 +187,16 @@
     "final steady-state operational report committed"
   ],
   "currentGateSnapshot": {
-    "observedAt": "2026-10-04T12:55:17.146329Z",
-    "p25State": "burn_in_active",
+    "observedAt": "2026-10-04T16:21:43.552540Z",
+    "p25State": "refreeze_pending",
     "p25Generation": 4,
-    "generationEligible": true,
-    "generationActivatedAt": "2026-10-04T12:55:17.146329Z",
-    "earliestCertificationAt": "2026-10-05T12:55:17.146329Z",
+    "nextGeneration": 5,
+    "generationEligible": false,
+    "earliestRefreezeAt": "2026-10-04T17:20:09.879000Z",
     "timeGateMetAtSnapshot": false,
     "successfulSamplesKnownAtScheduleChange": 0,
-    "successfulSamplesEvidenceObservedAt": "2026-10-04T12:55:17.146329Z",
     "minimumSuccessfulSamples": 12,
-    "evidenceRule": "samples must span the full 24h window, cover all six 4h buckets, include a terminal healthy sample, and use a backup after the generation-4 final shared change",
-    "blocker": "P25 generation 4 is in a fresh burn-in and its post-final-shared-change backup is not yet verified; P26 activation remains prohibited"
+    "blocker": "Generation 4 is invalidated. Generation 5 has not passed the 60-minute quiet/refreeze gate, so P26 remains staged."
   },
   "liveProvisionalRefresh": {
     "observedAt": "2026-10-03T08:09:28.650287Z",
