@@ -224,3 +224,14 @@ The fleet registry is now `2026-10-04.1`.
 - release registry lineage is reconciled through merged P35
 
 Release safety remains **amber** because the generation-4 epoch is a frozen burn-in candidate rather than a certified stable shared-release epoch. App-fast releases for governed components may proceed through normal gates; shared/stateful trains still block on the unstable/certifying shared epoch. Hosted Supabase preview remains unavailable on the Free-plan path.
+
+
+## P37 moving-epoch reconciliation — 2026-10-04
+
+The fleet registry is now `2026-10-04.2` and the release registry is `2026-10-04.2`.
+
+The merged governance lineage now runs through **P36**. Fleet/dependency coverage remains 100%.
+
+The live release epoch moved to `20261004132839_gomoku_p21_capacity_admission_gate`, `gomoku-room` v49, and `micro-arcade-p31-backup-export` v2. The shared epoch is therefore `refreeze_pending_generation5`, not stable.
+
+Governed app-fast work may still be evaluated normally. Shared/stateful release trains remain blocked by `shared_epoch_not_stable` until the new P25 generation is legitimately frozen and certified.
