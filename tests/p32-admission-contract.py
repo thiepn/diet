@@ -6,9 +6,9 @@ ROOT=Path(__file__).resolve().parents[1]
 ENGINE=ROOT/"scripts/p32-admit-change.py"
 
 VERSIONS={
-  "policyBundleVersion":"2026-10-03.2",
-  "fleetRegistryVersion":"2026-10-03.2",
-  "releaseRegistryVersion":"2026-10-03.2"
+  "policyBundleVersion":"2026-10-04.1",
+  "fleetRegistryVersion":"2026-10-04.1",
+  "releaseRegistryVersion":"2026-10-04.1"
 }
 
 def run(manifest,fail=False):
@@ -60,8 +60,8 @@ assert r["productionApproved"] is False
 assert len(r["admissionReceiptId"])==64
 
 r=run(base(changeId="semester-ui-001",components=["semester-os"],scopes=["app:semester-os"],files=["semester/ui.js"]))
-assert r["decision"]=="block"
-assert "P32-OWN-001" in {x["policyId"] for x in r["effectiveFindings"]}
+assert r["decision"]=="admit"
+assert "P32-OWN-001" not in {x["policyId"] for x in r["effectiveFindings"]}
 
 r=run(base(changeId="gomoku-ui-001",components=["gomoku"],scopes=["app:gomoku","edge:gomoku-room"],files=["gomoku/ui.js"]))
 assert r["decision"]=="block"
@@ -77,7 +77,7 @@ r=run(base(
 ))
 ids={x["policyId"] for x in r["effectiveFindings"]}
 assert r["decision"]=="block"
-assert "P32-FLEET-001" in ids
+assert "P32-FLEET-001" not in ids
 assert "P32-EPOCH-001" in ids
 assert "P32-ENV-001" not in ids
 
