@@ -10,7 +10,7 @@ const progress=fs.readFileSync('scripts/p38-burnin-progress.py','utf8');
 
 assert.equal(plan.phase,'P38');
 assert.equal(plan.schemaVersion,1);
-assert.equal(plan.state,'implementation_active_refreeze_blocked');
+assert.equal(plan.state,'operationally_activated_generation5_burn_in_active');
 assert.equal(plan.sourceMainSha,'8ca191a7939b840c028e1c317fa0d3468bc49c07');
 assert.equal(plan.operatorOverride.doesNotAuthorizeGenerationActivation,true);
 assert.equal(plan.operatorOverride.doesNotAuthorizeBackupFabrication,true);
@@ -19,25 +19,25 @@ assert.equal(plan.liveObservation.migrationHead,'20261004132839_gomoku_p21_capac
 assert.equal(plan.liveObservation.edgeFunctionCount,12);
 assert.equal(plan.liveObservation.gomokuRoom.version,49);
 assert.equal(plan.liveObservation.microArcadeBackup.version,2);
-assert.equal(plan.currentRefreezeStatus.quietMinutesObserved,41.79);
+assert.equal(plan.currentRefreezeStatus.quietMinutesObserved,75.38);
 assert.equal(plan.currentRefreezeStatus.minimumQuietMinutes,60);
-assert.equal(plan.currentRefreezeStatus.postFinalChangeEncryptedBackupVerified,false);
-assert.equal(plan.currentRefreezeStatus.decision,'blocked');
+assert.equal(plan.currentRefreezeStatus.postFinalChangeEncryptedBackupVerified,true);
+assert.equal(plan.currentRefreezeStatus.decision,'activated');
 assert.equal(plan.burnInEvidenceContinuity.minimumSuccessfulSamples,12);
 assert.equal(plan.burnInEvidenceContinuity.requiredCoverageBuckets,6);
 assert.equal(plan.burnInEvidenceContinuity.preActivationSamplesCount,false);
 assert.equal(plan.automationBoundary.mayCommitActivationAutomatically,false);
 assert.equal(plan.automationBoundary.productionMutationAllowed,false);
 
-assert.equal(p25.state,'refreeze_pending');
-assert.equal(p25.generation,4);
-assert.equal(p25.nextGeneration,5);
-assert.equal(p25.currentGenerationEligible,false);
-assert.equal(p25.pendingGeneration5.edgeQuietMinutesObserved,4.14);
+assert.equal(p25.state,'burn_in_active');
+assert.equal(p25.generation,5);
+assert.equal(p25.nextGeneration,null);
+assert.equal(p25.currentGenerationEligible,true);
+assert.equal(p25.pendingGeneration5.edgeQuietMinutesObserved,75.38);
 assert.equal(p25.pendingGeneration5.candidateRevision,2);
-assert.equal(p25.pendingGeneration5.lastDecision,'blocked');
-assert.equal(p25.pendingGeneration5.state,'waiting_quiet_window_and_fresh_backup');
-assert.equal(p25.pendingGeneration5.postFinalChangeEncryptedBackupVerified,false);
+assert.equal(p25.pendingGeneration5.lastDecision,'activated');
+assert.equal(p25.pendingGeneration5.state,'activated');
+assert.equal(p25.pendingGeneration5.postFinalChangeEncryptedBackupVerified,true);
 
 for(const token of [
   'ready_to_commit_generation5_activation',
