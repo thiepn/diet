@@ -50,7 +50,8 @@ for(const id of ['P32-SEC-001','P32-SEC-002','P32-SEC-003','P32-PROD-001','P32-D
 
 assert.equal(fleet.registryVersion,'2026-10-04.2');
 assert.equal(fleet.releaseSafety,'amber');
-assert.equal(fleet.releaseEpoch.edgeHighlights.gomokuRoom.version,49);\nassert.equal(fleet.releaseEpoch.edgeHighlights.microArcadeBackup.version,2);
+assert.equal(fleet.releaseEpoch.edgeHighlights.gomokuRoom.version,49);
+assert.equal(fleet.releaseEpoch.edgeHighlights.microArcadeBackup.version,2);
 assert.equal(fleet.coverage.registeredAppsObserved,7);
 assert.equal(fleet.coverage.registeredAppsGoverned,7);
 assert.equal(fleet.components.find(x=>x.id==='semester-os').governance,'governed');
