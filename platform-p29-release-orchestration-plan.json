@@ -20,23 +20,24 @@
     "unresolvedP28Resources": 0
   },
   "currentEpoch": {
-    "observedAt": "2026-10-04T16:21:43.552540Z",
+    "observedAt": "2026-10-04T17:40:47.662109Z",
     "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
-    "migrationHead": "20261004132839",
-    "migrationName": "gomoku_p21_capacity_admission_gate",
-    "edgeInventorySha256": "e2aa661fd331640fba473b9a8fe4bc5c9084731900c569e7d2aa4d8ed57fdbc9",
+    "migrationHead": "20261004173117",
+    "migrationName": "gomoku_p23_security_admission_gate",
+    "edgeInventorySha256": "2e66d1eec1dac615b0f0cc81a823100dd609947d7ecb51098fe2e37c504d6a0e",
     "edgeFunctionCount": 12,
     "cronInventorySha256": "652724f6d80db7f2382637925f3eba6205d114b02204ed68fdf115e5bfc20692",
     "cronJobs": 14,
     "gomokuRoom": {
-      "version": 49,
-      "sha256": "64e5cfdd7a9d027e178eb4e8466b954504eb2bec1021bcb40c19afe8cd05b900"
+      "version": 50,
+      "sha256": "a537d0702fdb53861124849e03fb7141a8036a4ee5c692fa9bf4769c47981695"
     },
     "microArcadeBackup": {
       "version": 2,
       "sha256": "84081a183835e6ea8c6791912a4e261b97d1e09c24c4fa6fdfc9a87f9e9460d2"
     },
-    "state": "moving_refreeze_pending_generation5"
+    "state": "moving_refreeze_pending_generation5_candidate_revision2",
+    "edgeInventoryCanonicalization": "sorted slug|version|ezbr_sha256 joined by LF"
   },
   "changeClasses": {
     "provider_additive": {
