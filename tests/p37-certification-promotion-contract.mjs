@@ -30,15 +30,15 @@ assert.equal(plan.refreezeGate.postFinalSharedChangeEncryptedBackupVerified,true
 assert.equal(plan.d001.riskAcceptanceAuthorized,false);
 assert.equal(plan.oeLaunch.state,'blocked');
 
-assert.equal(p25.state,'burn_in_active');
+assert.equal(p25.state,'refreeze_pending');
 assert.equal(p25.generation,5);
-assert.equal(p25.generationState,'burn_in_active');
-assert.equal(p25.currentGenerationEligible,true);
-assert.equal(p25.nextGeneration,null);
+assert.equal(p25.generationState,'invalidated_epoch_changed');
+assert.equal(p25.currentGenerationEligible,false);
+assert.equal(p25.nextGeneration,6);
 assert.equal(p25.pendingGeneration5.state,'activated');
 
-assert.equal(fleet.registryVersion,'2026-10-04.4');
-assert.equal(fleet.releaseEpoch.state,'generation5_burn_in_active');
+assert.equal(fleet.registryVersion,'2026-10-04.5');
+assert.equal(fleet.releaseEpoch.state,'refreeze_pending_generation6_candidate_revision1');
 assert.equal(fleet.releaseEpoch.edgeHighlights.gomokuRoom.version,50);
 assert.equal(fleet.releaseEpoch.edgeHighlights.microArcadeBackup.version,2);
 assert.equal(fleet.coverage.dependencyGraphCoveragePct,100);
@@ -47,9 +47,9 @@ assert.equal(releases.registryVersion,'2026-10-04.2');
 assert.equal(releases.latestMergedGovernancePhase,'P36');
 assert.equal(releases.latestMergedMainSha,'c8c374917d739c971fe142cf16c3449d6c64e8cd');
 assert.equal(releases.phases.at(-1).id,'P36');
-assert.equal(policy.bundleVersion,'2026-10-04.4');
+assert.equal(policy.bundleVersion,'2026-10-04.5');
 assert.equal(policy.mode,'warn');
-assert.equal(policy.liveBaseline.releaseEpochState,'generation5_burn_in_active');
+assert.equal(policy.liveBaseline.releaseEpochState,'refreeze_pending_generation6_candidate_revision1');
 
 assert.equal(risk.state,'prepared_pending_independent_risk_approval');
 assert.equal(risk.liveEvidence.passwordAuthUsers,0);
