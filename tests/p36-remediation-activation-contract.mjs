@@ -70,10 +70,13 @@ assert.equal(oe.externalAttestation,false);
 
 assert.equal(p25.generation,4);
 assert.equal(p25.state,'refreeze_pending');
-assert.equal(p25.currentGenerationEligible,false);\nassert.equal(p25.nextGeneration,5);\nassert.equal(p25.generation4Invalidation.generation,4);
+assert.equal(p25.currentGenerationEligible,false);
+assert.equal(p25.nextGeneration,5);
+assert.equal(p25.generation4Invalidation.generation,4);
 assert.equal(p25.previousGeneration.generation,4);
 assert.equal(p25.previousGeneration.invalidated,true);
-assert.equal(p25.currentEpochFreezeEvidence.migrationHead,freeze.frozenEpoch.migrationHead);\nassert.notEqual(p25.latestObservedEpoch.migrationHead,freeze.frozenEpoch.migrationHead);
+assert.equal(p25.currentEpochFreezeEvidence.migrationHead,freeze.frozenEpoch.migrationHead);
+assert.notEqual(p25.latestObservedEpoch.migrationHead,freeze.frozenEpoch.migrationHead);
 assert.equal(p25.currentEpochFreezeEvidence.gomokuRoomVersion,48);
 assert.equal(p25.currentEpochFreezeEvidence.cronJobs,14);
 assert.equal(p25.currentEpochFreezeEvidence.postFinalChangeEncryptedBackupVerified,false);
@@ -107,7 +110,9 @@ assert.equal(app.health.p25BurnInGeneration,4);
 assert.equal(app.health.p25FrozenMigrationHead,'20261003221217_hub_h15_tms60_projection');
 assert.equal(app.health.p25FrozenGomokuEdgeVersion,48);
 assert.equal(app.health.p25FrozenCronJobCount,14);
-assert.equal(app.health.p25Generation4BackupPrerequisiteSatisfied,false);\nassert.equal(app.health.p25CurrentGenerationValid,false);\nassert.equal(app.health.p25NextGeneration,5);
+assert.equal(app.health.p25Generation4BackupPrerequisiteSatisfied,false);
+assert.equal(app.health.p25CurrentGenerationValid,false);
+assert.equal(app.health.p25NextGeneration,5);
 
 for(const token of [
   'active by explicit operator override',
