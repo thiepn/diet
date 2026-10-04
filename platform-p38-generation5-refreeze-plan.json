@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "phase": "P38",
   "title": "Generation-5 Refreeze Activation, Burn-In Start & Evidence Continuity",
-  "state": "implementation_active_refreeze_blocked",
+  "state": "operationally_activated_generation5_burn_in_active",
   "sourceMainSha": "8ca191a7939b840c028e1c317fa0d3468bc49c07",
   "implementedFrom": "P37",
   "operatorOverride": {
@@ -55,17 +55,18 @@
   },
   "currentRefreezeStatus": {
     "targetGeneration": 5,
+    "candidateRevision": 2,
     "minimumQuietMinutes": 60,
-    "quietMinutesObserved": 41.79,
-    "earliestQuietCompletionAt": "2026-10-04T17:20:09.879000Z",
-    "postFinalChangeEncryptedBackupVerified": false,
-    "backupEvidenceRef": null,
-    "decision": "blocked",
-    "blockers": [
-      "quiet_window_open:41.79/60",
-      "post_final_change_backup_not_verified",
-      "backup_evidence_ref_missing"
-    ]
+    "quietMinutesObserved": 75.38,
+    "earliestQuietCompletionAt": "2026-10-04T18:36:39.032000Z",
+    "postFinalChangeEncryptedBackupVerified": true,
+    "backupEvidenceRef": "github-actions:P15:37222829955:artifact:11311011119:sha256:432279d9ab3fc204061a89afc20869bf0994f6604ec586205081897b932049cb",
+    "decision": "activated",
+    "blockers": [],
+    "activatedAt": "2026-10-04T18:52:01.712991Z",
+    "minimumCompleteAfter": "2026-10-05T18:52:01.712991Z",
+    "refreezeDecisionId": "4153ec4f7fc90a3afcacc59e61e7fcd78e571b2b2aa5012caa175920f0547e78",
+    "activationReceiptId": "0867969dce6fd97d914c260b2040bdd2243142ff184bb45f9ed4fb46f179ee0f"
   },
   "activationDesign": {
     "refreezeDecisionSource": "scripts/p37-evaluate-refreeze.py",
@@ -131,5 +132,12 @@
       "generation 5 is activated by reviewed repository update",
       "generation-5 burn-in evidence begins accumulating"
     ]
+  },
+  "operationalActivation": {
+    "executedByPhase": "P40",
+    "repositoryCommitPending": true,
+    "productionMutationPerformed": false,
+    "activationTime": "2026-10-04T18:52:01.712991Z",
+    "minimumCompleteAfter": "2026-10-05T18:52:01.712991Z"
   }
 }
