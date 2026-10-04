@@ -5,7 +5,7 @@
   "generation": 5,
   "observedAt": "2026-10-04T18:52:01.712991Z",
   "quietMinutesObserved": 75.38,
-  "minimumQuietMinutes": 60,
+  "minimumQuietMinutes": 60.0,
   "minimumCompleteAfter": "2026-10-05T18:52:01.712991Z",
   "frozenEpoch": {
     "frozenAt": "2026-10-04T18:52:01.712991Z",
