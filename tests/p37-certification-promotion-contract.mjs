@@ -37,8 +37,8 @@ assert.equal(p25.currentGenerationEligible,false);
 assert.equal(p25.nextGeneration,6);
 assert.equal(p25.pendingGeneration5.state,'activated');
 
-assert.equal(fleet.registryVersion,'2026-10-04.5');
-assert.equal(fleet.releaseEpoch.state,'refreeze_pending_generation6_candidate_revision1');
+assert.equal(fleet.registryVersion,'2026-10-04.6');
+assert.equal(fleet.releaseEpoch.state,'refreeze_pending_generation6_candidate_revision2');
 assert.equal(fleet.releaseEpoch.edgeHighlights.gomokuRoom.version,50);
 assert.equal(fleet.releaseEpoch.edgeHighlights.microArcadeBackup.version,2);
 assert.equal(fleet.coverage.dependencyGraphCoveragePct,100);
