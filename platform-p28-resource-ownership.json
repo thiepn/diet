@@ -271,6 +271,10 @@
   ],
   "cronJobs": [
     {
+      "jobname": "account-deletion-finalizer",
+      "owner": "account"
+    },
+    {
       "jobname": "diet-p15-daily-snapshot",
       "owner": "diet"
     },
@@ -287,10 +291,6 @@
       "owner": "diet"
     },
     {
-      "jobname": "account-deletion-finalizer",
-      "owner": "account"
-    },
-    {
       "jobname": "diet-p20-schema-drift-daily",
       "owner": "diet"
     },
@@ -303,15 +303,19 @@
       "owner": "diet"
     },
     {
-      "jobname": "gomoku-p9-competition-tick",
-      "owner": "gomoku"
-    },
-    {
       "jobname": "gomoku-p11-social-tick",
       "owner": "gomoku"
     },
     {
       "jobname": "gomoku-p13-reliability-tick",
+      "owner": "gomoku"
+    },
+    {
+      "jobname": "gomoku-p20-slo-sample",
+      "owner": "gomoku"
+    },
+    {
+      "jobname": "gomoku-p9-competition-tick",
       "owner": "gomoku"
     },
     {
