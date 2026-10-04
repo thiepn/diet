@@ -55,17 +55,17 @@ sem=next(x for x in p31["components"] if x["id"]=="semester-os")
 assert sem["governance"]=="governed" and sem["owner"]=="thiepn"
 assert not any(x.get("id")=="p29-graph-missing-semester-os" for x in p31.get("observedDrift",[]))
 assert p32["mode"]=="warn"
-assert p32["fleetRegistryVersion"]=="2026-10-04.1"
+assert p32["fleetRegistryVersion"]=="2026-10-04.2"
 assert p32["dependencyGraphVersion"]=="2026-10-04.1"
 
 # Historical P34 register remains immutable; P36 is the closure event.
 assert next(x for x in p34defs["items"] if x["id"]=="P34-D005")["state"]=="open"
 
 assert p25["generation"]==4
-assert p25["currentGenerationEligible"] is True
-assert p25["previousGeneration"]["generation"]==3
+assert p25["currentGenerationEligible"] is False\nassert p25["state"]=="refreeze_pending"\nassert p25["nextGeneration"]==5
+assert p25["previousGeneration"]["generation"]==4
 assert p25["previousGeneration"]["invalidated"] is True
-assert p25["currentEpochFreezeEvidence"]["migrationHead"]==freeze["frozenEpoch"]["migrationHead"]
+assert p25["currentEpochFreezeEvidence"]["migrationHead"]==freeze["frozenEpoch"]["migrationHead"]\nassert p25["latestObservedEpoch"]["migrationHead"]!=freeze["frozenEpoch"]["migrationHead"]
 assert p25["currentEpochFreezeEvidence"]["postFinalChangeEncryptedBackupVerified"] is False
 
 assert oe["active"] is False
@@ -104,8 +104,17 @@ with tempfile.TemporaryDirectory() as td:
       "controlCatalogSha256":fsha(ROOT/"platform-p34-control-catalog.json"),
       "p34SnapshotSha256":fsha(ROOT/"platform-p34-assurance-snapshot.json")
     }
+    historical_p25=json.loads(json.dumps(p25))
+    historical_p25.update({
+      "state":"burn_in_active","generation":4,"generationState":"burn_in_active",
+      "currentGenerationEligible":True,"nextGeneration":None,
+      "activatedAt":freeze["frozenAt"],"minimumCompleteAfter":freeze["minimumCertificationAt"],
+      "currentEpochFreezeEvidence":freeze["frozenEpoch"],
+      "completionState":{"complete":False,"invalidated":False,"remaining":[]}
+    })
+    historical_file=d/"p25-generation4-historical.json"; write(historical_file,historical_p25)
     write(obsf,current_obs); write(samplesf,{"samples":[]}); write(ctxf,base_ctx)
-    run([sys.executable,str(EVAL),str(obsf),str(samplesf),str(ctxf),"--out",str(decision)])
+    run([sys.executable,str(EVAL),str(obsf),str(samplesf),str(ctxf),"--p25",str(historical_file),"--out",str(decision)])
     cur=load(decision)
     assert cur["decision"]=="blocked"
     for e in (
@@ -114,7 +123,7 @@ with tempfile.TemporaryDirectory() as td:
       "backup_evidence_ref_missing","high_deficiency_not_dispositioned:P34-D001",
       "explicit_activation_authorization_missing"
     ): assert e in cur["errors"]
-    run([sys.executable,str(EVAL),str(obsf),str(samplesf),str(ctxf),"--out",str(d/"required.json"),"--require-ready"],1)
+    run([sys.executable,str(EVAL),str(obsf),str(samplesf),str(ctxf),"--p25",str(historical_file),"--out",str(d/"required.json"),"--require-ready"],1)
 
     # Build a complete future-ready evidence set.
     start=datetime.fromisoformat(freeze["frozenAt"].replace("Z","+00:00"))
@@ -132,7 +141,7 @@ with tempfile.TemporaryDirectory() as td:
       "explicitActivationAuthorization":True
     })
     write(obsf,future_obs); write(samplesf,{"samples":rows}); write(ctxf,ready_ctx)
-    run([sys.executable,str(EVAL),str(obsf),str(samplesf),str(ctxf),"--out",str(decision),"--require-ready"])
+    run([sys.executable,str(EVAL),str(obsf),str(samplesf),str(ctxf),"--p25",str(historical_file),"--out",str(decision),"--require-ready"])
     ready=load(decision)
     assert ready["decision"]=="ready_to_activate"
     assert ready["successfulSamples"]==13
@@ -154,7 +163,7 @@ with tempfile.TemporaryDirectory() as td:
     # Epoch drift fails.
     bad=dict(future_obs); bad["migrationHead"]="20990101000000_fake"
     write(obsf,bad)
-    run([sys.executable,str(EVAL),str(obsf),str(samplesf),str(ctxf),"--out",str(d/"drift.json"),"--require-ready"],1)
+    run([sys.executable,str(EVAL),str(obsf),str(samplesf),str(ctxf),"--p25",str(historical_file),"--out",str(d/"drift.json"),"--require-ready"],1)
     assert any(x.startswith("frozen_epoch_changed:migrationHead") for x in load(d/"drift.json")["errors"])
 
     # Missing a 4-hour bucket fails even with enough total samples.
@@ -165,28 +174,28 @@ with tempfile.TemporaryDirectory() as td:
       for i in range(5)
     ]
     write(samplesf,{"samples":no_bucket})
-    run([sys.executable,str(EVAL),str(obsf),str(samplesf),str(ctxf),"--out",str(d/"bucket.json"),"--require-ready"],1)
+    run([sys.executable,str(EVAL),str(obsf),str(samplesf),str(ctxf),"--p25",str(historical_file),"--out",str(d/"bucket.json"),"--require-ready"],1)
     assert any(x.startswith("generation4_coverage_buckets_missing:") for x in load(d/"bucket.json")["errors"])
 
     # Backup is a hard gate.
     write(samplesf,{"samples":rows})
     no_backup=dict(ready_ctx); no_backup["postFinalSharedChangeBackupVerified"]=False
     write(ctxf,no_backup)
-    run([sys.executable,str(EVAL),str(obsf),str(samplesf),str(ctxf),"--out",str(d/"backup.json"),"--require-ready"],1)
+    run([sys.executable,str(EVAL),str(obsf),str(samplesf),str(ctxf),"--p25",str(historical_file),"--out",str(d/"backup.json"),"--require-ready"],1)
 
     # D001 cannot be skipped by phase override.
     d001=dict(ready_ctx); d001["highDeficiencyStates"]=dict(ready_ctx["highDeficiencyStates"]); d001["highDeficiencyStates"]["P34-D001"]="decision_required"
     write(ctxf,d001)
-    run([sys.executable,str(EVAL),str(obsf),str(samplesf),str(ctxf),"--out",str(d/"d001.json"),"--require-ready"],1)
+    run([sys.executable,str(EVAL),str(obsf),str(samplesf),str(ctxf),"--p25",str(historical_file),"--out",str(d/"d001.json"),"--require-ready"],1)
 
     # Self authorization and fake baseline hashes fail.
     self_ctx=dict(ready_ctx); self_ctx["authorizedBy"]="platform"
     write(ctxf,self_ctx)
-    run([sys.executable,str(EVAL),str(obsf),str(samplesf),str(ctxf),"--out",str(d/"self.json"),"--require-ready"],1)
+    run([sys.executable,str(EVAL),str(obsf),str(samplesf),str(ctxf),"--p25",str(historical_file),"--out",str(d/"self.json"),"--require-ready"],1)
 
     fake=dict(ready_ctx); fake["controlCatalogSha256"]="0"*64
     write(ctxf,fake)
-    run([sys.executable,str(EVAL),str(obsf),str(samplesf),str(ctxf),"--out",str(d/"hash.json"),"--require-ready"],1)
+    run([sys.executable,str(EVAL),str(obsf),str(samplesf),str(ctxf),"--p25",str(historical_file),"--out",str(d/"hash.json"),"--require-ready"],1)
 
     # Stale generation-3 P25 cannot activate generation 4.
     stale_p25=json.loads(json.dumps(p25)); stale_p25["generation"]=3
