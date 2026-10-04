@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "phase": "P41",
   "receiptType": "generation5_epoch_invalidation",
-  "observedAt": "2026-10-04T19:44:10.276405Z",
+  "observedAt": "2026-10-04T19:56:54.779364Z",
   "generation": 5,
   "decision": "invalidate_generation5_and_open_generation6_refreeze",
   "sourceActivationReceiptId": "8e24ecd727550f365aacabeb7d59a7b18ed9d07322ef8929f8d6ddb48df3badd",
@@ -22,7 +22,7 @@
     "migrationVersion": "20261004192902",
     "migrationName": "studyos_p8_checkpoint_dimension_evidence",
     "migrationHead": "20261004192902_studyos_p8_checkpoint_dimension_evidence",
-    "semanticSchemaSha256": "b40d9a3d1da7c39917f41a9c1f8e95615838b7f34a64e673191bf810833f7cd2",
+    "semanticSchemaSha256": "09d16243904c77513df9d695ed060f122e08d921de79d281905235d970e96159",
     "dietSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
     "edgeInventorySha256": "2e66d1eec1dac615b0f0cc81a823100dd609947d7ecb51098fe2e37c504d6a0e",
     "edgeFunctionCount": 12,
@@ -50,10 +50,12 @@
   ],
   "firstEpochChangeAt": "2026-10-04T18:58:02Z",
   "nextGeneration": 6,
-  "candidateRevision": 1,
-  "earliestRefreezeAt": "2026-10-04T20:29:02Z",
+  "candidateRevision": 2,
+  "earliestRefreezeAt": "2026-10-04T20:56:54.779364Z",
   "backupFreshForCandidate": false,
   "sourceFilesMutated": true,
   "productionMutationPerformed": false,
-  "receiptId": "1fed0bda56babc210a2f0964e7e538bb07ba76e2c0900b028fe6f08e6e56623b"
+  "receiptId": "a82f168c21ff694cfd386395cfeb3aa936c1b3acfdcb496c2885fa708ee2c886",
+  "generation6CandidateRebasedAt": "2026-10-04T19:56:54.779364Z",
+  "generation6CandidateRebaseReason": "semantic_schema_fingerprint_changed_without_migration_edge_or_cron_identity_change"
 }
