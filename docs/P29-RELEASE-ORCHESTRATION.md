@@ -171,3 +171,20 @@ Current observed epoch:
 - release state: `refreeze_pending_generation5`
 
 Existing epoch-bound compatibility certificates keep their original immutable identity and are stale for any release that requires the new shared epoch.
+
+
+## P39 live-epoch reconciliation — 2026-10-04
+
+Dependency topology remains **18 nodes / 51 edges**. Only the live release epoch moved.
+
+The current observed epoch is now:
+
+- migration: `20261004173117_gomoku_p23_security_admission_gate`
+- `gomoku-room`: v50
+- Edge Functions: 12
+- cron jobs: 14
+- release state: `refreeze_pending_generation5_candidate_revision2`
+
+P39 records Edge inventory identity using SHA-256 over rows canonicalized as sorted `slug|version|ezbr_sha256` joined by LF.
+
+Any certificate bound to the earlier P21/v49 epoch remains immutable historical evidence and must not be reused for the P23/v50 epoch.
