@@ -458,7 +458,8 @@
       "gomoku-p11-social-tick": "gomoku",
       "gomoku-p13-reliability-tick": "gomoku",
       "micro-arcade-p31-daily": "micro_arcade",
-      "micro-arcade-p31-monthly": "micro_arcade"
+      "micro-arcade-p31-monthly": "micro_arcade",
+      "gomoku-p20-slo-sample": "gomoku"
     }
   },
   "liveBaseline": {
