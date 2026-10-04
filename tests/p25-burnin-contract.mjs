@@ -9,13 +9,13 @@ const probe=fs.readFileSync('tests/p25-public-burnin.py','utf8');
 const workflow=fs.readFileSync('.github/workflows/p25-post-upgrade-burnin.yml','utf8');
 
 assert.equal(baseline.phase,'P25');
-assert.equal(baseline.state,'burn_in_active');
+assert.equal(baseline.state,'refreeze_pending');
 assert.equal(baseline.generation,5);
-assert.equal(baseline.generationState,'burn_in_active');
-assert.equal(baseline.currentGenerationEligible,true);
-assert.equal(baseline.nextGeneration,null);
+assert.equal(baseline.generationState,'invalidated_epoch_changed');
+assert.equal(baseline.currentGenerationEligible,false);
+assert.equal(baseline.nextGeneration,6);
 assert.equal(baseline.completionState.complete,false);
-assert.equal(baseline.completionState.invalidated,false);
+assert.equal(baseline.completionState.invalidated,true);
 assert.equal(baseline.generation4Invalidation.generation,4);
 assert.equal(baseline.generation4Invalidation.invalidatedAt,'2026-10-04T16:21:43.552540Z');
 assert.equal(baseline.generation4Invalidation.observedMigrationHead,'20261004132839_gomoku_p21_capacity_admission_gate');
@@ -30,8 +30,8 @@ assert.equal(baseline.pendingGeneration5.lastDecision,'activated');
 assert.deepEqual(baseline.pendingGeneration5.lastBlockers,[]);
 assert.equal(baseline.pendingGeneration5.candidateRevision,2);
 assert.equal(baseline.refreezePolicy.minimumQuietMinutes,60);
-assert.equal(baseline.refreezePolicy.earliestRefreezeAt,'2026-10-04T18:36:39.032000Z');
-assert.equal(baseline.latestObservedEpoch.migrationHead,'20261004173117_gomoku_p23_security_admission_gate');
+assert.equal(baseline.refreezePolicy.earliestRefreezeAt,'2026-10-04T20:29:02Z');
+assert.equal(baseline.latestObservedEpoch.migrationHead,'20261004192902_studyos_p8_checkpoint_dimension_evidence');
 assert.equal(baseline.activatedAt,'2026-10-04T18:52:01.712991Z');
 assert.equal(baseline.minimumCompleteAfter,'2026-10-05T18:52:01.712991Z');
 assert.equal(baseline.latestSuccessfulEncryptedOffsiteBackup.runId,37222829955);
@@ -51,24 +51,24 @@ assert.equal(baseline.generation5Sampling.terminalSampleRequiredAtOrAfterMinimum
 assert.equal(baseline.generation5Sampling.preActivationSamplesQualify,false);
 assert.equal(baseline.historicalHostedUpgradeAttestation.status,'pass');
 
-assert.equal(backend.state,'burn_in_active');
+assert.equal(backend.state,'refreeze_pending');
 assert.equal(backend.current_generation,5);
-assert.equal(backend.current_generation_eligible,true);
-assert.equal(backend.next_generation,null);
+assert.equal(backend.current_generation_eligible,false);
+assert.equal(backend.next_generation,6);
 assert.equal(backend.last_generation_state,'invalidated_epoch_changed');
-assert.equal(backend.latest_observed_migration,'20261004173117_gomoku_p23_security_admission_gate');
+assert.equal(backend.latest_observed_migration,'20261004192902_studyos_p8_checkpoint_dimension_evidence');
 assert.equal(backend.latest_observed_gomoku_edge_version,50);
-assert.equal(backend.generation5_state,'burn_in_active');
+assert.equal(backend.generation5_state,'invalidated_epoch_changed');
 assert.equal(backend.generation5_candidate_revision,2);
 assert.equal(backend.latest_backup_run,37222829955);
 assert.equal(backend.generation5_backup_prerequisite_satisfied,true);
 
-assert.equal(app.health.p25BurnInActive,true);
-assert.equal(app.health.p25CurrentGenerationValid,true);
+assert.equal(app.health.p25BurnInActive,false);
+assert.equal(app.health.p25CurrentGenerationValid,false);
 assert.equal(app.health.p25BurnInGeneration,5);
-assert.equal(app.health.p25BurnInGenerationState,'burn_in_active');
-assert.equal(app.health.p25NextGeneration,null);
-assert.equal(app.health.p25Generation5State,'burn_in_active');
+assert.equal(app.health.p25BurnInGenerationState,'invalidated_epoch_changed');
+assert.equal(app.health.p25NextGeneration,6);
+assert.equal(app.health.p25Generation5State,'invalidated_epoch_changed');
 assert.equal(app.health.p25Generation5CandidateRevision,2);
 assert.equal(app.health.p25LatestBackupRun,37222829955);
 
@@ -98,4 +98,4 @@ for(const token of [
   'pre-refreeze samples do not qualify'
 ]) assert.ok(doc.includes(token),'P25 document missing '+token);
 
-console.log('P25 generation-5 active burn-in contract passed.');
+console.log('P25 current generation-5 invalidation / generation-6 refreeze contract passed.');
