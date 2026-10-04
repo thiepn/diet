@@ -10,8 +10,7 @@ const gateMigration=read('supabase/migrations/20260930014316_platform_p24_contro
 const postMigration=read('supabase/migrations/20261001121450_platform_p24_post_upgrade_hosted_build_validation.sql');
 const browser=fs.readdirSync('v2',{recursive:true})
   .filter(p=>/\.(?:js|mjs)$/.test(String(p)))
-  .map(p=>read('v2/'+p)).join('
-');
+  .map(p=>read('v2/'+p)).join('\\n');
 
 assert.equal(app.webRelease,'2.0.3');
 assert.equal(app.operationsVersion,'P25.0');
