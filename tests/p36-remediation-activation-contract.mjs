@@ -99,7 +99,7 @@ for(const id of ['P31','P32','P33','P34','P35','P36']) assert.equal(rr.phases.fi
 
 assert.equal(p32.mode,'warn');
 assert.equal(p32.bundleVersion,'2026-10-04.6');
-assert.equal(p32.fleetRegistryVersion,'2026-10-04.5');
+assert.equal(p32.fleetRegistryVersion,'2026-10-04.6');
 assert.equal(p32.releaseRegistryVersion,'2026-10-04.2');
 assert.equal(p32.dependencyGraphVersion,'2026-10-04.1');
 assert.deepEqual(p32.liveBaseline.unmodeledComponents,[]);
