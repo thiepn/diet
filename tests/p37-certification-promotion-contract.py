@@ -44,6 +44,8 @@ with tempfile.TemporaryDirectory() as td:
       "state":"refreeze_pending","generation":4,"generationState":"invalidated_epoch_changed",
       "currentGenerationEligible":False,"nextGeneration":5
     })
+    pending["refreezePolicy"]["quietClockStartsAfterLatestObservedSharedChange"]=cand["latestSharedChangeAt"]
+    pending["refreezePolicy"]["earliestRefreezeAt"]=z(datetime.fromisoformat(cand["latestSharedChangeAt"].replace("Z","+00:00"))+timedelta(minutes=60))
     pending["pendingGeneration5"].update({
       "state":"waiting_quiet_window_and_fresh_backup","eligibleToActivate":False,
       "postFinalChangeEncryptedBackupVerified":False,"backupEvidenceRef":None
