@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 2,
+  "phase": "P36",
+  "title": "Operating-Effectiveness Activation State",
+  "state": "armed_waiting_generation4_and_high_deficiency_gate",
+  "active": false,
+  "activationIsRetroactive": false,
+  "periodStart": null,
+  "p35InternalMinimumDays": 30,
+  "externalReadinessPlanningTargetDays": 90,
+  "freezeGeneration": 4,
+  "activationGates": {
+    "generation4EpochMatches": true,
+    "generation4MinimumTimeReached": false,
+    "generation4MinimumSamplesReached": false,
+    "generation4CoverageBucketsReached": false,
+    "generation4TerminalSamplePresent": false,
+    "postFinalSharedChangeBackupVerified": false,
+    "noCriticalOpenDeficiencies": true,
+    "p34D001Dispositioned": false,
+    "p34D002DispositionedOrRemediating": true,
+    "p34D005Closed": true,
+    "p32ModeAtLeastWarn": true,
+    "p33CanonicalEvidenceActive": true,
+    "controlCatalogFrozen": true,
+    "evidenceCollectionDryRunPass": true,
+    "independentActivationAuthorizationPresent": false
+  },
+  "blockers": [
+    "generation 4 cannot certify before 2026-10-05T12:55:17.146329Z",
+    "generation 4 still needs fresh spanning samples and terminal sample",
+    "post-final-shared-change encrypted backup is not yet verified for generation 4",
+    "P34-D001 remains decision_required",
+    "no independent P36 activation authorization exists"
+  ],
+  "controlCatalogFreeze": {
+    "catalogVersion": "2026-10-03.1",
+    "snapshotVersion": "2026-10-03.1",
+    "freezeMeaning": "Version identity is frozen for activation evaluation; exact file hashes are verified by the activation tooling."
+  },
+  "activationRule": "Activate only at the successful decision timestamp after every gate passes. Never backdate to the freeze, P25 start, P34/P35 evidence, or operator-override date.",
+  "plannedPeriod": {
+    "periodId": "p36-oe-001",
+    "periodStart": null,
+    "periodEnd": null
+  },
+  "externalAttestation": false
+}
