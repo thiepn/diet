@@ -46,7 +46,7 @@ assert.equal(receipt.decision,'ready_to_commit_generation5_activation');
 assert.equal(receipt.generation,5);
 assert.equal(receipt.sourceFilesMutated,true);
 assert.equal(receipt.productionMutationPerformed,false);
-assert.equal(receipt.activationReceiptId,'0867969dce6fd97d914c260b2040bdd2243142ff184bb45f9ed4fb46f179ee0f');
+assert.equal(receipt.activationReceiptId,'8e24ecd727550f365aacabeb7d59a7b18ed9d07322ef8929f8d6ddb48df3badd');
 
 assert.equal(p25.state,'burn_in_active');
 assert.equal(p25.generation,5);
