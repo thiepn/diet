@@ -24,10 +24,10 @@ assert.equal(app.health.platformManagedBuildAfter,'17.6.1.164');
 assert.equal(app.health.platformSemanticFingerprintFormat,'platform-p23-shared-schema-v2');
 assert.equal(app.health.postgres1711CompatibilityBaselineMet,false);
 assert.equal(app.health.postgres1711TrackedSeparately,true);
-assert.equal(app.health.p25BurnInActive,true);
-assert.equal(app.health.p25CurrentGenerationValid,true);
-assert.equal(app.health.p25NextGeneration,null);
-assert.equal(app.health.p25BurnInGenerationState,'burn_in_active');
+assert.equal(app.health.p25BurnInActive,false);
+assert.equal(app.health.p25CurrentGenerationValid,false);
+assert.equal(app.health.p25NextGeneration,6);
+assert.equal(app.health.p25BurnInGenerationState,'invalidated_epoch_changed');
 
 const policy=backend.platform_upgrade_execution_policy;
 assert.equal(policy.release,'P24');
@@ -54,10 +54,10 @@ assert.equal(policy.postgres_17_11_tracked_separately,true);
 assert.deepEqual(policy.completion_requires,[]);
 
 assert.equal(backend.post_upgrade_burn_in_policy.release,'P25');
-// P24 proves the historical managed upgrade; current P25 lifecycle state is verified by P25/P40.
+// P24 proves the historical managed upgrade; current P25 lifecycle state is verified by P25/P41.
 assert.equal(backend.post_upgrade_burn_in_policy.current_generation,5);
-assert.equal(backend.post_upgrade_burn_in_policy.state,'burn_in_active');
-assert.equal(backend.post_upgrade_burn_in_policy.current_generation_eligible,true);
+assert.equal(backend.post_upgrade_burn_in_policy.state,'refreeze_pending');
+assert.equal(backend.post_upgrade_burn_in_policy.current_generation_eligible,false);
 assert.equal(backend.post_upgrade_burn_in_policy.p24_post_upgrade_validation,'pass');
 assert.equal(backend.post_upgrade_burn_in_policy.semantic_schema_sha256,policy.post_upgrade_semantic_schema_sha256);
 

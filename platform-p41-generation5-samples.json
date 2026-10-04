@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "phase": "P41",
+  "generation": 5,
+  "windowStart": "2026-10-04T18:52:01.712991Z",
+  "epochInvalidatedAt": "2026-10-04T18:58:02Z",
+  "samples": [],
+  "note": "No qualifying generation-5 sample is known inside the approximately six-minute valid frozen-epoch window. Samples after the first shared-epoch change cannot certify generation 5."
+}

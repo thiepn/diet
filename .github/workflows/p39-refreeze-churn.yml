@@ -56,7 +56,18 @@ jobs:
           import json
           from pathlib import Path
           p25=json.loads(Path('platform-p25-burn-in-plan.json').read_text())
-          obs={'projectStatus':'ACTIVE_HEALTHY',**p25['pendingGeneration5']['candidateEpoch'],'migrationChangedAt':'2026-10-04T17:31:17Z'}
+          historical=json.loads(json.dumps(p25))
+          historical.update({
+            'state':'refreeze_pending','generation':4,'generationState':'invalidated_epoch_changed',
+            'currentGenerationEligible':False,'nextGeneration':5
+          })
+          historical['pendingGeneration5'].update({
+            'state':'waiting_quiet_window_and_fresh_backup','eligibleToActivate':False,
+            'postFinalChangeEncryptedBackupVerified':False,'backupEvidenceRef':None,
+            'lastDecision':'blocked'
+          })
+          Path('p39-historical-p25.json').write_text(json.dumps(historical,indent=2)+'\n')
+          obs={'projectStatus':'ACTIVE_HEALTHY',**historical['pendingGeneration5']['candidateEpoch'],'migrationChangedAt':'2026-10-04T17:31:17Z'}
           backup={
             'runId':37218356705,'conclusion':'success','createdAt':'2026-10-04T16:52:34Z',
             'verificationPassed':True,'encrypted':True,'artifactAvailable':True,
@@ -67,7 +78,7 @@ jobs:
           Path('p39-current-observation.json').write_text(json.dumps(obs,indent=2)+'\n')
           Path('p39-current-backup.json').write_text(json.dumps(backup,indent=2)+'\n')
           PY
-          python scripts/p39-reconcile-refreeze-candidate.py             p39-current-observation.json p39-current-backup.json             --out-dir p39-current
+          python scripts/p39-reconcile-refreeze-candidate.py             p39-current-observation.json p39-current-backup.json             --p25 p39-historical-p25.json --out-dir p39-current
           python - <<'PY'
           import json
           r=json.load(open('p39-current/p39-refreeze-reconcile-receipt.json'))
@@ -83,6 +94,7 @@ jobs:
         with:
           name: p39-refreeze-churn-${{ github.run_id }}
           path: |
+            p39-historical-p25.json
             p39-current-observation.json
             p39-current-backup.json
             p39-current/p39-refreeze-reconcile-receipt.json

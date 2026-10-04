@@ -4,7 +4,7 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 CLI=ROOT/"scripts/p31-control-plane.py"
-FLEET_VERSION="2026-10-04.4"
+FLEET_VERSION="2026-10-04.6"
 RELEASE_VERSION="2026-10-04.2"
 
 def run(args,expect=0):
@@ -57,8 +57,8 @@ with tempfile.TemporaryDirectory() as td:
 
     # Exact observed live state matches the current P31 registry.
     observed={
-      "semanticSchemaSha256":"5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
-      "migrationHead":"20261004173117",
+      "semanticSchemaSha256":"09d16243904c77513df9d695ed060f122e08d921de79d281905235d970e96159",
+      "migrationHead":"20261004192902",
       "cronJobs":14,
       "edgeFunctionCount":12,
       "gomokuRoomVersion":50,

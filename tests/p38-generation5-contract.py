@@ -25,10 +25,10 @@ assert plan["state"]=="operationally_activated_generation5_burn_in_active"
 assert plan["currentRefreezeStatus"]["decision"]=="activated"
 assert plan["currentRefreezeStatus"]["quietMinutesObserved"]==75.38
 assert plan["currentRefreezeStatus"]["postFinalChangeEncryptedBackupVerified"] is True
-assert p25["state"]=="burn_in_active"
+assert p25["state"]=="refreeze_pending"
 assert p25["generation"]==5
-assert p25["nextGeneration"] is None
-assert p25["currentGenerationEligible"] is True
+assert p25["nextGeneration"]==6
+assert p25["currentGenerationEligible"] is False
 assert p25["pendingGeneration5"]["edgeQuietMinutesObserved"]==75.38
 assert p25["pendingGeneration5"]["candidateRevision"]==2
 assert p25["pendingGeneration5"]["lastDecision"]=="activated"
@@ -42,6 +42,8 @@ with tempfile.TemporaryDirectory() as td:
       "state":"refreeze_pending","generation":4,"generationState":"invalidated_epoch_changed",
       "currentGenerationEligible":False,"nextGeneration":5
     })
+    pending["refreezePolicy"]["quietClockStartsAfterLatestObservedSharedChange"]=candidate["latestSharedChangeAt"]
+    pending["refreezePolicy"]["earliestRefreezeAt"]=z(datetime.fromisoformat(candidate["latestSharedChangeAt"].replace("Z","+00:00"))+timedelta(minutes=60))
     pending["pendingGeneration5"].update({
       "state":"waiting_quiet_window_and_fresh_backup","eligibleToActivate":False,
       "postFinalChangeEncryptedBackupVerified":False,"backupEvidenceRef":None,

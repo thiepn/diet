@@ -20,8 +20,8 @@ plan=load(ROOT/"platform-p39-refreeze-churn-plan.json")
 
 assert plan["phase"]=="P39"
 assert plan["state"]=="resolved_generation5_activated"
-assert p25["state"]=="burn_in_active"
-assert p25["nextGeneration"] is None
+assert p25["state"]=="refreeze_pending"
+assert p25["nextGeneration"]==6
 assert p25["pendingGeneration5"]["candidateRevision"]==2
 assert p25["pendingGeneration5"]["state"]=="activated"
 assert p25["pendingGeneration5"]["candidateEpoch"]["migrationHead"]=="20261004173117_gomoku_p23_security_admission_gate"

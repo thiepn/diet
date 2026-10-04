@@ -1,0 +1,87 @@
+name: P41 Generation-5 Burn-In Epoch Watch
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'platform-p25-burn-in-plan.json'
+      - 'platform-p26-steady-state-plan.json'
+      - 'platform-p29-*.json'
+      - 'platform-p31-fleet-registry.json'
+      - 'platform-p32-*.json'
+      - 'platform-p41-*.json'
+      - '.well-known/thiepn-app.json'
+      - 'supabase/backend.json'
+      - 'scripts/p41-*.py'
+      - 'tests/p41-*'
+      - 'docs/P41-*.md'
+      - '.github/workflows/p15-offsite-backup.yml'
+      - '.github/workflows/p41-generation5-burnin-watch.yml'
+      - '.github/workflows/ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p41-generation5-burnin-watch-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+
+      - name: Verify P41 structural contract
+        run: node tests/p41-generation5-burnin-watch-contract.mjs
+
+      - name: Verify P41 evaluator negative and positive paths
+        run: python tests/p41-generation5-burnin-watch-contract.py
+
+      - name: Re-evaluate committed epoch-change evidence
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('platform-p25-burn-in-plan.json').read_text())
+          o=json.loads(Path('platform-p41-live-epoch-observation.json').read_text())
+          a=json.loads(json.dumps(p))
+          a.update({'state':'burn_in_active','generation':5,'generationState':'burn_in_active','currentGenerationEligible':True,'nextGeneration':None,'activatedAt':'2026-10-04T18:52:01.712991Z','minimumCompleteAfter':'2026-10-05T18:52:01.712991Z'})
+          a['currentEpochFreezeEvidence']=o['frozenEpoch']
+          Path('p41-active-generation5.json').write_text(json.dumps(a,indent=2)+'\n')
+          PY
+          python scripts/p41-evaluate-burnin-epoch.py             platform-p41-live-epoch-observation.json             platform-p41-generation5-samples.json             --p25 p41-active-generation5.json             --out p41-current-evaluation.json             --require-invalidated
+
+      - name: Confirm P41 is evidence/control-plane only
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open('platform-p41-generation5-invalidation-receipt.json'))
+          w=json.load(open('platform-p41-generation5-burnin-watch.json'))
+          assert r['productionMutationPerformed'] is False
+          assert w['safety']['oeStarted'] is False
+          assert w['safety']['sharedStatefulPromotionsBlocked'] is True
+          PY
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: p41-generation5-burnin-watch-${{ github.run_id }}
+          path: |
+            platform-p41-live-epoch-observation.json
+            platform-p41-generation5-samples.json
+            platform-p41-generation5-burnin-watch.json
+            platform-p41-generation5-invalidation-receipt.json
+            p41-current-evaluation.json
+          if-no-files-found: error
+          retention-days: 90

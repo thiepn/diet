@@ -24,28 +24,28 @@ assert.equal(plan.latestSuccessfulEncryptedBackup.runId,37218356705);
 assert.equal(plan.latestSuccessfulEncryptedBackup.freshnessState,'stale_for_current_candidate');
 assert.equal(plan.backupFreshnessAutomation.refreezeSchedule,'47 * * * *');
 
-assert.equal(p25.state,'burn_in_active');
-assert.equal(p25.nextGeneration,null);
+assert.equal(p25.state,'refreeze_pending');
+assert.equal(p25.nextGeneration,6);
 assert.equal(p25.pendingGeneration5.generation,5);
 assert.equal(p25.pendingGeneration5.candidateRevision,2);
 assert.equal(p25.pendingGeneration5.state,'activated');
 assert.equal(p25.pendingGeneration5.candidateEpoch.gomokuRoomVersion,50);
 assert.equal(p25.pendingGeneration5.latestSuccessfulBackup.runId,37222829955);
 assert.equal(p25.pendingGeneration5.latestSuccessfulBackup.freshForCandidate,true);
-assert.equal(p25.refreezePolicy.earliestRefreezeAt,'2026-10-04T18:36:39.032000Z');
+assert.equal(p25.refreezePolicy.earliestRefreezeAt,'2026-10-04T20:56:54.779364Z');
 
-assert.equal(backend.generation5_state,'burn_in_active');
+assert.equal(backend.generation5_state,'invalidated_epoch_changed');
 assert.equal(backend.generation5_candidate_revision,2);
 assert.equal(backend.latest_backup_run,37222829955);
-assert.equal(app.health.p25Generation5State,'burn_in_active');
+assert.equal(app.health.p25Generation5State,'invalidated_epoch_changed');
 assert.equal(app.health.p25Generation5CandidateRevision,2);
 
-assert.equal(fleet.registryVersion,'2026-10-04.4');
-assert.equal(fleet.releaseEpoch.state,'generation5_burn_in_active');
+assert.equal(fleet.registryVersion,'2026-10-04.6');
+assert.equal(fleet.releaseEpoch.state,'refreeze_pending_generation6_candidate_revision2');
 assert.equal(fleet.releaseEpoch.edgeHighlights.gomokuRoom.version,50);
-assert.equal(fleet.releaseEpoch.latestSuccessfulBackupFreshForCandidate,true);
-assert.equal(policy.bundleVersion,'2026-10-04.4');
-assert.equal(policy.fleetRegistryVersion,'2026-10-04.4');
+assert.equal(fleet.releaseEpoch.latestSuccessfulBackupFreshForCandidate,false);
+assert.equal(policy.bundleVersion,'2026-10-04.6');
+assert.equal(policy.fleetRegistryVersion,'2026-10-04.6');
 assert.equal(policy.liveBaseline.gomokuRoomVersion,50);
 
 assert.ok(p15.includes("cron: '17 4 * * *'"));
