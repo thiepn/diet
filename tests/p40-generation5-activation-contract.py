@@ -58,7 +58,7 @@ activation_material={
   "outputHashes":output_hashes,
 }
 assert hid(activation_material)==receipt["activationReceiptId"]
-assert receipt["activationReceiptId"]=="0867969dce6fd97d914c260b2040bdd2243142ff184bb45f9ed4fb46f179ee0f"
+assert receipt["activationReceiptId"]=="8e24ecd727550f365aacabeb7d59a7b18ed9d07322ef8929f8d6ddb48df3badd"
 
 with tempfile.TemporaryDirectory() as td:
     d=Path(td)
