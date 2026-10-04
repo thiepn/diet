@@ -69,9 +69,9 @@ assert.equal(oe.activationGates.p33CanonicalEvidenceActive,true);
 assert.equal(oe.externalAttestation,false);
 
 assert.equal(p25.generation,5);
-assert.equal(p25.state,'burn_in_active');
-assert.equal(p25.currentGenerationEligible,true);
-assert.equal(p25.nextGeneration,null);
+assert.equal(p25.state,'refreeze_pending');
+assert.equal(p25.currentGenerationEligible,false);
+assert.equal(p25.nextGeneration,6);
 assert.equal(p25.generation4Invalidation.generation,4);
 assert.equal(p25.previousGeneration.generation,4);
 assert.equal(p25.previousGeneration.invalidated,true);
@@ -87,7 +87,7 @@ assert.equal(p29.graphVersion,'2026-10-04.1');
 assert.equal(p29.nodes.length,18);
 assert.equal(p29.edges.length,51);
 assert.equal(p29.edges.filter(x=>x.consumer==='semester-os').length,4);
-assert.equal(p31.registryVersion,'2026-10-04.4');
+assert.equal(p31.registryVersion,'2026-10-04.5');
 assert.equal(p31.coverage.dependencyGraphCoveragePct,100);
 assert.equal(p31.coverage.registeredAppGovernanceCoveragePct,100);
 assert.equal(p31.components.find(x=>x.id==='semester-os').governance,'governed');
@@ -98,8 +98,8 @@ assert.equal(rr.latestMergedMainSha,'c8c374917d739c971fe142cf16c3449d6c64e8cd');
 for(const id of ['P31','P32','P33','P34','P35','P36']) assert.equal(rr.phases.find(x=>x.id===id).state,'merged_operator_override');
 
 assert.equal(p32.mode,'warn');
-assert.equal(p32.bundleVersion,'2026-10-04.4');
-assert.equal(p32.fleetRegistryVersion,'2026-10-04.4');
+assert.equal(p32.bundleVersion,'2026-10-04.5');
+assert.equal(p32.fleetRegistryVersion,'2026-10-04.5');
 assert.equal(p32.releaseRegistryVersion,'2026-10-04.2');
 assert.equal(p32.dependencyGraphVersion,'2026-10-04.1');
 assert.deepEqual(p32.liveBaseline.unmodeledComponents,[]);
@@ -111,8 +111,8 @@ assert.equal(app.health.p25FrozenMigrationHead,'20261004173117_gomoku_p23_securi
 assert.equal(app.health.p25FrozenGomokuEdgeVersion,50);
 assert.equal(app.health.p25FrozenCronJobCount,14);
 assert.equal(app.health.p25Generation4BackupPrerequisiteSatisfied,false);
-assert.equal(app.health.p25CurrentGenerationValid,true);
-assert.equal(app.health.p25NextGeneration,null);
+assert.equal(app.health.p25CurrentGenerationValid,false);
+assert.equal(app.health.p25NextGeneration,6);
 
 for(const token of [
   'active by explicit operator override',
