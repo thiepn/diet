@@ -234,3 +234,25 @@ The earliest possible quiet-window completion remains:
 The required post-final-change encrypted backup was still not verified, so generation 5 remained **blocked** and inactive.
 
 P38 adds a reviewed preview-only activation mechanism and a generation-aware evidence ledger. Neither changes this current operational truth.
+
+
+## P39 generation-5 candidate revision 2 — 2026-10-04
+
+The generation-5 candidate moved again before activation.
+
+Current candidate identity:
+
+- migration: `20261004173117_gomoku_p23_security_admission_gate`
+- semantic schema SHA: `5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375`
+- `gomoku-room`: **v50**
+- latest shared change: `2026-10-04T17:36:39.032000Z`
+- Edge Functions: 12 / all active
+- cron: 14/14 active
+
+Generation 5 never activated, so this does **not** create generation 6. The pending generation-5 candidate is rebased to **candidate revision 2**.
+
+At `2026-10-04T17:40:47.662109Z`, the new candidate had only **4.14 / 60 quiet minutes**. Earliest possible refreeze is `2026-10-04T18:36:39.032000Z`.
+
+P15 encrypted backup run `37218356705` succeeded at `2026-10-04T16:52:34Z`, including verification, CMS AES-256-GCM encryption and retained artifact upload. It is valid historical backup evidence, but it predates the v50 change and is therefore not fresh enough for candidate revision 2.
+
+P39 adds a refreeze-only hourly backup opportunity so a fresh backup can be captured promptly while P25 remains `refreeze_pending`.
