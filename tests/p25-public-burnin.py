@@ -25,6 +25,7 @@ def main():
     ap.add_argument("--out",default="p25-public-burnin.json")
     args=ap.parse_args()
 
+    burnin=json.loads(Path("platform-p25-burn-in-plan.json").read_text(encoding="utf-8"))
     source=Path("v2/data.js").read_text(encoding="utf-8")
     m=re.search(r"DIET_V2_SUPABASE_KEY='(sb_publishable_[A-Za-z0-9_-]+)'",source)
     if not m:
@@ -75,6 +76,14 @@ def main():
         "schemaVersion":2,
         "phase":"P25",
         "checkedAt":time.strftime("%Y-%m-%dT%H:%M:%SZ",time.gmtime()),
+        "generation":burnin.get("generation"),
+        "generationState":burnin.get("generationState"),
+        "currentGenerationEligible":burnin.get("currentGenerationEligible") is True,
+        "qualifiesForBurnIn":(
+            burnin.get("state")=="burn_in_active"
+            and burnin.get("generationState")=="burn_in_active"
+            and burnin.get("currentGenerationEligible") is True
+        ),
         "passed":all(x["passed"] for x in checks),
         "performanceWarning":any(
             x.get("authRegressionWarning") or x.get("databaseRegressionWarning") for x in checks
