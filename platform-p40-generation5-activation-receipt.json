@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "phase": "P38",
+  "decision": "ready_to_commit_generation5_activation",
+  "generation": 5,
+  "activatedAt": "2026-10-04T18:52:01.712991Z",
+  "minimumCompleteAfter": "2026-10-05T18:52:01.712991Z",
+  "sourceRefreezeDecisionId": "4153ec4f7fc90a3afcacc59e61e7fcd78e571b2b2aa5012caa175920f0547e78",
+  "sourceFilesMutated": true,
+  "productionMutationPerformed": false,
+  "errors": [],
+  "outputHashes": {
+    "platform-p25-burn-in-plan.json": "84a867e08f75f23633fbe93c47c2e5188e69125cee40d1dd32bc7046e61bea63",
+    "supabase-backend.json": "fef9ea3bd5abd7c6719f6a87d82d4abaff33ddfb464648f4d4f4e7383a4b08d2",
+    "thiepn-app.json": "c39c1aa28851ef9689d4c0d681501759d02cc9993b9f8e2a38f9300b47b9a24d"
+  },
+  "activationReceiptId": "0867969dce6fd97d914c260b2040bdd2243142ff184bb45f9ed4fb46f179ee0f"
+}
