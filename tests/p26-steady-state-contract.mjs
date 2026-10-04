@@ -27,13 +27,15 @@ assert.equal(plan.activationRequires.historicalHostedUpgradeAttestation,'pass');
 assert.equal(plan.activationRequires.postFinalSharedChangeEncryptedBackup,'success_current_freeze');
 assert.equal(Object.hasOwn(plan.activationRequires,'p24PostUpgradeValidation'),false);
 
-assert.equal(p25.generation,4);
-assert.equal(p25.currentGenerationEligible,false);
-assert.equal(plan.currentGateSnapshot.p25Generation,4);
-assert.equal(plan.currentGateSnapshot.nextGeneration,5);
-assert.equal(plan.currentGateSnapshot.generationEligible,false);
+assert.equal(p25.generation,5);
+assert.equal(p25.currentGenerationEligible,true);
+assert.equal(plan.currentGateSnapshot.p25Generation,5);
+assert.equal(plan.currentGateSnapshot.nextGeneration,null);
+assert.equal(plan.currentGateSnapshot.generationEligible,true);
 assert.equal(plan.currentGateSnapshot.timeGateMetAtSnapshot,false);
-assert.equal(plan.currentGateSnapshot.earliestRefreezeAt,p25.refreezePolicy.earliestRefreezeAt);
+assert.equal(plan.currentGateSnapshot.activatedAt,p25.activatedAt);
+assert.equal(plan.currentGateSnapshot.minimumCompleteAfter,p25.minimumCompleteAfter);
+assert.equal(plan.currentGateSnapshot.latestSuccessfulEncryptedBackupRun,37222829955);
 assert.equal(plan.currentGateSnapshot.successfulSamplesKnownAtScheduleChange,0);
 
 assert.equal(plan.baselinePolicy.authoritativeOnlyAfterP25,true);
@@ -101,7 +103,8 @@ for(const banned of [
   /\balter\s+(table|function|role|database|system)\b/,
   /\bdrop\s+(table|index|function|view|policy)\b/,
   /\binsert\s+into\b/,
-  /\bupdate\s+[^\n]+\s+set\b/,
+  /\bupdate\s+[^
+]+\s+set\b/,
   /\bdelete\s+from\b/,
   /\btruncate\b/,
   /\breindex\b/,
