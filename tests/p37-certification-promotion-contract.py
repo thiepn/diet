@@ -23,13 +23,13 @@ p25=load(ROOT/"platform-p25-burn-in-plan.json")
 risk=load(ROOT/"platform-p37-d001-risk-treatment.json")
 manifest=load(ROOT/"contracts/p37-governance-stack-manifest.json")
 
-assert plan["state"]=="implementation_active_waiting_generation5_refreeze"
+assert plan["state"]=="implementation_active_generation5_burn_in"
 assert plan["currentReality"]["generation4Invalidated"] is True
-assert plan["currentReality"]["nextGeneration"]==5
+assert plan["currentReality"]["nextGeneration"] is None
 assert plan["currentReality"]["oePeriodStarted"] is False
-assert p25["state"]=="refreeze_pending"
-assert p25["generation"]==4 and p25["currentGenerationEligible"] is False and p25["nextGeneration"]==5
-assert p25["pendingGeneration5"]["eligibleToActivate"] is False
+assert p25["state"]=="burn_in_active"
+assert p25["generation"]==5 and p25["currentGenerationEligible"] is True and p25["nextGeneration"] is None
+assert p25["pendingGeneration5"]["eligibleToActivate"] is True
 assert risk["state"]=="prepared_pending_independent_risk_approval"
 assert risk["riskAcceptanceAuthorized"] is False
 assert len(manifest["phases"])==11
@@ -39,6 +39,16 @@ with tempfile.TemporaryDirectory() as td:
     d=Path(td)
     obs=d/"obs.json"; ref=d/"refreeze.json"
     cand=p25["pendingGeneration5"]["candidateEpoch"]
+    pending=json.loads(json.dumps(p25))
+    pending.update({
+      "state":"refreeze_pending","generation":4,"generationState":"invalidated_epoch_changed",
+      "currentGenerationEligible":False,"nextGeneration":5
+    })
+    pending["pendingGeneration5"].update({
+      "state":"waiting_quiet_window_and_fresh_backup","eligibleToActivate":False,
+      "postFinalChangeEncryptedBackupVerified":False,"backupEvidenceRef":None
+    })
+    pendingf=d/"pending-p25.json"; write(pendingf,pending)
     current={
       "projectStatus":"ACTIVE_HEALTHY",
       **cand,
@@ -48,12 +58,12 @@ with tempfile.TemporaryDirectory() as td:
       "postFinalSharedChangeBackupVerified":False,"backupEvidenceRef":None
     }
     write(obs,current)
-    run([sys.executable,str(REFREEZE),str(obs),"--out",str(ref)])
+    run([sys.executable,str(REFREEZE),str(obs),"--p25",str(pendingf),"--out",str(ref)])
     r=load(ref)
     assert r["decision"]=="blocked"
     assert any(x.startswith("quiet_window_open:") for x in r["errors"])
     assert "post_final_change_backup_not_verified" in r["errors"]
-    run([sys.executable,str(REFREEZE),str(obs),"--out",str(d/"ref-required.json"),"--require-ready"],1)
+    run([sys.executable,str(REFREEZE),str(obs),"--p25",str(pendingf),"--out",str(d/"ref-required.json"),"--require-ready"],1)
 
     # Future legitimate generation-5 refreeze, relative to whichever candidate is current.
     latest_change=datetime.fromisoformat(cand["latestSharedChangeAt"].replace("Z","+00:00"))
@@ -64,7 +74,7 @@ with tempfile.TemporaryDirectory() as td:
       "backupEvidenceRef":"github-actions:P15:future-post-final-change-backup"
     })
     write(obs,future)
-    run([sys.executable,str(REFREEZE),str(obs),"--out",str(ref),"--require-ready"])
+    run([sys.executable,str(REFREEZE),str(obs),"--p25",str(pendingf),"--out",str(ref),"--require-ready"])
     ready=load(ref)
     assert ready["decision"]=="ready_to_activate_generation5"
     assert ready["generation"]==5
@@ -74,11 +84,11 @@ with tempfile.TemporaryDirectory() as td:
     # Epoch drift blocks refreeze.
     drift=dict(future); drift["gomokuRoomVersion"]=cand["gomokuRoomVersion"]+1
     write(obs,drift)
-    run([sys.executable,str(REFREEZE),str(obs),"--out",str(d/"ref-drift.json"),"--require-ready"],1)
+    run([sys.executable,str(REFREEZE),str(obs),"--p25",str(pendingf),"--out",str(d/"ref-drift.json"),"--require-ready"],1)
     assert "candidate_epoch_changed:gomokuRoomVersion" in load(d/"ref-drift.json")["errors"]
 
     # Build a future active generation 5 from a valid refreeze receipt.
-    active=json.loads(json.dumps(p25))
+    active=json.loads(json.dumps(pending))
     active["state"]="burn_in_active"; active["generationState"]="burn_in_active"
     active["generation"]=5; active["currentGenerationEligible"]=True; active["nextGeneration"]=None
     active["activatedAt"]=future["observedAt"]

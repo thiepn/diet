@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "phase": "P40",
+  "title": "Generation-5 Activation, Frozen-Epoch Commit & Burn-In Evidence Start",
+  "state": "generation5_burn_in_active",
+  "sourceMainSha": "bb6c632090fcb10ec51fab651ea0df0900d53821",
+  "generation": 5,
+  "candidateRevision": 2,
+  "activatedAt": "2026-10-04T18:52:01.712991Z",
+  "minimumCompleteAfter": "2026-10-05T18:52:01.712991Z",
+  "operatorOverride": {
+    "enabled": true,
+    "scope": "engineering phase progression",
+    "activationAuthorizedByEvidence": true,
+    "doesNotAuthorizeBurnInCertification": true,
+    "doesNotAuthorizeOELaunch": true,
+    "doesNotAuthorizeProductionMutation": true
+  },
+  "frozenEpoch": {
+    "migrationHead": "20261004173117_gomoku_p23_security_admission_gate",
+    "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
+    "edgeInventorySha256": "2e66d1eec1dac615b0f0cc81a823100dd609947d7ecb51098fe2e37c504d6a0e",
+    "edgeFunctionCount": 12,
+    "gomokuRoomVersion": 50,
+    "gomokuRoomSha256": "a537d0702fdb53861124849e03fb7141a8036a4ee5c692fa9bf4769c47981695",
+    "cronJobs": 14,
+    "cronInventorySha256": "652724f6d80db7f2382637925f3eba6205d114b02204ed68fdf115e5bfc20692",
+    "quietMinutesAtFreeze": 75.38
+  },
+  "refreezeEvidence": {
+    "decision": "ready_to_activate_generation5",
+    "decisionId": "4153ec4f7fc90a3afcacc59e61e7fcd78e571b2b2aa5012caa175920f0547e78",
+    "minimumQuietMinutes": 60,
+    "quietMinutesObserved": 75.38,
+    "exactCandidateMatch": true
+  },
+  "activationEvidence": {
+    "activationReceiptId": "8e24ecd727550f365aacabeb7d59a7b18ed9d07322ef8929f8d6ddb48df3badd",
+    "mechanism": "scripts/p38-activate-generation5.py deterministic transform",
+    "repositoryStateMutated": true,
+    "productionMutationPerformed": false
+  },
+  "backupEvidence": {
+    "workflow": "P15 Encrypted Offsite Backup",
+    "runId": 37222829955,
+    "runNumber": 29,
+    "conclusion": "success",
+    "createdAt": "2026-10-04T18:03:25Z",
+    "verificationAt": "2026-10-04T18:03:24Z",
+    "headSha": "bb6c632090fcb10ec51fab651ea0df0900d53821",
+    "verificationPassed": true,
+    "encryption": "CMS AES-256-GCM",
+    "artifactId": 11311011119,
+    "artifactDigest": "sha256:432279d9ab3fc204061a89afc20869bf0994f6604ec586205081897b932049cb",
+    "snapshotCount": 1,
+    "totalRows": 282,
+    "backupSchemaSha256": "9960c954d3812a1fb178e823830c247aa5e67f115c58dad4170faa9218dce02c",
+    "capturedAfterFinalSharedChange": true
+  },
+  "publicHealthEvidence": {
+    "workflow": "P25 Post-Upgrade Burn-In",
+    "runId": 37224033250,
+    "runNumber": 26,
+    "checkedAt": "2026-10-04T18:20:14Z",
+    "conclusion": "success",
+    "artifactId": 11310784231,
+    "artifactDigest": "sha256:6d9d46c701419010ee5f65fe36a53c89dc204bccacb84bf9dfc2065d4b24ce18",
+    "checks": {
+      "dietShell": true,
+      "authHealth": true,
+      "platformHealth": true,
+      "operatorRpcBoundary": true
+    }
+  },
+  "liveControls": {
+    "projectStatus": "ACTIVE_HEALTHY",
+    "p18Integrity": "clean",
+    "p20SchemaDrift": false,
+    "p21Readiness": "pass",
+    "p22Maintenance": "pass",
+    "cronJobs": 14,
+    "activeCronJobs": 14,
+    "cronFailures24h": 0,
+    "blockingReplicationSlots": 0,
+    "edgeFunctionCount": 12,
+    "edgeFunctionsAllActive": true,
+    "storageReadCheck": "pass",
+    "storageBuckets": 3,
+    "storageObjects": 14,
+    "securityAdvisorsReviewed": true,
+    "performanceAdvisorsReviewed": true
+  },
+  "sampling": {
+    "workflow": ".github/workflows/p25-post-upgrade-burnin.yml",
+    "minimumSuccessfulSamples": 12,
+    "minimumCoverageBuckets": 6,
+    "coverageBucketHours": 4,
+    "preActivationSamplesQualify": false,
+    "terminalSampleRequiredAtOrAfter": "2026-10-05T18:52:01.712991Z",
+    "certificationOwner": "scripts/p37-certify-burnin.py"
+  },
+  "currentState": {
+    "evidenceAccumulationStarted": true,
+    "burnInCertified": false,
+    "oeStarted": false,
+    "p26AuthoritativeBaselineAllowed": false
+  },
+  "nextGate": {
+    "earliestCertificationAt": "2026-10-05T18:52:01.712991Z",
+    "requiresExactFrozenEpochUnchanged": true,
+    "requiresAtLeast12SuccessfulQualifyingSamples": true,
+    "requiresAllSixCoverageBuckets": true,
+    "requiresTerminalSampleAtOrAfterBoundary": true,
+    "requiresFinalHealthAndAdvisorRecheck": true
+  }
+}

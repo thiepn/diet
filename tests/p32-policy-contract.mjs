@@ -24,7 +24,7 @@ assert.equal(plan.liveBaseline.gomokuRoomVersion,50);
 assert.equal(plan.liveBaseline.cronJobs,14);
 assert.equal(plan.liveBaseline.registeredApps,7);
 assert.deepEqual(plan.liveBaseline.unmodeledComponents,[]);
-assert.equal(plan.liveBaseline.releaseEpochState,'refreeze_pending_generation5_candidate_revision2');
+assert.equal(plan.liveBaseline.releaseEpochState,'generation5_burn_in_active');
 assert.equal(plan.fleetGuardrails.localSupabaseEphemeralAllowedForStatefulValidation,true);
 assert.equal(plan.automation.mergeBlockingAllowedInCurrentMode,false);
 assert.equal(plan.automation.productionPromotionAllowed,false);
@@ -32,10 +32,10 @@ assert.equal(plan.automation.productionMutationAllowed,false);
 
 assert.equal(bundle.phase,'P32');
 assert.equal(bundle.schemaVersion,2);
-assert.equal(bundle.bundleVersion,'2026-10-04.3');
+assert.equal(bundle.bundleVersion,'2026-10-04.4');
 assert.equal(bundle.mode,'warn');
 assert.equal(bundle.defaultDecision,'block');
-assert.equal(bundle.fleetRegistryVersion,'2026-10-04.3');
+assert.equal(bundle.fleetRegistryVersion,'2026-10-04.4');
 assert.equal(bundle.releaseRegistryVersion,'2026-10-04.2');
 assert.equal(bundle.dependencyGraphVersion,'2026-10-04.1');
 assert.equal(bundle.policies.length,23);
@@ -48,7 +48,7 @@ for(const id of ['P32-SEC-001','P32-SEC-002','P32-SEC-003','P32-PROD-001','P32-D
   assert.ok(bundle.nonWaivablePolicyIds.includes(id),id+' must be non-waivable');
 }
 
-assert.equal(fleet.registryVersion,'2026-10-04.3');
+assert.equal(fleet.registryVersion,'2026-10-04.4');
 assert.equal(fleet.releaseSafety,'amber');
 assert.equal(fleet.releaseEpoch.edgeHighlights.gomokuRoom.version,50);
 assert.equal(fleet.releaseEpoch.edgeHighlights.microArcadeBackup.version,2);

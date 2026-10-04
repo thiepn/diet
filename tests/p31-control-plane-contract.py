@@ -4,7 +4,7 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 CLI=ROOT/"scripts/p31-control-plane.py"
-FLEET_VERSION="2026-10-04.3"
+FLEET_VERSION="2026-10-04.4"
 RELEASE_VERSION="2026-10-04.2"
 
 def run(args,expect=0):

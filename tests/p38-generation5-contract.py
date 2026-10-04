@@ -21,22 +21,33 @@ plan=load(ROOT/"platform-p38-generation5-refreeze-plan.json")
 p25=load(ROOT/"platform-p25-burn-in-plan.json")
 
 assert plan["phase"]=="P38"
-assert plan["state"]=="implementation_active_refreeze_blocked"
-assert plan["currentRefreezeStatus"]["decision"]=="blocked"
-assert plan["currentRefreezeStatus"]["quietMinutesObserved"]==41.79
-assert plan["currentRefreezeStatus"]["postFinalChangeEncryptedBackupVerified"] is False
-assert p25["state"]=="refreeze_pending"
-assert p25["generation"]==4
-assert p25["nextGeneration"]==5
-assert p25["currentGenerationEligible"] is False
-assert p25["pendingGeneration5"]["edgeQuietMinutesObserved"]==4.14
+assert plan["state"]=="operationally_activated_generation5_burn_in_active"
+assert plan["currentRefreezeStatus"]["decision"]=="activated"
+assert plan["currentRefreezeStatus"]["quietMinutesObserved"]==75.38
+assert plan["currentRefreezeStatus"]["postFinalChangeEncryptedBackupVerified"] is True
+assert p25["state"]=="burn_in_active"
+assert p25["generation"]==5
+assert p25["nextGeneration"] is None
+assert p25["currentGenerationEligible"] is True
+assert p25["pendingGeneration5"]["edgeQuietMinutesObserved"]==75.38
 assert p25["pendingGeneration5"]["candidateRevision"]==2
-assert p25["pendingGeneration5"]["lastDecision"]=="blocked"
+assert p25["pendingGeneration5"]["lastDecision"]=="activated"
 
 with tempfile.TemporaryDirectory() as td:
     d=Path(td)
     obs=d/"obs.json"; blocked=d/"blocked.json"; readyf=d/"ready.json"
     candidate=p25["pendingGeneration5"]["candidateEpoch"]
+    pending=json.loads(json.dumps(p25))
+    pending.update({
+      "state":"refreeze_pending","generation":4,"generationState":"invalidated_epoch_changed",
+      "currentGenerationEligible":False,"nextGeneration":5
+    })
+    pending["pendingGeneration5"].update({
+      "state":"waiting_quiet_window_and_fresh_backup","eligibleToActivate":False,
+      "postFinalChangeEncryptedBackupVerified":False,"backupEvidenceRef":None,
+      "lastDecision":"blocked"
+    })
+    pendingf=d/"pending-p25.json"; write(pendingf,pending)
     current={
       "projectStatus":"ACTIVE_HEALTHY",**candidate,
       "crossAppSmokePassed":True,"authHealthy":True,"realtimeHealthy":True,
@@ -45,7 +56,7 @@ with tempfile.TemporaryDirectory() as td:
       "postFinalSharedChangeBackupVerified":False,"backupEvidenceRef":None
     }
     write(obs,current)
-    run([sys.executable,str(REFREEZE),str(obs),"--out",str(blocked)])
+    run([sys.executable,str(REFREEZE),str(obs),"--p25",str(pendingf),"--out",str(blocked)])
     bd=load(blocked)
     assert bd["decision"]=="blocked"
     assert any(x.startswith("quiet_window_open:") for x in bd["errors"])
@@ -59,7 +70,7 @@ with tempfile.TemporaryDirectory() as td:
 
     # A blocked P37 receipt cannot create an activation preview.
     outdir=d/"blocked-preview"
-    run([sys.executable,str(ACTIVATE),str(blocked),"--out-dir",str(outdir),"--require-ready"],1)
+    run([sys.executable,str(ACTIVATE),str(blocked),"--p25",str(pendingf),"--out-dir",str(outdir),"--require-ready"],1)
     receipt=load(outdir/"p38-generation5-activation-receipt.json")
     assert receipt["decision"]=="blocked"
     assert receipt["activationReceiptId"] is None
@@ -74,7 +85,7 @@ with tempfile.TemporaryDirectory() as td:
       "backupEvidenceRef":"github-actions:P15:post-final-shared-change-backup"
     })
     write(obs,future)
-    run([sys.executable,str(REFREEZE),str(obs),"--out",str(readyf),"--require-ready"])
+    run([sys.executable,str(REFREEZE),str(obs),"--p25",str(pendingf),"--out",str(readyf),"--require-ready"])
     ready=load(readyf)
     assert ready["decision"]=="ready_to_activate_generation5"
     assert ready["generation"]==5
@@ -82,7 +93,7 @@ with tempfile.TemporaryDirectory() as td:
     assert ready["frozenEpoch"]["postFinalChangeEncryptedBackupVerified"] is True
 
     outdir=d/"ready-preview"
-    run([sys.executable,str(ACTIVATE),str(readyf),"--out-dir",str(outdir),"--require-ready"])
+    run([sys.executable,str(ACTIVATE),str(readyf),"--p25",str(pendingf),"--out-dir",str(outdir),"--require-ready"])
     ar=load(outdir/"p38-generation5-activation-receipt.json")
     preview=load(outdir/"platform-p25-burn-in-plan.json")
     backend=load(outdir/"supabase-backend.json")
@@ -109,7 +120,7 @@ with tempfile.TemporaryDirectory() as td:
 
     # Deterministic activation receipt.
     outdir2=d/"ready-preview-2"
-    run([sys.executable,str(ACTIVATE),str(readyf),"--out-dir",str(outdir2),"--require-ready"])
+    run([sys.executable,str(ACTIVATE),str(readyf),"--p25",str(pendingf),"--out-dir",str(outdir2),"--require-ready"])
     assert load(outdir2/"p38-generation5-activation-receipt.json")["activationReceiptId"]==ar["activationReceiptId"]
 
     active=d/"active.json"; write(active,preview)

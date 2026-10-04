@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "phase": "P31",
-  "registryVersion": "2026-10-04.3",
-  "capturedAt": "2026-10-04T17:40:47.662109Z",
+  "registryVersion": "2026-10-04.4",
+  "capturedAt": "2026-10-04T18:52:01.712991Z",
   "canonicalProject": {
     "ref": "hycegznamzjhwinegaai",
     "name": "THIEPN Account",
@@ -17,11 +17,11 @@
   "controlPlaneState": "amber",
   "coordinationMode": "registry_and_epoch_drift",
   "releaseEpoch": {
-    "state": "refreeze_pending_generation5_candidate_revision2",
+    "state": "generation5_burn_in_active",
     "movementReasons": [
-      "generation-5 candidate advanced from gomoku_p21_capacity_admission_gate to gomoku_p23_security_admission_gate before activation",
-      "gomoku-room advanced from v49 to v50 at 2026-10-04T17:36:39.032Z",
-      "P15 backup run 37218356705 succeeded at 16:52Z but predates the newer v50 final change"
+      "generation-5 candidate revision 2 passed the exact P23/v50 refreeze gate",
+      "P15 encrypted backup run 37222829955 verified successfully after the final shared change",
+      "generation 5 activated at 2026-10-04T18:52:01.712991Z and is accumulating evidence"
     ],
     "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
     "migrationHead": "20261004173117",
@@ -43,12 +43,14 @@
       }
     },
     "sharedPromotionsBlocked": true,
-    "nextGeneration": 5,
+    "nextGeneration": null,
     "candidateRevision": 2,
-    "earliestRefreezeAt": "2026-10-04T18:36:39.032000Z",
-    "latestSuccessfulBackupRun": 37218356705,
-    "latestSuccessfulBackupFreshForCandidate": false,
-    "freezeReason": "P39 reset the 60-minute quiet clock and backup-freshness boundary after pre-activation shared-epoch movement."
+    "latestSuccessfulBackupRun": 37222829955,
+    "latestSuccessfulBackupFreshForCandidate": true,
+    "freezeReason": "P40 froze generation 5 to the exact P23/v50 migration/schema/Edge/cron epoch after 75.38 minutes quiet and a verified post-final-change encrypted backup.",
+    "currentGeneration": 5,
+    "activatedAt": "2026-10-04T18:52:01.712991Z",
+    "minimumCompleteAfter": "2026-10-05T18:52:01.712991Z"
   },
   "coverage": {
     "governedP29Nodes": 18,
