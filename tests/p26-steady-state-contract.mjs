@@ -28,10 +28,10 @@ assert.equal(plan.activationRequires.postFinalSharedChangeEncryptedBackup,'succe
 assert.equal(Object.hasOwn(plan.activationRequires,'p24PostUpgradeValidation'),false);
 
 assert.equal(p25.generation,5);
-assert.equal(p25.currentGenerationEligible,true);
+assert.equal(p25.currentGenerationEligible,false);
 assert.equal(plan.currentGateSnapshot.p25Generation,5);
-assert.equal(plan.currentGateSnapshot.nextGeneration,null);
-assert.equal(plan.currentGateSnapshot.generationEligible,true);
+assert.equal(plan.currentGateSnapshot.nextGeneration,6);
+assert.equal(plan.currentGateSnapshot.generationEligible,false);
 assert.equal(plan.currentGateSnapshot.timeGateMetAtSnapshot,false);
 assert.equal(plan.currentGateSnapshot.activatedAt,p25.activatedAt);
 assert.equal(plan.currentGateSnapshot.minimumCompleteAfter,p25.minimumCompleteAfter);
