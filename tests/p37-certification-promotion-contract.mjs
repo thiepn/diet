@@ -35,11 +35,11 @@ assert.equal(p25.generation,4);
 assert.equal(p25.generationState,'invalidated_epoch_changed');
 assert.equal(p25.currentGenerationEligible,false);
 assert.equal(p25.nextGeneration,5);
-assert.equal(p25.pendingGeneration5.state,'waiting_quiet_window');
+assert.equal(p25.pendingGeneration5.state,'waiting_quiet_window_and_fresh_backup');
 
-assert.equal(fleet.registryVersion,'2026-10-04.2');
-assert.equal(fleet.releaseEpoch.state,'refreeze_pending_generation5');
-assert.equal(fleet.releaseEpoch.edgeHighlights.gomokuRoom.version,49);
+assert.equal(fleet.registryVersion,'2026-10-04.3');
+assert.equal(fleet.releaseEpoch.state,'refreeze_pending_generation5_candidate_revision2');
+assert.equal(fleet.releaseEpoch.edgeHighlights.gomokuRoom.version,50);
 assert.equal(fleet.releaseEpoch.edgeHighlights.microArcadeBackup.version,2);
 assert.equal(fleet.coverage.dependencyGraphCoveragePct,100);
 assert.equal(fleet.coverage.registeredAppGovernanceCoveragePct,100);
@@ -47,9 +47,9 @@ assert.equal(releases.registryVersion,'2026-10-04.2');
 assert.equal(releases.latestMergedGovernancePhase,'P36');
 assert.equal(releases.latestMergedMainSha,'c8c374917d739c971fe142cf16c3449d6c64e8cd');
 assert.equal(releases.phases.at(-1).id,'P36');
-assert.equal(policy.bundleVersion,'2026-10-04.2');
+assert.equal(policy.bundleVersion,'2026-10-04.3');
 assert.equal(policy.mode,'warn');
-assert.equal(policy.liveBaseline.releaseEpochState,'refreeze_pending_generation5');
+assert.equal(policy.liveBaseline.releaseEpochState,'refreeze_pending_generation5_candidate_revision2');
 
 assert.equal(risk.state,'prepared_pending_independent_risk_approval');
 assert.equal(risk.liveEvidence.passwordAuthUsers,0);
