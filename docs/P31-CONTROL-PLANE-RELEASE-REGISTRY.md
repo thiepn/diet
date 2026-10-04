@@ -209,3 +209,18 @@ P31 may not automatically:
 - terminate sessions;
 - pause/restore projects;
 - perform destructive rollback.
+
+
+## P36 fleet reconciliation — 2026-10-04
+
+The fleet registry is now `2026-10-04.1`.
+
+- observed fleet: **18/18 governed**
+- dependency coverage: **100%**
+- registered apps: **7/7 governed**
+- `semester-os`: **governed**
+- `gomoku-room`: v48 is incorporated into the current release epoch rather than treated as unresolved drift
+- current epoch: `20261003221217_hub_h15_tms60_projection`
+- release registry lineage is reconciled through merged P35
+
+Release safety remains **amber** because the generation-4 epoch is a frozen burn-in candidate rather than a certified stable shared-release epoch. App-fast releases for governed components may proceed through normal gates; shared/stateful trains still block on the unstable/certifying shared epoch. Hosted Supabase preview remains unavailable on the Free-plan path.
