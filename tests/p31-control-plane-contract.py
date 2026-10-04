@@ -4,8 +4,8 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 CLI=ROOT/"scripts/p31-control-plane.py"
-FLEET_VERSION="2026-10-04.1"
-RELEASE_VERSION="2026-10-04.1"
+FLEET_VERSION="2026-10-04.2"
+RELEASE_VERSION="2026-10-04.2"
 
 def run(args,expect=0):
     p=subprocess.run([sys.executable,str(CLI),*args],cwd=ROOT,capture_output=True,text=True)
@@ -42,7 +42,7 @@ with tempfile.TemporaryDirectory() as td:
     assert s["observedComponentCount"]==18
     assert s["dependencyGraphNodeCount"]==18
     assert s["dependencyGraphMissingComponents"]==[]
-    assert s["latestMergedGovernancePhase"]=="P35"
+    assert s["latestMergedGovernancePhase"]=="P36"
 
     valid=d/"valid.json"
     run(["validate","--out",str(valid)])
@@ -58,11 +58,11 @@ with tempfile.TemporaryDirectory() as td:
     # Exact observed live state matches the current P31 registry.
     observed={
       "semanticSchemaSha256":"5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
-      "migrationHead":"20261003221217",
+      "migrationHead":"20261004132839",
       "cronJobs":14,
       "edgeFunctionCount":12,
-      "gomokuRoomVersion":48,
-      "gomokuRoomSha256":"f0493fe400876a8d52f394724d6e44644978d2028b890c912ec283fdc32154cd",
+      "gomokuRoomVersion":49,
+      "gomokuRoomSha256":"64e5cfdd7a9d027e178eb4e8466b954504eb2bec1021bcb40c19afe8cd05b900",
       "registeredApps":["notes","diet","wordstrike","gomoku","semester-os","wttn","tms60"]
     }
     obs=d/"observed.json"; rec=d/"reconcile.json"
@@ -71,7 +71,7 @@ with tempfile.TemporaryDirectory() as td:
     assert json.loads(rec.read_text())["status"]=="match"
 
     newer=json.loads(json.dumps(observed))
-    newer["gomokuRoomVersion"]=49
+    newer["gomokuRoomVersion"]=50
     obs.write_text(json.dumps(newer),encoding="utf-8")
     run(["reconcile",str(obs),"--out",str(rec)])
     r=json.loads(rec.read_text())
