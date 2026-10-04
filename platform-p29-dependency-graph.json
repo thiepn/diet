@@ -463,8 +463,8 @@
     }
   },
   "liveBaseline": {
-    "observedAt": "2026-10-04T19:44:10.276405Z",
-    "semanticSchemaSha256": "b40d9a3d1da7c39917f41a9c1f8e95615838b7f34a64e673191bf810833f7cd2",
+    "observedAt": "2026-10-04T19:56:54.779364Z",
+    "semanticSchemaSha256": "09d16243904c77513df9d695ed060f122e08d921de79d281905235d970e96159",
     "latestMigrationVersion": "20261004192902",
     "latestMigrationName": "studyos_p8_checkpoint_dimension_evidence",
     "edgeInventorySha256": "2e66d1eec1dac615b0f0cc81a823100dd609947d7ecb51098fe2e37c504d6a0e",
@@ -483,7 +483,7 @@
     "cronInventorySha256": "652724f6d80db7f2382637925f3eba6205d114b02204ed68fdf115e5bfc20692",
     "cronJobs": 14,
     "p28ResourceOwnershipUnresolved": 0,
-    "releaseEpochState": "refreeze_pending_generation6_candidate_revision1",
-    "note": "P41 invalidated generation 5 after StudyOS changed the shared migration/schema epoch. Dependency topology is unchanged; generation 6 candidate revision 1 is refreeze-pending."
+    "releaseEpochState": "refreeze_pending_generation6_candidate_revision2",
+    "note": "P41 invalidated generation 5 and rebased generation 6 to candidate revision 2 after the shared semantic fingerprint moved again without migration, Edge or cron identity movement. Dependency topology is unchanged."
   }
 }
