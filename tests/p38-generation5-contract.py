@@ -29,7 +29,7 @@ assert p25["state"]=="refreeze_pending"
 assert p25["generation"]==4
 assert p25["nextGeneration"]==5
 assert p25["currentGenerationEligible"] is False
-assert p25["pendingGeneration5"]["edgeQuietMinutesObserved"]==41.79
+assert p25["pendingGeneration5"]["edgeQuietMinutesObserved"]==4.14\nassert p25["pendingGeneration5"]["candidateRevision"]==2
 assert p25["pendingGeneration5"]["lastDecision"]=="blocked"
 
 with tempfile.TemporaryDirectory() as td:
@@ -37,7 +37,6 @@ with tempfile.TemporaryDirectory() as td:
     obs=d/"obs.json"; blocked=d/"blocked.json"; readyf=d/"ready.json"
     candidate=p25["pendingGeneration5"]["candidateEpoch"]
     current={
-      "observedAt":"2026-10-04T17:01:57.419724Z",
       "projectStatus":"ACTIVE_HEALTHY",**candidate,
       "crossAppSmokePassed":True,"authHealthy":True,"realtimeHealthy":True,
       "postgrestHealthy":True,"storageHealthy":True,
@@ -66,9 +65,10 @@ with tempfile.TemporaryDirectory() as td:
     assert not (outdir/"platform-p25-burn-in-plan.json").exists()
 
     # Simulate the first legitimate future refreeze after quiet + backup.
+    latest_change=datetime.fromisoformat(candidate["latestSharedChangeAt"].replace("Z","+00:00"))
     future=dict(current)
     future.update({
-      "observedAt":"2026-10-04T17:25:00Z",
+      "observedAt":z(latest_change+timedelta(minutes=65)),
       "postFinalSharedChangeBackupVerified":True,
       "backupEvidenceRef":"github-actions:P15:post-final-shared-change-backup"
     })
@@ -93,8 +93,8 @@ with tempfile.TemporaryDirectory() as td:
     assert preview["generation"]==5
     assert preview["currentGenerationEligible"] is True
     assert preview["nextGeneration"] is None
-    assert preview["activatedAt"]=="2026-10-04T17:25:00Z"
-    assert preview["minimumCompleteAfter"]=="2026-10-05T17:25:00Z"
+    assert preview["activatedAt"]==future["observedAt"]
+    assert preview["minimumCompleteAfter"]==z(datetime.fromisoformat(future["observedAt"].replace("Z","+00:00"))+timedelta(hours=24))
     assert preview["currentEpochFreezeEvidence"]["backupEvidenceRef"]=="github-actions:P15:post-final-shared-change-backup"
     assert backend["post_upgrade_burn_in_policy"]["current_generation"]==5
     assert backend["post_upgrade_burn_in_policy"]["current_generation_eligible"] is True
