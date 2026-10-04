@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "phase": "P28",
-  "snapshotAt": "2026-10-03T09:47:39.047060Z",
+  "snapshotAt": "2026-10-04T12:55:17.146329Z",
   "canonicalProjectRef": "hycegznamzjhwinegaai",
   "status": "resolved_current_inventory",
   "registeredApps": [
@@ -31,6 +31,13 @@
       "displayName": "Gomoku Studio",
       "lifecycle": "active",
       "route": "/gomoku/",
+      "owner": "thiepn"
+    },
+    {
+      "id": "semester-os",
+      "displayName": "Semester OS",
+      "lifecycle": "active",
+      "route": "/semester/",
       "owner": "thiepn"
     },
     {
@@ -329,6 +336,7 @@
     "cronJobsPct": 100,
     "storageBucketsPct": 100,
     "knownDatabaseExceptionsResolved": true,
-    "unresolvedKnownResources": 0
+    "unresolvedKnownResources": 0,
+    "registeredAppsPct": 100
   }
 }
