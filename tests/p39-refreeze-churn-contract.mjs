@@ -57,7 +57,7 @@ assert.ok(p15.includes('retention-days: 90'));
 
 for(const token of [
   'candidateRebased','candidateRevision','backup_predates_latest_shared_change',
-  'generation5','sourceFilesMutated'
+  'pendingGeneration5','sourceFilesMutated'
 ]) assert.ok(script.includes(token),'P39 reconciler missing '+token);
 
 for(const token of [
