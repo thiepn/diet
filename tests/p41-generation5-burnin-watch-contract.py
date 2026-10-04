@@ -22,7 +22,7 @@ p25=load(ROOT/"platform-p25-burn-in-plan.json")
 
 material=dict(receipt); rid=material.pop("receiptId")
 assert hid(material)==rid
-assert rid=="1fed0bda56babc210a2f0964e7e538bb07ba76e2c0900b028fe6f08e6e56623b"
+assert rid=="a82f168c21ff694cfd386395cfeb3aa936c1b3acfdcb496c2885fa708ee2c886"
 
 with tempfile.TemporaryDirectory() as td:
     d=Path(td)
