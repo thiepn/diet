@@ -47,9 +47,9 @@ assert.equal(releases.registryVersion,'2026-10-04.2');
 assert.equal(releases.latestMergedGovernancePhase,'P36');
 assert.equal(releases.latestMergedMainSha,'c8c374917d739c971fe142cf16c3449d6c64e8cd');
 assert.equal(releases.phases.at(-1).id,'P36');
-assert.equal(policy.bundleVersion,'2026-10-04.5');
+assert.equal(policy.bundleVersion,'2026-10-04.6');
 assert.equal(policy.mode,'warn');
-assert.equal(policy.liveBaseline.releaseEpochState,'refreeze_pending_generation6_candidate_revision1');
+assert.equal(policy.liveBaseline.releaseEpochState,'refreeze_pending_generation6_candidate_revision2');
 
 assert.equal(risk.state,'prepared_pending_independent_risk_approval');
 assert.equal(risk.liveEvidence.passwordAuthUsers,0);
