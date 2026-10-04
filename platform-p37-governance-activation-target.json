@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "phase": "P37",
+  "title": "Governance and Operating-Effectiveness Launch Target",
+  "state": "prepared_launch_blocked",
+  "current": {
+    "p32Mode": "warn",
+    "p33CanonicalEvidenceActive": true,
+    "p34ControlCatalogVersion": "2026-10-03.1",
+    "p34ControlCatalogFrozenForLaunchEvaluation": true,
+    "p34D005": "closed",
+    "p34D006": "remediating_generation5_required",
+    "p34D001": "decision_required",
+    "p34D002": "remediating",
+    "p26ThroughP36Merged": true,
+    "oePeriodStarted": false
+  },
+  "launchOrder": [
+    "activate a legitimate generation 5 freeze after quiet and backup gates",
+    "certify generation 5 after its complete 24-hour evidence window",
+    "certify exact P26-P36 merged governance lineage and current governance bindings",
+    "record an independently approved D001 disposition or close/remediate D001",
+    "verify exact P33/P34 evidence hashes and P35 collection contract",
+    "obtain independent explicit P37 launch authorization",
+    "start OE at the successful final launch observation without backdating"
+  ],
+  "launchInvariant": {
+    "p32ModeAtLeast": "warn",
+    "p33CanonicalEvidenceActive": true,
+    "p34ControlCatalogVersion": "2026-10-03.1",
+    "criticalOpenDeficiencies": 0,
+    "acceptableHighDeficiencyStates": [
+      "closed",
+      "remediating",
+      "ready_for_retest",
+      "accepted_temporarily"
+    ],
+    "activationIsRetroactive": false,
+    "externalAttestation": false
+  },
+  "deficiencyStateAtLaunchTarget": {
+    "P34-D001": "closed_remediated_or_independently_accepted_temporarily",
+    "P34-D002": "closed_remediating_ready_for_retest_or_accepted_temporarily",
+    "P34-D005": "closed",
+    "P34-D006": "closed_by_current_generation_burnin_certification"
+  }
+}
