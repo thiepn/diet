@@ -27,7 +27,9 @@ assert.equal(baseline.pendingGeneration5.edgeQuietMinutesObserved,4.14);
 assert.equal(baseline.pendingGeneration5.postFinalChangeEncryptedBackupVerified,false);
 assert.equal(baseline.pendingGeneration5.lastRecheckedAt,'2026-10-04T17:40:47.662109Z');
 assert.equal(baseline.pendingGeneration5.lastDecision,'blocked');
-assert.ok(baseline.pendingGeneration5.lastBlockers.includes('quiet_window_open:4.14/60'));\nassert.ok(baseline.pendingGeneration5.lastBlockers.includes('backup_predates_latest_shared_change'));\nassert.equal(baseline.pendingGeneration5.candidateRevision,2);
+assert.ok(baseline.pendingGeneration5.lastBlockers.includes('quiet_window_open:4.14/60'));
+assert.ok(baseline.pendingGeneration5.lastBlockers.includes('backup_predates_latest_shared_change'));
+assert.equal(baseline.pendingGeneration5.candidateRevision,2);
 assert.equal(baseline.refreezePolicy.minimumQuietMinutes,60);
 assert.equal(baseline.refreezePolicy.earliestRefreezeAt,'2026-10-04T18:36:39.032000Z');
 assert.equal(baseline.latestObservedEpoch.migrationHead,'20261004173117_gomoku_p23_security_admission_gate');
@@ -53,7 +55,9 @@ assert.equal(backend.next_generation,5);
 assert.equal(backend.last_generation_state,'invalidated_epoch_changed');
 assert.equal(backend.latest_observed_migration,'20261004173117_gomoku_p23_security_admission_gate');
 assert.equal(backend.latest_observed_gomoku_edge_version,50);
-assert.equal(backend.generation5_state,'waiting_quiet_window_and_fresh_backup');\nassert.equal(backend.generation5_candidate_revision,2);\nassert.equal(backend.latest_backup_run,37218356705);
+assert.equal(backend.generation5_state,'waiting_quiet_window_and_fresh_backup');
+assert.equal(backend.generation5_candidate_revision,2);
+assert.equal(backend.latest_backup_run,37218356705);
 assert.equal(backend.generation5_backup_prerequisite_satisfied,false);
 
 assert.equal(app.health.p25BurnInActive,false);
@@ -61,7 +65,9 @@ assert.equal(app.health.p25CurrentGenerationValid,false);
 assert.equal(app.health.p25BurnInGeneration,4);
 assert.equal(app.health.p25BurnInGenerationState,'invalidated_epoch_changed');
 assert.equal(app.health.p25NextGeneration,5);
-assert.equal(app.health.p25Generation5State,'waiting_quiet_window_and_fresh_backup');\nassert.equal(app.health.p25Generation5CandidateRevision,2);\nassert.equal(app.health.p25LatestBackupRun,37218356705);
+assert.equal(app.health.p25Generation5State,'waiting_quiet_window_and_fresh_backup');
+assert.equal(app.health.p25Generation5CandidateRevision,2);
+assert.equal(app.health.p25LatestBackupRun,37218356705);
 
 for(const token of [
   'platform-health',
