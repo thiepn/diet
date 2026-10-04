@@ -24,14 +24,14 @@ assert.equal(plan.automation.productionMutationAllowed,false);
 assert.equal(plan.automation.paidProvisioningAllowed,false);
 
 assert.equal(fleet.phase,'P31');
-assert.equal(fleet.registryVersion,'2026-10-04.1');
+assert.equal(fleet.registryVersion,'2026-10-04.2');
 assert.equal(fleet.canonicalProject.serviceStatus,'ACTIVE_HEALTHY');
 assert.equal(fleet.productionHealth,'green');
 assert.equal(fleet.releaseSafety,'amber');
-assert.equal(fleet.releaseEpoch.migrationHead,'20261003221217');
+assert.equal(fleet.releaseEpoch.migrationHead,'20261004132839');
 assert.equal(fleet.releaseEpoch.cronJobs,14);
 assert.equal(fleet.releaseEpoch.edgeFunctionCount,12);
-assert.equal(fleet.releaseEpoch.edgeHighlights.gomokuRoom.version,48);
+assert.equal(fleet.releaseEpoch.edgeHighlights.gomokuRoom.version,49);\nassert.equal(fleet.releaseEpoch.edgeHighlights.microArcadeBackup.version,2);\nassert.equal(fleet.releaseEpoch.state,'refreeze_pending_generation5');
 assert.equal(fleet.components.length,18);
 assert.equal(fleet.coverage.registeredAppsObserved,7);
 assert.equal(fleet.coverage.registeredAppsGoverned,7);
@@ -49,11 +49,11 @@ assert.deepEqual([...governedIds].sort(),[...graphIds].sort());
 assert.equal(graph.nodes.length,18);
 
 assert.equal(releases.phase,'P31');
-assert.equal(releases.registryVersion,'2026-10-04.1');
+assert.equal(releases.registryVersion,'2026-10-04.2');
 assert.equal(releases.publishedOperationsVersion,'P25.0');
-assert.equal(releases.latestMergedGovernancePhase,'P35');
-assert.equal(releases.latestMergedMainSha,'7b73e0b36cc55b7e7d6c6ea44162d97b16cdd59b');
-assert.deepEqual(releases.phases.map(x=>x.id),['P26','P27','P28','P29','P30','P31','P32','P33','P34','P35']);
+assert.equal(releases.latestMergedGovernancePhase,'P36');
+assert.equal(releases.latestMergedMainSha,'c8c374917d739c971fe142cf16c3449d6c64e8cd');
+assert.deepEqual(releases.phases.map(x=>x.id),['P26','P27','P28','P29','P30','P31','P32','P33','P34','P35','P36']);
 for(const p of releases.phases){
   assert.ok(p.state.startsWith('merged_'));
   assert.match(p.mergeSha,/^[0-9a-f]{40}$/);
