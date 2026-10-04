@@ -1,0 +1,91 @@
+name: P38 Generation-5 Refreeze and Burn-In
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'platform-p25-burn-in-plan.json'
+      - 'platform-p38-generation5-refreeze-plan.json'
+      - 'scripts/p37-evaluate-refreeze.py'
+      - 'scripts/p38-*.py'
+      - 'tests/p38-*'
+      - 'docs/P38-*.md'
+      - '.github/workflows/p38-generation5-burnin.yml'
+      - '.github/workflows/ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p38-generation5-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+
+      - name: Verify P38 structural contract
+        run: node tests/p38-generation5-contract.mjs
+
+      - name: Verify P38 activation and evidence negative paths
+        run: python tests/p38-generation5-contract.py
+
+      - name: Verify P38 CLIs
+        run: |
+          python scripts/p38-activate-generation5.py --help > /dev/null
+          python scripts/p38-burnin-progress.py --help > /dev/null
+
+      - name: Produce current blocked refreeze evidence
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p25=json.loads(Path('platform-p25-burn-in-plan.json').read_text())
+          c=p25['pendingGeneration5']['candidateEpoch']
+          obs={
+            'observedAt':'2026-10-04T17:01:57.419724Z',
+            'projectStatus':'ACTIVE_HEALTHY',**c,
+            'crossAppSmokePassed':True,
+            'authHealthy':True,'realtimeHealthy':True,'postgrestHealthy':True,'storageHealthy':True,
+            'securityAdvisorsReviewed':True,'performanceAdvisorsReviewed':True,
+            'postFinalSharedChangeBackupVerified':False,'backupEvidenceRef':None
+          }
+          Path('p38-current-observation.json').write_text(json.dumps(obs,indent=2)+'\n')
+          PY
+          python scripts/p37-evaluate-refreeze.py p38-current-observation.json --out p38-current-refreeze.json
+          python scripts/p38-activate-generation5.py p38-current-refreeze.json --out-dir p38-current-preview
+
+          python - <<'PY'
+          import json
+          r=json.load(open('p38-current-refreeze.json'))
+          a=json.load(open('p38-current-preview/p38-generation5-activation-receipt.json'))
+          assert r['decision']=='blocked'
+          assert a['decision']=='blocked'
+          assert a['sourceFilesMutated'] is False
+          assert a['productionMutationPerformed'] is False
+          print('Current generation-5 refreeze remains correctly blocked.')
+          PY
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: p38-generation5-${{ github.run_id }}
+          path: |
+            p38-current-observation.json
+            p38-current-refreeze.json
+            p38-current-preview/p38-generation5-activation-receipt.json
+          if-no-files-found: error
+          retention-days: 30

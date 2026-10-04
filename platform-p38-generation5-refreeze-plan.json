@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "phase": "P38",
+  "title": "Generation-5 Refreeze Activation, Burn-In Start & Evidence Continuity",
+  "state": "implementation_active_refreeze_blocked",
+  "sourceMainSha": "8ca191a7939b840c028e1c317fa0d3468bc49c07",
+  "implementedFrom": "P37",
+  "operatorOverride": {
+    "enabled": true,
+    "scope": "engineering phase progression",
+    "doesNotAuthorizeGenerationActivation": true,
+    "doesNotAuthorizeBackupFabrication": true,
+    "doesNotAuthorizeProductionMutation": true,
+    "doesNotAuthorizeBurnInCertification": true,
+    "doesNotAuthorizeOELaunch": true
+  },
+  "liveObservation": {
+    "observedAt": "2026-10-04T17:01:57.419724Z",
+    "projectStatus": "ACTIVE_HEALTHY",
+    "migrationHead": "20261004132839_gomoku_p21_capacity_admission_gate",
+    "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
+    "edgeFunctionCount": 12,
+    "edgeFunctionsAllActive": true,
+    "edgeInventorySha256": "e2aa661fd331640fba473b9a8fe4bc5c9084731900c569e7d2aa4d8ed57fdbc9",
+    "latestSharedEdgeChangeAt": "2026-10-04T16:20:09.879000Z",
+    "latestSharedEdgeChange": "micro-arcade-p31-backup-export v2",
+    "gomokuRoom": {
+      "version": 49,
+      "sha256": "64e5cfdd7a9d027e178eb4e8466b954504eb2bec1021bcb40c19afe8cd05b900"
+    },
+    "microArcadeBackup": {
+      "version": 2,
+      "sha256": "84081a183835e6ea8c6791912a4e261b97d1e09c24c4fa6fdfc9a87f9e9460d2"
+    },
+    "cronJobs": 14,
+    "activeCronJobs": 14,
+    "cronFailures24h": 0,
+    "blockingReplicationSlots": 0,
+    "p18Integrity": "clean",
+    "p20SchemaDrift": false,
+    "p21Readiness": "pass",
+    "p22Maintenance": "pass",
+    "advisors": {
+      "security": {
+        "rlsEnabledNoPolicy": 73,
+        "authenticatedSecurityDefinerExecutable": 50,
+        "leakedPasswordProtection": 1
+      },
+      "performance": {
+        "authRlsInitplan": 40,
+        "unindexedForeignKeys": 68,
+        "unusedIndexes": 122
+      }
+    }
+  },
+  "currentRefreezeStatus": {
+    "targetGeneration": 5,
+    "minimumQuietMinutes": 60,
+    "quietMinutesObserved": 41.79,
+    "earliestQuietCompletionAt": "2026-10-04T17:20:09.879000Z",
+    "postFinalChangeEncryptedBackupVerified": false,
+    "backupEvidenceRef": null,
+    "decision": "blocked",
+    "blockers": [
+      "quiet_window_open:41.79/60",
+      "post_final_change_backup_not_verified",
+      "backup_evidence_ref_missing"
+    ]
+  },
+  "activationDesign": {
+    "refreezeDecisionSource": "scripts/p37-evaluate-refreeze.py",
+    "activator": "scripts/p38-activate-generation5.py",
+    "inputMustBeReady": true,
+    "sourceFilesMutatedByActivator": false,
+    "writesPreviewOnly": true,
+    "outputArtifacts": [
+      "generation5-platform-p25-burn-in-plan.json",
+      "generation5-supabase-backend.json",
+      "generation5-thiepn-app.json",
+      "p38-generation5-activation-receipt.json"
+    ],
+    "activationInvariants": [
+      "refreeze decision is ready_to_activate_generation5",
+      "decision generation is 5",
+      "decision errors are empty",
+      "frozen epoch exists and backup is verified",
+      "P25 is refreeze_pending",
+      "generation 4 is ineligible",
+      "nextGeneration is 5",
+      "candidate epoch matches the frozen epoch",
+      "activation time equals the refreeze observation time",
+      "minimumCompleteAfter equals activation + 24 hours"
+    ]
+  },
+  "burnInEvidenceContinuity": {
+    "progressTool": "scripts/p38-burnin-progress.py",
+    "minimumSuccessfulSamples": 12,
+    "requiredCoverageBuckets": 6,
+    "bucketHours": 4,
+    "terminalSampleAtOrAfter24h": true,
+    "onlyMatchingGenerationCounts": true,
+    "onlyQualifiesForBurnInTrueCounts": true,
+    "preActivationSamplesCount": false,
+    "duplicateRunIdsCountOnce": true,
+    "samplesBeforeActivationCount": false,
+    "stateAfterActivation": "evidence_accumulating",
+    "certificationStillOwnedBy": "scripts/p37-certify-burnin.py"
+  },
+  "automationBoundary": {
+    "mayEvaluate": true,
+    "mayGenerateActivationPreview": true,
+    "maySummarizeEvidence": true,
+    "mayRunAdversarialTests": true,
+    "mayCommitActivationAutomatically": false,
+    "mayFabricateBackupEvidence": false,
+    "mayCertifyBefore24h": false,
+    "mayStartOE": false,
+    "productionMutationAllowed": false
+  },
+  "completionDefinition": {
+    "engineeringCompleteWhen": [
+      "generation-5 activation transform is deterministic and fail-closed",
+      "burn-in evidence progress is generation-aware and duplicate-safe",
+      "current blocked state is represented without false activation",
+      "future ready state can produce a reviewed activation preview",
+      "CI covers stale epoch, missing backup, wrong generation, pre-activation samples, duplicates and missing coverage"
+    ],
+    "operationallyCompleteWhen": [
+      "a real current refreeze decision is ready",
+      "a real post-final-change encrypted backup is verified",
+      "generation 5 is activated by reviewed repository update",
+      "generation-5 burn-in evidence begins accumulating"
+    ]
+  }
+}

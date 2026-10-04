@@ -204,7 +204,7 @@
     "requirePostFinalChangeEncryptedBackup": true
   },
   "latestObservedEpoch": {
-    "observedAt": "2026-10-04T16:21:43.552540Z",
+    "observedAt": "2026-10-04T17:01:57.419724Z",
     "migrationVersion": "20261004132839",
     "migrationName": "gomoku_p21_capacity_admission_gate",
     "migrationHead": "20261004132839_gomoku_p21_capacity_admission_gate",
@@ -308,10 +308,17 @@
     },
     "minimumQuietMinutes": 60,
     "migrationQuietMinutesObserved": 173.08,
-    "edgeQuietMinutesObserved": 1.56,
+    "edgeQuietMinutesObserved": 41.79,
     "earliestRefreezeAt": "2026-10-04T17:20:09.879000Z",
     "postFinalChangeEncryptedBackupVerified": false,
-    "eligibleToActivate": false
+    "eligibleToActivate": false,
+    "lastRecheckedAt": "2026-10-04T17:01:57.419724Z",
+    "lastDecision": "blocked",
+    "lastBlockers": [
+      "quiet_window_open:41.79/60",
+      "post_final_change_backup_not_verified",
+      "backup_evidence_ref_missing"
+    ]
   },
   "generation5Sampling": {
     "workflow": ".github/workflows/p25-post-upgrade-burnin.yml",
@@ -321,6 +328,7 @@
     "coverageBucketHours": 4,
     "terminalSampleRequiredAtOrAfterMinimumCompleteAfter": true,
     "evidenceRuleUnchanged": true,
-    "preActivationSamplesQualify": false
+    "preActivationSamplesQualify": false,
+    "activationMechanism": "P38 reviewed generation-activation preview"
   }
 }
