@@ -146,3 +146,12 @@ P29 automation may:
 It **does not promote production** and performs no production mutation.
 
 Promotion remains a separate explicit release action in later phases.
+
+
+## P36 dependency reconciliation — 2026-10-04
+
+The current P29 graph is now **18 nodes** and **51 dependency edges** after onboarding `semester-os`.
+
+Semester OS is a governed registered-app consumer with hard dependencies on Auth, Account, Data API and Database.
+
+The current epoch bound by P36 is `20261003221217_hub_h15_tms60_projection`, with 12 Edge Functions, 14 cron jobs and Gomoku v48. Existing historical P29 certificates remain immutable and keep their original epoch identity.
