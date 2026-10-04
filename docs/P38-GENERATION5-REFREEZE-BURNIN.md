@@ -175,3 +175,5 @@ P38 does not:
 - backdate any evidence period.
 
 The engineering phase can be merged while the real generation-5 activation remains blocked.
+
+P38 does **not start OE**; OE remains owned by the independently authorized P37 launch gate after a valid burn-in certificate exists.
