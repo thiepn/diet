@@ -1,0 +1,125 @@
+name: P36 Remediation Freeze OE Activation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'platform-p2*.json'
+      - 'platform-p3*.json'
+      - '.well-known/thiepn-app.json'
+      - 'scripts/p3*.py'
+      - 'scripts/p3*.sql'
+      - 'tests/p3*'
+      - 'docs/P3*.md'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: p36-remediation-freeze-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  assurance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+
+      - name: Verify P36 structural contract
+        run: node tests/p36-remediation-activation-contract.mjs
+
+      - name: Verify P36 remediation/freeze/OE negative paths
+        run: python tests/p36-remediation-activation-contract.py
+
+      - name: Verify P36 activation evaluator CLI
+        run: python scripts/p36-evaluate-activation.py --help > /dev/null
+
+      - name: Verify P36 OE activator CLI
+        run: python scripts/p36-activate-oe.py --help > /dev/null
+
+      - name: Build current blocked activation evidence
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+
+          def load(p): return json.loads(Path(p).read_text())
+          def sha(p): return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+
+          freeze=load("platform-p36-stable-epoch-freeze.json")
+          e=freeze["frozenEpoch"]
+          observation={
+            "observedAt":freeze["frozenAt"],
+            "projectStatus":"ACTIVE_HEALTHY",
+            **e,
+            "p18Integrity":"clean",
+            "p20SchemaDrift":False,
+            "p21Readiness":"pass",
+            "p22Maintenance":"pass",
+            "cronFailures24h":0,
+            "blockingReplicationSlots":0
+          }
+          Path("current-p36-observation.json").write_text(json.dumps(observation,indent=2)+"\n")
+          Path("current-p36-samples.json").write_text('{"samples":[]}\n')
+
+          anchor=load("platform-p33-ledger-anchor.json")
+          context={
+            "postFinalSharedChangeBackupVerified":False,
+            "backupEvidenceRef":None,
+            "highDeficiencyStates":{
+              "P34-D001":"decision_required",
+              "P34-D002":"remediating",
+              "P34-D005":"closed"
+            },
+            "p32Mode":"warn",
+            "p33CanonicalEvidenceActive":True,
+            "controlCatalogFrozen":True,
+            "evidenceCollectionDryRunPass":True,
+            "criticalOpenDeficiencies":0,
+            "explicitActivationAuthorization":False,
+            "requestedBy":"platform",
+            "authorizedBy":"independent-reviewer",
+            "p33HeadHash":anchor["headHash"],
+            "p33AnchorSha256":sha("platform-p33-ledger-anchor.json"),
+            "controlCatalogSha256":sha("platform-p34-control-catalog.json"),
+            "p34SnapshotSha256":sha("platform-p34-assurance-snapshot.json")
+          }
+          Path("current-p36-activation-context.json").write_text(json.dumps(context,indent=2)+"\n")
+          PY
+          python scripts/p36-evaluate-activation.py             current-p36-observation.json current-p36-samples.json current-p36-activation-context.json             --out p36-current-activation-decision.json
+          python - <<'PY'
+          import json
+          d=json.load(open("p36-current-activation-decision.json"))
+          assert d["decision"]=="blocked"
+          assert d["activationIsRetroactive"] is False
+          assert "generation4_minimum_time_not_reached" in d["errors"]
+          assert "post_final_change_backup_not_verified" in d["errors"]
+          assert "high_deficiency_not_dispositioned:P34-D001" in d["errors"]
+          print("Current P36 OE activation correctly remains blocked.")
+          PY
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: p36-remediation-freeze-${{ github.run_id }}
+          path: |
+            platform-p36-remediation-execution.json
+            platform-p36-stable-epoch-freeze.json
+            platform-p36-operating-effectiveness-state.json
+            current-p36-observation.json
+            current-p36-activation-context.json
+            p36-current-activation-decision.json
+          if-no-files-found: error
+          retention-days: 90
