@@ -66,7 +66,7 @@
     "activatedAt": "2026-10-04T18:52:01.712991Z",
     "minimumCompleteAfter": "2026-10-05T18:52:01.712991Z",
     "refreezeDecisionId": "4153ec4f7fc90a3afcacc59e61e7fcd78e571b2b2aa5012caa175920f0547e78",
-    "activationReceiptId": "0867969dce6fd97d914c260b2040bdd2243142ff184bb45f9ed4fb46f179ee0f"
+    "activationReceiptId": "8e24ecd727550f365aacabeb7d59a7b18ed9d07322ef8929f8d6ddb48df3badd"
   },
   "activationDesign": {
     "refreezeDecisionSource": "scripts/p37-evaluate-refreeze.py",
