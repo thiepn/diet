@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "phase": "P41",
+  "title": "Generation-5 Burn-In Evidence Accumulation, Epoch Watch & Certification Readiness",
+  "state": "generation5_invalidated_refreeze_pending_generation6",
+  "observedAt": "2026-10-04T19:44:10.276405Z",
+  "generation5": {
+    "activatedAt": "2026-10-04T18:52:01.712991Z",
+    "minimumCompleteAfter": "2026-10-05T18:52:01.712991Z",
+    "valid": false,
+    "invalidatedAt": "2026-10-04T19:44:10.276405Z",
+    "reason": "shared_release_epoch_changed_after_activation",
+    "firstEpochChangeAt": "2026-10-04T18:58:02Z",
+    "validWindowMinutes": 6.005
+  },
+  "evidence": {
+    "successfulQualifyingSamples": 0,
+    "minimumSuccessfulSamples": 12,
+    "coverageBuckets": [],
+    "minimumCoverageBuckets": 6,
+    "terminalSamplePresent": false,
+    "certificationReady": false,
+    "note": "No sample can rescue generation 5 after the frozen epoch changed."
+  },
+  "epochWatch": {
+    "changedFields": [
+      "migrationVersion",
+      "migrationName",
+      "migrationHead",
+      "semanticSchemaSha256"
+    ],
+    "frozenMigrationHead": "20261004173117_gomoku_p23_security_admission_gate",
+    "currentMigrationHead": "20261004192902_studyos_p8_checkpoint_dimension_evidence",
+    "frozenSemanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
+    "currentSemanticSchemaSha256": "b40d9a3d1da7c39917f41a9c1f8e95615838b7f34a64e673191bf810833f7cd2",
+    "edgeInventoryChanged": false,
+    "cronInventoryChanged": false
+  },
+  "generation6": {
+    "state": "waiting_quiet_window_and_fresh_backup",
+    "candidateRevision": 1,
+    "candidateObservedAt": "2026-10-04T19:44:10.276405Z",
+    "candidateMigration": "20261004192902_studyos_p8_checkpoint_dimension_evidence",
+    "candidateSemanticSchemaSha256": "b40d9a3d1da7c39917f41a9c1f8e95615838b7f34a64e673191bf810833f7cd2",
+    "candidateGomokuRoomVersion": 50,
+    "candidateEdgeInventorySha256": "2e66d1eec1dac615b0f0cc81a823100dd609947d7ecb51098fe2e37c504d6a0e",
+    "candidateCronInventorySha256": "652724f6d80db7f2382637925f3eba6205d114b02204ed68fdf115e5bfc20692",
+    "latestSharedChangeAt": "2026-10-04T19:29:02Z",
+    "minimumQuietMinutes": 60,
+    "quietMinutesObserved": 15.138,
+    "earliestRefreezeAt": "2026-10-04T20:29:02Z",
+    "postFinalChangeEncryptedBackupVerified": false,
+    "latestBackupRun": 37222829955,
+    "latestBackupFreshForCandidate": false,
+    "eligibleToActivate": false,
+    "blockers": [
+      "backup_predates_latest_shared_change",
+      "quiet_window_open:15.138/60"
+    ]
+  },
+  "safety": {
+    "p26SteadyState": "staged_pending_p25",
+    "sharedStatefulPromotionsBlocked": true,
+    "fleetReleaseSafety": "amber",
+    "oeStarted": false,
+    "productionMutationPerformed": false
+  },
+  "nextAction": "Wait for a verified encrypted P15 backup after 2026-10-04T19:29:02Z and at least 60 minutes of quiet; then refreeze generation 6. Do not certify generation 5."
+}
