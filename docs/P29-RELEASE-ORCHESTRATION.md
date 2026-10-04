@@ -155,3 +155,19 @@ The current P29 graph is now **18 nodes** and **51 dependency edges** after onbo
 Semester OS is a governed registered-app consumer with hard dependencies on Auth, Account, Data API and Database.
 
 The current epoch bound by P36 is `20261003221217_hub_h15_tms60_projection`, with 12 Edge Functions, 14 cron jobs and Gomoku v48. Existing historical P29 certificates remain immutable and keep their original epoch identity.
+
+
+## P37 live-epoch reconciliation — 2026-10-04
+
+The dependency topology remains **18 nodes / 51 edges** and graph version `2026-10-04.1`; only the live epoch moved.
+
+Current observed epoch:
+
+- migration: `20261004132839_gomoku_p21_capacity_admission_gate`
+- Gomoku Edge: v49
+- Micro Arcade backup Edge: v2
+- Edge Functions: 12
+- cron jobs: 14
+- release state: `refreeze_pending_generation5`
+
+Existing epoch-bound compatibility certificates keep their original immutable identity and are stale for any release that requires the new shared epoch.
