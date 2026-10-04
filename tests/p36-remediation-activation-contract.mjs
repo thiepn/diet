@@ -69,11 +69,11 @@ assert.equal(oe.activationGates.p33CanonicalEvidenceActive,true);
 assert.equal(oe.externalAttestation,false);
 
 assert.equal(p25.generation,4);
-assert.equal(p25.state,'burn_in_active');
-assert.equal(p25.currentGenerationEligible,true);
-assert.equal(p25.previousGeneration.generation,3);
+assert.equal(p25.state,'refreeze_pending');
+assert.equal(p25.currentGenerationEligible,false);\nassert.equal(p25.nextGeneration,5);\nassert.equal(p25.generation4Invalidation.generation,4);
+assert.equal(p25.previousGeneration.generation,4);
 assert.equal(p25.previousGeneration.invalidated,true);
-assert.equal(p25.currentEpochFreezeEvidence.migrationHead,freeze.frozenEpoch.migrationHead);
+assert.equal(p25.currentEpochFreezeEvidence.migrationHead,freeze.frozenEpoch.migrationHead);\nassert.notEqual(p25.latestObservedEpoch.migrationHead,freeze.frozenEpoch.migrationHead);
 assert.equal(p25.currentEpochFreezeEvidence.gomokuRoomVersion,48);
 assert.equal(p25.currentEpochFreezeEvidence.cronJobs,14);
 assert.equal(p25.currentEpochFreezeEvidence.postFinalChangeEncryptedBackupVerified,false);
@@ -84,20 +84,20 @@ assert.equal(p29.graphVersion,'2026-10-04.1');
 assert.equal(p29.nodes.length,18);
 assert.equal(p29.edges.length,51);
 assert.equal(p29.edges.filter(x=>x.consumer==='semester-os').length,4);
-assert.equal(p31.registryVersion,'2026-10-04.1');
+assert.equal(p31.registryVersion,'2026-10-04.2');
 assert.equal(p31.coverage.dependencyGraphCoveragePct,100);
 assert.equal(p31.coverage.registeredAppGovernanceCoveragePct,100);
 assert.equal(p31.components.find(x=>x.id==='semester-os').governance,'governed');
 assert.ok(!p31.observedDrift.some(x=>x.id==='p29-graph-missing-semester-os'));
-assert.equal(rr.registryVersion,'2026-10-04.1');
-assert.equal(rr.latestMergedGovernancePhase,'P35');
-assert.equal(rr.latestMergedMainSha,'7b73e0b36cc55b7e7d6c6ea44162d97b16cdd59b');
-for(const id of ['P31','P32','P33','P34','P35']) assert.equal(rr.phases.find(x=>x.id===id).state,'merged_operator_override');
+assert.equal(rr.registryVersion,'2026-10-04.2');
+assert.equal(rr.latestMergedGovernancePhase,'P36');
+assert.equal(rr.latestMergedMainSha,'c8c374917d739c971fe142cf16c3449d6c64e8cd');
+for(const id of ['P31','P32','P33','P34','P35','P36']) assert.equal(rr.phases.find(x=>x.id===id).state,'merged_operator_override');
 
 assert.equal(p32.mode,'warn');
-assert.equal(p32.bundleVersion,'2026-10-04.1');
-assert.equal(p32.fleetRegistryVersion,'2026-10-04.1');
-assert.equal(p32.releaseRegistryVersion,'2026-10-04.1');
+assert.equal(p32.bundleVersion,'2026-10-04.2');
+assert.equal(p32.fleetRegistryVersion,'2026-10-04.2');
+assert.equal(p32.releaseRegistryVersion,'2026-10-04.2');
 assert.equal(p32.dependencyGraphVersion,'2026-10-04.1');
 assert.deepEqual(p32.liveBaseline.unmodeledComponents,[]);
 assert.equal(p32.liveBaseline.dependencyGraphCoveragePct,100);
@@ -107,7 +107,7 @@ assert.equal(app.health.p25BurnInGeneration,4);
 assert.equal(app.health.p25FrozenMigrationHead,'20261003221217_hub_h15_tms60_projection');
 assert.equal(app.health.p25FrozenGomokuEdgeVersion,48);
 assert.equal(app.health.p25FrozenCronJobCount,14);
-assert.equal(app.health.p25Generation4BackupPrerequisiteSatisfied,false);
+assert.equal(app.health.p25Generation4BackupPrerequisiteSatisfied,false);\nassert.equal(app.health.p25CurrentGenerationValid,false);\nassert.equal(app.health.p25NextGeneration,5);
 
 for(const token of [
   'active by explicit operator override',
