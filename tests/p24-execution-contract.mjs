@@ -54,9 +54,10 @@ assert.equal(policy.postgres_17_11_tracked_separately,true);
 assert.deepEqual(policy.completion_requires,[]);
 
 assert.equal(backend.post_upgrade_burn_in_policy.release,'P25');
-assert.equal(backend.post_upgrade_burn_in_policy.state,'refreeze_pending');
-assert.equal(backend.post_upgrade_burn_in_policy.next_generation,5);
-assert.equal(backend.post_upgrade_burn_in_policy.current_generation_eligible,false);
+// P24 proves the historical managed upgrade; current P25 lifecycle state is verified by P25/P40.
+assert.equal(backend.post_upgrade_burn_in_policy.current_generation,5);
+assert.equal(backend.post_upgrade_burn_in_policy.state,'burn_in_active');
+assert.equal(backend.post_upgrade_burn_in_policy.current_generation_eligible,true);
 assert.equal(backend.post_upgrade_burn_in_policy.p24_post_upgrade_validation,'pass');
 assert.equal(backend.post_upgrade_burn_in_policy.semantic_schema_sha256,policy.post_upgrade_semantic_schema_sha256);
 
