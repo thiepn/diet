@@ -187,21 +187,22 @@
     "final steady-state operational report committed"
   ],
   "currentGateSnapshot": {
-    "observedAt": "2026-10-04T17:40:47.662109Z",
-    "p25State": "refreeze_pending",
-    "p25Generation": 4,
-    "nextGeneration": 5,
-    "generationEligible": false,
+    "observedAt": "2026-10-04T18:52:01.712991Z",
+    "p25State": "burn_in_active",
+    "p25Generation": 5,
+    "nextGeneration": null,
+    "generationEligible": true,
     "generation5CandidateRevision": 2,
     "generation5CandidateMigration": "20261004173117_gomoku_p23_security_admission_gate",
-    "earliestRefreezeAt": "2026-10-04T18:36:39.032000Z",
-    "postFinalSharedChangeEncryptedBackupVerified": false,
-    "latestSuccessfulEncryptedBackupRun": 37218356705,
-    "latestSuccessfulEncryptedBackupFreshForCandidate": false,
+    "activatedAt": "2026-10-04T18:52:01.712991Z",
+    "minimumCompleteAfter": "2026-10-05T18:52:01.712991Z",
+    "postFinalSharedChangeEncryptedBackupVerified": true,
+    "latestSuccessfulEncryptedBackupRun": 37222829955,
+    "latestSuccessfulEncryptedBackupFreshForCandidate": true,
     "timeGateMetAtSnapshot": false,
     "successfulSamplesKnownAtScheduleChange": 0,
     "minimumSuccessfulSamples": 12,
-    "blocker": "Generation 4 is invalidated. Generation 5 candidate revision 2 is waiting for 60 minutes of quiet plus a fresh encrypted backup after the Gomoku P23/v50 final shared change, so P26 remains staged."
+    "blocker": "Generation 5 is legitimately active, but its 24-hour evidence window and qualifying sample/coverage requirements are not complete. P26 remains staged until P25 generation 5 is certified."
   },
   "liveProvisionalRefresh": {
     "observedAt": "2026-10-03T08:09:28.650287Z",
