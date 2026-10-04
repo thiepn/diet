@@ -30,7 +30,7 @@ assert.equal(baseline.pendingGeneration5.lastDecision,'activated');
 assert.deepEqual(baseline.pendingGeneration5.lastBlockers,[]);
 assert.equal(baseline.pendingGeneration5.candidateRevision,2);
 assert.equal(baseline.refreezePolicy.minimumQuietMinutes,60);
-assert.equal(baseline.refreezePolicy.earliestRefreezeAt,'2026-10-04T20:29:02Z');
+assert.equal(baseline.refreezePolicy.earliestRefreezeAt,'2026-10-04T20:56:54.779364Z');
 assert.equal(baseline.latestObservedEpoch.migrationHead,'20261004192902_studyos_p8_checkpoint_dimension_evidence');
 assert.equal(baseline.activatedAt,'2026-10-04T18:52:01.712991Z');
 assert.equal(baseline.minimumCompleteAfter,'2026-10-05T18:52:01.712991Z');
