@@ -27,8 +27,8 @@ assert plan["state"]=="implementation_active_generation5_burn_in"
 assert plan["currentReality"]["generation4Invalidated"] is True
 assert plan["currentReality"]["nextGeneration"] is None
 assert plan["currentReality"]["oePeriodStarted"] is False
-assert p25["state"]=="burn_in_active"
-assert p25["generation"]==5 and p25["currentGenerationEligible"] is True and p25["nextGeneration"] is None
+assert p25["state"]=="refreeze_pending"
+assert p25["generation"]==5 and p25["currentGenerationEligible"] is False and p25["nextGeneration"]==6
 assert p25["pendingGeneration5"]["eligibleToActivate"] is True
 assert risk["state"]=="prepared_pending_independent_risk_approval"
 assert risk["riskAcceptanceAuthorized"] is False
