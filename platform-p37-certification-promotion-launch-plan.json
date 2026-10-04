@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "phase": "P37",
   "title": "Burn-In Certification, Governance Stack Promotion & Operating-Effectiveness Launch",
-  "state": "implementation_active_waiting_generation5_refreeze",
+  "state": "implementation_active_generation5_burn_in",
   "implementedAt": "2026-10-04T16:21:43.552540Z",
   "sourceMainSha": "c8c374917d739c971fe142cf16c3449d6c64e8cd",
   "operatorOverride": {
@@ -18,9 +18,11 @@
     "p26ThroughP36AlreadyMerged": true,
     "governanceStackRequiresRePromotion": false,
     "generation4Invalidated": true,
-    "nextGeneration": 5,
-    "generation5State": "waiting_quiet_window_and_post_change_backup",
-    "oePeriodStarted": false
+    "nextGeneration": null,
+    "generation5State": "burn_in_active",
+    "oePeriodStarted": false,
+    "generation5ActivatedAt": "2026-10-04T18:52:01.712991Z",
+    "generation5MinimumCompleteAfter": "2026-10-05T18:52:01.712991Z"
   },
   "liveEpoch": {
     "projectStatus": "ACTIVE_HEALTHY",
@@ -54,8 +56,12 @@
     "latestSharedChange": "micro-arcade-p31-backup-export v2",
     "earliestRefreezeAt": "2026-10-04T17:20:09.879000Z",
     "edgeQuietMinutesAtObservation": 1.56,
-    "postFinalSharedChangeEncryptedBackupVerified": false,
-    "currentDecision": "blocked"
+    "postFinalSharedChangeEncryptedBackupVerified": true,
+    "currentDecision": "activated_generation5",
+    "quietMinutesObserved": 75.38,
+    "backupEvidenceRef": "github-actions:P15:37222829955:artifact:11311011119:sha256:432279d9ab3fc204061a89afc20869bf0994f6604ec586205081897b932049cb",
+    "refreezeDecisionId": "4153ec4f7fc90a3afcacc59e61e7fcd78e571b2b2aa5012caa175920f0547e78",
+    "activationReceiptId": "0867969dce6fd97d914c260b2040bdd2243142ff184bb45f9ed4fb46f179ee0f"
   },
   "burnInCertification": {
     "onlyCurrentEligibleGeneration": true,
