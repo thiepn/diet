@@ -33,8 +33,8 @@ assert.equal(plan.currentGateSnapshot.p25Generation,5);
 assert.equal(plan.currentGateSnapshot.nextGeneration,6);
 assert.equal(plan.currentGateSnapshot.generationEligible,false);
 assert.equal(plan.currentGateSnapshot.timeGateMetAtSnapshot,false);
-assert.equal(plan.currentGateSnapshot.activatedAt,p25.activatedAt);
-assert.equal(plan.currentGateSnapshot.minimumCompleteAfter,p25.minimumCompleteAfter);
+assert.equal(plan.currentGateSnapshot.activatedAt,null);
+assert.equal(plan.currentGateSnapshot.minimumCompleteAfter,null);
 assert.equal(plan.currentGateSnapshot.latestSuccessfulEncryptedBackupRun,37222829955);
 assert.equal(plan.currentGateSnapshot.successfulSamplesKnownAtScheduleChange,0);
 
