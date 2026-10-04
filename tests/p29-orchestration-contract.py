@@ -23,7 +23,7 @@ def certify(imp,ev):
         return p.returncode,json.loads(op.read_text(encoding="utf-8"))
 
 leaderboard=impact({
- "changeId":"leaderboard-vNext","graphVersion":"2026-10-03.1",
+ "changeId":"leaderboard-vNext","graphVersion":"2026-10-04.1",
  "changes":[{"component":"leaderboard","class":"provider_breaking","changesEdgeContract":True}]
 })
 assert leaderboard["breaking"] is True
@@ -36,7 +36,7 @@ assert len(leaderboard["graphSha256"])==64
 assert len(leaderboard["changeManifestSha256"])==64
 
 additive=impact({
- "changeId":"leaderboard-additive","graphVersion":"2026-10-03.1",
+ "changeId":"leaderboard-additive","graphVersion":"2026-10-04.1",
  "changes":[{"component":"leaderboard","class":"provider_additive"}]
 })
 assert set(additive["affectedComponents"])=={"leaderboard","wordstrike","gomoku"}
@@ -44,7 +44,7 @@ assert additive["breaking"] is False
 assert additive["requiresQuietWindow"] is False
 
 diet=impact({
- "changeId":"diet-ui","graphVersion":"2026-10-03.1",
+ "changeId":"diet-ui","graphVersion":"2026-10-04.1",
  "changes":[{"component":"diet","class":"consumer_only"}]
 })
 assert diet["affectedComponents"]==["diet"]
@@ -52,9 +52,9 @@ assert diet["requiredQuietWindowMinutes"]==0
 
 common_epoch={
  "semanticSchemaSha256":"5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
- "migrationHead":"20261003094639",
- "edgeInventorySha256":"8400fe3f4f203d37e8208a8541c2e6ffc7d49ace98871ecdb80fef1026842da8",
- "cronInventorySha256":"22e21a59a108390b6f669698914e1c958ae4c357be36dce7947b137025e710bc"
+ "migrationHead":"20261003221217",
+ "edgeInventorySha256":"4d9c066197de1f456665dfa4b328917deaeab6b427860bfd9e23786e14e311bd",
+ "cronInventorySha256":"652724f6d80db7f2382637925f3eba6205d114b02204ed68fdf115e5bfc20692"
 }
 good={
  "graphVersion":leaderboard["graphVersion"],
