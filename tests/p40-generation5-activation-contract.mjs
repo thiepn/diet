@@ -48,37 +48,37 @@ assert.equal(receipt.sourceFilesMutated,true);
 assert.equal(receipt.productionMutationPerformed,false);
 assert.equal(receipt.activationReceiptId,'8e24ecd727550f365aacabeb7d59a7b18ed9d07322ef8929f8d6ddb48df3badd');
 
-assert.equal(p25.state,'burn_in_active');
+assert.equal(p25.state,'refreeze_pending');
 assert.equal(p25.generation,5);
-assert.equal(p25.currentGenerationEligible,true);
-assert.equal(p25.nextGeneration,null);
+assert.equal(p25.currentGenerationEligible,false);
+assert.equal(p25.nextGeneration,6);
 assert.equal(p25.currentEpochFreezeEvidence.gomokuRoomVersion,50);
 assert.equal(p25.currentEpochFreezeEvidence.postFinalChangeEncryptedBackupVerified,true);
 assert.equal(p25.pendingGeneration5.state,'activated');
 assert.equal(p25.latestSuccessfulEncryptedOffsiteBackup.runId,37222829955);
 
-assert.equal(backend.state,'burn_in_active');
+assert.equal(backend.state,'refreeze_pending');
 assert.equal(backend.current_generation,5);
-assert.equal(backend.current_generation_eligible,true);
-assert.equal(backend.next_generation,null);
+assert.equal(backend.current_generation_eligible,false);
+assert.equal(backend.next_generation,6);
 assert.equal(backend.generation5_backup_prerequisite_satisfied,true);
 
-assert.equal(app.health.p25BurnInActive,true);
-assert.equal(app.health.p25CurrentGenerationValid,true);
+assert.equal(app.health.p25BurnInActive,false);
+assert.equal(app.health.p25CurrentGenerationValid,false);
 assert.equal(app.health.p25BurnInGeneration,5);
-assert.equal(app.health.p25Generation5State,'burn_in_active');
+assert.equal(app.health.p25Generation5State,'invalidated_epoch_changed');
 
 assert.equal(p26.state,'staged_pending_p25');
 assert.equal(p26.currentGateSnapshot.p25Generation,5);
-assert.equal(p26.currentGateSnapshot.generationEligible,true);
+assert.equal(p26.currentGateSnapshot.generationEligible,false);
 assert.equal(p26.currentGateSnapshot.timeGateMetAtSnapshot,false);
 
-assert.equal(fleet.registryVersion,'2026-10-04.4');
-assert.equal(fleet.releaseEpoch.state,'generation5_burn_in_active');
+assert.equal(fleet.registryVersion,'2026-10-04.5');
+assert.equal(fleet.releaseEpoch.state,'refreeze_pending_generation6_candidate_revision1');
 assert.equal(fleet.releaseEpoch.sharedPromotionsBlocked,true);
-assert.equal(policy.bundleVersion,'2026-10-04.4');
+assert.equal(policy.bundleVersion,'2026-10-04.5');
 assert.equal(policy.mode,'warn');
-assert.equal(policy.liveBaseline.releaseEpochState,'generation5_burn_in_active');
+assert.equal(policy.liveBaseline.releaseEpochState,'refreeze_pending_generation6_candidate_revision1');
 
 for(const token of [
   '75.38 minutes','37222829955','37224033250',
