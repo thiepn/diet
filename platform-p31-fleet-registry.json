@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "phase": "P31",
-  "registryVersion": "2026-10-04.4",
+  "registryVersion": "2026-10-04.5",
   "capturedAt": "2026-10-04T18:52:01.712991Z",
   "canonicalProject": {
     "ref": "hycegznamzjhwinegaai",
@@ -17,15 +17,15 @@
   "controlPlaneState": "amber",
   "coordinationMode": "registry_and_epoch_drift",
   "releaseEpoch": {
-    "state": "generation5_burn_in_active",
+    "state": "refreeze_pending_generation6_candidate_revision1",
     "movementReasons": [
-      "generation-5 candidate revision 2 passed the exact P23/v50 refreeze gate",
-      "P15 encrypted backup run 37222829955 verified successfully after the final shared change",
-      "generation 5 activated at 2026-10-04T18:52:01.712991Z and is accumulating evidence"
+      "generation 5 invalidated because the shared database epoch changed after activation",
+      "StudyOS migrations advanced the shared migration head to 20261004192902",
+      "generation 6 candidate revision 1 is waiting for 60 minutes quiet and a fresh encrypted post-change backup"
     ],
-    "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
-    "migrationHead": "20261004173117",
-    "migrationName": "gomoku_p23_security_admission_gate",
+    "semanticSchemaSha256": "b40d9a3d1da7c39917f41a9c1f8e95615838b7f34a64e673191bf810833f7cd2",
+    "migrationHead": "20261004192902",
+    "migrationName": "studyos_p8_checkpoint_dimension_evidence",
     "cronJobs": 14,
     "edgeFunctionCount": 12,
     "edgeInventorySha256": "2e66d1eec1dac615b0f0cc81a823100dd609947d7ecb51098fe2e37c504d6a0e",
@@ -43,14 +43,17 @@
       }
     },
     "sharedPromotionsBlocked": true,
-    "nextGeneration": null,
-    "candidateRevision": 2,
+    "nextGeneration": 6,
+    "candidateRevision": 1,
     "latestSuccessfulBackupRun": 37222829955,
-    "latestSuccessfulBackupFreshForCandidate": true,
-    "freezeReason": "P40 froze generation 5 to the exact P23/v50 migration/schema/Edge/cron epoch after 75.38 minutes quiet and a verified post-final-change encrypted backup.",
+    "latestSuccessfulBackupFreshForCandidate": false,
+    "freezeReason": "P41 invalidated generation 5 after post-activation StudyOS shared migrations. Generation 6 remains unfrozen until the P37/P39 refreeze prerequisites are satisfied.",
     "currentGeneration": 5,
-    "activatedAt": "2026-10-04T18:52:01.712991Z",
-    "minimumCompleteAfter": "2026-10-05T18:52:01.712991Z"
+    "activatedAt": null,
+    "minimumCompleteAfter": null,
+    "generation5InvalidatedAt": "2026-10-04T19:44:10.276405Z",
+    "generation6CandidateObservedAt": "2026-10-04T19:44:10.276405Z",
+    "generation6EarliestRefreezeAt": "2026-10-04T20:29:02Z"
   },
   "coverage": {
     "governedP29Nodes": 18,
