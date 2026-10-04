@@ -266,18 +266,6 @@
   ],
   "observedDrift": [
     {
-      "id": "gomoku-edge-moved-since-p30",
-      "type": "release_epoch",
-      "severity": "blocks_shared_and_gomoku_release",
-      "component": "gomoku",
-      "scopes": [
-        "app:gomoku",
-        "edge:gomoku-room",
-        "database_schema"
-      ],
-      "reason": "gomoku-room is v48 after the P30 epoch snapshot"
-    },
-    {
       "id": "supabase-main-branch-action-failed",
       "type": "environment",
       "severity": "blocks_hosted_branch_path_only",
