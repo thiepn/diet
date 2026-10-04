@@ -342,3 +342,20 @@ Its current bundle/registry binding is:
 - shared release state: `refreeze_pending_generation5`
 
 This refresh records current facts only. It does not promote P32 to enforce mode or grant production approval.
+
+
+## P39 policy binding — 2026-10-04
+
+P32 remains **warn** mode.
+
+Current binding:
+
+- policy bundle: `2026-10-04.3`
+- fleet registry: `2026-10-04.3`
+- release registry: `2026-10-04.2`
+- dependency graph: `2026-10-04.1`
+- live migration: `20261004173117_gomoku_p23_security_admission_gate`
+- `gomoku-room`: v50
+- shared epoch: `refreeze_pending_generation5_candidate_revision2`
+
+This is an evidence refresh only. It does not promote P32 to enforce mode or approve a production mutation.
