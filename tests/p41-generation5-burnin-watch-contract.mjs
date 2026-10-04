@@ -21,9 +21,9 @@ assert.equal(watch.generation5.firstEpochChangeAt,'2026-10-04T18:58:02Z');
 assert.equal(watch.evidence.successfulQualifyingSamples,0);
 assert.equal(watch.evidence.certificationReady,false);
 assert.deepEqual(watch.epochWatch.changedFields,['migrationVersion','migrationName','migrationHead','semanticSchemaSha256']);
-assert.equal(watch.generation6.candidateRevision,1);
+assert.equal(watch.generation6.candidateRevision,2);
 assert.equal(watch.generation6.candidateMigration,'20261004192902_studyos_p8_checkpoint_dimension_evidence');
-assert.equal(watch.generation6.earliestRefreezeAt,'2026-10-04T20:29:02Z');
+assert.equal(watch.generation6.earliestRefreezeAt,'2026-10-04T20:56:54.779364Z');
 assert.equal(watch.generation6.latestBackupFreshForCandidate,false);
 assert.equal(watch.generation6.eligibleToActivate,false);
 
@@ -38,10 +38,10 @@ assert.equal(obs.currentEpoch.cronInventorySha256,obs.frozenEpoch.cronInventoryS
 
 assert.equal(receipt.decision,'invalidate_generation5_and_open_generation6_refreeze');
 assert.equal(receipt.nextGeneration,6);
-assert.equal(receipt.candidateRevision,1);
+assert.equal(receipt.candidateRevision,2);
 assert.equal(receipt.sourceFilesMutated,true);
 assert.equal(receipt.productionMutationPerformed,false);
-assert.equal(receipt.receiptId,'1fed0bda56babc210a2f0964e7e538bb07ba76e2c0900b028fe6f08e6e56623b');
+assert.equal(receipt.receiptId,'a82f168c21ff694cfd386395cfeb3aa936c1b3acfdcb496c2885fa708ee2c886');
 assert.equal(samples.samples.length,0);
 
 assert.equal(p25.state,'refreeze_pending');
@@ -50,7 +50,7 @@ assert.equal(p25.generationState,'invalidated_epoch_changed');
 assert.equal(p25.currentGenerationEligible,false);
 assert.equal(p25.nextGeneration,6);
 assert.equal(p25.pendingGeneration6.state,'waiting_quiet_window_and_fresh_backup');
-assert.equal(p25.pendingGeneration6.candidateRevision,1);
+assert.equal(p25.pendingGeneration6.candidateRevision,2);
 assert.equal(p25.pendingGeneration6.latestSuccessfulBackup.freshForCandidate,false);
 
 assert.equal(backend.state,'refreeze_pending');
@@ -71,18 +71,18 @@ assert.equal(p26.currentGateSnapshot.p25State,'refreeze_pending');
 assert.equal(p26.currentGateSnapshot.nextGeneration,6);
 assert.equal(p26.currentGateSnapshot.generationEligible,false);
 
-assert.equal(fleet.registryVersion,'2026-10-04.5');
-assert.equal(fleet.releaseEpoch.state,'refreeze_pending_generation6_candidate_revision1');
+assert.equal(fleet.registryVersion,'2026-10-04.6');
+assert.equal(fleet.releaseEpoch.state,'refreeze_pending_generation6_candidate_revision2');
 assert.equal(fleet.releaseEpoch.sharedPromotionsBlocked,true);
-assert.equal(policy.bundleVersion,'2026-10-04.5');
-assert.equal(policy.fleetRegistryVersion,'2026-10-04.5');
-assert.equal(policy.liveBaseline.releaseEpochState,'refreeze_pending_generation6_candidate_revision1');
+assert.equal(policy.bundleVersion,'2026-10-04.6');
+assert.equal(policy.fleetRegistryVersion,'2026-10-04.6');
+assert.equal(policy.liveBaseline.releaseEpochState,'refreeze_pending_generation6_candidate_revision2');
 
 assert.ok(workflow.includes('scripts/p41-evaluate-burnin-epoch.py'));
 assert.ok(workflow.includes('platform-p41-generation5-invalidation-receipt.json'));
 assert.doesNotMatch(workflow,/contents:\s*write/);
 assert.doesNotMatch(workflow,/supabase\s+db\s+/);
-for(const token of ['18:58:02Z','generation 6','37222829955','20:29:02Z','must not be certified']) {
+for(const token of ['18:58:02Z','generation 6','revision 2','37222829955','20:56:54.779364Z','must not be certified']) {
   assert.ok(doc.includes(token),'P41 doc missing '+token);
 }
 
