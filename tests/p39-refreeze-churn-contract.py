@@ -19,21 +19,40 @@ p25=load(ROOT/"platform-p25-burn-in-plan.json")
 plan=load(ROOT/"platform-p39-refreeze-churn-plan.json")
 
 assert plan["phase"]=="P39"
-assert plan["state"]=="implementation_active_candidate_rebased"
-assert p25["state"]=="refreeze_pending"
-assert p25["nextGeneration"]==5
+assert plan["state"]=="resolved_generation5_activated"
+assert p25["state"]=="burn_in_active"
+assert p25["nextGeneration"] is None
 assert p25["pendingGeneration5"]["candidateRevision"]==2
-assert p25["pendingGeneration5"]["state"]=="waiting_quiet_window_and_fresh_backup"
+assert p25["pendingGeneration5"]["state"]=="activated"
 assert p25["pendingGeneration5"]["candidateEpoch"]["migrationHead"]=="20261004173117_gomoku_p23_security_admission_gate"
 assert p25["pendingGeneration5"]["candidateEpoch"]["gomokuRoomVersion"]==50
-assert p25["pendingGeneration5"]["edgeQuietMinutesObserved"]==4.14
-assert p25["pendingGeneration5"]["latestSuccessfulBackup"]["runId"]==37218356705
-assert p25["pendingGeneration5"]["latestSuccessfulBackup"]["freshForCandidate"] is False
+assert p25["pendingGeneration5"]["edgeQuietMinutesObserved"]==75.38
+assert p25["pendingGeneration5"]["latestSuccessfulBackup"]["runId"]==37222829955
+assert p25["pendingGeneration5"]["latestSuccessfulBackup"]["freshForCandidate"] is True
 
 with tempfile.TemporaryDirectory() as td:
     d=Path(td)
     obs=d/"obs.json"; backup=d/"backup.json"; out=d/"out"
     candidate=p25["pendingGeneration5"]["candidateEpoch"]
+    pending=json.loads(json.dumps(p25))
+    pending.update({
+      "state":"refreeze_pending","generation":4,"generationState":"invalidated_epoch_changed",
+      "currentGenerationEligible":False,"nextGeneration":5
+    })
+    pending["pendingGeneration5"].update({
+      "state":"waiting_quiet_window_and_fresh_backup","eligibleToActivate":False,
+      "edgeQuietMinutesObserved":4.14,"postFinalChangeEncryptedBackupVerified":False,
+      "backupEvidenceRef":None,"lastDecision":"blocked",
+      "lastBlockers":["quiet_window_open:4.14/60","backup_predates_latest_shared_change"],
+      "latestSuccessfulBackup":{
+        "runId":37218356705,"conclusion":"success","createdAt":"2026-10-04T16:52:34Z",
+        "verificationPassed":True,"encrypted":True,"artifactAvailable":True,
+        "artifactId":11309815027,
+        "artifactDigest":"sha256:3c5acd5fca64f6dbed7df766eab0bd0c86fe61ee267d97d706e7e0ad25fae874",
+        "freshForCandidate":False
+      }
+    })
+    pendingf=d/"pending-p25.json"; write(pendingf,pending)
     current={
       "projectStatus":"ACTIVE_HEALTHY",**candidate,
       "migrationChangedAt":"2026-10-04T17:31:17Z"
@@ -57,7 +76,7 @@ with tempfile.TemporaryDirectory() as td:
       "app":sha(ROOT/".well-known/thiepn-app.json")
     }
 
-    run([sys.executable,str(RECONCILE),str(obs),str(backup),"--out-dir",str(out)])
+    run([sys.executable,str(RECONCILE),str(obs),str(backup),"--p25",str(pendingf),"--out-dir",str(out)])
     r=load(out/"p39-refreeze-reconcile-receipt.json")
     preview=load(out/"platform-p25-burn-in-plan.json")
     assert r["decision"]=="blocked"
@@ -90,7 +109,7 @@ with tempfile.TemporaryDirectory() as td:
     })
     write(obs,future); write(backup,fresh)
     ready_dir=d/"ready"
-    run([sys.executable,str(RECONCILE),str(obs),str(backup),"--out-dir",str(ready_dir),"--require-ready"])
+    run([sys.executable,str(RECONCILE),str(obs),str(backup),"--p25",str(pendingf),"--out-dir",str(ready_dir),"--require-ready"])
     rr=load(ready_dir/"p39-refreeze-reconcile-receipt.json")
     rp=load(ready_dir/"platform-p25-burn-in-plan.json")
     assert rr["decision"]=="ready_for_p37_refreeze"
@@ -113,7 +132,7 @@ with tempfile.TemporaryDirectory() as td:
     moved["latestSharedChangeSha256"]="b"*64
     write(obs,moved)
     rebased_dir=d/"rebased"
-    run([sys.executable,str(RECONCILE),str(obs),str(backup),"--out-dir",str(rebased_dir)])
+    run([sys.executable,str(RECONCILE),str(obs),str(backup),"--p25",str(pendingf),"--out-dir",str(rebased_dir)])
     rb=load(rebased_dir/"p39-refreeze-reconcile-receipt.json")
     rbp=load(rebased_dir/"platform-p25-burn-in-plan.json")
     assert rb["decision"]=="blocked"
@@ -128,7 +147,7 @@ with tempfile.TemporaryDirectory() as td:
     # Invalid backup evidence can never satisfy the gate.
     bad=dict(fresh); bad["verificationPassed"]=False
     write(obs,future); write(backup,bad)
-    run([sys.executable,str(RECONCILE),str(obs),str(backup),"--out-dir",str(d/"bad"),"--require-ready"],1)
+    run([sys.executable,str(RECONCILE),str(obs),str(backup),"--p25",str(pendingf),"--out-dir",str(d/"bad"),"--require-ready"],1)
     assert "backup_evidence_invalid" in load(d/"bad"/"p39-refreeze-reconcile-receipt.json")["blockers"]
 
 print("P39 candidate reconciliation, backup freshness and generation-retention contracts passed.")
