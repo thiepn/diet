@@ -73,8 +73,8 @@ assert.equal(p26.currentGateSnapshot.p25Generation,5);
 assert.equal(p26.currentGateSnapshot.generationEligible,false);
 assert.equal(p26.currentGateSnapshot.timeGateMetAtSnapshot,false);
 
-assert.equal(fleet.registryVersion,'2026-10-04.5');
-assert.equal(fleet.releaseEpoch.state,'refreeze_pending_generation6_candidate_revision1');
+assert.equal(fleet.registryVersion,'2026-10-04.6');
+assert.equal(fleet.releaseEpoch.state,'refreeze_pending_generation6_candidate_revision2');
 assert.equal(fleet.releaseEpoch.sharedPromotionsBlocked,true);
 assert.equal(policy.bundleVersion,'2026-10-04.5');
 assert.equal(policy.mode,'warn');
