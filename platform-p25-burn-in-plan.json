@@ -2,9 +2,9 @@
   "schemaVersion": 3,
   "phase": "P25",
   "title": "Post-Upgrade Burn-In, Stability & Shared-Platform Production Certification",
-  "state": "refreeze_pending",
-  "activatedAt": "2026-10-04T12:55:17.146329Z",
-  "minimumCompleteAfter": "2026-10-05T12:55:17.146329Z",
+  "state": "burn_in_active",
+  "activatedAt": "2026-10-04T18:52:01.712991Z",
+  "minimumCompleteAfter": "2026-10-05T18:52:01.712991Z",
   "activationEvidence": {
     "p24PostUpgradeValidation": "pass",
     "managedHostedBuildBefore": "17.6.1.127",
@@ -74,16 +74,13 @@
   },
   "completionState": {
     "complete": false,
-    "invalidated": true,
+    "invalidated": false,
     "remaining": [
-      "wait for 60 continuous minutes of database/Edge/cron release-epoch quiet after the latest shared change",
-      "recheck migration/schema/Edge/cron identity and P18/P20/P21/P22/cron/replication health",
-      "activate generation 5 only after the quiet gate passes",
-      "obtain a successful encrypted offsite backup after the final shared change",
-      "collect at least 12 successful healthy generation-5 samples spanning all six 4-hour buckets",
-      "include a terminal generation-5 sample at or after the 24-hour boundary",
-      "recheck service health and Security/Performance advisors before certification",
-      "certify the current eligible generation before OE launch"
+      "collect at least 12 successful qualifying generation-5 samples",
+      "cover all six 4-hour buckets across the first 24 hours",
+      "include a terminal qualifying sample at or after minimumCompleteAfter",
+      "revalidate exact frozen epoch and service/advisor health",
+      "run P37 current-generation burn-in certification"
     ]
   },
   "latestKnownPreUpgradeOffsiteBackup": {
@@ -102,9 +99,9 @@
     "afterLatestEdgeDeployment": true,
     "sufficientForGeneration3Refreeze": true
   },
-  "generation": 4,
+  "generation": 5,
   "initialActivatedAt": "2026-10-01T12:14:50.879365Z",
-  "restartReason": "Generation 3 was invalidated by legitimate shared-platform changes through the Hub H15/TMS60 projection. Generation 4 freezes the current 2026-10-04 shared epoch after >60 minutes of database and Edge quiet plus live P18/P20/P21/P22/cron revalidation.",
+  "restartReason": "Generation 5 activated from a real P37 ready refreeze receipt after exact P23/v50 epoch revalidation, 75.38 minutes of shared-epoch quiet, healthy public/service checks, reviewed advisors, and verified encrypted backup run 37222829955 captured after the final shared change.",
   "historicalHostedUpgradeAttestation": {
     "status": "pass",
     "observedAt": "2026-10-01T12:14:50.879365Z",
@@ -114,24 +111,20 @@
     "note": "Historical upgrade attestation is immutable. The legacy P24 validator now reports schema/application-surface mismatch because the shared application evolved after upgrade; that mismatch is not evidence of hosted-upgrade failure."
   },
   "currentEpochFreezeEvidence": {
-    "frozenAt": "2026-10-04T12:55:17.146329Z",
+    "frozenAt": "2026-10-04T18:52:01.712991Z",
     "projectStatus": "ACTIVE_HEALTHY",
-    "migrationVersion": "20261003221217",
-    "migrationName": "hub_h15_tms60_projection",
-    "migrationHead": "20261003221217_hub_h15_tms60_projection",
-    "migrationQuietMinutesAtFreeze": 883,
+    "migrationVersion": "20261004173117",
+    "migrationName": "gomoku_p23_security_admission_gate",
+    "migrationHead": "20261004173117_gomoku_p23_security_admission_gate",
     "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
-    "gomokuRoomVersion": 48,
-    "gomokuRoomSha256": "f0493fe400876a8d52f394724d6e44644978d2028b890c912ec283fdc32154cd",
-    "gomokuEdgeUpdatedAt": "2026-10-03T11:18:50.541Z",
-    "edgeQuietMinutesAtFreeze": 1536,
-    "edgeInventorySha256": "4d9c066197de1f456665dfa4b328917deaeab6b427860bfd9e23786e14e311bd",
+    "edgeInventorySha256": "2e66d1eec1dac615b0f0cc81a823100dd609947d7ecb51098fe2e37c504d6a0e",
     "edgeFunctionCount": 12,
     "edgeFunctionsAllActive": true,
+    "gomokuRoomVersion": 50,
+    "gomokuRoomSha256": "a537d0702fdb53861124849e03fb7141a8036a4ee5c692fa9bf4769c47981695",
     "cronJobs": 14,
     "activeCronJobs": 14,
     "cronInventorySha256": "652724f6d80db7f2382637925f3eba6205d114b02204ed68fdf115e5bfc20692",
-    "cronRuns24h": 5791,
     "cronFailures24h": 0,
     "blockingReplicationSlots": 0,
     "p18Integrity": "clean",
@@ -139,30 +132,10 @@
     "p21Readiness": "pass",
     "p22Maintenance": "pass",
     "securityAdvisorReviewed": true,
-    "securityAdvisorDisposition": {
-      "rlsEnabledNoPolicy": {
-        "count": 73
-      },
-      "authenticatedSecurityDefiner": {
-        "count": 47
-      },
-      "leakedPasswordProtection": {
-        "count": 1
-      }
-    },
     "performanceAdvisorReviewed": true,
-    "performanceAdvisorDisposition": {
-      "authRlsInitplan": {
-        "count": 38
-      },
-      "unindexedForeignKeys": {
-        "count": 61
-      },
-      "unusedIndexes": {
-        "count": 123
-      }
-    },
-    "postFinalChangeEncryptedBackupVerified": false
+    "postFinalChangeEncryptedBackupVerified": true,
+    "backupEvidenceRef": "github-actions:P15:37222829955:artifact:11311011119:sha256:432279d9ab3fc204061a89afc20869bf0994f6604ec586205081897b932049cb",
+    "quietMinutesAtFreeze": 75.38
   },
   "generation2Sampling": {
     "reason": "Observed GitHub scheduled-workflow delivery was substantially sparser than nominal hourly cadence. Increase trigger opportunities without changing probe semantics or frozen production epoch.",
@@ -177,8 +150,8 @@
     "sampleWindowMustSpanBurnIn": true,
     "frozenEpochImpact": "none"
   },
-  "generationState": "invalidated_epoch_changed",
-  "currentGenerationEligible": false,
+  "generationState": "burn_in_active",
+  "currentGenerationEligible": true,
   "invalidatedAt": "2026-10-04T16:21:43.552540Z",
   "invalidationEvidence": {
     "reason": "shared_release_epoch_changed",
@@ -194,7 +167,7 @@
     "observedGomokuRoomSha256": "147046c90c849225c9a862f5607b725adb254b919dd756d9092caa4e0fe39b3d",
     "observedGomokuEdgeUpdatedAt": "2026-10-02T15:16:36.270Z"
   },
-  "nextGeneration": 5,
+  "nextGeneration": null,
   "refreezePolicy": {
     "minimumQuietMinutes": 60,
     "quietClockStartsAfterLatestObservedSharedChange": "2026-10-04T17:36:39.032000Z",
@@ -204,7 +177,7 @@
     "requirePostFinalChangeEncryptedBackup": true
   },
   "latestObservedEpoch": {
-    "observedAt": "2026-10-04T17:40:47.662109Z",
+    "observedAt": "2026-10-04T18:52:01.712991Z",
     "migrationVersion": "20261004173117",
     "migrationName": "gomoku_p23_security_admission_gate",
     "migrationHead": "20261004173117_gomoku_p23_security_admission_gate",
@@ -277,7 +250,7 @@
   },
   "pendingGeneration5": {
     "generation": 5,
-    "state": "waiting_quiet_window_and_fresh_backup",
+    "state": "activated",
     "candidateObservedAt": "2026-10-04T17:40:47.662109Z",
     "candidateEpoch": {
       "observedAt": "2026-10-04T17:40:47.662109Z",
@@ -308,18 +281,15 @@
     },
     "minimumQuietMinutes": 60,
     "migrationQuietMinutesObserved": 9.51,
-    "edgeQuietMinutesObserved": 4.14,
+    "edgeQuietMinutesObserved": 75.38,
     "earliestRefreezeAt": "2026-10-04T18:36:39.032000Z",
-    "postFinalChangeEncryptedBackupVerified": false,
-    "eligibleToActivate": false,
-    "lastRecheckedAt": "2026-10-04T17:40:47.662109Z",
-    "lastDecision": "blocked",
-    "lastBlockers": [
-      "quiet_window_open:4.14/60",
-      "backup_predates_latest_shared_change"
-    ],
+    "postFinalChangeEncryptedBackupVerified": true,
+    "eligibleToActivate": true,
+    "lastRecheckedAt": "2026-10-04T18:52:01.712991Z",
+    "lastDecision": "activated",
+    "lastBlockers": [],
     "candidateRevision": 2,
-    "backupEvidenceRef": null,
+    "backupEvidenceRef": "github-actions:P15:37222829955:artifact:11311011119:sha256:432279d9ab3fc204061a89afc20869bf0994f6604ec586205081897b932049cb",
     "previousCandidate": {
       "candidateObservedAt": "2026-10-04T16:21:43.552540Z",
       "migrationHead": "20261004132839_gomoku_p21_capacity_admission_gate",
@@ -330,22 +300,28 @@
     "candidateRebaseReason": "pre_activation_shared_epoch_changed",
     "latestSuccessfulBackup": {
       "workflow": "P15 Encrypted Offsite Backup",
-      "runId": 37218356705,
-      "runNumber": 28,
+      "runId": 37222829955,
+      "runNumber": 29,
       "conclusion": "success",
-      "createdAt": "2026-10-04T16:52:34Z",
-      "headSha": "8ca191a7939b840c028e1c317fa0d3468bc49c07",
+      "createdAt": "2026-10-04T18:03:25Z",
+      "verificationAt": "2026-10-04T18:03:24Z",
+      "headSha": "bb6c632090fcb10ec51fab651ea0df0900d53821",
       "verificationPassed": true,
       "encryption": "CMS AES-256-GCM",
-      "artifactId": 11309815027,
-      "artifactName": "diet-p15-offsite-37218356705",
-      "artifactDigest": "sha256:3c5acd5fca64f6dbed7df766eab0bd0c86fe61ee267d97d706e7e0ad25fae874",
+      "artifactId": 11311011119,
+      "artifactName": "diet-p15-offsite-37222829955",
+      "artifactDigest": "sha256:432279d9ab3fc204061a89afc20869bf0994f6604ec586205081897b932049cb",
       "artifactExpired": false,
+      "expiresAt": "2027-01-02T18:02:27Z",
       "snapshotCount": 1,
       "totalRows": 282,
       "backupSchemaSha256": "9960c954d3812a1fb178e823830c247aa5e67f115c58dad4170faa9218dce02c",
-      "freshForCandidate": false
-    }
+      "freshForCandidate": true,
+      "evidenceRef": "github-actions:P15:37222829955:artifact:11311011119:sha256:432279d9ab3fc204061a89afc20869bf0994f6604ec586205081897b932049cb"
+    },
+    "activatedAt": "2026-10-04T18:52:01.712991Z",
+    "minimumCompleteAfter": "2026-10-05T18:52:01.712991Z",
+    "activationSource": "P40 reviewed activation commit via P38 deterministic transform"
   },
   "generation5Sampling": {
     "workflow": ".github/workflows/p25-post-upgrade-burnin.yml",
@@ -360,20 +336,23 @@
   },
   "latestSuccessfulEncryptedOffsiteBackup": {
     "workflow": "P15 Encrypted Offsite Backup",
-    "runId": 37218356705,
-    "runNumber": 28,
+    "runId": 37222829955,
+    "runNumber": 29,
     "conclusion": "success",
-    "createdAt": "2026-10-04T16:52:34Z",
-    "headSha": "8ca191a7939b840c028e1c317fa0d3468bc49c07",
+    "createdAt": "2026-10-04T18:03:25Z",
+    "verificationAt": "2026-10-04T18:03:24Z",
+    "headSha": "bb6c632090fcb10ec51fab651ea0df0900d53821",
     "verificationPassed": true,
     "encryption": "CMS AES-256-GCM",
-    "artifactId": 11309815027,
-    "artifactName": "diet-p15-offsite-37218356705",
-    "artifactDigest": "sha256:3c5acd5fca64f6dbed7df766eab0bd0c86fe61ee267d97d706e7e0ad25fae874",
+    "artifactId": 11311011119,
+    "artifactName": "diet-p15-offsite-37222829955",
+    "artifactDigest": "sha256:432279d9ab3fc204061a89afc20869bf0994f6604ec586205081897b932049cb",
     "artifactExpired": false,
+    "expiresAt": "2027-01-02T18:02:27Z",
     "snapshotCount": 1,
     "totalRows": 282,
     "backupSchemaSha256": "9960c954d3812a1fb178e823830c247aa5e67f115c58dad4170faa9218dce02c",
-    "freshForCandidate": false
+    "freshForCandidate": true,
+    "evidenceRef": "github-actions:P15:37222829955:artifact:11311011119:sha256:432279d9ab3fc204061a89afc20869bf0994f6604ec586205081897b932049cb"
   }
 }
