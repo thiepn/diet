@@ -11,8 +11,8 @@
   "errors": [],
   "outputHashes": {
     "platform-p25-burn-in-plan.json": "84a867e08f75f23633fbe93c47c2e5188e69125cee40d1dd32bc7046e61bea63",
-    "supabase-backend.json": "fef9ea3bd5abd7c6719f6a87d82d4abaff33ddfb464648f4d4f4e7383a4b08d2",
-    "thiepn-app.json": "c39c1aa28851ef9689d4c0d681501759d02cc9993b9f8e2a38f9300b47b9a24d"
+    "supabase-backend.json": "5516f6c4726c6428ac51565a93f9462661c01e1be9328289a01787d3bf816036",
+    "thiepn-app.json": "9ab10b286eadeba7f11f7ee8641d906b3ea46a464d7a262140d28f04e01a607b"
   },
-  "activationReceiptId": "0867969dce6fd97d914c260b2040bdd2243142ff184bb45f9ed4fb46f179ee0f"
+  "activationReceiptId": "8e24ecd727550f365aacabeb7d59a7b18ed9d07322ef8929f8d6ddb48df3badd"
 }
