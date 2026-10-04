@@ -23,7 +23,7 @@ The P37 refreeze decision is:
 
 The P38 deterministic activation receipt is:
 
-`0867969dce6fd97d914c260b2040bdd2243142ff184bb45f9ed4fb46f179ee0f`
+`8e24ecd727550f365aacabeb7d59a7b18ed9d07322ef8929f8d6ddb48df3badd`
 
 ## Frozen epoch
 
