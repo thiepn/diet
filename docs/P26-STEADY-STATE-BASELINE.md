@@ -193,3 +193,12 @@ Its prerequisite is now P25 **generation 4**, frozen at `2026-10-04T12:55:17.146
 Earliest generation-4 certification is **2026-10-05 12:55:17 UTC**. The P26 gate additionally requires a verified encrypted backup after the generation-4 final shared change; the older generation-3 backup is not sufficient.
 
 No database DDL while P25 is still burning in. The existing minimum steady-state observation remains at least 72 hours, and unused-index decisions remain blocked until at least seven days of appropriate evidence.
+
+
+## P37 dynamic-generation gate — 2026-10-04
+
+P26 remains **staged, not active**.
+
+Generation 4 is invalidated and generation 5 is currently `refreeze_pending`. P26 no longer hard-codes a specific P25 generation number. Its activation gate follows the **current eligible generation** and still requires that generation to be certified, backed up after its final shared change, and bound to an unchanged frozen epoch.
+
+No P26 observation may become authoritative while P25 has no eligible generation.
