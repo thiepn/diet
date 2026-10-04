@@ -24,7 +24,7 @@ assert.equal(plan.automation.productionMutationAllowed,false);
 assert.equal(plan.automation.paidProvisioningAllowed,false);
 
 assert.equal(fleet.phase,'P31');
-assert.equal(fleet.registryVersion,'2026-10-04.5');
+assert.equal(fleet.registryVersion,'2026-10-04.6');
 assert.equal(fleet.canonicalProject.serviceStatus,'ACTIVE_HEALTHY');
 assert.equal(fleet.productionHealth,'green');
 assert.equal(fleet.releaseSafety,'amber');
@@ -33,7 +33,7 @@ assert.equal(fleet.releaseEpoch.cronJobs,14);
 assert.equal(fleet.releaseEpoch.edgeFunctionCount,12);
 assert.equal(fleet.releaseEpoch.edgeHighlights.gomokuRoom.version,50);
 assert.equal(fleet.releaseEpoch.edgeHighlights.microArcadeBackup.version,2);
-assert.equal(fleet.releaseEpoch.state,'refreeze_pending_generation6_candidate_revision1');
+assert.equal(fleet.releaseEpoch.state,'refreeze_pending_generation6_candidate_revision2');
 assert.equal(fleet.components.length,18);
 assert.equal(fleet.coverage.registeredAppsObserved,7);
 assert.equal(fleet.coverage.registeredAppsGoverned,7);
