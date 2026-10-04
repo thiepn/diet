@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "phase": "P39",
   "title": "Refreeze Candidate Reconciliation, Epoch-Churn Resilience & Backup Freshness Automation",
-  "state": "implementation_active_candidate_rebased",
+  "state": "resolved_generation5_activated",
   "sourceMainSha": "d7575dac485823001049bcf7187a408b4d25a318",
   "implementedFrom": "P38",
   "operatorOverride": {
@@ -77,8 +77,8 @@
     "reason": "generation 5 never activated; pre-activation epoch movement rebases the candidate instead of consuming a generation number",
     "quietClockResetAt": "2026-10-04T17:36:39.032000Z",
     "earliestRefreezeAt": "2026-10-04T18:36:39.032000Z",
-    "quietMinutesObserved": 4.14,
-    "decision": "blocked"
+    "quietMinutesObserved": 75.38,
+    "decision": "resolved_activated"
   },
   "latestSuccessfulEncryptedBackup": {
     "workflow": "P15 Encrypted Offsite Backup",
@@ -131,5 +131,14 @@
     "successful verified encrypted offsite backup after 2026-10-04T17:36:39.032000Z",
     "live health and control checks remain green",
     "then P37 refreeze receipt may become ready and P38 may generate the generation-5 activation commit preview"
-  ]
+  ],
+  "resolvedBy": {
+    "phase": "P40",
+    "activatedAt": "2026-10-04T18:52:01.712991Z",
+    "minimumCompleteAfter": "2026-10-05T18:52:01.712991Z",
+    "candidateRevision": 2,
+    "refreezeDecisionId": "4153ec4f7fc90a3afcacc59e61e7fcd78e571b2b2aa5012caa175920f0547e78",
+    "activationReceiptId": "0867969dce6fd97d914c260b2040bdd2243142ff184bb45f9ed4fb46f179ee0f",
+    "backupRunId": 37222829955
+  }
 }
