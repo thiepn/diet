@@ -45,7 +45,7 @@ assert.equal(fleet.releaseEpoch.state,'refreeze_pending_generation6_candidate_re
 assert.equal(fleet.releaseEpoch.edgeHighlights.gomokuRoom.version,50);
 assert.equal(fleet.releaseEpoch.latestSuccessfulBackupFreshForCandidate,false);
 assert.equal(policy.bundleVersion,'2026-10-04.6');
-assert.equal(policy.fleetRegistryVersion,'2026-10-04.5');
+assert.equal(policy.fleetRegistryVersion,'2026-10-04.6');
 assert.equal(policy.liveBaseline.gomokuRoomVersion,50);
 
 assert.ok(p15.includes("cron: '17 4 * * *'"));
