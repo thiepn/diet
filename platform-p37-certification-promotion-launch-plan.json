@@ -27,13 +27,14 @@
   "liveEpoch": {
     "projectStatus": "ACTIVE_HEALTHY",
     "organizationPlan": "free",
-    "migrationHead": "20261004132839_gomoku_p21_capacity_admission_gate",
+    "observedAt": "2026-10-04T18:52:01.712991Z",
+    "migrationHead": "20261004173117_gomoku_p23_security_admission_gate",
     "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
     "edgeFunctionCount": 12,
-    "edgeInventorySha256": "e2aa661fd331640fba473b9a8fe4bc5c9084731900c569e7d2aa4d8ed57fdbc9",
+    "edgeInventorySha256": "2e66d1eec1dac615b0f0cc81a823100dd609947d7ecb51098fe2e37c504d6a0e",
     "gomokuRoom": {
-      "version": 49,
-      "sha256": "64e5cfdd7a9d027e178eb4e8466b954504eb2bec1021bcb40c19afe8cd05b900"
+      "version": 50,
+      "sha256": "a537d0702fdb53861124849e03fb7141a8036a4ee5c692fa9bf4769c47981695"
     },
     "microArcadeBackup": {
       "version": 2,
@@ -52,10 +53,10 @@
   "refreezeGate": {
     "targetGeneration": 5,
     "minimumQuietMinutes": 60,
-    "latestSharedChangeAt": "2026-10-04T16:20:09.879000Z",
-    "latestSharedChange": "micro-arcade-p31-backup-export v2",
-    "earliestRefreezeAt": "2026-10-04T17:20:09.879000Z",
-    "edgeQuietMinutesAtObservation": 1.56,
+    "latestSharedChangeAt": "2026-10-04T17:36:39.032000Z",
+    "latestSharedChange": "gomoku-room v50",
+    "earliestRefreezeAt": "2026-10-04T18:36:39.032000Z",
+    "edgeQuietMinutesAtObservation": 75.38,
     "postFinalSharedChangeEncryptedBackupVerified": true,
     "currentDecision": "activated_generation5",
     "quietMinutesObserved": 75.38,
