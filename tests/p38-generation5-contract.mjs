@@ -33,8 +33,10 @@ assert.equal(p25.state,'refreeze_pending');
 assert.equal(p25.generation,4);
 assert.equal(p25.nextGeneration,5);
 assert.equal(p25.currentGenerationEligible,false);
-assert.equal(p25.pendingGeneration5.edgeQuietMinutesObserved,41.79);
+assert.equal(p25.pendingGeneration5.edgeQuietMinutesObserved,4.14);
+assert.equal(p25.pendingGeneration5.candidateRevision,2);
 assert.equal(p25.pendingGeneration5.lastDecision,'blocked');
+assert.equal(p25.pendingGeneration5.state,'waiting_quiet_window_and_fresh_backup');
 assert.equal(p25.pendingGeneration5.postFinalChangeEncryptedBackupVerified,false);
 
 for(const token of [

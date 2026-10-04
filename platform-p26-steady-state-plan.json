@@ -187,16 +187,21 @@
     "final steady-state operational report committed"
   ],
   "currentGateSnapshot": {
-    "observedAt": "2026-10-04T16:21:43.552540Z",
+    "observedAt": "2026-10-04T17:40:47.662109Z",
     "p25State": "refreeze_pending",
     "p25Generation": 4,
     "nextGeneration": 5,
     "generationEligible": false,
-    "earliestRefreezeAt": "2026-10-04T17:20:09.879000Z",
+    "generation5CandidateRevision": 2,
+    "generation5CandidateMigration": "20261004173117_gomoku_p23_security_admission_gate",
+    "earliestRefreezeAt": "2026-10-04T18:36:39.032000Z",
+    "postFinalSharedChangeEncryptedBackupVerified": false,
+    "latestSuccessfulEncryptedBackupRun": 37218356705,
+    "latestSuccessfulEncryptedBackupFreshForCandidate": false,
     "timeGateMetAtSnapshot": false,
     "successfulSamplesKnownAtScheduleChange": 0,
     "minimumSuccessfulSamples": 12,
-    "blocker": "Generation 4 is invalidated. Generation 5 has not passed the 60-minute quiet/refreeze gate, so P26 remains staged."
+    "blocker": "Generation 4 is invalidated. Generation 5 candidate revision 2 is waiting for 60 minutes of quiet plus a fresh encrypted backup after the Gomoku P23/v50 final shared change, so P26 remains staged."
   },
   "liveProvisionalRefresh": {
     "observedAt": "2026-10-03T08:09:28.650287Z",

@@ -202,3 +202,18 @@ P26 remains **staged, not active**.
 Generation 4 is invalidated and generation 5 is currently `refreeze_pending`. P26 no longer hard-codes a specific P25 generation number. Its activation gate follows the **current eligible generation** and still requires that generation to be certified, backed up after its final shared change, and bound to an unchanged frozen epoch.
 
 No P26 observation may become authoritative while P25 has no eligible generation.
+
+
+## P39 gate refresh — 2026-10-04
+
+P26 remains **staged, not active**.
+
+The current P25 blocker is now generation-5 candidate revision 2:
+
+- candidate migration: `20261004173117_gomoku_p23_security_admission_gate`
+- `gomoku-room`: v50
+- earliest possible refreeze: `2026-10-04T18:36:39.032000Z`
+- latest successful encrypted backup: run `37218356705`
+- that backup predates the current v50 final change and is therefore not fresh for this candidate
+
+P26's activation semantics are unchanged: it follows the current eligible P25 generation and cannot become authoritative until that generation is legitimately certified.

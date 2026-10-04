@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "phase": "P39",
+  "title": "Refreeze Candidate Reconciliation, Epoch-Churn Resilience & Backup Freshness Automation",
+  "state": "implementation_active_candidate_rebased",
+  "sourceMainSha": "d7575dac485823001049bcf7187a408b4d25a318",
+  "implementedFrom": "P38",
+  "operatorOverride": {
+    "enabled": true,
+    "scope": "engineering phase progression",
+    "doesNotAuthorizeGenerationActivation": true,
+    "doesNotAuthorizeBackupFabrication": true,
+    "doesNotAuthorizeProductionMutation": true,
+    "doesNotAuthorizeBurnInCertification": true,
+    "doesNotAuthorizeOELaunch": true
+  },
+  "liveObservation": {
+    "observedAt": "2026-10-04T17:40:47.662109Z",
+    "projectStatus": "ACTIVE_HEALTHY",
+    "database": {
+      "version": "17.6.1.164",
+      "postgresEngine": "17",
+      "releaseChannel": "preview"
+    },
+    "migrationVersion": "20261004173117",
+    "migrationName": "gomoku_p23_security_admission_gate",
+    "migrationHead": "20261004173117_gomoku_p23_security_admission_gate",
+    "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
+    "edgeFunctionCount": 12,
+    "edgeFunctionsAllActive": true,
+    "edgeInventoryCanonicalization": "sorted slug|version|ezbr_sha256 joined by LF",
+    "edgeInventorySha256": "2e66d1eec1dac615b0f0cc81a823100dd609947d7ecb51098fe2e37c504d6a0e",
+    "gomokuRoom": {
+      "version": 50,
+      "sha256": "a537d0702fdb53861124849e03fb7141a8036a4ee5c692fa9bf4769c47981695",
+      "updatedAt": "2026-10-04T17:36:39.032000Z"
+    },
+    "microArcadeBackup": {
+      "version": 2,
+      "sha256": "84081a183835e6ea8c6791912a4e261b97d1e09c24c4fa6fdfc9a87f9e9460d2"
+    },
+    "latestSharedChangeAt": "2026-10-04T17:36:39.032000Z",
+    "latestSharedChange": "gomoku-room v50",
+    "cronJobs": 14,
+    "activeCronJobs": 14,
+    "cronInventorySha256": "652724f6d80db7f2382637925f3eba6205d114b02204ed68fdf115e5bfc20692",
+    "cronRuns24h": 5791,
+    "cronFailures24h": 0,
+    "blockingReplicationSlots": 0,
+    "p18Integrity": "clean",
+    "p20SchemaDrift": false,
+    "p21Readiness": "pass",
+    "p22Maintenance": "pass",
+    "advisors": {
+      "security": {
+        "rlsEnabledNoPolicy": 73,
+        "authenticatedSecurityDefinerExecutable": 50,
+        "leakedPasswordProtection": 1
+      },
+      "performance": {
+        "authRlsInitplan": 40,
+        "unindexedForeignKeys": 68,
+        "unusedIndexes": 120
+      }
+    }
+  },
+  "previousGeneration5Candidate": {
+    "migrationHead": "20261004132839_gomoku_p21_capacity_admission_gate",
+    "gomokuRoomVersion": 49,
+    "latestSharedChangeAt": "2026-10-04T16:20:09.879000Z",
+    "earliestRefreezeAt": "2026-10-04T17:20:09.879000Z",
+    "state": "stale_candidate_epoch_changed"
+  },
+  "candidateReconciliation": {
+    "generationRemains": 5,
+    "candidateRevision": 2,
+    "reason": "generation 5 never activated; pre-activation epoch movement rebases the candidate instead of consuming a generation number",
+    "quietClockResetAt": "2026-10-04T17:36:39.032000Z",
+    "earliestRefreezeAt": "2026-10-04T18:36:39.032000Z",
+    "quietMinutesObserved": 4.14,
+    "decision": "blocked"
+  },
+  "latestSuccessfulEncryptedBackup": {
+    "workflow": "P15 Encrypted Offsite Backup",
+    "runId": 37218356705,
+    "runNumber": 28,
+    "conclusion": "success",
+    "createdAt": "2026-10-04T16:52:34Z",
+    "headSha": "8ca191a7939b840c028e1c317fa0d3468bc49c07",
+    "verificationPassed": true,
+    "encryption": "CMS AES-256-GCM",
+    "artifactId": 11309815027,
+    "artifactName": "diet-p15-offsite-37218356705",
+    "artifactDigest": "sha256:3c5acd5fca64f6dbed7df766eab0bd0c86fe61ee267d97d706e7e0ad25fae874",
+    "artifactExpired": false,
+    "retentionDays": 90,
+    "snapshotCount": 1,
+    "totalRows": 282,
+    "backupSchemaSha256": "9960c954d3812a1fb178e823830c247aa5e67f115c58dad4170faa9218dce02c",
+    "afterPreviousCandidateFinalChange": true,
+    "afterCurrentCandidateFinalChange": false,
+    "freshnessState": "stale_for_current_candidate"
+  },
+  "backupFreshnessAutomation": {
+    "workflow": ".github/workflows/p15-offsite-backup.yml",
+    "dailySchedule": "17 4 * * *",
+    "refreezeSchedule": "47 * * * *",
+    "refreezeScheduleRunsOnlyWhenP25State": "refreeze_pending",
+    "pushAndManualDispatchAlwaysRun": true,
+    "purpose": "ensure a fresh encrypted offsite backup arrives soon after cross-app shared-epoch changes without creating hourly backups in steady state",
+    "doesNotAlterRetentionDays": true,
+    "retentionDays": 90,
+    "encryptionUnchanged": "CMS AES-256-GCM",
+    "oidcBoundaryUnchanged": true
+  },
+  "reconcileEngine": {
+    "script": "scripts/p39-reconcile-refreeze-candidate.py",
+    "retainsGenerationNumberBeforeActivation": true,
+    "resetsQuietClockOnCandidateChange": true,
+    "invalidatesBackupFreshnessWhenBackupPredatesLatestSharedChange": true,
+    "emitsPreviewOnly": true,
+    "sourceFilesMutated": false
+  },
+  "currentBlockers": [
+    "generation-5 candidate epoch changed to gomoku P23 / gomoku-room v50",
+    "quiet window is only 4.14/60 minutes after the latest shared change",
+    "latest successful encrypted backup predates the current candidate final change"
+  ],
+  "nextOperationalConditions": [
+    "no migration/Edge/cron epoch change for 60 continuous minutes after 2026-10-04T17:36:39.032000Z",
+    "successful verified encrypted offsite backup after 2026-10-04T17:36:39.032000Z",
+    "live health and control checks remain green",
+    "then P37 refreeze receipt may become ready and P38 may generate the generation-5 activation commit preview"
+  ]
+}

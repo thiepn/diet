@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "phase": "P31",
-  "registryVersion": "2026-10-04.2",
-  "capturedAt": "2026-10-04T16:21:43.552540Z",
+  "registryVersion": "2026-10-04.3",
+  "capturedAt": "2026-10-04T17:40:47.662109Z",
   "canonicalProject": {
     "ref": "hycegznamzjhwinegaai",
     "name": "THIEPN Account",
@@ -17,23 +17,23 @@
   "controlPlaneState": "amber",
   "coordinationMode": "registry_and_epoch_drift",
   "releaseEpoch": {
-    "state": "refreeze_pending_generation5",
+    "state": "refreeze_pending_generation5_candidate_revision2",
     "movementReasons": [
-      "database advanced to gomoku_p21_capacity_admission_gate after P36 generation-4 freeze",
-      "gomoku-room advanced to v49",
-      "micro-arcade-p31-backup-export advanced to v2 at 2026-10-04T16:20:09.879Z"
+      "generation-5 candidate advanced from gomoku_p21_capacity_admission_gate to gomoku_p23_security_admission_gate before activation",
+      "gomoku-room advanced from v49 to v50 at 2026-10-04T17:36:39.032Z",
+      "P15 backup run 37218356705 succeeded at 16:52Z but predates the newer v50 final change"
     ],
     "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
-    "migrationHead": "20261004132839",
-    "migrationName": "gomoku_p21_capacity_admission_gate",
+    "migrationHead": "20261004173117",
+    "migrationName": "gomoku_p23_security_admission_gate",
     "cronJobs": 14,
     "edgeFunctionCount": 12,
-    "edgeInventorySha256": "e2aa661fd331640fba473b9a8fe4bc5c9084731900c569e7d2aa4d8ed57fdbc9",
+    "edgeInventorySha256": "2e66d1eec1dac615b0f0cc81a823100dd609947d7ecb51098fe2e37c504d6a0e",
     "cronInventorySha256": "652724f6d80db7f2382637925f3eba6205d114b02204ed68fdf115e5bfc20692",
     "edgeHighlights": {
       "gomokuRoom": {
-        "version": 49,
-        "sha256": "64e5cfdd7a9d027e178eb4e8466b954504eb2bec1021bcb40c19afe8cd05b900",
+        "version": 50,
+        "sha256": "a537d0702fdb53861124849e03fb7141a8036a4ee5c692fa9bf4769c47981695",
         "status": "ACTIVE"
       },
       "microArcadeBackup": {
@@ -44,8 +44,11 @@
     },
     "sharedPromotionsBlocked": true,
     "nextGeneration": 5,
-    "earliestRefreezeAt": "2026-10-04T17:20:09.879000Z",
-    "freezeReason": "P37 requires a fresh 60-minute quiet window before generation 5 can activate."
+    "candidateRevision": 2,
+    "earliestRefreezeAt": "2026-10-04T18:36:39.032000Z",
+    "latestSuccessfulBackupRun": 37218356705,
+    "latestSuccessfulBackupFreshForCandidate": false,
+    "freezeReason": "P39 reset the 60-minute quiet clock and backup-freshness boundary after pre-activation shared-epoch movement."
   },
   "coverage": {
     "governedP29Nodes": 18,

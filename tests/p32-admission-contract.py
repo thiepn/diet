@@ -6,8 +6,8 @@ ROOT=Path(__file__).resolve().parents[1]
 ENGINE=ROOT/"scripts/p32-admit-change.py"
 
 VERSIONS={
-  "policyBundleVersion":"2026-10-04.2",
-  "fleetRegistryVersion":"2026-10-04.2",
+  "policyBundleVersion":"2026-10-04.3",
+  "fleetRegistryVersion":"2026-10-04.3",
   "releaseRegistryVersion":"2026-10-04.2"
 }
 
