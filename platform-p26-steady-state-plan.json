@@ -187,7 +187,7 @@
     "final steady-state operational report committed"
   ],
   "currentGateSnapshot": {
-    "observedAt": "2026-10-04T19:44:10.276405Z",
+    "observedAt": "2026-10-04T19:56:54.779364Z",
     "p25State": "refreeze_pending",
     "p25Generation": 5,
     "nextGeneration": 6,
@@ -202,11 +202,11 @@
     "timeGateMetAtSnapshot": false,
     "successfulSamplesKnownAtScheduleChange": 0,
     "minimumSuccessfulSamples": 12,
-    "blocker": "Generation 5 was invalidated by StudyOS shared-platform migrations beginning at 2026-10-04T18:58:02Z. Generation 6 candidate revision 1 is waiting for a fresh post-change encrypted backup and 60 minutes of shared-epoch quiet before refreeze.",
-    "generation5InvalidatedAt": "2026-10-04T19:44:10.276405Z",
-    "generation6CandidateRevision": 1,
+    "blocker": "Generation 5 was invalidated by post-activation shared-platform change. Generation 6 candidate revision 2 is waiting for a fresh post-change encrypted backup and 60 minutes of semantic/shared-epoch quiet before refreeze.",
+    "generation5InvalidatedAt": "2026-10-04T19:56:54.779364Z",
+    "generation6CandidateRevision": 2,
     "generation6CandidateMigration": "20261004192902_studyos_p8_checkpoint_dimension_evidence",
-    "generation6CandidateSemanticSchemaSha256": "b40d9a3d1da7c39917f41a9c1f8e95615838b7f34a64e673191bf810833f7cd2"
+    "generation6CandidateSemanticSchemaSha256": "09d16243904c77513df9d695ed060f122e08d921de79d281905235d970e96159"
   },
   "liveProvisionalRefresh": {
     "observedAt": "2026-10-03T08:09:28.650287Z",
