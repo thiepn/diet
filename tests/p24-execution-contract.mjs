@@ -24,10 +24,10 @@ assert.equal(app.health.platformManagedBuildAfter,'17.6.1.164');
 assert.equal(app.health.platformSemanticFingerprintFormat,'platform-p23-shared-schema-v2');
 assert.equal(app.health.postgres1711CompatibilityBaselineMet,false);
 assert.equal(app.health.postgres1711TrackedSeparately,true);
-assert.equal(app.health.p25BurnInActive,false);
-assert.equal(app.health.p25CurrentGenerationValid,false);
-assert.equal(app.health.p25NextGeneration,5);
-assert.equal(app.health.p25BurnInGenerationState,'invalidated_epoch_changed');
+assert.equal(app.health.p25BurnInActive,true);
+assert.equal(app.health.p25CurrentGenerationValid,true);
+assert.equal(app.health.p25NextGeneration,null);
+assert.equal(app.health.p25BurnInGenerationState,'burn_in_active');
 
 const policy=backend.platform_upgrade_execution_policy;
 assert.equal(policy.release,'P24');
