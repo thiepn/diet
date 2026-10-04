@@ -36,7 +36,10 @@
     "earliestRefreezeAt": "2026-10-04T17:20:09.879000Z",
     "dependencyGraphCoveragePct": 100,
     "registeredAppGovernanceCoveragePct": 100,
-    "unmodeledComponents": []
+    "unmodeledComponents": [],
+    "registeredApps": 7,
+    "hostedBranchActionStatus": "MIGRATIONS_FAILED",
+    "fleetReleaseSafety": "amber"
   },
   "policies": [
     {
