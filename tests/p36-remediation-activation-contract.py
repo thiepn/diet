@@ -55,7 +55,7 @@ sem=next(x for x in p31["components"] if x["id"]=="semester-os")
 assert sem["governance"]=="governed" and sem["owner"]=="thiepn"
 assert not any(x.get("id")=="p29-graph-missing-semester-os" for x in p31.get("observedDrift",[]))
 assert p32["mode"]=="warn"
-assert p32["fleetRegistryVersion"]=="2026-10-04.2"
+assert p32["fleetRegistryVersion"]=="2026-10-04.3"
 assert p32["dependencyGraphVersion"]=="2026-10-04.1"
 
 # Historical P34 register remains immutable; P36 is the closure event.
