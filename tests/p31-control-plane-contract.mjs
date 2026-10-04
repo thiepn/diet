@@ -24,41 +24,40 @@ assert.equal(plan.automation.productionMutationAllowed,false);
 assert.equal(plan.automation.paidProvisioningAllowed,false);
 
 assert.equal(fleet.phase,'P31');
-assert.equal(fleet.registryVersion,'2026-10-03.2');
+assert.equal(fleet.registryVersion,'2026-10-04.1');
 assert.equal(fleet.canonicalProject.serviceStatus,'ACTIVE_HEALTHY');
 assert.equal(fleet.productionHealth,'green');
 assert.equal(fleet.releaseSafety,'amber');
-assert.equal(fleet.releaseEpoch.migrationHead,'20261003105645');
+assert.equal(fleet.releaseEpoch.migrationHead,'20261003221217');
 assert.equal(fleet.releaseEpoch.cronJobs,14);
 assert.equal(fleet.releaseEpoch.edgeFunctionCount,12);
 assert.equal(fleet.releaseEpoch.edgeHighlights.gomokuRoom.version,48);
 assert.equal(fleet.components.length,18);
 assert.equal(fleet.coverage.registeredAppsObserved,7);
-assert.equal(fleet.coverage.registeredAppsGoverned,6);
-assert.equal(fleet.coverage.dependencyGraphCoveragePct,94.44);
+assert.equal(fleet.coverage.registeredAppsGoverned,7);
+assert.equal(fleet.coverage.dependencyGraphCoveragePct,100);
 const semester=fleet.components.find(x=>x.id==='semester-os');
-assert.equal(semester.governance,'observed_unmodeled');
+assert.equal(semester.governance,'governed');
 assert.equal(semester.route,'/semester/');
-assert.ok(fleet.observedDrift.some(x=>x.id==='p29-graph-missing-semester-os'));
-assert.ok(fleet.observedDrift.some(x=>x.id==='gomoku-edge-moved-since-p30'));
+assert.ok(!fleet.observedDrift.some(x=>x.id==='p29-graph-missing-semester-os'));
+assert.ok(!fleet.observedDrift.some(x=>x.id==='gomoku-edge-moved-since-p30'));
 assert.equal(fleet.governanceUnresolvedResources.length,0);
 
 const governedIds=new Set(fleet.components.filter(x=>x.governance==='governed').map(x=>x.id));
 const graphIds=new Set(graph.nodes.map(x=>x.id));
 assert.deepEqual([...governedIds].sort(),[...graphIds].sort());
-assert.equal(graph.nodes.length,17);
+assert.equal(graph.nodes.length,18);
 
 assert.equal(releases.phase,'P31');
-assert.equal(releases.registryVersion,'2026-10-03.2');
+assert.equal(releases.registryVersion,'2026-10-04.1');
 assert.equal(releases.publishedOperationsVersion,'P25.0');
-assert.equal(releases.latestMergedGovernancePhase,'P30');
-assert.equal(releases.latestMergedMainSha,'dd35a66826471b4cd94c1b9e8ead90be18dc1dc5');
-assert.deepEqual(releases.phases.map(x=>x.id),['P26','P27','P28','P29','P30','P31']);
-for(const p of releases.phases.slice(0,-1)){
+assert.equal(releases.latestMergedGovernancePhase,'P35');
+assert.equal(releases.latestMergedMainSha,'7b73e0b36cc55b7e7d6c6ea44162d97b16cdd59b');
+assert.deepEqual(releases.phases.map(x=>x.id),['P26','P27','P28','P29','P30','P31','P32','P33','P34','P35']);
+for(const p of releases.phases){
   assert.ok(p.state.startsWith('merged_'));
   assert.match(p.mergeSha,/^[0-9a-f]{40}$/);
 }
-assert.equal(releases.phases.at(-1).state,'implementation_active_operator_override');
 assert.equal(releases.invariants.manualProductionApprovalRequired,true);
 assert.equal(releases.invariants.unmodeledComponentCannotSelfAuthorize,true);
 
@@ -70,7 +69,7 @@ for(const key of [
 for(const token of [
   'active by explicit operator override','Production health: **green**',
   'Release safety: **amber**','semester-os','`gomoku-room` is now **v48**',
-  '94.44%','85.71%','observed but unmodeled',
+  '100%','7/7','governed',
   'expired leases remain evidence','does not promote production'
 ]) assert.ok(doc.includes(token),'P31 doc missing '+token);
 
