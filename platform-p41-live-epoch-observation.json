@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "phase": "P41",
-  "observedAt": "2026-10-04T19:44:10.276405Z",
+  "observedAt": "2026-10-04T19:56:54.779364Z",
   "projectStatus": "ACTIVE_HEALTHY",
   "generation": 5,
   "frozenEpoch": {
@@ -20,7 +20,7 @@
     "migrationVersion": "20261004192902",
     "migrationName": "studyos_p8_checkpoint_dimension_evidence",
     "migrationHead": "20261004192902_studyos_p8_checkpoint_dimension_evidence",
-    "semanticSchemaSha256": "b40d9a3d1da7c39917f41a9c1f8e95615838b7f34a64e673191bf810833f7cd2",
+    "semanticSchemaSha256": "09d16243904c77513df9d695ed060f122e08d921de79d281905235d970e96159",
     "dietSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
     "edgeInventorySha256": "2e66d1eec1dac615b0f0cc81a823100dd609947d7ecb51098fe2e37c504d6a0e",
     "edgeFunctionCount": 12,
@@ -38,7 +38,8 @@
     "p21Readiness": "pass",
     "p22Maintenance": "pass",
     "securityAdvisorReviewed": true,
-    "performanceAdvisorReviewed": true
+    "performanceAdvisorReviewed": true,
+    "observedAt": "2026-10-04T19:56:54.779364Z"
   },
   "firstPostActivationEpochChange": {
     "at": "2026-10-04T18:58:02Z",
@@ -46,10 +47,10 @@
     "migrationName": "studyos_p7_master_map_and_packet",
     "migrationHead": "20261004185802_studyos_p7_master_map_and_packet"
   },
-  "latestSharedChangeAt": "2026-10-04T19:29:02Z",
-  "latestSharedChangeComponent": "database_migration",
-  "latestSharedChangeVersion": "20261004192902",
-  "latestSharedChangeSha256": "b40d9a3d1da7c39917f41a9c1f8e95615838b7f34a64e673191bf810833f7cd2",
+  "latestSharedChangeAt": "2026-10-04T19:56:54.779364Z",
+  "latestSharedChangeComponent": "semantic_schema_fingerprint",
+  "latestSharedChangeVersion": "09d16243904c77513df9d695ed060f122e08d921de79d281905235d970e96159",
+  "latestSharedChangeSha256": "09d16243904c77513df9d695ed060f122e08d921de79d281905235d970e96159",
   "latestSuccessfulEncryptedBackup": {
     "workflow": "P15 Encrypted Offsite Backup",
     "runId": 37222829955,
@@ -61,5 +62,13 @@
     "artifactId": 11311011119,
     "artifactDigest": "sha256:432279d9ab3fc204061a89afc20869bf0994f6604ec586205081897b932049cb",
     "freshForCurrentEpoch": false
+  },
+  "latestMigrationChangeAt": "2026-10-04T19:29:02Z",
+  "generation6CandidateRebase": {
+    "candidateRevision": 2,
+    "rebasedAt": "2026-10-04T19:56:54.779364Z",
+    "reason": "semantic_schema_fingerprint_changed_without_migration_edge_or_cron_identity_change",
+    "previousSemanticSchemaSha256": "b40d9a3d1da7c39917f41a9c1f8e95615838b7f34a64e673191bf810833f7cd2",
+    "currentSemanticSchemaSha256": "09d16243904c77513df9d695ed060f122e08d921de79d281905235d970e96159"
   }
 }
