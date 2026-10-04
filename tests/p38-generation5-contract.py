@@ -29,7 +29,8 @@ assert p25["state"]=="refreeze_pending"
 assert p25["generation"]==4
 assert p25["nextGeneration"]==5
 assert p25["currentGenerationEligible"] is False
-assert p25["pendingGeneration5"]["edgeQuietMinutesObserved"]==4.14\nassert p25["pendingGeneration5"]["candidateRevision"]==2
+assert p25["pendingGeneration5"]["edgeQuietMinutesObserved"]==4.14
+assert p25["pendingGeneration5"]["candidateRevision"]==2
 assert p25["pendingGeneration5"]["lastDecision"]=="blocked"
 
 with tempfile.TemporaryDirectory() as td:
