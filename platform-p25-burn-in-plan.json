@@ -152,7 +152,7 @@
   },
   "generationState": "invalidated_epoch_changed",
   "currentGenerationEligible": false,
-  "invalidatedAt": "2026-10-04T19:44:10.276405Z",
+  "invalidatedAt": "2026-10-04T19:56:54.779364Z",
   "invalidationEvidence": {
     "reason": "shared_release_epoch_changed_after_generation5",
     "generation": 5,
@@ -165,7 +165,7 @@
     "observedMigrationVersion": "20261004192902",
     "observedMigrationName": "studyos_p8_checkpoint_dimension_evidence",
     "observedMigrationHead": "20261004192902_studyos_p8_checkpoint_dimension_evidence",
-    "observedSemanticSchemaSha256": "b40d9a3d1da7c39917f41a9c1f8e95615838b7f34a64e673191bf810833f7cd2",
+    "observedSemanticSchemaSha256": "09d16243904c77513df9d695ed060f122e08d921de79d281905235d970e96159",
     "dietSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
     "edgeInventoryChanged": false,
     "cronInventoryChanged": false
@@ -173,28 +173,28 @@
   "nextGeneration": 6,
   "refreezePolicy": {
     "minimumQuietMinutes": 60,
-    "quietClockStartsAfterLatestObservedSharedChange": "2026-10-04T19:29:02Z",
-    "earliestRefreezeAt": "2026-10-04T20:29:02Z",
+    "quietClockStartsAfterLatestObservedSharedChange": "2026-10-04T19:56:54.779364Z",
+    "earliestRefreezeAt": "2026-10-04T20:56:54.779364Z",
     "requireMigrationSchemaEdgeCronRecheck": true,
     "requireControlsAndBackupRecheck": true,
     "requirePostFinalChangeEncryptedBackup": true
   },
   "latestObservedEpoch": {
-    "observedAt": "2026-10-04T19:44:10.276405Z",
+    "observedAt": "2026-10-04T19:56:54.779364Z",
     "migrationVersion": "20261004192902",
     "migrationName": "studyos_p8_checkpoint_dimension_evidence",
     "migrationHead": "20261004192902_studyos_p8_checkpoint_dimension_evidence",
-    "semanticSchemaSha256": "b40d9a3d1da7c39917f41a9c1f8e95615838b7f34a64e673191bf810833f7cd2",
+    "semanticSchemaSha256": "09d16243904c77513df9d695ed060f122e08d921de79d281905235d970e96159",
     "gomokuRoomVersion": 50,
     "gomokuRoomSha256": "a537d0702fdb53861124849e03fb7141a8036a4ee5c692fa9bf4769c47981695",
     "gomokuRoomUpdatedAt": "2026-10-04T17:36:39.032000Z",
     "edgeInventorySha256": "2e66d1eec1dac615b0f0cc81a823100dd609947d7ecb51098fe2e37c504d6a0e",
     "edgeFunctionCount": 12,
     "edgeFunctionsAllActive": true,
-    "latestSharedChangeAt": "2026-10-04T19:29:02Z",
-    "latestSharedChangeComponent": "database_migration",
-    "latestSharedChangeVersion": "20261004192902",
-    "latestSharedChangeSha256": "b40d9a3d1da7c39917f41a9c1f8e95615838b7f34a64e673191bf810833f7cd2",
+    "latestSharedChangeAt": "2026-10-04T19:56:54.779364Z",
+    "latestSharedChangeComponent": "semantic_schema_fingerprint",
+    "latestSharedChangeVersion": "09d16243904c77513df9d695ed060f122e08d921de79d281905235d970e96159",
+    "latestSharedChangeSha256": "09d16243904c77513df9d695ed060f122e08d921de79d281905235d970e96159",
     "cronJobs": 14,
     "activeCronJobs": 14,
     "cronInventorySha256": "652724f6d80db7f2382637925f3eba6205d114b02204ed68fdf115e5bfc20692",
@@ -203,7 +203,8 @@
     "p18Integrity": "clean",
     "p20SchemaDrift": false,
     "p21Readiness": "pass",
-    "p22Maintenance": "pass"
+    "p22Maintenance": "pass",
+    "latestMigrationChangeAt": "2026-10-04T19:29:02Z"
   },
   "generation3Sampling": {
     "workflow": ".github/workflows/p25-post-upgrade-burnin.yml",
@@ -360,12 +361,12 @@
   "generation5Invalidation": {
     "generation": 5,
     "state": "invalidated_epoch_changed",
-    "invalidatedAt": "2026-10-04T19:44:10.276405Z",
+    "invalidatedAt": "2026-10-04T19:56:54.779364Z",
     "firstEpochChangeAt": "2026-10-04T18:58:02Z",
     "lastFrozenMigrationHead": "20261004173117_gomoku_p23_security_admission_gate",
     "observedMigrationHead": "20261004192902_studyos_p8_checkpoint_dimension_evidence",
     "frozenSemanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
-    "observedSemanticSchemaSha256": "b40d9a3d1da7c39917f41a9c1f8e95615838b7f34a64e673191bf810833f7cd2",
+    "observedSemanticSchemaSha256": "09d16243904c77513df9d695ed060f122e08d921de79d281905235d970e96159",
     "successfulQualifyingSamplesBeforeInvalidation": 0,
     "certificationEligible": false,
     "invalidationReceipt": "platform-p41-generation5-invalidation-receipt.json"
@@ -373,23 +374,23 @@
   "pendingGeneration6": {
     "generation": 6,
     "state": "waiting_quiet_window_and_fresh_backup",
-    "candidateObservedAt": "2026-10-04T19:44:10.276405Z",
+    "candidateObservedAt": "2026-10-04T19:56:54.779364Z",
     "candidateEpoch": {
-      "observedAt": "2026-10-04T19:44:10.276405Z",
+      "observedAt": "2026-10-04T19:56:54.779364Z",
       "migrationVersion": "20261004192902",
       "migrationName": "studyos_p8_checkpoint_dimension_evidence",
       "migrationHead": "20261004192902_studyos_p8_checkpoint_dimension_evidence",
-      "semanticSchemaSha256": "b40d9a3d1da7c39917f41a9c1f8e95615838b7f34a64e673191bf810833f7cd2",
+      "semanticSchemaSha256": "09d16243904c77513df9d695ed060f122e08d921de79d281905235d970e96159",
       "gomokuRoomVersion": 50,
       "gomokuRoomSha256": "a537d0702fdb53861124849e03fb7141a8036a4ee5c692fa9bf4769c47981695",
       "gomokuRoomUpdatedAt": "2026-10-04T17:36:39.032000Z",
       "edgeInventorySha256": "2e66d1eec1dac615b0f0cc81a823100dd609947d7ecb51098fe2e37c504d6a0e",
       "edgeFunctionCount": 12,
       "edgeFunctionsAllActive": true,
-      "latestSharedChangeAt": "2026-10-04T19:29:02Z",
-      "latestSharedChangeComponent": "database_migration",
-      "latestSharedChangeVersion": "20261004192902",
-      "latestSharedChangeSha256": "b40d9a3d1da7c39917f41a9c1f8e95615838b7f34a64e673191bf810833f7cd2",
+      "latestSharedChangeAt": "2026-10-04T19:56:54.779364Z",
+      "latestSharedChangeComponent": "semantic_schema_fingerprint",
+      "latestSharedChangeVersion": "09d16243904c77513df9d695ed060f122e08d921de79d281905235d970e96159",
+      "latestSharedChangeSha256": "09d16243904c77513df9d695ed060f122e08d921de79d281905235d970e96159",
       "cronJobs": 14,
       "activeCronJobs": 14,
       "cronInventorySha256": "652724f6d80db7f2382637925f3eba6205d114b02204ed68fdf115e5bfc20692",
@@ -398,21 +399,22 @@
       "p18Integrity": "clean",
       "p20SchemaDrift": false,
       "p21Readiness": "pass",
-      "p22Maintenance": "pass"
+      "p22Maintenance": "pass",
+      "latestMigrationChangeAt": "2026-10-04T19:29:02Z"
     },
     "minimumQuietMinutes": 60,
-    "migrationQuietMinutesObserved": 15.138,
-    "edgeQuietMinutesObserved": 127.521,
-    "earliestRefreezeAt": "2026-10-04T20:29:02Z",
+    "migrationQuietMinutesObserved": 27.88,
+    "edgeQuietMinutesObserved": 140.263,
+    "earliestRefreezeAt": "2026-10-04T20:56:54.779364Z",
     "postFinalChangeEncryptedBackupVerified": false,
     "eligibleToActivate": false,
-    "lastRecheckedAt": "2026-10-04T19:44:10.276405Z",
+    "lastRecheckedAt": "2026-10-04T19:56:54.779364Z",
     "lastDecision": "blocked",
     "lastBlockers": [
       "backup_predates_latest_shared_change",
-      "quiet_window_open:15.138/60"
+      "quiet_window_open:0/60"
     ],
-    "candidateRevision": 1,
+    "candidateRevision": 2,
     "latestSuccessfulBackup": {
       "workflow": "P15 Encrypted Offsite Backup",
       "runId": 37222829955,
@@ -433,7 +435,17 @@
       "backupSchemaSha256": "9960c954d3812a1fb178e823830c247aa5e67f115c58dad4170faa9218dce02c",
       "freshForCandidate": false,
       "evidenceRef": "github-actions:P15:37222829955:artifact:11311011119:sha256:432279d9ab3fc204061a89afc20869bf0994f6604ec586205081897b932049cb"
-    }
+    },
+    "semanticQuietMinutesObserved": 0,
+    "previousCandidate": {
+      "candidateRevision": 1,
+      "candidateObservedAt": "2026-10-04T19:44:10.276405Z",
+      "migrationHead": "20261004192902_studyos_p8_checkpoint_dimension_evidence",
+      "semanticSchemaSha256": "b40d9a3d1da7c39917f41a9c1f8e95615838b7f34a64e673191bf810833f7cd2",
+      "latestSharedChangeAt": "2026-10-04T19:29:02Z"
+    },
+    "candidateRebasedAt": "2026-10-04T19:56:54.779364Z",
+    "candidateRebaseReason": "semantic_schema_fingerprint_changed_without_migration_edge_or_cron_identity_change"
   },
   "generation6Sampling": {
     "workflow": ".github/workflows/p25-post-upgrade-burnin.yml",
