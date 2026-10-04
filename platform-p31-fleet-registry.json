@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "phase": "P31",
-  "registryVersion": "2026-10-03.2",
-  "capturedAt": "2026-10-03T12:03:35.275973Z",
+  "registryVersion": "2026-10-04.1",
+  "capturedAt": "2026-10-04T12:55:17.146329Z",
   "canonicalProject": {
     "ref": "hycegznamzjhwinegaai",
     "name": "THIEPN Account",
@@ -17,15 +17,15 @@
   "controlPlaneState": "amber",
   "coordinationMode": "registry_and_epoch_drift",
   "releaseEpoch": {
-    "state": "moving",
-    "movementReasons": [
-      "gomoku_edge_changed_since_p30"
-    ],
+    "state": "frozen_candidate_burn_in",
+    "movementReasons": [],
     "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
-    "migrationHead": "20261003105645",
-    "migrationName": "gomoku_p20_production_slos_error_budgets",
+    "migrationHead": "20261003221217",
+    "migrationName": "hub_h15_tms60_projection",
     "cronJobs": 14,
     "edgeFunctionCount": 12,
+    "edgeInventorySha256": "4d9c066197de1f456665dfa4b328917deaeab6b427860bfd9e23786e14e311bd",
+    "cronInventorySha256": "652724f6d80db7f2382637925f3eba6205d114b02204ed68fdf115e5bfc20692",
     "edgeHighlights": {
       "gomokuRoom": {
         "version": 48,
@@ -43,22 +43,16 @@
         "status": "ACTIVE"
       }
     },
-    "previousP30": {
-      "observedAt": "2026-10-03T11:10:56.905973Z",
-      "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
-      "migrationHead": "20261003105645",
-      "cronJobs": 14,
-      "edgeInventorySha256": "8400fe3f4f203d37e8208a8541c2e6ffc7d49ace98871ecdb80fef1026842da8"
-    },
-    "sharedPromotionsBlocked": true
+    "sharedPromotionsBlocked": true,
+    "freezeReason": "P36 generation-4 burn-in candidate; shared promotions remain blocked until certification/activation gates pass."
   },
   "coverage": {
-    "governedP29Nodes": 17,
+    "governedP29Nodes": 18,
     "observedFleetComponents": 18,
-    "dependencyGraphCoveragePct": 94.44,
+    "dependencyGraphCoveragePct": 100,
     "registeredAppsObserved": 7,
-    "registeredAppsGoverned": 6,
-    "registeredAppGovernanceCoveragePct": 85.71
+    "registeredAppsGoverned": 7,
+    "registeredAppGovernanceCoveragePct": 100
   },
   "components": [
     {
@@ -260,10 +254,10 @@
     {
       "id": "semester-os",
       "class": "registered_app",
-      "owner": null,
-      "criticality": "unclassified",
-      "lifecycle": "observed_active",
-      "governance": "observed_unmodeled",
+      "owner": "thiepn",
+      "criticality": "tier1",
+      "lifecycle": "active",
+      "governance": "governed",
       "route": "/semester/",
       "releaseScopes": [
         "app:semester-os"
@@ -271,19 +265,6 @@
     }
   ],
   "observedDrift": [
-    {
-      "id": "p29-graph-missing-semester-os",
-      "type": "dependency_registry",
-      "severity": "blocks_component_and_shared_release",
-      "component": "semester-os",
-      "scopes": [
-        "app:semester-os",
-        "database_schema",
-        "identity_contract",
-        "database_api"
-      ],
-      "reason": "live account_apps contains semester-os, but P28 ownership and P29 dependency graph do not model it"
-    },
     {
       "id": "gomoku-edge-moved-since-p30",
       "type": "release_epoch",
