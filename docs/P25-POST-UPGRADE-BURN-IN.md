@@ -163,3 +163,5 @@ Earliest certification is `2026-10-05T12:55:17.146329Z`.
 Generation 4 still requires at least 12 healthy public samples spanning all six 4-hour buckets, a terminal sample at or after the 24-hour boundary, an unchanged release epoch, and a successful encrypted offsite backup captured after the final shared-platform change.
 
 The previous generation-3 backup run `37040772134` remains historical evidence and is not treated as satisfying the new generation-4 post-final-change backup gate.
+
+Generation 4 is **active but not yet certifiable**.
