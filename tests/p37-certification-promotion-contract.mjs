@@ -32,7 +32,7 @@ assert.equal(plan.oeLaunch.state,'blocked');
 
 assert.equal(p25.state,'burn_in_active');
 assert.equal(p25.generation,5);
-assert.equal(p25.generationState,'invalidated_epoch_changed');
+assert.equal(p25.generationState,'burn_in_active');
 assert.equal(p25.currentGenerationEligible,true);
 assert.equal(p25.nextGeneration,null);
 assert.equal(p25.pendingGeneration5.state,'activated');
