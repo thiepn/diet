@@ -17,13 +17,14 @@ That is only about six minutes after activation. Later StudyOS migrations moved 
 The platform semantic fingerprint changed from:
 
 - frozen: `5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375`
-- live: `b40d9a3d1da7c39917f41a9c1f8e95615838b7f34a64e673191bf810833f7cd2`
+- first observed post-migration live value: `b40d9a3d1da7c39917f41a9c1f8e95615838b7f34a64e673191bf810833f7cd2`
+- latest observed live value: `09d16243904c77513df9d695ed060f122e08d921de79d281905235d970e96159`
 
 The Diet schema itself still reports the original Diet fingerprint and P20 reports no Diet drift. The invalidation is therefore a **shared release epoch change**, not a Diet schema regression.
 
 ## Health at observation
 
-At `2026-10-04T19:44:10.276405Z`:
+At the latest P41 observation, `2026-10-04T19:56:54.779364Z`:
 
 - project: ACTIVE_HEALTHY
 - Edge Functions: 12/12 active
@@ -53,23 +54,23 @@ Therefore:
 
 ## Generation 6 candidate
 
-P41 opens generation 6 candidate revision 1 against the latest observed shared epoch.
+P41 first opened generation 6 candidate revision 1, then rebased it to **revision 2** when the semantic fingerprint moved again while migration, Edge, and cron identities stayed unchanged.
 
 Candidate:
 
 - migration: `20261004192902_studyos_p8_checkpoint_dimension_evidence`
-- semantic fingerprint: `b40d9a3d1da7c39917f41a9c1f8e95615838b7f34a64e673191bf810833f7cd2`
+- semantic fingerprint: `09d16243904c77513df9d695ed060f122e08d921de79d281905235d970e96159`
 - Edge inventory: unchanged
 - `gomoku-room`: v50
 - cron inventory: unchanged
 
-The latest shared change is `2026-10-04T19:29:02Z`, so the earliest 60-minute refreeze boundary is `2026-10-04T20:29:02Z`.
+The latest migration remains `20261004192902`, but the semantic fingerprint changed again by `2026-10-04T19:56:54.779364Z`. P41 treats that observation as the latest shared semantic change, resets the quiet clock, and sets the earliest 60-minute refreeze boundary to `2026-10-04T20:56:54.779364Z`.
 
 P15 encrypted backup run **37222829955** was created at `18:03:25Z`, before the latest shared change. It is valid historical backup evidence but **not fresh for generation 6**.
 
 Generation 6 therefore remains blocked on:
 
-1. a verified encrypted P15 backup created after `2026-10-04T19:29:02Z`;
+1. a verified encrypted P15 backup created after `2026-10-04T19:56:54.779364Z`;
 2. at least 60 minutes with no later shared epoch change;
 3. the normal migration/schema/Edge/cron and health revalidation.
 
