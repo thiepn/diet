@@ -4,8 +4,8 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 CLI=ROOT/"scripts/p31-control-plane.py"
-FLEET_VERSION="2026-10-03.2"
-RELEASE_VERSION="2026-10-03.2"
+FLEET_VERSION="2026-10-04.1"
+RELEASE_VERSION="2026-10-04.1"
 
 def run(args,expect=0):
     p=subprocess.run([sys.executable,str(CLI),*args],cwd=ROOT,capture_output=True,text=True)
@@ -40,9 +40,9 @@ with tempfile.TemporaryDirectory() as td:
     assert s["fleetState"]=="amber"
     assert s["coordinationMode"]=="registry_and_epoch_drift"
     assert s["observedComponentCount"]==18
-    assert s["dependencyGraphNodeCount"]==17
-    assert s["dependencyGraphMissingComponents"]==["semester-os"]
-    assert s["latestMergedGovernancePhase"]=="P30"
+    assert s["dependencyGraphNodeCount"]==18
+    assert s["dependencyGraphMissingComponents"]==[]
+    assert s["latestMergedGovernancePhase"]=="P35"
 
     valid=d/"valid.json"
     run(["validate","--out",str(valid)])
@@ -50,15 +50,15 @@ with tempfile.TemporaryDirectory() as td:
     assert v["status"]=="pass"
     assert v["registryStructurallyValid"] is True
     assert v["releaseReady"] is False
-    assert v["governedGraphNodeCount"]==17
-    assert v["dependencyGraphNodeCount"]==17
-    assert v["observedUnmodeledComponents"]==["semester-os"]
-    assert any(x.startswith("observed_unmodeled_components:") for x in v["warnings"])
+    assert v["governedGraphNodeCount"]==18
+    assert v["dependencyGraphNodeCount"]==18
+    assert v["observedUnmodeledComponents"]==[]
+    assert not any(x.startswith("observed_unmodeled_components:") for x in v["warnings"])
 
     # Exact observed live state matches the current P31 registry.
     observed={
       "semanticSchemaSha256":"5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
-      "migrationHead":"20261003105645",
+      "migrationHead":"20261003221217",
       "cronJobs":14,
       "edgeFunctionCount":12,
       "gomokuRoomVersion":48,
@@ -89,25 +89,22 @@ with tempfile.TemporaryDirectory() as td:
     assert dec["decision"]=="allow"
     assert "published_operations_manifest_lags_control_plane" in dec["warnings"]
 
-    # Gomoku app-fast intersects the moving Edge epoch and is blocked.
+    # Gomoku app-fast now matches the reconciled v48 epoch and may proceed.
     gomoku=intent(
       trainId="gomoku-fast-1",components=["gomoku"],
       scopes=["app:gomoku","edge:gomoku-room"]
     )
     ip.write_text(json.dumps(gomoku),encoding="utf-8")
-    run(["can-release",str(ip),"--out",str(decision)],1)
-    dec=json.loads(decision.read_text())
-    assert "observed_block:gomoku-edge-moved-since-p30" in dec["reasons"]
+    run(["can-release",str(ip),"--out",str(decision)])
+    assert json.loads(decision.read_text())["decision"]=="allow"
 
-    # Newly observed Semester OS cannot release before ownership/dependency governance.
+    # Semester OS is now governed and may use the app-fast path.
     semester=intent(
       trainId="semester-fast-1",components=["semester-os"],scopes=["app:semester-os"]
     )
     ip.write_text(json.dumps(semester),encoding="utf-8")
-    run(["can-release",str(ip),"--out",str(decision)],1)
-    dec=json.loads(decision.read_text())
-    assert "component_not_governed:semester-os" in dec["reasons"]
-    assert "dependency_graph_missing_component:semester-os" in dec["reasons"]
+    run(["can-release",str(ip),"--out",str(decision)])
+    assert json.loads(decision.read_text())["decision"]=="allow"
 
     # Shared/stateful release blocks while epoch and graph coverage are incomplete.
     shared=intent(
@@ -118,7 +115,7 @@ with tempfile.TemporaryDirectory() as td:
     run(["can-release",str(ip),"--out",str(decision)],1)
     dec=json.loads(decision.read_text())
     assert "shared_epoch_not_stable" in dec["reasons"]
-    assert "fleet_dependency_coverage_incomplete" in dec["reasons"]
+    assert "fleet_dependency_coverage_incomplete" not in dec["reasons"]
 
     # Hosted branch path remains unavailable while its action state is failed.
     hosted=intent(integrationEnvironmentKind="supabase_branch")
