@@ -235,3 +235,22 @@ The merged governance lineage now runs through **P36**. Fleet/dependency coverag
 The live release epoch moved to `20261004132839_gomoku_p21_capacity_admission_gate`, `gomoku-room` v49, and `micro-arcade-p31-backup-export` v2. The shared epoch is therefore `refreeze_pending_generation5`, not stable.
 
 Governed app-fast work may still be evaluated normally. Shared/stateful release trains remain blocked by `shared_epoch_not_stable` until the new P25 generation is legitimately frozen and certified.
+
+
+## P39 candidate-revision reconciliation — 2026-10-04
+
+The fleet registry is now `2026-10-04.3`.
+
+Production health remains green, but release safety remains amber because the shared release epoch moved before generation 5 activated.
+
+Current shared epoch:
+
+- migration: `20261004173117_gomoku_p23_security_admission_gate`
+- Gomoku Edge: v50
+- generation target: 5
+- candidate revision: 2
+- earliest refreeze: `2026-10-04T18:36:39.032000Z`
+- latest successful encrypted backup: run `37218356705`
+- that backup is not fresh for candidate revision 2
+
+Shared/stateful release trains remain blocked. Governed app-fast work keeps its existing control-plane semantics.
