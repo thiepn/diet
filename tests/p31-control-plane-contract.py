@@ -4,7 +4,7 @@ from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 CLI=ROOT/"scripts/p31-control-plane.py"
-FLEET_VERSION="2026-10-04.2"
+FLEET_VERSION="2026-10-04.3"
 RELEASE_VERSION="2026-10-04.2"
 
 def run(args,expect=0):
@@ -58,11 +58,11 @@ with tempfile.TemporaryDirectory() as td:
     # Exact observed live state matches the current P31 registry.
     observed={
       "semanticSchemaSha256":"5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
-      "migrationHead":"20261004132839",
+      "migrationHead":"20261004173117",
       "cronJobs":14,
       "edgeFunctionCount":12,
-      "gomokuRoomVersion":49,
-      "gomokuRoomSha256":"64e5cfdd7a9d027e178eb4e8466b954504eb2bec1021bcb40c19afe8cd05b900",
+      "gomokuRoomVersion":50,
+      "gomokuRoomSha256":"a537d0702fdb53861124849e03fb7141a8036a4ee5c692fa9bf4769c47981695",
       "registeredApps":["notes","diet","wordstrike","gomoku","semester-os","wttn","tms60"]
     }
     obs=d/"observed.json"; rec=d/"reconcile.json"
@@ -71,7 +71,7 @@ with tempfile.TemporaryDirectory() as td:
     assert json.loads(rec.read_text())["status"]=="match"
 
     newer=json.loads(json.dumps(observed))
-    newer["gomokuRoomVersion"]=50
+    newer["gomokuRoomVersion"]=51
     obs.write_text(json.dumps(newer),encoding="utf-8")
     run(["reconcile",str(obs),"--out",str(rec)])
     r=json.loads(rec.read_text())
