@@ -30,7 +30,9 @@ function block(condition,code,detail){
 const minimumCompleteAfter=new Date(p25.minimumCompleteAfter);
 block(Number.isNaN(minimumCompleteAfter.getTime()),'invalid_minimum_complete_after','P25 minimumCompleteAfter is missing or invalid.');
 block(p25.completionState?.complete!==true,'p25_not_certified','P25 completionState.complete is not true.');
-block(p25.generation!==req.p25Generation,'wrong_generation',`Expected P25 generation ${req.p25Generation}; found ${p25.generation}.`);
+if(req.p25Generation!=='current_eligible_generation'){
+  block(p25.generation!==req.p25Generation,'wrong_generation',`Expected P25 generation ${req.p25Generation}; found ${p25.generation}.`);
+}
 block(p25.currentGenerationEligible!==true,'generation_not_eligible','P25 current generation is not eligible.');
 block(checkedAt < minimumCompleteAfter,'minimum_window_open',`P25 cannot certify before ${p25.minimumCompleteAfter}.`);
 block(hosted.status!==req.historicalHostedUpgradeAttestation,'hosted_upgrade_attestation','Historical hosted-upgrade attestation is not pass.');
