@@ -29,10 +29,10 @@ assert.equal(plan.burnInEvidenceContinuity.preActivationSamplesCount,false);
 assert.equal(plan.automationBoundary.mayCommitActivationAutomatically,false);
 assert.equal(plan.automationBoundary.productionMutationAllowed,false);
 
-assert.equal(p25.state,'burn_in_active');
+assert.equal(p25.state,'refreeze_pending');
 assert.equal(p25.generation,5);
-assert.equal(p25.nextGeneration,null);
-assert.equal(p25.currentGenerationEligible,true);
+assert.equal(p25.nextGeneration,6);
+assert.equal(p25.currentGenerationEligible,false);
 assert.equal(p25.pendingGeneration5.edgeQuietMinutesObserved,75.38);
 assert.equal(p25.pendingGeneration5.candidateRevision,2);
 assert.equal(p25.pendingGeneration5.lastDecision,'activated');
