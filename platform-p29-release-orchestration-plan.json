@@ -20,7 +20,7 @@
     "unresolvedP28Resources": 0
   },
   "currentEpoch": {
-    "observedAt": "2026-10-04T17:40:47.662109Z",
+    "observedAt": "2026-10-04T18:52:01.712991Z",
     "semanticSchemaSha256": "5b7b1caddef09b97f59c85d79d04eabfbe55120fe1754340a7367c1b14d39375",
     "migrationHead": "20261004173117",
     "migrationName": "gomoku_p23_security_admission_gate",
@@ -36,7 +36,7 @@
       "version": 2,
       "sha256": "84081a183835e6ea8c6791912a4e261b97d1e09c24c4fa6fdfc9a87f9e9460d2"
     },
-    "state": "moving_refreeze_pending_generation5_candidate_revision2",
+    "state": "generation5_burn_in_active",
     "edgeInventoryCanonicalization": "sorted slug|version|ezbr_sha256 joined by LF"
   },
   "changeClasses": {
