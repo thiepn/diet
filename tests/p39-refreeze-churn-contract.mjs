@@ -61,7 +61,7 @@ for(const token of [
 ]) assert.ok(script.includes(token),'P39 reconciler missing '+token);
 
 for(const token of [
-  'generation 5 remains generation 5',
+  'Generation 5 remains generation 5',
   'gomoku_p23_security_admission_gate',
   'v50',
   '37218356705',
