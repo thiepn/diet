@@ -29,6 +29,7 @@ assert.match(client,/invokeRemoteCopilot/);
 assert.match(client,/client\.auth\.getSession\(\)/);
 assert.match(client,/Authorization':'Bearer /);
 assert.match(client,/client\.functions\.invoke\('diet-copilot-ai'/);
+assert.match(client,/copilot\.fallback==='supabase-edge'/);
 
 assert.equal(manifest.phase,"P7");
 assert.equal(manifest.workload.owner,"diet");
