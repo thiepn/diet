@@ -18,8 +18,8 @@
   "artifactCreatedAt": "2026-10-05T14:25:00Z",
   "artifactExpired": false,
   "expiresAt": "2027-01-03T14:24:22Z",
-  "candidateLatestSharedChangeAt": "2026-10-05T14:25:28Z",
+  "candidateLatestSharedChangeAt": "2026-10-05T14:29:47Z",
   "freshForCandidate": false,
-  "freshnessDecision": "stale_for_rebased_generation6_candidate",
+  "freshnessDecision": "stale_for_generation6_candidate_revision3",
   "evidenceRef": "github-actions:P15:37324434181:artifact:11351740690:sha256:230a14f88817a89cae23ff6856724ae1524b1ca0528228e842d9f3997f9e4b9a"
 }
