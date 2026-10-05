@@ -236,6 +236,7 @@ function render(){
 }
 
 $('onboardingOpen')?.addEventListener('click',()=>open());
+$('onboardingEditPlan')?.addEventListener('click',()=>open());
 $('onboardingClose')?.addEventListener('click',()=>close({dismiss:true}));
 $('onboardingLater')?.addEventListener('click',()=>close({dismiss:true}));
 $('onboardingNext')?.addEventListener('click',next);
