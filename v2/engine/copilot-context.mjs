@@ -346,7 +346,7 @@ export function buildLocalCopilotReply(question,context){
     };
   }
 
-  if(/\b(apply|accept|use|switch to)\b.*\b(recommend|target|calories|plan)\b/.test(q)&&s.actionable&&finite(s.recommendedTarget)){
+  if(/\b(apply|accept|use|switch to)\b.*\b(recommend(?:ation|ed)?|target|calories|plan)\b/.test(q)&&s.actionable&&finite(s.recommendedTarget)){
     return {
       answer:'The deterministic strategy review currently supports applying '+Math.round(s.recommendedTarget)+' kcal instead of '+Math.round(s.currentTarget)+' kcal.',
       basis:[{key:'strategy.currentTarget'},{key:'strategy.recommendedTarget'},{key:'strategy.confidenceLevel'}],
