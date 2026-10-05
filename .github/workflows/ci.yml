@@ -111,7 +111,9 @@ jobs:
         run: node tests/p29-food-memory-contract.mjs
 
       - name: Platform P7 product-owned Vercel runtime contract
-        run: node tests/platform-p7-vercel-runtime-contract.mjs
+        run: |
+          node tests/platform-p7-vercel-runtime-contract.mjs
+          node tests/platform-p7-vercel-runtime-unit.mjs
 
       - name: Build actual GitHub Pages artifact
         uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1
