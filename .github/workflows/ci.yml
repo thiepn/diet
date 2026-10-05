@@ -102,6 +102,9 @@ jobs:
       - name: P27 runtime-boundary contract
         run: node tests/p27-runtime-boundary-contract.mjs
 
+      - name: P28 frictionless food capture contract
+        run: node tests/p28-food-capture-contract.mjs
+
       - name: Build actual GitHub Pages artifact
         uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1
         with:

@@ -82,11 +82,11 @@ This foundation is considered mature. Infrastructure work is now **product-drive
 
 P26 re-established the product-first roadmap after removing the P26–P43 governance detour.
 
-P27 has now enforced the active-runtime/rollback boundary.
+P27 established the runtime boundary and P28 implemented frictionless food capture.
 
 Next phases:
 
-1. **P28 — Frictionless Food Capture**
+1. **P29 — Food Memory & Reuse Intelligence**
 3. **P29 — Food Memory & Reuse Intelligence**
 4. **P30 — Onboarding, Goals & Phase Setup**
 5. **P31 — Adaptive Strategy & Weekly Review**

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "phase": "P28",
+  "title": "Frictionless Food Capture",
+  "state": "implemented",
+  "productionRuntime": "v2/",
+  "databaseMigration": false,
+  "canonicalWritePathsPreserved": true,
+  "capabilities": {
+    "localFirstSearch": true,
+    "keyboardSelection": true,
+    "oneTapRepeatLast": true,
+    "oneTapDefaultPortion": true,
+    "adjustablePortions": true,
+    "onlineFallback": true,
+    "rapidSuccessiveLogging": true,
+    "mobileKeyboardAutoOpen": false
+  },
+  "nextPhase": {
+    "phase": "P29",
+    "title": "Food Memory & Reuse Intelligence"
+  }
+}
