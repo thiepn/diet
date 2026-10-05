@@ -2,6 +2,7 @@ import { mapLegacyDietData } from './engine/legacy-data-adapter.mjs';
 import { runAdaptiveNutritionEngine } from './engine/adaptive-nutrition.mjs';
 import { buildTrainingNutritionPlan } from './engine/training-nutrition.mjs';
 import { buildPersonalIntelligence } from './engine/personal-intelligence.mjs';
+import { buildFoodMemory, buildRecurringMealMemory } from './p29-food-memory.mjs';
 
 function finite(value){
   return value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value));
@@ -317,6 +318,16 @@ export function buildDietV2ReadModel(raw={},options={}){
   const recentMeals=[...normalized.normalizedMeals]
     .sort((a,b)=>String(b.eatenAt??b.updatedAt??b.date).localeCompare(String(a.eatenAt??a.updatedAt??a.date)))
     .slice(0,20);
+  const foodMemory=buildFoodMemory(
+    normalized.normalizedSavedFoods,
+    normalized.normalizedMeals,
+    {maxMeals:120,minObservations:3}
+  );
+  const recurringMeals=buildRecurringMealMemory(
+    normalized.normalizedMeals,
+    normalized.normalizedSavedMeals,
+    {maxMeals:80,minOccurrences:2,limit:5}
+  );
 
   return {
     asOfDate,
@@ -353,7 +364,9 @@ export function buildDietV2ReadModel(raw={},options={}){
       savedFoods:normalized.normalizedSavedFoods,
       savedMeals:normalized.normalizedSavedMeals,
       quickFoods:normalized.normalizedSavedFoods.slice(0,8),
-      quickMeals:normalized.normalizedSavedMeals.slice(0,6)
+      quickMeals:normalized.normalizedSavedMeals.slice(0,6),
+      memory:foodMemory,
+      recurringMeals
     },
     progress:{
       rawWeights:normalized.normalizedWeights.map(w=>({date:w.date,value:round(w.weight,2)})),
