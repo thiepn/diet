@@ -19,7 +19,8 @@ const RPC=Object.freeze({
   revertStrategyReview:'diet_app_revert_strategy_review',
   saveTrainingDistribution:'diet_app_save_training_distribution',
   upsertTrainingDay:'diet_app_upsert_training_day',
-  deleteTrainingDay:'diet_app_delete_training_day'
+  deleteTrainingDay:'diet_app_delete_training_day',
+  completeOnboarding:'diet_app_complete_onboarding'
 });
 
 function requestId(kind){
@@ -322,6 +323,25 @@ export async function deleteTrainingDay(client,{trainingDayId,expectedUpdatedAt=
   const data=await call(client,RPC.deleteTrainingDay,{
     p_training_day_id:trainingDayId,
     p_expected_updated_at:expectedUpdatedAt,
+    p_request_id:rid
+  });
+  return {data,requestId:rid};
+}
+
+export async function completeOnboarding(client,{
+  startDate,currentWeight,goalMode,goalWeight,desiredRate,calorieTarget,proteinTarget,fiberTarget=30,
+  requestId:existing
+}){
+  const rid=existing??requestId('onboarding');
+  const data=await call(client,RPC.completeOnboarding,{
+    p_start_date:startDate,
+    p_current_weight:Number(currentWeight),
+    p_goal_mode:String(goalMode??'').trim(),
+    p_goal_weight:goalWeight==null||goalWeight===''?null:Number(goalWeight),
+    p_desired_weekly_weight_change:Number(desiredRate??0),
+    p_calorie_target:Number(calorieTarget),
+    p_protein_target:Number(proteinTarget),
+    p_fiber_target:Number(fiberTarget),
     p_request_id:rid
   });
   return {data,requestId:rid};
