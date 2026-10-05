@@ -274,7 +274,7 @@ $('foodShortcutBarcode')?.addEventListener('click',()=>{
   else{input.placeholder='Enter barcode, then press Enter';input.focus();input.select();}
 });
 $('foodSearchInput')?.addEventListener('keydown',event=>{
-  if(event.key!=='Enter')return;
+  if(event.defaultPrevented||event.key!=='Enter')return;
   event.preventDefault();
   const digits=String(event.currentTarget.value??'').replace(/\D/g,'');
   onlineSearch({barcode:/^\d{8,14}$/.test(digits)});
