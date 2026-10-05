@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "phase": "P41",
+  "title": "Generation-5 Burn-In Evidence Accumulation, Epoch Watch & Certification Readiness",
+  "state": "generation5_invalidated_epoch_changed",
+  "sourceMainSha": "b1f0f8e8d29b43d4500cdcd754b0842610b66bf7",
+  "generation": 5,
+  "activation": {
+    "activatedAt": "2026-10-04T18:52:01.712991Z",
+    "minimumCompleteAfter": "2026-10-05T18:52:01.712991Z",
+    "frozenMigrationHead": "20261004173117_gomoku_p23_security_admission_gate",
+    "activationReceiptId": "8e24ecd727550f365aacabeb7d59a7b18ed9d07322ef8929f8d6ddb48df3badd"
+  },
+  "epochWatch": {
+    "firstIncompatibleMigration": {
+      "version": "20261004185802",
+      "name": "studyos_p7_master_map_and_packet",
+      "head": "20261004185802_studyos_p7_master_map_and_packet",
+      "observedEffectiveAt": "2026-10-04T18:58:02Z"
+    },
+    "currentObservedAt": "2026-10-05T13:34:41.824Z",
+    "currentMigrationHead": "20261005133228_hub_h18_notes_capture",
+    "currentSemanticSchemaSha256": "1eae1abf885890d48336ee5c4e29e2d4054987cfc7dea6053f694b3480548ca1",
+    "currentEdgeFunctionCount": 12,
+    "gomokuRoomVersion": 50,
+    "gomokuRoomSha256": "a537d0702fdb53861124849e03fb7141a8036a4ee5c692fa9bf4769c47981695",
+    "currentCronJobs": 14,
+    "currentActiveCronJobs": 14,
+    "blockingPersistentReplicationSlots": 0
+  },
+  "burnInEvidence": {
+    "validWindowEndedAt": "2026-10-04T18:58:02Z",
+    "validWindowMinutes": 6.005,
+    "minimumRequiredHours": 24,
+    "terminalBoundaryReachedForSameEpoch": false,
+    "evidenceAfterEpochChangeQualifies": false,
+    "certificationPossible": false
+  },
+  "certificationReadiness": {
+    "decision": "blocked_epoch_changed",
+    "generation5Certifiable": false,
+    "blockers": [
+      "frozen_migration_head_changed",
+      "frozen_semantic_schema_changed",
+      "shared_epoch_changed_after_activation",
+      "continuous_24h_same_epoch_requirement_not_met"
+    ],
+    "historicalActivationEvidencePreserved": true,
+    "p40ActivationWasValidAtActivationTime": true,
+    "p40DoesNotImplyLaterCertification": true
+  },
+  "nextGeneration": {
+    "generation": 6,
+    "required": true,
+    "state": "refreeze_required",
+    "requirements": [
+      "observe exact current migration/schema/edge/cron epoch",
+      "wait at least 60 minutes after final shared change",
+      "capture verified encrypted backup after final shared change",
+      "activate generation 6 from reviewed refreeze evidence",
+      "start a fresh non-retroactive 24h burn-in window"
+    ]
+  },
+  "safety": {
+    "productionMutationPerformed": false,
+    "databaseSchemaChanged": false,
+    "edgeFunctionChanged": false,
+    "cronChanged": false,
+    "certificationFabricated": false,
+    "evidenceBackdated": false
+  }
+}
