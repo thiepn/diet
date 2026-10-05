@@ -3,6 +3,7 @@ import { runAdaptiveNutritionEngine } from './engine/adaptive-nutrition.mjs';
 import { buildTrainingNutritionPlan } from './engine/training-nutrition.mjs';
 import { buildPersonalIntelligence } from './engine/personal-intelligence.mjs';
 import { onboardingStatus } from './p30-onboarding.mjs';
+import { buildWeeklyReview } from './p31-weekly-review.mjs';
 import { buildFoodMemory, buildRecurringMealMemory } from './p29-food-memory.mjs';
 
 function finite(value){
@@ -335,6 +336,24 @@ export function buildDietV2ReadModel(raw={},options={}){
     {maxMeals:80,minOccurrences:2,limit:5}
   );
 
+  const weeklyReview=buildWeeklyReview({
+    goalMode:adapted.engineInput.goalMode,
+    goalWeight:adapted.engineInput.goalWeight,
+    targetRateKgPerWeek:adapted.engineInput.targetRateKgPerWeek,
+    currentTarget:round(currentTarget,0),
+    estimatedExpenditure:currentExpenditure==null?null:round(currentExpenditure,0),
+    confidenceLevel:confidence.level,
+    confidenceScore:confidence.score,
+    uncertaintyKcal:confidence.uncertaintyKcal??null,
+    reliableIntakeDays:confidence.reliableIntakeDays??0,
+    weighIns:confidence.weighIns??0,
+    weightSpanDays:confidence.spanDays??0,
+    decision:rec.decision??'need_more_data',
+    recommendedTarget:rec.recommendedTarget??currentTarget??null,
+    reason:rec.reason??'More data is needed before changing the plan.',
+    openReview
+  },asOfDate,normalized.normalizedRecommendations);
+
   return {
     asOfDate,
     onboarding,
@@ -394,6 +413,7 @@ export function buildDietV2ReadModel(raw={},options={}){
       expenditureRangeHigh:p1.estimate.current?.rangeHigh??null,
       confidenceLevel:confidence.level,
       confidenceScore:confidence.score,
+      confidenceComponents:confidence.components??{},
       uncertaintyKcal:confidence.uncertaintyKcal??null,
       reliableIntakeDays:confidence.reliableIntakeDays??0,
       weighIns:confidence.weighIns??0,
@@ -431,7 +451,8 @@ export function buildDietV2ReadModel(raw={},options={}){
         policy:p6.policy,
         trainingDays:normalized.trainingDays
       },
-      personalIntelligence:p7
+      personalIntelligence:p7,
+      weeklyReview
     },
     meta:{
       adapter:adapted.meta,
