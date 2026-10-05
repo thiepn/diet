@@ -185,7 +185,14 @@
     "p25Generation3PostFinalChangeBackupRun": 37040772134,
     "p25Generation3SecurityAdvisorReviewed": true,
     "p25Generation3PerformanceAdvisorReviewed": true,
-    "p25Generation3ApplicationPg1711HazardCount": 0
+    "p25Generation3ApplicationPg1711HazardCount": 0,
+    "copilotActionContract": "P32",
+    "copilotWritesRequirePreview": true,
+    "copilotArbitraryWrites": false,
+    "copilotStrategyActionsRevalidate": true,
+    "copilotRemoteExecutesWrites": false,
+    "rawCoreAssetBudgetBytes": 750000,
+    "rawCoreAssetObservedBytes": 729428
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0",

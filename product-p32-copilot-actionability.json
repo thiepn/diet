@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "phase": "P32",
+  "title": "Copilot Actionability",
+  "state": "implemented",
+  "productionRuntime": "v2/",
+  "databaseMigration": false,
+  "actionFlow": [
+    "understand",
+    "prepare",
+    "preview",
+    "revalidate",
+    "confirm",
+    "execute"
+  ],
+  "allowlist": [
+    "log_saved_food",
+    "log_saved_meal",
+    "repeat_meal",
+    "navigate_food",
+    "navigate_strategy",
+    "edit_goal",
+    "strategy_keep",
+    "strategy_apply"
+  ],
+  "safety": {
+    "arbitraryWrites": false,
+    "explicitConfirmationForWrites": true,
+    "deterministicPreviewValues": true,
+    "foodFreshnessGuard": true,
+    "strategyFreshnessGuard": true,
+    "strategyRevalidatedByP31": true,
+    "goalWritesDirectlyFromCopilot": false,
+    "unknownNutritionEstimation": false
+  },
+  "remote": {
+    "function": "diet-copilot-ai",
+    "verifyJwt": true,
+    "sourceControlled": true,
+    "executesWrites": false,
+    "browserRevalidation": true
+  },
+  "nextPhase": {
+    "phase": "P33",
+    "title": "Progress, Trends & Visual Analytics"
+  }
+}

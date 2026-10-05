@@ -911,7 +911,7 @@
     <div class="dc-copilot-card">
       <header class="dc-copilot-head">
         <div>
-          <p class="dc-eyebrow">P8 · AI Copilot</p>
+          <p class="dc-eyebrow">P32 · Actionable Copilot</p>
           <h2 id="copilotHeading">Ask about your nutrition</h2>
         </div>
         <div class="dc-copilot-head-actions">
@@ -923,7 +923,7 @@
 
       <div class="dc-copilot-trust">
         <strong>Trusted calculations stay deterministic.</strong>
-        <span>Copilot explains P1–P7 results. It cannot silently change targets or invent nutrition values. Remote questions use only a compact derived snapshot; chat history stays in this browser session.</span>
+        <span>Copilot explains deterministic Diet results and can prepare allowlisted actions. Every write shows an exact preview and requires your confirmation. Remote questions use only a compact derived snapshot; chat history stays in this browser session.</span>
       </div>
 
       <div class="dc-copilot-quick" aria-label="Suggested Copilot questions">
@@ -931,6 +931,7 @@
         <button type="button" data-copilot-prompt="How many calories and how much protein do I have remaining today?">What can I eat?</button>
         <button type="button" data-copilot-prompt="Why is my current calorie target what it is?">Why this target?</button>
         <button type="button" data-copilot-prompt="What personal patterns are currently supported by my data?">My patterns</button>
+        <button type="button" data-copilot-prompt="Should I apply my current strategy recommendation?">Review action</button>
       </div>
 
       <div class="dc-copilot-messages" id="copilotMessages" role="log" aria-live="polite" aria-relevant="additions"></div>
@@ -942,7 +943,7 @@
         <textarea id="copilotInput" rows="1" maxlength="800" placeholder="Ask about today, your target, patterns, or a saved meal…" required></textarea>
         <button class="dc-primary-action" id="copilotSend" type="submit">Send</button>
       </form>
-      <p class="dc-copilot-footnote">Known saved foods/meals can be proposed for logging, but every write requires your confirmation.</p>
+      <p class="dc-copilot-footnote">Copilot can prepare known-food logging and the current deterministic weekly strategy decision. Every write is revalidated against fresh data and requires your explicit confirmation.</p>
     </div>
   </dialog>
 

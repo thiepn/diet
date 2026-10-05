@@ -114,6 +114,9 @@ jobs:
       - name: P31 adaptive weekly review contract
         run: node tests/p31-weekly-review-contract.mjs
 
+      - name: P32 Copilot actionability contract
+        run: node tests/p32-copilot-actionability-contract.mjs
+
       - name: Build actual GitHub Pages artifact
         uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1
         with:

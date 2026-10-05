@@ -146,33 +146,47 @@ async function refreshEvidence(){
     toast(error?.message||'The weekly review could not be refreshed.');
   }finally{setBusy(false);}
 }
-async function resolveDecision(resolution){
-  if(busy)return;
-  if(!signedLive()){toast('A live signed-in connection is required.');return;}
+function matchesExpectedStrategy(model,expected){
+  if(!expected)return true;
+  const s=model?.strategy;
+  if(!s)return false;
+  if(expected.asOfDate&&String(expected.asOfDate)!==String(model.asOfDate))return false;
+  if(expected.engineVersion&&String(expected.engineVersion)!==String(s.engineVersion))return false;
+  if(expected.decision&&String(expected.decision)!==String(s.decision))return false;
+  for(const key of ['currentTarget','recommendedTarget']){
+    if(expected[key]==null)continue;
+    if(s[key]==null||Math.abs(Number(expected[key])-Number(s[key]))>1)return false;
+  }
+  return true;
+}
+async function executeStrategyDecision(resolution,{effectiveDateChoice=null,expected=null,confirmed=false}={}){
+  if(busy)throw new Error('A strategy decision is already being processed.');
+  if(!signedLive())throw new Error('A live signed-in connection is required.');
 
   const initial=getDietV2Model();
   const initialStrategy=initial?.strategy;
-  if(!initialStrategy?.currentTarget){toast('Finish goal setup before reviewing your strategy.');return;}
+  if(!initialStrategy?.currentTarget)throw new Error('Finish goal setup before reviewing your strategy.');
+  if(!matchesExpectedStrategy(initial,expected))throw new Error('That strategy proposal is stale. Review the latest recommendation before confirming.');
   if(resolution==='accept'&&!actionReady(initialStrategy)){
-    toast('The current evidence does not support a target change. Keep the current target for this review.');
-    return;
+    throw new Error('The current evidence does not support a target change. Keep the current target for this review.');
   }
 
   setBusy(true);
   try{
     const {model,review}=await ensureCurrentReview();
     const s=model.strategy;
+    if(!matchesExpectedStrategy(model,expected))throw new Error('The evidence changed while preparing the decision. Review the latest recommendation first.');
     if(resolution==='accept'){
       if(!actionReady(s))throw new Error('The evidence changed and no longer supports applying a target change.');
       const delta=Math.abs(Number(review.recommendedTarget)-Number(review.currentTarget));
-      if(s.decision==='transition_maintenance'||delta>=300){
-        if(!confirm('Apply this strategy change to your active plan? Historical targets will be preserved.'))return;
+      if(!confirmed&&(s.decision==='transition_maintenance'||delta>=300)){
+        if(!confirm('Apply this strategy change to your active plan? Historical targets will be preserved.'))return {cancelled:true};
       }
     }
 
-    const applyChoice=$('strategyEffectiveDate')?.value??'today';
+    const choice=effectiveDateChoice??$('strategyEffectiveDate')?.value??'today';
     const effectiveDate=resolution==='accept'
-      ?(applyChoice==='tomorrow'?tomorrowKey():localDateKey())
+      ?(choice==='tomorrow'?tomorrowKey():localDateKey())
       :localDateKey();
 
     await resolveStrategyReview(getDietV2Client(),{
@@ -181,10 +195,23 @@ async function resolveDecision(resolution){
       effectiveDate
     });
     await refresh({silent:true});
+    return {
+      ok:true,
+      resolution,
+      effectiveDate,
+      previousTarget:Number(review.currentTarget),
+      resolvedTarget:resolution==='accept'?Number(review.recommendedTarget):Number(review.currentTarget)
+    };
+  }finally{setBusy(false);}
+}
+async function resolveDecision(resolution){
+  try{
+    const result=await executeStrategyDecision(resolution);
+    if(result?.cancelled)return;
     toast(resolution==='accept'?'Strategy change applied.':'Weekly review complete — current target kept.');
   }catch(error){
     toast(error?.message||'The weekly review could not be completed.');
-  }finally{setBusy(false);}
+  }
 }
 async function revertReview(id){
   if(busy||!signedLive())return;
@@ -315,4 +342,22 @@ $('strategyKeepCurrent')?.addEventListener('click',()=>resolveDecision('keep_cur
 $('strategyAccept')?.addEventListener('click',()=>resolveDecision('accept'));
 window.addEventListener('diet-v2-data-updated',render);
 window.addEventListener('hashchange',()=>{if(location.hash==='#strategy')render();});
+
+window.DietV2StrategyReview=Object.freeze({
+  version:'1.0.0-p32',
+  actionReady:()=>actionReady(getDietV2Model()?.strategy),
+  execute:executeStrategyDecision,
+  current:()=>{
+    const model=getDietV2Model();
+    const s=model?.strategy;
+    return s?{
+      asOfDate:model.asOfDate,
+      engineVersion:s.engineVersion,
+      decision:s.decision,
+      currentTarget:s.currentTarget,
+      recommendedTarget:s.recommendedTarget
+    }:null;
+  }
+});
+
 render();

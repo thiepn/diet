@@ -2,8 +2,9 @@ import { getDietV2Client,getDietV2Model,getDietV2State,refresh } from './data.js
 import { logSavedFood,logSavedMeal,repeatMeal } from './write-api.mjs';
 import { localDateKey } from './read-model.mjs';
 import {
-  buildCopilotContext,buildLocalCopilotReply,sanitizeCopilotResponse,validateCopilotProposal,DietCopilotP8
+  buildCopilotContext,buildLocalCopilotReply,sanitizeCopilotResponse,validateCopilotProposal,DietCopilotP32
 } from './engine/copilot-context.mjs';
+import { buildActionPreview, confirmationLabel } from './p32-copilot-actions.mjs';
 
 const HISTORY_KEY='diet-copilot-v2-p8-session-v1';
 const MAX_HISTORY=12;
@@ -62,22 +63,23 @@ function welcomeMarkup(){
 function actionMarkup(message){
   const a=message.action;
   if(!a)return '';
-  const label=esc(a.label||'Continue');
-  const isWrite=a.type.startsWith('log_')||a.type==='repeat_meal';
-  let detail='';
-  if(a.item?.name){
-    const multiplier=Number(a.multiplier??1);
-    const calories=Number(a.item.calories);
-    const scaledCalories=Number.isFinite(calories)&&Number.isFinite(multiplier)?Math.round(calories*multiplier):null;
-    const parts=[
-      a.item.name,
-      multiplier!==1?multiplier+'×':null,
-      a.mealType||null,
-      scaledCalories!=null?scaledCalories+' kcal':null
-    ].filter(Boolean);
-    detail='<small>'+parts.map(esc).join(' · ')+'</small>';
-  }
-  return '<div class="dc-copilot-action">'+detail+'<button class="dc-primary-action dc-copilot-confirm" type="button" data-copilot-confirm="'+esc(message.id)+'">'+(isWrite?'Confirm · ':'')+label+'</button></div>';
+  const preview=buildActionPreview(a,context());
+  if(!preview)return '';
+  const changes=(preview.changes??[]).length
+    ?'<div class="dc-copilot-action-changes">'+preview.changes.map(change=>
+      '<div><span>'+esc(change.label)+'</span>'+
+      (change.before!=null?'<small>'+esc(change.before)+'</small><b aria-hidden="true">→</b>':'')+
+      '<strong>'+esc(change.after??'—')+'</strong></div>'
+    ).join('')+'</div>'
+    :'';
+  const consequence=preview.consequence?'<p class="dc-copilot-action-consequence">'+esc(preview.consequence)+'</p>':'';
+  const badge=preview.write?'<span class="dc-copilot-action-badge">Requires confirmation</span>':'<span class="dc-copilot-action-badge">Navigation only</span>';
+  const buttonClass=preview.write?'dc-primary-action':'dc-secondary-action';
+  return '<div class="dc-copilot-action" data-action-kind="'+esc(preview.kind)+'">'+
+    '<div class="dc-copilot-action-head"><div>'+badge+'<strong>'+esc(preview.title)+'</strong><p>'+esc(preview.summary)+'</p></div></div>'+
+    changes+consequence+
+    '<button class="'+buttonClass+' dc-copilot-confirm" type="button" data-copilot-confirm="'+esc(message.id)+'">'+esc(preview.write?confirmationLabel(a):(a.label||'Continue'))+'</button>'+
+  '</div>';
 }
 function messageMarkup(message){
   if(message.role==='user'){
@@ -215,10 +217,15 @@ async function performAction(messageId,button){
     location.hash='#strategy';
     return;
   }
+  if(action.type==='edit_goal'){
+    close();
+    window.DietV2Onboarding?.open?.();
+    return;
+  }
 
   const state=getDietV2State();
-  if(!state.signedIn||state.source!=='cloud'||navigator.onLine===false){
-    setStatus('A live signed-in connection is required before logging.',{error:true});
+  if(!state.signedIn||state.source!=='cloud'||navigator.onLine===false||state.writeBlocked){
+    setStatus('A live signed-in connection is required before confirming a Diet write.',{error:true});
     return;
   }
 
@@ -236,17 +243,26 @@ async function performAction(messageId,button){
       });
     }else if(action.type==='repeat_meal'){
       await repeatMeal(client,{mealId:action.id,date:localDateKey(),mealType:action.mealType});
+    }else if(action.type==='strategy_keep'||action.type==='strategy_apply'){
+      const strategy=window.DietV2StrategyReview;
+      if(!strategy?.execute)throw new Error('Strategy actions are not ready. Open Strategy and try again.');
+      await strategy.execute(action.type==='strategy_apply'?'accept':'keep_current',{
+        effectiveDateChoice:action.effectiveDate??'today',
+        expected:action.guard,
+        confirmed:true
+      });
     }else{
       throw new Error('Unsupported Copilot action.');
     }
     await refresh({silent:true});
     message.action=null;
-    pushMessage({
-      role:'assistant',
-      content:'Confirmed. '+(action.item?.name||'The saved item')+' was logged through Diet Copilot’s existing secure write API.',
-      mode:'local'
-    });
-    toast((action.item?.name||'Item')+' logged.');
+    const done=action.type==='strategy_apply'
+      ?'Confirmed. The deterministic strategy recommendation was applied and the previous target remains in history.'
+      :action.type==='strategy_keep'
+        ?'Confirmed. This weekly review was recorded as Keep current; your calorie target did not change.'
+        :'Confirmed. '+(action.item?.name||'The saved item')+' was logged through Diet Copilot’s existing secure write API.';
+    pushMessage({role:'assistant',content:done,mode:'local'});
+    toast(action.type==='strategy_apply'?'Strategy applied.':action.type==='strategy_keep'?'Current target kept.':(action.item?.name||'Item')+' logged.');
   }catch(error){
     setStatus(error?.message||'The proposed action could not be completed.',{error:true});
     if(button){button.disabled=false;button.textContent=old||'Confirm';}
@@ -313,7 +329,8 @@ window.addEventListener('diet-v2-data-updated',()=>{
 });
 
 window.DietV2Copilot=Object.freeze({
-  version:DietCopilotP8.version,
+  version:DietCopilotP32.version,
+  actionContract:'P32',
   open,
   close,
   clearSession,
