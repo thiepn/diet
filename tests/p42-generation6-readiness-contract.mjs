@@ -13,15 +13,15 @@ assert.equal(plan.phase,'P42');
 assert.equal(plan.state,'refreeze_pending');
 assert.equal(plan.generation,6);
 assert.equal(plan.predecessor.state,'invalidated_epoch_changed');
-assert.equal(plan.candidateRevision,1);
-assert.equal(plan.candidateEpoch.migrationHead,'20261005134753_library_account_deletion_authority');
-assert.equal(plan.candidateEpoch.semanticSchemaSha256,'c21d8c196b3a0ea43b5232815adcaf915c9e5012fcc0208cd17216fae19a8af8');
+assert.equal(plan.candidateRevision,3);
+assert.equal(plan.candidateEpoch.migrationHead,'20261005142947_studyos_p11_calendar_autopilot_foundation');
+assert.equal(plan.candidateEpoch.semanticSchemaSha256,'48825c23f56020022a058504e069d4c7f8d6a096331560b6999ec501df4f5fcf');
 assert.equal(plan.candidateEpoch.edgeFunctionCount,12);
 assert.equal(plan.candidateEpoch.gomokuRoomVersion,50);
 assert.equal(plan.candidateEpoch.cronJobs,14);
 assert.equal(plan.quietWindow.minimumMinutes,60);
 assert.equal(plan.quietWindow.satisfied,false);
-assert.equal(plan.backupGate.latestSuccessfulRunId,37302894815);
+assert.equal(plan.backupGate.latestSuccessfulRunId,37324434181);
 assert.equal(plan.backupGate.latestSuccessfulBackupFreshForCandidate,false);
 assert.equal(plan.activationReadiness.eligibleToActivate,false);
 assert.equal(plan.safety.generation6Activated,false);
@@ -42,6 +42,7 @@ assert.equal(backup.freshForCandidate,false);
 assert.equal(p41.nextGeneration.generation,6);
 assert.equal(p41.nextGeneration.required,true);
 
+assert.ok(backupWorkflow.includes("- 'platform-p42-*.json'"));
 assert.ok(backupWorkflow.includes('platform-p42-generation6-refreeze-plan.json'));
 assert.ok(backupWorkflow.includes('generation6_refreeze_pending'));
 assert.ok(workflow.includes('p42-evaluate-generation6-readiness.py'));
@@ -51,9 +52,9 @@ assert.doesNotMatch(workflow,/supabase\s+db\s+/);
 
 for(const token of [
   'Generation 6',
-  'library_account_deletion_authority',
-  '14:47:53Z',
-  '37302894815',
+  'studyos_p11_calendar_autopilot_foundation',
+  '15:29:47Z',
+  '37324434181',
   'stale',
   '60-minute',
   'not activated'

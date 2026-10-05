@@ -3,20 +3,20 @@
   "phase": "P42",
   "title": "Generation-6 Refreeze Candidate, Fresh Backup, Quiet-Window Qualification & Activation Readiness",
   "state": "refreeze_pending",
-  "sourceMainSha": "253623fd859827f664744453dc525bb27d171c3a",
+  "sourceMainSha": "b78c0b5de1b526174f4660c12c88f7bcf0c53a2b",
   "generation": 6,
   "predecessor": {
     "generation": 5,
     "state": "invalidated_epoch_changed",
     "evidence": "platform-p41-generation5-epoch-watch.json"
   },
-  "candidateRevision": 1,
-  "candidateObservedAt": "2026-10-05T14:15:47.217772Z",
+  "candidateRevision": 3,
+  "candidateObservedAt": "2026-10-05T14:35:59Z",
   "candidateEpoch": {
-    "migrationVersion": "20261005134753",
-    "migrationName": "library_account_deletion_authority",
-    "migrationHead": "20261005134753_library_account_deletion_authority",
-    "semanticSchemaSha256": "c21d8c196b3a0ea43b5232815adcaf915c9e5012fcc0208cd17216fae19a8af8",
+    "migrationVersion": "20261005142947",
+    "migrationName": "studyos_p11_calendar_autopilot_foundation",
+    "migrationHead": "20261005142947_studyos_p11_calendar_autopilot_foundation",
+    "semanticSchemaSha256": "48825c23f56020022a058504e069d4c7f8d6a096331560b6999ec501df4f5fcf",
     "edgeFunctionCount": 12,
     "edgeFunctionsAllActive": true,
     "gomokuRoomVersion": 50,
@@ -29,24 +29,25 @@
     "p20SchemaDrift": false,
     "p21Readiness": "pass",
     "p22Maintenance": "pass",
-    "latestSharedChangeAt": "2026-10-05T13:47:53Z",
+    "latestSharedChangeAt": "2026-10-05T14:29:47Z",
     "latestSharedChangeComponent": "database_migration",
-    "latestSharedChangeVersion": "20261005134753",
-    "latestSharedChangeName": "library_account_deletion_authority"
+    "latestSharedChangeVersion": "20261005142947",
+    "latestSharedChangeName": "studyos_p11_calendar_autopilot_foundation"
   },
   "quietWindow": {
     "minimumMinutes": 60,
-    "observedMinutes": 27.9,
+    "observedMinutes": 6.2,
     "satisfied": false,
-    "earliestEligibleAt": "2026-10-05T14:47:53Z"
+    "earliestEligibleAt": "2026-10-05T15:29:47Z"
   },
   "backupGate": {
     "requireVerifiedEncryptedBackupAfterLatestSharedChange": true,
-    "latestSuccessfulRunId": 37302894815,
-    "latestSuccessfulRunNumber": 34,
-    "latestSuccessfulCreatedAt": "2026-10-05T11:26:01Z",
-    "latestSuccessfulArtifactId": 11341259811,
-    "latestSuccessfulArtifactDigest": "sha256:d1fb8fc942f5c3e8133b7add694cc9c76b9d7ad73003be325a586e28960cf2f4",
+    "latestSuccessfulRunId": 37324434181,
+    "latestSuccessfulRunNumber": 35,
+    "latestSuccessfulCreatedAt": "2026-10-05T14:24:22Z",
+    "latestSuccessfulArtifactCreatedAt": "2026-10-05T14:25:00Z",
+    "latestSuccessfulArtifactId": 11351740690,
+    "latestSuccessfulArtifactDigest": "sha256:230a14f88817a89cae23ff6856724ae1524b1ca0528228e842d9f3997f9e4b9a",
     "latestSuccessfulBackupValid": true,
     "latestSuccessfulBackupFreshForCandidate": false,
     "staleReason": "backup_predates_latest_shared_change"
@@ -55,18 +56,22 @@
     "decision": "blocked",
     "eligibleToActivate": false,
     "blockers": [
-      "quiet_window_open:27.90/60",
+      "quiet_window_open:6.20/60",
       "backup_predates_latest_shared_change"
     ],
     "requiresExactCandidateEpochRecheck": true,
     "requiresFreshEncryptedBackup": true,
-    "requiresFinalServiceAndAdvisorRecheck": true
+    "requiresFinalServiceAndAdvisorRecheck": true,
+    "requiresLiveEpochRefresh": true,
+    "churnSafe": true
   },
   "automation": {
     "hourlyBackupOpportunityEnabled": true,
     "workflow": ".github/workflows/p15-offsite-backup.yml",
     "schedule": "47 * * * *",
-    "generation6RefreezeStateSource": "platform-p42-generation6-refreeze-plan.json"
+    "generation6RefreezeStateSource": "platform-p42-generation6-refreeze-plan.json",
+    "pushOnP42EvidenceChangeEnabled": true,
+    "reconcilePolicy": "any migration/schema/edge/cron identity change rebases candidate and resets quiet clock"
   },
   "safety": {
     "productionMutationPerformed": false,
@@ -74,5 +79,14 @@
     "burnInStarted": false,
     "evidenceBackdated": false,
     "generation5EvidenceReused": false
-  }
+  },
+  "previousCandidate": {
+    "candidateRevision": 2,
+    "candidateObservedAt": "2026-10-05T14:25:28Z",
+    "migrationHead": "20261005134753_library_account_deletion_authority",
+    "semanticSchemaSha256": "c91f0cf78cc6db7399081fd3fd0595ef84f0c0b4517d11a4767c3f2464bac174",
+    "latestSharedChangeAt": "2026-10-05T14:25:28Z"
+  },
+  "candidateRebasedAt": "2026-10-05T14:35:59Z",
+  "candidateRebaseReason": "shared_migration_changed_during_refreeze"
 }
