@@ -10,6 +10,7 @@ let step=1;
 let goalMode='maintain';
 let busy=false;
 let autoOpened=false;
+let editingExisting=false;
 
 function $(id){return document.getElementById(id);}
 function n(id){const v=$(id)?.value??'';return v===''?null:Number(v);}
@@ -139,10 +140,10 @@ function validateStep(which){
 function next(){
   if(!validateStep(step))return;
   if(step===1){
-    setGoalMode(goalMode,{resetRate:true});
-    seedTargets({force:true});
+    setGoalMode(goalMode,{resetRate:!editingExisting});
+    seedTargets({force:!editingExisting});
   }
-  if(step===2)seedTargets({force:true});
+  if(step===2)seedTargets({force:false});
   step=Math.min(3,step+1);
   renderStep();
 }
@@ -153,6 +154,7 @@ function back(){
 function prefill(){
   const o=model()?.onboarding??{};
   step=1;
+  editingExisting=Boolean(o.complete);
   set('onboardingWeight',o.currentWeight??'');
   goalMode=o.goalMode??'maintain';
   set('onboardingGoalWeight',o.goalWeight??'');
