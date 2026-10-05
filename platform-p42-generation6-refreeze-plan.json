@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "phase": "P42",
+  "title": "Generation-6 Refreeze Candidate, Fresh Backup, Quiet-Window Qualification & Activation Readiness",
+  "state": "refreeze_pending",
+  "sourceMainSha": "253623fd859827f664744453dc525bb27d171c3a",
+  "generation": 6,
+  "predecessor": {
+    "generation": 5,
+    "state": "invalidated_epoch_changed",
+    "evidence": "platform-p41-generation5-epoch-watch.json"
+  },
+  "candidateRevision": 1,
+  "candidateObservedAt": "2026-10-05T14:15:47.217772Z",
+  "candidateEpoch": {
+    "migrationVersion": "20261005134753",
+    "migrationName": "library_account_deletion_authority",
+    "migrationHead": "20261005134753_library_account_deletion_authority",
+    "semanticSchemaSha256": "c21d8c196b3a0ea43b5232815adcaf915c9e5012fcc0208cd17216fae19a8af8",
+    "edgeFunctionCount": 12,
+    "edgeFunctionsAllActive": true,
+    "gomokuRoomVersion": 50,
+    "gomokuRoomSha256": "a537d0702fdb53861124849e03fb7141a8036a4ee5c692fa9bf4769c47981695",
+    "cronJobs": 14,
+    "activeCronJobs": 14,
+    "cronFailures24h": 0,
+    "blockingReplicationSlots": 0,
+    "p18Integrity": "clean",
+    "p20SchemaDrift": false,
+    "p21Readiness": "pass",
+    "p22Maintenance": "pass",
+    "latestSharedChangeAt": "2026-10-05T13:47:53Z",
+    "latestSharedChangeComponent": "database_migration",
+    "latestSharedChangeVersion": "20261005134753",
+    "latestSharedChangeName": "library_account_deletion_authority"
+  },
+  "quietWindow": {
+    "minimumMinutes": 60,
+    "observedMinutes": 27.9,
+    "satisfied": false,
+    "earliestEligibleAt": "2026-10-05T14:47:53Z"
+  },
+  "backupGate": {
+    "requireVerifiedEncryptedBackupAfterLatestSharedChange": true,
+    "latestSuccessfulRunId": 37302894815,
+    "latestSuccessfulRunNumber": 34,
+    "latestSuccessfulCreatedAt": "2026-10-05T11:26:01Z",
+    "latestSuccessfulArtifactId": 11341259811,
+    "latestSuccessfulArtifactDigest": "sha256:d1fb8fc942f5c3e8133b7add694cc9c76b9d7ad73003be325a586e28960cf2f4",
+    "latestSuccessfulBackupValid": true,
+    "latestSuccessfulBackupFreshForCandidate": false,
+    "staleReason": "backup_predates_latest_shared_change"
+  },
+  "activationReadiness": {
+    "decision": "blocked",
+    "eligibleToActivate": false,
+    "blockers": [
+      "quiet_window_open:27.90/60",
+      "backup_predates_latest_shared_change"
+    ],
+    "requiresExactCandidateEpochRecheck": true,
+    "requiresFreshEncryptedBackup": true,
+    "requiresFinalServiceAndAdvisorRecheck": true
+  },
+  "automation": {
+    "hourlyBackupOpportunityEnabled": true,
+    "workflow": ".github/workflows/p15-offsite-backup.yml",
+    "schedule": "47 * * * *",
+    "generation6RefreezeStateSource": "platform-p42-generation6-refreeze-plan.json"
+  },
+  "safety": {
+    "productionMutationPerformed": false,
+    "generation6Activated": false,
+    "burnInStarted": false,
+    "evidenceBackdated": false,
+    "generation5EvidenceReused": false
+  }
+}
