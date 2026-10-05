@@ -20,8 +20,11 @@ export function rankFoodCaptureMatches(model,query,{mealType='Other',limit=10}={
   if(!q)return [];
   const foods=(model?.food?.savedFoods??[]).map(item=>{
     const name=normalizeFoodQuery(item.name),brand=normalizeFoodQuery(item.brand),barcode=normalizeFoodQuery(item.barcode);
+    const memory=model?.food?.memory?.foodsById?.[String(item.id)]??null;
+    const contextUses=Number(memory?.mealTypeCounts?.[mealType]??0);
     const score=(barcode===q?700:0)+(name===q?260:0)+(name.startsWith(q)?145:0)+(name.includes(q)?85:0)+
-      (brand.startsWith(q)?60:0)+(brand.includes(q)?35:0)+(item.favorite?24:0)+Math.min(Number(item.useCount)||0,35)+recencyBonus(item.lastUsedAt);
+      (brand.startsWith(q)?60:0)+(brand.includes(q)?35:0)+(item.favorite?24:0)+Math.min(Number(item.useCount)||0,35)+
+      recencyBonus(item.lastUsedAt)+Math.min(contextUses*12,60)+(memory?.dominantMealType===mealType?18:0);
     return {type:'food',item,score};
   }).filter(x=>x.score>0);
   const meals=(model?.food?.savedMeals??[]).map(item=>{
