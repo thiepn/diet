@@ -2,15 +2,15 @@
 
 P42 establishes a churn-safe Generation 6 refreeze process after P41 invalidated Generation 5.
 
-## Current candidate — revision 3
+## Current candidate — revision 4
 
-The shared project continued changing while P42 was being validated. Candidate revision 2 was therefore invalidated before activation.
+Shared-platform development continued during P42, so earlier candidates were invalidated and rebased rather than incorrectly promoted.
 
-The latest observed candidate is:
+The current captured candidate is:
 
-- observed: `2026-10-05T14:35:59Z`
-- migration: `20261005142947_studyos_p11_calendar_autopilot_foundation`
-- shared semantic schema SHA: `48825c23f56020022a058504e069d4c7f8d6a096331560b6999ec501df4f5fcf`
+- observed: `2026-10-05T14:42:07Z`
+- migration: `20261005143803_studyos_p11_calendar_deadline_sync`
+- shared semantic schema SHA: `c49004e0f9702ef485b66c0b34e780209a676df02e8313eeeaa29a71467d9d0e`
 - Edge Functions: 12 / all active
 - `gomoku-room`: v50
 - cron: 14/14 active
@@ -21,83 +21,71 @@ The latest observed candidate is:
 
 Generation 6 is **not activated**.
 
-## Churn-safe refreeze rule
+## Fresh backup achieved
 
-P42 no longer assumes that a candidate observed once remains current.
+After P42's churn-safe workflow changes were merged, the repository immediately triggered a new encrypted P15 backup.
 
-Any change in migration identity, shared semantic schema fingerprint, Edge identity, or cron identity:
+- P15 run: `37326652281` / #36
+- result: success
+- artifact ID: `11351813929`
+- artifact digest: `sha256:48f6b3a29e4492ddaa5e65152910333bb5e2f4d1d8342ab84a2d7094ee9a5e6d`
+- workflow created: `2026-10-05T14:40:51Z`
+- artifact created: `2026-10-05T14:41:29Z`
+
+The latest shared migration occurred at `2026-10-05T14:38:03Z`, so backup run #36 is **fresh** for candidate revision 4.
+
+The fresh-backup gate is therefore satisfied.
+
+## Quiet-window gate
+
+P42 still requires a full **60-minute** unchanged shared epoch.
+
+Candidate revision 4 begins at:
+
+`2026-10-05T14:38:03Z`
+
+At the captured observation only **4.07 minutes** had elapsed.
+
+Earliest possible activation-readiness boundary for this exact candidate:
+
+`2026-10-05T15:38:03Z`
+
+The quiet window is now the only known blocker. Any later migration, semantic-schema change, Edge deployment, or cron identity change resets the candidate and may invalidate backup freshness again.
+
+## Churn-safe refreeze policy
+
+Any shared-epoch identity change:
 
 1. invalidates the current candidate;
 2. increments the candidate revision;
 3. resets the 60-minute quiet clock;
-4. invalidates backup freshness if the backup predates the new candidate;
-5. blocks activation until all gates are re-satisfied.
+4. recomputes backup freshness;
+5. blocks activation until all gates are satisfied again.
 
-This protects Generation 6 from the same class of shared-epoch churn that invalidated Generation 5.
+P15 also now supports Generation-6 refreeze directly:
 
-## Quiet-window gate
-
-Candidate revision 3 begins from the latest shared migration at:
-
-`2026-10-05T14:29:47Z`
-
-The required quiet period is **60 minutes**.
-
-At the revision-3 observation only about **6.20 minutes** had elapsed.
-
-Earliest possible activation-readiness boundary for this exact candidate:
-
-`2026-10-05T15:29:47Z`
-
-A later shared change resets that boundary again.
-
-## Backup gate
-
-The latest successful encrypted offsite backup currently bound to P42 is:
-
-- P15 run: `37324434181` / #35
-- result: success
-- artifact ID: `11351740690`
-- artifact digest: `sha256:230a14f88817a89cae23ff6856724ae1524b1ca0528228e842d9f3997f9e4b9a`
-- artifact created: `2026-10-05T14:25:00Z`
-
-The backup is valid, encrypted, and unexpired, but it is **stale** for revision 3 because the latest shared migration occurred at 14:29:47Z.
-
-P42 extends P15 automation so that:
-
-- hourly `47 * * * *` backup opportunities run whenever Generation 6 is `refreeze_pending`;
-- changes to `platform-p42-*.json` trigger a new backup on push.
-
-This means candidate churn automatically creates another post-change backup opportunity without weakening the gate.
+- hourly `47 * * * *` backup opportunities run while P42 is `refreeze_pending`;
+- `platform-p42-*.json` updates trigger new P15 backup opportunities on push.
 
 ## Activation-readiness evaluator
 
-`scripts/p42-evaluate-generation6-readiness.py` fails closed unless all conditions are true simultaneously:
+`scripts/p42-evaluate-generation6-readiness.py` fails closed unless all conditions hold simultaneously:
 
-1. exact candidate migration/schema/Edge/cron identity remains unchanged;
-2. project is healthy;
-3. P18 is clean;
-4. P20 reports no drift;
-5. P21 passes;
-6. P22 passes;
-7. all Edge Functions are active;
-8. all cron jobs are active and no 24-hour failures exist;
-9. there are no blocking persistent replication slots;
-10. at least 60 quiet minutes have elapsed;
-11. a verified encrypted backup was captured after the latest shared change.
+1. exact migration/schema/Edge/cron candidate unchanged;
+2. project status healthy;
+3. P18 clean;
+4. P20 no drift;
+5. P21 pass;
+6. P22 pass;
+7. all Edge Functions active;
+8. all cron jobs active with zero 24-hour failures;
+9. no blocking persistent replication slots;
+10. at least 60 quiet minutes;
+11. valid encrypted backup captured after the latest shared change.
 
-The evaluator also includes adversarial coverage proving that a later epoch change blocks activation even if enough time has elapsed and a backup exists.
+The current deterministic result is **blocked**, with only the quiet window remaining for the captured revision-4 candidate.
 
-## Current decision
-
-**Blocked.**
-
-Current blockers:
-
-- quiet window incomplete;
-- latest backup predates candidate revision 3.
-
-This is an expected safe state while the shared Supabase project is still changing.
+A later epoch change still overrides that statement immediately because activation always requires a fresh live recheck.
 
 ## Safety boundary
 
@@ -112,4 +100,4 @@ P42 does not:
 - backdate backup evidence;
 - bypass the quiet window.
 
-P42 only manages candidate identity, backup freshness, quiet-window qualification, and deterministic activation readiness.
+P42 provides candidate reconciliation, fresh-backup automation, and fail-closed activation readiness only.
