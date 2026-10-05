@@ -53,8 +53,8 @@ assert.doesNotMatch(workflow,/supabase\s+db\s+/);
 for(const token of [
   'Generation 6',
   'library_account_deletion_authority',
-  '14:47:53Z',
-  '37302894815',
+  '15:25:28Z',
+  '37324434181',
   'stale',
   '60-minute',
   'not activated'
