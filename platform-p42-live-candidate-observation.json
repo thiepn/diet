@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
   "phase": "P42",
-  "observedAt": "2026-10-05T14:15:47.217772Z",
+  "observedAt": "2026-10-05T14:25:28Z",
   "projectRef": "hycegznamzjhwinegaai",
   "projectStatus": "ACTIVE_HEALTHY",
   "migrationVersion": "20261005134753",
   "migrationName": "library_account_deletion_authority",
   "migrationHead": "20261005134753_library_account_deletion_authority",
-  "semanticSchemaSha256": "c21d8c196b3a0ea43b5232815adcaf915c9e5012fcc0208cd17216fae19a8af8",
+  "semanticSchemaSha256": "c91f0cf78cc6db7399081fd3fd0595ef84f0c0b4517d11a4767c3f2464bac174",
   "edgeFunctionCount": 12,
   "edgeFunctionsAllActive": true,
   "gomokuRoomVersion": 50,
@@ -20,9 +20,10 @@
   "p20SchemaDrift": false,
   "p21Readiness": "pass",
   "p22Maintenance": "pass",
-  "latestSharedChangeAt": "2026-10-05T13:47:53Z",
-  "latestSharedChangeComponent": "database_migration",
-  "latestSharedChangeVersion": "20261005134753",
-  "latestSharedChangeName": "library_account_deletion_authority",
-  "productionMutationPerformed": false
+  "latestSharedChangeAt": "2026-10-05T14:25:28Z",
+  "latestSharedChangeComponent": "semantic_schema_fingerprint",
+  "latestSharedChangeVersion": "untracked_schema_change",
+  "latestSharedChangeName": "semantic_schema_changed_without_migration_head_change",
+  "productionMutationPerformed": false,
+  "migrationHeadUnchangedWhileSemanticSchemaChanged": true
 }
