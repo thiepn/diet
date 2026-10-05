@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import path from 'node:path';
 import {
   buildCopilotContext,buildLocalCopilotReply,sanitizeCopilotResponse,
   validateCopilotProposal,DietCopilotP32
@@ -152,5 +153,17 @@ assert.ok(html.includes('P32 · Actionable Copilot'));
 assert.ok(html.includes('Requires confirmation')===false,'dynamic confirmation badge belongs in JS');
 assert.ok(sw.includes('./v2/p32-copilot-actions.mjs'));
 assert.ok(aliasSw.includes('./p32-copilot-actions.mjs'));
+
+const coreFiles=['index.html','v2/index.html','v2/shell.css','vendor/supabase-2.116.0.js'];
+function walk(dir){
+  return fs.readdirSync(dir,{withFileTypes:true}).flatMap(entry=>{
+    const full=path.join(dir,entry.name);
+    if(entry.isDirectory())return walk(full);
+    return /\.(?:js|mjs)$/.test(entry.name)?[full]:[];
+  });
+}
+coreFiles.push(...walk('v2'));
+const rawCoreBytes=[...new Set(coreFiles)].reduce((sum,p)=>sum+fs.statSync(p).size,0);
+assert.ok(rawCoreBytes<=750000,`P32 core budget exceeded: ${rawCoreBytes}/750000 bytes`);
 
 console.log('P32 Copilot actionability contract passed.');
