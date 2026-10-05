@@ -5,6 +5,7 @@ import {
 } from './write-api.mjs';
 import { searchOpenFoodFacts, lookupOpenFoodFactsBarcode, scaleOpenFoodFactsProduct } from './open-food-facts.mjs';
 import { localDateKey } from './read-model.mjs';
+import { findDuplicateSavedFood, duplicateReuseMultiplier } from './p29-food-memory.mjs';
 
 const libraryDialog=document.getElementById('foodLibraryDialog');
 const editorDialog=document.getElementById('foodEditorDialog');
@@ -124,6 +125,32 @@ function payload(){
 async function saveCurrent({log=false}={}){
   if(busy||!ready())throw new Error('Food changes require a live signed-in connection.');
   const p=payload();
+  const duplicate=!p.savedFoodId?findDuplicateSavedFood(getDietV2Model()?.food?.savedFoods??[],p):null;
+  if(duplicate){
+    if(log){
+      const multiplier=duplicateReuseMultiplier(duplicate.food,p);
+      if(multiplier!=null){
+        setBusy(true);
+        try{
+          await logSavedFood(getDietV2Client(),{
+            savedFoodId:duplicate.food.id,
+            date:localDateKey(),
+            mealType:selectedMealType(),
+            multiplier,
+            quantityText:p.quantityText
+          });
+          await refresh({silent:true});
+          editorDialog.close();
+          renderLibrary();
+          toast(duplicate.food.name+' was already saved — reused and logged.');
+          return;
+        }finally{setBusy(false);}
+      }
+    }
+    fillFood(duplicate.food);
+    toast(duplicate.food.name+' is already saved. Opened the existing food instead.');
+    return;
+  }
   setBusy(true);
   try{
     const saved=await saveFood(getDietV2Client(),p);
@@ -173,10 +200,16 @@ function openLibrary(){
 }
 function externalCard(product){
   const n=product.per100;
+  const duplicate=findDuplicateSavedFood(getDietV2Model()?.food?.savedFoods??[],{
+    name:product.name,brand:product.brand,barcode:product.code
+  });
+  const action=duplicate
+    ?'<button class="dc-secondary-action dc-compact-action" type="button" data-food-edit="'+esc(duplicate.food.id)+'">Saved</button>'
+    :'<button class="dc-secondary-action dc-compact-action" type="button" data-external-code="'+esc(product.code)+'">Use</button>';
   return '<article class="dc-external-card">'+
     (product.imageUrl?'<img src="'+esc(product.imageUrl)+'" alt="" loading="lazy" referrerpolicy="no-referrer">':'<span class="dc-external-image">OFF</span>')+
     '<div><strong>'+esc(product.name)+'</strong><span>'+(product.brand?esc(product.brand)+' · ':'')+esc(product.code)+'</span><small>'+fmt(n.calories,0)+' kcal · '+fmt(n.protein,1)+' g P per 100 g</small></div>'+
-    '<button class="dc-secondary-action dc-compact-action" type="button" data-external-code="'+esc(product.code)+'">Use</button>'+
+    action+
   '</article>';
 }
 async function onlineSearch({barcode=false}={}){

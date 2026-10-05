@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "phase": "P29",
+  "title": "Food Memory & Reuse Intelligence",
+  "state": "implemented",
+  "runtime": "v2/",
+  "databaseMigration": false,
+  "remoteAiRequired": false,
+  "memoryPolicy": {
+    "source": "owner_scoped_existing_history",
+    "minimumPortionObservations": 3,
+    "minimumAgreement": 0.67,
+    "recurringMealMinimumOccurrences": 2,
+    "singleObservationChangesDefaults": false,
+    "weakEvidenceFallsBackToOneX": true
+  },
+  "capabilities": {
+    "learnedUsualPortions": true,
+    "contextAwareFoodOrdering": true,
+    "contextAwareSavedMealOrdering": true,
+    "recurringMealRecognition": true,
+    "saveRecurringMeal": true,
+    "duplicateFoodRecognition": true,
+    "safeDuplicateReuse": true,
+    "searchBonusesRequireRealMatch": true
+  },
+  "nextPhase": {
+    "phase": "P30",
+    "title": "Onboarding, Goals & Phase Setup"
+  }
+}

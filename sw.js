@@ -2,7 +2,7 @@ const CACHE='diet-copilot-prod-v2-p17-1';
 const CORE=[
   './','./index.html','./manifest.webmanifest',
   './v2/shell.css','./v2/shell.js','./v2/pwa.js','./v2/data.js','./v2/auth-storage.mjs','./v2/telemetry.mjs',
-  './v2/read-model.mjs','./v2/write-api.mjs','./v2/p28-food-capture.mjs','./v2/food.js','./v2/meal-editor.js',
+  './v2/read-model.mjs','./v2/write-api.mjs','./v2/p28-food-capture.mjs','./v2/p29-food-memory.mjs','./v2/food.js','./v2/meal-editor.js',
   './v2/food-management.js','./v2/open-food-facts.mjs','./v2/strategy-actions.js',
   './v2/training-actions.js','./v2/copilot.js','./v2/settings.js',
   './v2/engine/adaptive-nutrition.mjs','./v2/engine/legacy-data-adapter.mjs',

@@ -1,10 +1,13 @@
 import { getDietV2Client, getDietV2Model, getDietV2State, refresh } from './data.js';
-import { logManualMeal, logSavedFood, logSavedMeal, repeatMeal, deleteMeal } from './write-api.mjs';
+import { logManualMeal, logSavedFood, logSavedMeal, repeatMeal, deleteMeal, saveMealFromHistory } from './write-api.mjs';
 import { localDateKey } from './read-model.mjs';
 import {
   rankFoodCaptureMatches, normalizePortionMultiplier, portionPreview,
   portionQuantityText, latestRepeatCandidate
 } from './p28-food-capture.mjs';
+import {
+  foodMemoryFor, learnedFoodMultiplier, rankFoodsForMealType, rankMealsForMealType
+} from './p29-food-memory.mjs';
 
 const ui={
   mealType:defaultMealType(),
@@ -117,17 +120,34 @@ function setMealType(type){
   });
   renderSearch();
   renderRepeatLast();
+  renderFoodMemory();
+}
+
+function learnedFoodDefault(food){
+  const memory=getDietV2Model()?.food?.memory??null;
+  const row=foodMemoryFor(memory,food?.id);
+  const multiplier=learnedFoodMultiplier(memory,food?.id);
+  return {
+    multiplier,
+    quantityText:row?.usualPortion?.eligible?(row.usualPortion.quantityText||null):null,
+    memory:row
+  };
 }
 
 function foodCard(food,{searchIndex=null}={}){
   const selected=searchIndex===ui.searchIndex?' is-keyboard-selected':'';
+  const learned=learnedFoodDefault(food);
+  const usual=learned.memory?.usualPortion?.eligible;
+  const usualText=usual?` · usual ${fmt(learned.multiplier,2)}×`:'';
+  const portionLabel=usual?`${fmt(learned.multiplier,2)}×`:'½–2×';
+  const addLabel=usual?`Add usual ${fmt(learned.multiplier,2)}× portion of ${food.name}`:`Add ${food.name}`;
   return `<div class="dc-log-option${selected}" ${searchIndex==null?'':`data-food-search-result="${searchIndex}"`}>
     <button class="dc-log-option-main" type="button" data-log-saved-food="${esc(food.id)}">
       <span class="dc-log-option-title"><strong>${esc(food.name)}</strong>${food.brand?`<small>${esc(food.brand)}</small>`:''}</span>
-      <span class="dc-log-option-meta">${food.quantity?esc(food.quantity)+' · ':''}${fmt(food.calories)} kcal · ${fmt(food.protein,1)} g P</span>
+      <span class="dc-log-option-meta">${food.quantity?esc(food.quantity)+' · ':''}${fmt(food.calories)} kcal · ${fmt(food.protein,1)} g P${usualText}</span>
     </button>
-    <button class="dc-log-portion" type="button" data-portion-food="${esc(food.id)}" aria-label="Choose portion for ${esc(food.name)}">½–2×</button>
-    <button class="dc-log-add" type="button" data-log-saved-food="${esc(food.id)}" aria-label="Add ${esc(food.name)}">+</button>
+    <button class="dc-log-portion${usual?' is-learned':''}" type="button" data-portion-food="${esc(food.id)}" aria-label="Choose portion for ${esc(food.name)}">${portionLabel}</button>
+    <button class="dc-log-add" type="button" data-log-saved-food="${esc(food.id)}" aria-label="${esc(addLabel)}">+</button>
   </div>`;
 }
 function savedMealCard(meal,{searchIndex=null}={}){
@@ -190,8 +210,10 @@ function logSearchSelection(button=null){
   const match=ui.searchMatches[ui.searchIndex]??ui.searchMatches[0];
   if(!match)return false;
   if(match.type==='food'){
+    const learned=learnedFoodDefault(match.item);
     commit(button,()=>logSavedFood(getDietV2Client(),{
-      savedFoodId:match.item.id,date:localDateKey(),mealType:ui.mealType,multiplier:1
+      savedFoodId:match.item.id,date:localDateKey(),mealType:ui.mealType,
+      multiplier:learned.multiplier,quantityText:learned.quantityText
     }),match.item.name,{clearSearchAfter:true});
   }else{
     commit(button,()=>logSavedMeal(getDietV2Client(),{
@@ -207,8 +229,10 @@ function bindDynamicActions(root=document){
       const model=getDietV2Model();
       const food=model?.food?.savedFoods?.find(x=>x.id===button.dataset.logSavedFood);
       if(!food)return;
+      const learned=learnedFoodDefault(food);
       commit(button,()=>logSavedFood(getDietV2Client(),{
-        savedFoodId:food.id,date:localDateKey(),mealType:ui.mealType,multiplier:1
+        savedFoodId:food.id,date:localDateKey(),mealType:ui.mealType,
+        multiplier:learned.multiplier,quantityText:learned.quantityText
       }),food.name,{clearSearchAfter:Boolean(button.closest('#foodSearchResults'))});
     });
   });
@@ -242,6 +266,58 @@ function bindDynamicActions(root=document){
   }));
 }
 
+function recurringMealCard(pattern){
+  const items=(pattern.itemNames??[]).slice(0,3).map(esc).join(' · ');
+  return `<article class="dc-memory-card">
+    <div class="dc-memory-card-main">
+      <div class="dc-memory-card-title"><strong>${esc(pattern.title)}</strong><span>${esc(pattern.mealType)}</span></div>
+      <p>${items||'Recurring meal'}${(pattern.itemNames?.length??0)>3?' · …':''}</p>
+      <small>${pattern.occurrences}× in recent history · last ${esc(pattern.lastDate)}</small>
+    </div>
+    <div class="dc-memory-card-nutrition"><strong>${fmt(pattern.calories)} kcal</strong><span>${fmt(pattern.protein,1)} g P</span></div>
+    <div class="dc-memory-card-actions">
+      <button class="dc-secondary-action dc-compact-action" type="button" data-repeat-meal="${esc(pattern.representativeId)}">Repeat</button>
+      ${pattern.alreadySaved?'<span class="dc-memory-saved">Saved</span>':`<button class="dc-secondary-action dc-compact-action" type="button" data-save-recurring-meal="${esc(pattern.representativeId)}">Save meal</button>`}
+    </div>
+  </article>`;
+}
+function visibleRecurringMeals(){
+  const patterns=getDietV2Model()?.food?.recurringMeals??[];
+  const same=patterns.filter(x=>String(x.mealType)===String(ui.mealType));
+  return (same.length?same:patterns).slice(0,4);
+}
+function renderFoodMemory(){
+  const model=getDietV2Model();
+  const root=$('foodMemoryMeals');
+  const summary=$('foodMemorySummary');
+  if(!model||!root||!summary)return;
+  const learned=Number(model.food?.memory?.learnedCount??0);
+  const patterns=model.food?.recurringMeals??[];
+  const visible=visibleRecurringMeals();
+  summary.textContent=`${learned} learned portion${learned===1?'':'s'} · ${patterns.length} recurring meal${patterns.length===1?'':'s'}`;
+  root.innerHTML=visible.length?visible.map(recurringMealCard).join(''):empty('No recurring multi-item meal has enough evidence yet.');
+  bindDynamicActions(root);
+  root.querySelectorAll('[data-save-recurring-meal]').forEach(button=>button.addEventListener('click',()=>saveRecurringMeal(button)));
+}
+async function saveRecurringMeal(button){
+  if(ui.busy||!writeReady())return;
+  const id=button?.dataset?.saveRecurringMeal;
+  const pattern=(getDietV2Model()?.food?.recurringMeals??[]).find(x=>String(x.representativeId)===String(id));
+  if(!pattern)return;
+  setBusy(button,true,'Saving…');
+  clearStatus();
+  try{
+    await saveMealFromHistory(getDietV2Client(),{mealId:pattern.representativeId,name:pattern.title});
+    showStatus(`${pattern.title} saved as a reusable meal.`);
+    await refresh({silent:true});
+    renderFoodWorkspace();
+  }catch(error){
+    showStatus(errorMessage(error),{error:true});
+  }finally{
+    setBusy(button,false);
+  }
+}
+
 function renderRepeatLast(){
   const button=$('foodRepeatLast');
   if(!button)return;
@@ -256,8 +332,8 @@ function renderRepeatLast(){
 function renderFoodWorkspace(){
   const model=getDietV2Model();
   if(!model)return;
-  const foods=model.food.quickFoods??[];
-  const meals=model.food.quickMeals??[];
+  const foods=rankFoodsForMealType(model.food.savedFoods??[],model.food.memory,ui.mealType,{limit:8});
+  const meals=rankMealsForMealType(model.food.savedMeals??[],ui.mealType,{limit:6});
   const recent=(model.food.recentMeals??[]).slice(0,8);
   const foodsEl=$('foodQuickFoods');
   const mealsEl=$('foodSavedMeals');
@@ -269,6 +345,7 @@ function renderFoodWorkspace(){
   bindDynamicActions(mealsEl??document);
   bindDynamicActions(recentEl??document);
   renderRepeatLast();
+  renderFoodMemory();
   renderSearch();
 }
 
@@ -318,9 +395,10 @@ function openPortion(kind,item){
   ui.portionTarget={kind,item};
   $('foodPortionName').textContent=item.name;
   $('foodPortionBase').textContent=`${item.quantity||item.servingText||'1 serving'} · ${fmt(item.calories)} kcal · ${fmt(item.protein,1)} g P`;
-  $('foodPortionMultiplier').value='1';
-  $('foodPortionQuantity').value='';
-  document.querySelectorAll('[data-portion-preset]').forEach(b=>b.classList.toggle('is-selected',b.dataset.portionPreset==='1'));
+  const learned=kind==='food'?learnedFoodDefault(item):{multiplier:1,quantityText:null};
+  $('foodPortionMultiplier').value=String(learned.multiplier);
+  $('foodPortionQuantity').value=learned.quantityText??'';
+  document.querySelectorAll('[data-portion-preset]').forEach(b=>b.classList.toggle('is-selected',Number(b.dataset.portionPreset)===Number(learned.multiplier)));
   updatePortionPreview();
   if(!dialog.open)dialog.showModal();
 }

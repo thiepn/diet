@@ -20,16 +20,20 @@ export function rankFoodCaptureMatches(model,query,{mealType='Other',limit=10}={
   if(!q)return [];
   const foods=(model?.food?.savedFoods??[]).map(item=>{
     const name=normalizeFoodQuery(item.name),brand=normalizeFoodQuery(item.brand),barcode=normalizeFoodQuery(item.barcode);
-    const score=(barcode===q?700:0)+(name===q?260:0)+(name.startsWith(q)?145:0)+(name.includes(q)?85:0)+
-      (brand.startsWith(q)?60:0)+(brand.includes(q)?35:0)+(item.favorite?24:0)+Math.min(Number(item.useCount)||0,35)+recencyBonus(item.lastUsedAt);
-    return {type:'food',item,score};
+    const memory=model?.food?.memory?.foodsById?.[String(item.id)]??null;
+    const contextUses=Number(memory?.mealTypeCounts?.[mealType]??0);
+    const matchScore=(barcode===q?700:0)+(name===q?260:0)+(name.startsWith(q)?145:0)+(name.includes(q)?85:0)+
+      (brand.startsWith(q)?60:0)+(brand.includes(q)?35:0);
+    const bonus=(item.favorite?24:0)+Math.min(Number(item.useCount)||0,35)+
+      recencyBonus(item.lastUsedAt)+Math.min(contextUses*12,60)+(memory?.dominantMealType===mealType?18:0);
+    return {type:'food',item,score:matchScore?matchScore+bonus:0};
   }).filter(x=>x.score>0);
   const meals=(model?.food?.savedMeals??[]).map(item=>{
     const name=normalizeFoodQuery(item.name);
     const sameMeal=String(item.mealType??'')===mealType;
-    const score=(name===q?250:0)+(name.startsWith(q)?140:0)+(name.includes(q)?82:0)+(item.favorite?24:0)+
-      Math.min(Number(item.useCount)||0,35)+recencyBonus(item.lastUsedAt)+(sameMeal?36:0);
-    return {type:'meal',item,score};
+    const matchScore=(name===q?250:0)+(name.startsWith(q)?140:0)+(name.includes(q)?82:0);
+    const bonus=(item.favorite?24:0)+Math.min(Number(item.useCount)||0,35)+recencyBonus(item.lastUsedAt)+(sameMeal?36:0);
+    return {type:'meal',item,score:matchScore?matchScore+bonus:0};
   }).filter(x=>x.score>0);
   return [...foods,...meals].sort((a,b)=>b.score-a.score || String(a.item.name).localeCompare(String(b.item.name))).slice(0,limit);
 }
