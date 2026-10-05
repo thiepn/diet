@@ -13,16 +13,16 @@ assert.equal(plan.phase,'P42');
 assert.equal(plan.state,'refreeze_pending');
 assert.equal(plan.generation,6);
 assert.equal(plan.predecessor.state,'invalidated_epoch_changed');
-assert.equal(plan.candidateRevision,3);
-assert.equal(plan.candidateEpoch.migrationHead,'20261005142947_studyos_p11_calendar_autopilot_foundation');
-assert.equal(plan.candidateEpoch.semanticSchemaSha256,'48825c23f56020022a058504e069d4c7f8d6a096331560b6999ec501df4f5fcf');
+assert.equal(plan.candidateRevision,4);
+assert.equal(plan.candidateEpoch.migrationHead,'20261005143803_studyos_p11_calendar_deadline_sync');
+assert.equal(plan.candidateEpoch.semanticSchemaSha256,'c49004e0f9702ef485b66c0b34e780209a676df02e8313eeeaa29a71467d9d0e');
 assert.equal(plan.candidateEpoch.edgeFunctionCount,12);
 assert.equal(plan.candidateEpoch.gomokuRoomVersion,50);
 assert.equal(plan.candidateEpoch.cronJobs,14);
 assert.equal(plan.quietWindow.minimumMinutes,60);
 assert.equal(plan.quietWindow.satisfied,false);
-assert.equal(plan.backupGate.latestSuccessfulRunId,37324434181);
-assert.equal(plan.backupGate.latestSuccessfulBackupFreshForCandidate,false);
+assert.equal(plan.backupGate.latestSuccessfulRunId,37326652281);
+assert.equal(plan.backupGate.latestSuccessfulBackupFreshForCandidate,true);
 assert.equal(plan.activationReadiness.eligibleToActivate,false);
 assert.equal(plan.safety.generation6Activated,false);
 
@@ -37,7 +37,7 @@ assert.equal(obs.blockingReplicationSlots,0);
 assert.equal(backup.conclusion,'success');
 assert.equal(backup.verificationPassed,true);
 assert.equal(backup.encrypted,true);
-assert.equal(backup.freshForCandidate,false);
+assert.equal(backup.freshForCandidate,true);
 
 assert.equal(p41.nextGeneration.generation,6);
 assert.equal(p41.nextGeneration.required,true);
@@ -52,10 +52,10 @@ assert.doesNotMatch(workflow,/supabase\s+db\s+/);
 
 for(const token of [
   'Generation 6',
-  'studyos_p11_calendar_autopilot_foundation',
-  '15:29:47Z',
-  '37324434181',
-  'stale',
+  'studyos_p11_calendar_deadline_sync',
+  '15:38:03Z',
+  '37326652281',
+  'fresh',
   '60-minute',
   'not activated'
 ]) assert.ok(doc.includes(token),'P42 doc missing '+token);
