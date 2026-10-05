@@ -384,7 +384,7 @@ document.addEventListener('keydown',event=>{
 });
 
 window.addEventListener('diet-v2-data-updated',renderFoodWorkspace);
-window.addEventListener('hashchange',()=>{if(location.hash==='#food'){renderFoodWorkspace();requestAnimationFrame(()=>focusSearch());}});
+window.addEventListener('hashchange',()=>{if(location.hash==='#food'){renderFoodWorkspace();if(matchMedia('(min-width:761px)').matches)requestAnimationFrame(()=>focusSearch());}});
 
 setMealType(ui.mealType);
 renderFoodWorkspace();
