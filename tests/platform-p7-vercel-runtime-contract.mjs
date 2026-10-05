@@ -4,6 +4,7 @@ import fs from "node:fs";
 const api=fs.readFileSync("api/copilot.js","utf8");
 const health=fs.readFileSync("api/health.js","utf8");
 const runtime=fs.readFileSync("v2/server-runtime.mjs","utf8");
+const client=fs.readFileSync("v2/copilot.js","utf8");
 const manifest=JSON.parse(fs.readFileSync("platform-p7-runtime-certification.json","utf8"));
 
 assert.match(api,/SUPABASE_PUBLISHABLE_KEY/);
@@ -23,6 +24,11 @@ assert.match(health,/VERCEL_REGION/);
 assert.match(runtime,/active:"supabase-edge"/);
 assert.match(runtime,/https:\/\/thiepn-diet\.vercel\.app\/api\/copilot/);
 assert.match(runtime,/cutoverRequiresCertification:true/);
+assert.match(client,/DietServerRuntime/);
+assert.match(client,/invokeRemoteCopilot/);
+assert.match(client,/client\.auth\.getSession\(\)/);
+assert.match(client,/Authorization':'Bearer /);
+assert.match(client,/client\.functions\.invoke\('diet-copilot-ai'/);
 
 assert.equal(manifest.phase,"P7");
 assert.equal(manifest.workload.owner,"diet");
