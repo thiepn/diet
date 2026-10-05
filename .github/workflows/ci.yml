@@ -96,6 +96,9 @@ jobs:
           console.log('Diet Copilot Web 2.0.3 / P24 validated + P25 generation-3 active burn-in contract passed.');
           NODE
 
+      - name: P26 product-track contract
+        run: node tests/p26-product-track-contract.mjs
+
       - name: Build actual GitHub Pages artifact
         uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1
         with:
