@@ -190,7 +190,9 @@
     "copilotWritesRequirePreview": true,
     "copilotArbitraryWrites": false,
     "copilotStrategyActionsRevalidate": true,
-    "copilotRemoteExecutesWrites": false
+    "copilotRemoteExecutesWrites": false,
+    "rawCoreAssetBudgetBytes": 750000,
+    "rawCoreAssetObservedBytes": 729415
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0",
