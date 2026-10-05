@@ -363,10 +363,22 @@
 
           <article class="dc-panel dc-recommendation-shell">
             <div class="dc-panel-head">
-              <div><p class="dc-eyebrow">Adaptive review</p><h3 id="strategyDecisionTitle">Need more data</h3></div>
-              <span class="dc-status-chip" id="strategyDecisionChip">Building</span>
+              <div><p class="dc-eyebrow">Weekly review</p><h3 id="strategyDecisionTitle">Need more data</h3></div>
+              <div class="dc-strategy-review-head-meta">
+                <span class="dc-panel-meta" id="strategyReviewCadence">First review</span>
+                <span class="dc-status-chip" id="strategyDecisionChip">Building</span>
+              </div>
             </div>
             <p id="strategyDecisionReason">The adaptive engine will explain why the target should stay or change.</p>
+
+            <div class="dc-strategy-confidence" id="strategyConfidencePanel">
+              <div class="dc-strategy-confidence-head">
+                <span>Decision confidence</span>
+                <strong id="strategyConfidencePercent">0%</strong>
+              </div>
+              <div class="dc-strategy-confidence-track" aria-hidden="true"><span id="strategyConfidenceBar" style="width:0%"></span></div>
+              <p id="strategyConfidenceMessage">Evidence is still building.</p>
+            </div>
 
             <div class="dc-strategy-targets">
               <div><span>Current</span><strong id="strategyReviewCurrent">—</strong></div>
@@ -387,19 +399,35 @@
               <div><span>Carbs</span><strong id="strategyMacroCarbs">—</strong></div>
             </div>
 
+            <div class="dc-strategy-explanation-grid">
+              <section class="dc-strategy-explanation">
+                <span class="dc-strategy-explanation-kicker">Why this recommendation</span>
+                <strong id="strategyWhyHeadline">Keep the current target</strong>
+                <p id="strategyWhyText">The current evidence does not support a target change.</p>
+              </section>
+              <section class="dc-strategy-explanation">
+                <span class="dc-strategy-explanation-kicker">What would improve the next review</span>
+                <div class="dc-strategy-missing" id="strategyMissingEvidence">
+                  <span>Keep logging normally.</span>
+                </div>
+              </section>
+            </div>
+
+            <div class="dc-strategy-readiness" id="strategyReadiness"></div>
+
             <div class="dc-strategy-review-state" id="strategyReviewState" hidden></div>
 
-            <div class="dc-strategy-actions">
-              <button class="dc-secondary-action" id="strategyStageReview" type="button">Review recommendation</button>
+            <div class="dc-strategy-actions dc-strategy-decision-actions">
+              <button class="dc-text-action" id="strategyStageReview" type="button" hidden>Refresh evidence</button>
               <label class="dc-effective-date" id="strategyEffectiveDateWrap" hidden>
-                <span>Apply</span>
+                <span>Apply from</span>
                 <select id="strategyEffectiveDate">
                   <option value="today">Today</option>
                   <option value="tomorrow">Tomorrow</option>
                 </select>
               </label>
-              <button class="dc-secondary-action" id="strategyKeepCurrent" type="button" hidden>Keep current</button>
-              <button class="dc-primary-action" id="strategyAccept" type="button" hidden>Accept target</button>
+              <button class="dc-secondary-action" id="strategyKeepCurrent" type="button">Keep current</button>
+              <button class="dc-primary-action" id="strategyAccept" type="button" hidden>Apply change</button>
             </div>
           </article>
 
