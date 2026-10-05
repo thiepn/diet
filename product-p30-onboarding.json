@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "phase": "P30",
+  "title": "Onboarding, Goals & Phase Setup",
+  "state": "implemented",
+  "productionRuntime": "v2/",
+  "migration": "20261005194103_diet_p30_onboarding_goal_phase_setup",
+  "completionRule": {
+    "requires": [
+      "current_weight",
+      "profile",
+      "active_goal_phase",
+      "calorie_target",
+      "protein_target"
+    ],
+    "separateCompletionFlag": false
+  },
+  "onboarding": {
+    "steps": [
+      "starting_weight",
+      "goal_phase",
+      "starting_targets"
+    ],
+    "resumable": true,
+    "blocking": false,
+    "autoOpenOncePerSessionWhenIncomplete": true,
+    "editFromStrategy": true
+  },
+  "startingEstimate": {
+    "maintenanceKcalPerKg": 30,
+    "energyDensityKcalPerKg": 7700,
+    "proteinGramsPerKg": 1.8,
+    "fiberGrams": 30,
+    "calorieRange": [
+      1200,
+      6000
+    ],
+    "labeledAsEstimate": true
+  },
+  "canonicalWrite": {
+    "rpc": "diet_app_complete_onboarding",
+    "atomic": true,
+    "p19Idempotent": true,
+    "anonExecute": false,
+    "authenticatedExecute": true
+  },
+  "nextPhase": {
+    "phase": "P31",
+    "title": "Adaptive Strategy & Weekly Review"
+  }
+}
