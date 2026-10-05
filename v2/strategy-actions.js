@@ -12,16 +12,9 @@ function fmt(value,digits=0){
 }
 function signedLive(){
   const s=getDietV2State();
-  return s.signedIn&&s.source==='cloud'&&navigator.onLine!==false;
+  return s.signedIn&&s.source==='cloud'&&navigator.onLine!==false&&!s.writeBlocked;
 }
-function toast(message){
-  const el=document.querySelector('[data-toast]');
-  if(!el)return;
-  el.textContent=message;
-  el.classList.add('is-visible');
-  clearTimeout(toast.timer);
-  toast.timer=setTimeout(()=>el.classList.remove('is-visible'),2800);
-}
+function toast(message){window.DietV2Shell?.showToast?.(message);}
 function tomorrowKey(){
   const d=new Date();
   d.setDate(d.getDate()+1);
@@ -43,10 +36,10 @@ function decisionLabel(decision){
 function statusLabel(status){
   const map={
     pending:'Awaiting decision',
-    accepted:'Accepted',
+    accepted:'Applied',
     dismissed:'Kept current',
     insufficient:'Not enough data',
-    advisory:'Review recorded',
+    advisory:'Review ready',
     superseded:'Superseded',
     reverted:'Reverted'
   };
@@ -72,7 +65,7 @@ function sameOpenReview(model){
 function setBusy(next){
   busy=next;
   ['strategyStageReview','strategyKeepCurrent','strategyAccept'].forEach(id=>{
-    const el=$(id); if(el)el.disabled=next;
+    const el=$(id);if(el)el.disabled=next;
   });
   document.querySelectorAll('[data-revert-strategy]').forEach(el=>el.disabled=next);
 }
@@ -87,7 +80,8 @@ function reviewPayload(model){
       uncertaintyKcal:s.uncertaintyKcal,
       reliableIntakeDays:s.reliableIntakeDays,
       weighIns:s.weighIns,
-      spanDays:s.weightSpanDays
+      spanDays:s.weightSpanDays,
+      components:s.confidenceComponents??{}
     },
     evidence:{
       loggedDays:Math.ceil(Number(s.reliableIntakeDays)||0),
@@ -105,73 +99,96 @@ function reviewPayload(model){
     },
     macros:s.macros,
     rawTarget:s.rawTarget,
-    appliedStep:s.appliedStep
+    appliedStep:s.appliedStep,
+    weeklyReview:s.weeklyReview??null
   };
 }
-async function stageReview(){
-  if(busy)return;
-  const model=getDietV2Model();
+async function stageCurrentSnapshot(model=getDietV2Model()){
   const s=model?.strategy;
-  if(!s||!signedLive()){toast('A live signed-in connection is required.');return;}
-  if(s.currentTarget==null){toast('A current calorie target is required before a strategy review.');return;}
+  if(!s||!signedLive())throw new Error('A live signed-in connection is required.');
+  if(s.currentTarget==null)throw new Error('Finish goal setup before reviewing your strategy.');
+  await stageStrategyReview(getDietV2Client(),{
+    engineVersion:s.engineVersion,
+    generatedOn:model.asOfDate,
+    lookbackDays:28,
+    decision:s.decision,
+    currentTarget:s.currentTarget,
+    recommendedTarget:s.recommendedTarget,
+    rawTarget:s.rawTarget,
+    estimatedExpenditure:s.estimatedExpenditure,
+    confidenceLevel:s.confidenceLevel,
+    confidenceScore:s.confidenceScore,
+    reason:s.reason,
+    recommendedProtein:s.macros?.protein??null,
+    recommendedFat:s.macros?.fat??null,
+    recommendedCarbs:s.macros?.carbs??null,
+    payload:reviewPayload(model)
+  });
+}
+async function ensureCurrentReview(){
+  let model=getDietV2Model();
+  if(sameOpenReview(model))return {model,review:model.strategy.openReview};
+  await stageCurrentSnapshot(model);
+  await refresh({silent:true});
+  model=getDietV2Model();
+  if(!sameOpenReview(model))throw new Error('The evidence changed while preparing this review. Refresh and check the recommendation again.');
+  return {model,review:model.strategy.openReview};
+}
+async function refreshEvidence(){
+  if(busy)return;
+  if(!signedLive()){toast('A live signed-in connection is required.');return;}
   setBusy(true);
   try{
-    await stageStrategyReview(getDietV2Client(),{
-      engineVersion:s.engineVersion,
-      generatedOn:model.asOfDate,
-      lookbackDays:28,
-      decision:s.decision,
-      currentTarget:s.currentTarget,
-      recommendedTarget:s.recommendedTarget,
-      rawTarget:s.rawTarget,
-      estimatedExpenditure:s.estimatedExpenditure,
-      confidenceLevel:s.confidenceLevel,
-      confidenceScore:s.confidenceScore,
-      reason:s.reason,
-      recommendedProtein:s.macros?.protein??null,
-      recommendedFat:s.macros?.fat??null,
-      recommendedCarbs:s.macros?.carbs??null,
-      payload:reviewPayload(model)
-    });
+    await stageCurrentSnapshot();
     await refresh({silent:true});
-    toast(actionReady(s)?'Recommendation ready for your decision.':'Strategy review recorded.');
+    toast('Weekly review evidence refreshed.');
   }catch(error){
-    toast(error?.message||'Strategy review could not be created.');
+    toast(error?.message||'The weekly review could not be refreshed.');
   }finally{setBusy(false);}
 }
-async function resolveReview(resolution){
+async function resolveDecision(resolution){
   if(busy)return;
-  const model=getDietV2Model();
-  const review=model?.strategy?.openReview;
-  if(!review||!sameOpenReview(model)){toast('Refresh the recommendation before resolving it.');return;}
   if(!signedLive()){toast('A live signed-in connection is required.');return;}
 
-  const s=model.strategy;
-  if(resolution==='accept'){
-    const delta=Math.abs(Number(review.recommendedTarget)-Number(review.currentTarget));
-    if(s.decision==='transition_maintenance'||delta>=300){
-      if(!confirm('Apply this strategy change to your active plan? Historical targets will be preserved.'))return;
-    }
+  const initial=getDietV2Model();
+  const initialStrategy=initial?.strategy;
+  if(!initialStrategy?.currentTarget){toast('Finish goal setup before reviewing your strategy.');return;}
+  if(resolution==='accept'&&!actionReady(initialStrategy)){
+    toast('The current evidence does not support a target change. Keep the current target for this review.');
+    return;
   }
 
-  const applyChoice=$('strategyEffectiveDate')?.value??'today';
-  const effectiveDate=applyChoice==='tomorrow'?tomorrowKey():localDateKey();
   setBusy(true);
   try{
+    const {model,review}=await ensureCurrentReview();
+    const s=model.strategy;
+    if(resolution==='accept'){
+      if(!actionReady(s))throw new Error('The evidence changed and no longer supports applying a target change.');
+      const delta=Math.abs(Number(review.recommendedTarget)-Number(review.currentTarget));
+      if(s.decision==='transition_maintenance'||delta>=300){
+        if(!confirm('Apply this strategy change to your active plan? Historical targets will be preserved.'))return;
+      }
+    }
+
+    const applyChoice=$('strategyEffectiveDate')?.value??'today';
+    const effectiveDate=resolution==='accept'
+      ?(applyChoice==='tomorrow'?tomorrowKey():localDateKey())
+      :localDateKey();
+
     await resolveStrategyReview(getDietV2Client(),{
       recommendationId:review.id,
       resolution,
       effectiveDate
     });
     await refresh({silent:true});
-    toast(resolution==='accept'?'New strategy target applied.':'Current target kept.');
+    toast(resolution==='accept'?'Strategy change applied.':'Weekly review complete — current target kept.');
   }catch(error){
-    toast(error?.message||'Strategy review could not be resolved.');
+    toast(error?.message||'The weekly review could not be completed.');
   }finally{setBusy(false);}
 }
 async function revertReview(id){
   if(busy||!signedLive())return;
-  if(!confirm('Restore the target that was active before this accepted review? A new target period will be created; history will not be erased.'))return;
+  if(!confirm('Restore the target that was active before this applied review? A new target period will be created; history will not be erased.'))return;
   setBusy(true);
   try{
     await revertStrategyReview(getDietV2Client(),{recommendationId:id});
@@ -200,17 +217,32 @@ function historyRow(review,latestAcceptedId){
     '</div>'+
   '</article>';
 }
+function readinessMarkup(item){
+  const value=item.key==='confidence'?fmt(item.value)+'%':fmt(item.value,1);
+  const target=item.key==='confidence'?fmt(item.target)+'%':fmt(item.target,0);
+  return '<div class="dc-readiness-item" data-state="'+esc(item.state)+'">'+
+    '<span>'+esc(item.label)+'</span>'+
+    '<strong>'+esc(value)+'</strong>'+
+    '<small>target '+esc(target)+(item.key==='confidence'?'':' '+esc(item.unit))+'</small>'+
+  '</div>';
+}
+function missingMarkup(items=[]){
+  if(!items.length)return '<span class="dc-missing-good">Enough evidence for the current review. Keep logging normally.</span>';
+  return items.map(item=>'<span>• '+esc(item)+'</span>').join('');
+}
 function render(){
   const model=getDietV2Model();
   if(!model)return;
   const s=model.strategy;
+  const w=s.weeklyReview??{};
   const current=Number(s.currentTarget);
   const recommended=s.recommendedTarget==null?null:Number(s.recommendedTarget);
   const delta=(Number.isFinite(current)&&Number.isFinite(recommended))?recommended-current:null;
 
-  $('strategyDecisionTitle').textContent=decisionLabel(s.decision);
+  $('strategyDecisionTitle').textContent=w.recommendation?.headline??decisionLabel(s.decision);
   $('strategyDecisionReason').textContent=s.reason;
   $('strategyDecisionChip').textContent=String(s.confidenceLevel??'building baseline').replaceAll('_',' ');
+  $('strategyReviewCadence').textContent=w.cadence?.label??'Review available';
   $('strategyReviewCurrent').textContent=s.currentTarget==null?'—':fmt(s.currentTarget)+' kcal';
   $('strategyRecommendedTarget').textContent=s.recommendedTarget==null?'—':fmt(s.recommendedTarget)+' kcal';
   $('strategyTargetDelta').textContent=delta&&Math.abs(delta)>=1?(delta>0?'+':'')+fmt(delta)+' kcal change':'No calorie change';
@@ -227,37 +259,44 @@ function render(){
   $('strategyMacroFat').textContent=s.macros?.fat==null?'—':fmt(s.macros.fat)+' g';
   $('strategyMacroCarbs').textContent=s.macros?.carbs==null?'—':fmt(s.macros.carbs)+' g';
 
+  const confidencePercent=Math.max(0,Math.min(100,Number(w.confidence?.score??0)));
+  $('strategyConfidencePercent').textContent=fmt(confidencePercent)+'%';
+  $('strategyConfidenceBar').style.width=confidencePercent+'%';
+  $('strategyConfidenceMessage').textContent=w.confidence?.message??'Evidence is still building.';
+  $('strategyWhyHeadline').textContent=w.recommendation?.headline??decisionLabel(s.decision);
+  $('strategyWhyText').textContent=w.recommendation?.explanation??s.reason;
+  $('strategyMissingEvidence').innerHTML=missingMarkup(w.missingEvidence??[]);
+  $('strategyReadiness').innerHTML=(w.evidence?.items??[]).map(readinessMarkup).join('');
+
   const state=$('strategyReviewState');
   const stage=$('strategyStageReview');
   const keep=$('strategyKeepCurrent');
   const accept=$('strategyAccept');
   const dateWrap=$('strategyEffectiveDateWrap');
   const match=sameOpenReview(model);
+  const canApply=actionReady(s);
 
-  stage.hidden=match;
-  stage.textContent=s.openReview?'Refresh review':'Review recommendation';
-  keep.hidden=true;
-  accept.hidden=true;
-  dateWrap.hidden=true;
-  state.hidden=true;
-  state.textContent='';
+  stage.hidden=!s.openReview||match;
+  stage.textContent='Refresh evidence';
+  keep.hidden=s.currentTarget==null;
+  accept.hidden=!canApply;
+  dateWrap.hidden=!canApply;
+  keep.textContent='Keep current';
+  accept.textContent=s.decision==='transition_maintenance'
+    ?'Apply maintenance'
+    :s.recommendedTarget==null?'Apply change':'Apply '+fmt(s.recommendedTarget)+' kcal';
 
+  state.hidden=false;
   if(s.openReview&&match){
-    state.hidden=false;
-    if(s.openReview.status==='pending'){
-      state.textContent='This recommendation is staged and waiting for your decision. Nothing changes until you accept it.';
-      keep.hidden=false;
-      accept.hidden=false;
-      dateWrap.hidden=false;
-      accept.textContent=s.decision==='transition_maintenance'?'Accept maintenance target':'Accept target';
-    }else{
-      state.textContent='The review supports keeping the current target. Recording that choice leaves the plan unchanged.';
-      keep.hidden=false;
-      keep.textContent='Keep current';
-    }
+    state.textContent=s.openReview.status==='pending'
+      ?'A matching evidence snapshot is ready. Your plan changes only if you choose Apply.'
+      :'A matching weekly review snapshot is ready. Keeping the current target records the decision without changing your plan.';
   }else if(s.openReview&&!match){
-    state.hidden=false;
-    state.textContent='The saved review no longer matches the current engine output. Refresh it before deciding.';
+    state.textContent='The saved review snapshot is older than the evidence shown above. Choosing Keep or Apply will refresh it first.';
+  }else if(w.cadence?.due){
+    state.textContent='Weekly review is due. Check the evidence above, then choose Keep current or Apply.';
+  }else{
+    state.textContent='You already completed a recent review. You can review again if your data or goal changed.';
   }
 
   const history=s.reviewHistory??[];
@@ -271,9 +310,9 @@ function render(){
   });
 }
 
-$('strategyStageReview')?.addEventListener('click',stageReview);
-$('strategyKeepCurrent')?.addEventListener('click',()=>resolveReview('keep_current'));
-$('strategyAccept')?.addEventListener('click',()=>resolveReview('accept'));
+$('strategyStageReview')?.addEventListener('click',refreshEvidence);
+$('strategyKeepCurrent')?.addEventListener('click',()=>resolveDecision('keep_current'));
+$('strategyAccept')?.addEventListener('click',()=>resolveDecision('accept'));
 window.addEventListener('diet-v2-data-updated',render);
 window.addEventListener('hashchange',()=>{if(location.hash==='#strategy')render();});
 render();
