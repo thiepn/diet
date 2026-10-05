@@ -58,8 +58,8 @@ assert.doesNotMatch(allV2,/service_role\\s*:\\s*['"`][^'"`]{12,}/i,'No service-r
 assert.match(writes,/diet_app_log_meal/);
 assert.doesNotMatch(allV2,/\.from\([^\n]+\)\.(?:insert|update|delete|upsert)\(/);
 
-const rpcNames=[...writes.matchAll(/(?:manual|savedFood|savedMeal|repeatMeal|deleteMeal|updateMeal|saveMealFromHistory|saveFood|setSavedFoodFavorite|deleteSavedFood|setSavedMealFavorite|deleteSavedMeal|stageStrategyReview|resolveStrategyReview|revertStrategyReview|saveTrainingDistribution|upsertTrainingDay|deleteTrainingDay):'([^']+)'/g)].map(m=>m[1]);
-assert.ok(rpcNames.length>=17,'Expected the Diet write RPC registry.');
+const rpcNames=[...writes.matchAll(/(?:manual|savedFood|savedMeal|repeatMeal|deleteMeal|updateMeal|saveMealFromHistory|saveFood|setSavedFoodFavorite|deleteSavedFood|setSavedMealFavorite|deleteSavedMeal|stageStrategyReview|resolveStrategyReview|revertStrategyReview|saveTrainingDistribution|upsertTrainingDay|deleteTrainingDay|completeOnboarding):'([^']+)'/g)].map(m=>m[1]);
+assert.ok(rpcNames.length>=19,'Expected all canonical Diet write RPCs, including P30 onboarding.');
 assert.ok(rpcNames.every(name=>name.startsWith('diet_app_')),'Browser writes must remain inside the diet_app_* RPC boundary.');
 
 console.log('Diet Copilot P14 static security contract passed.');
