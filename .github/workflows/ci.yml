@@ -26,6 +26,8 @@ jobs:
           set -euo pipefail
           node --check sw.js
           node --check legacy-v1-app.js
+          node --check api/copilot.js
+          node --check api/health.js
           while IFS= read -r -d '' file; do
             tmp="$(mktemp --suffix=.mjs)"
             cp "$file" "$tmp"
@@ -107,6 +109,9 @@ jobs:
 
       - name: P29 food memory and reuse intelligence contract
         run: node tests/p29-food-memory-contract.mjs
+
+      - name: Platform P7 product-owned Vercel runtime contract
+        run: node tests/platform-p7-vercel-runtime-contract.mjs
 
       - name: Build actual GitHub Pages artifact
         uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1
