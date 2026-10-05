@@ -2,7 +2,7 @@ import { getDietV2Client,getDietV2Model,getDietV2State,refresh } from './data.js
 import { logSavedFood,logSavedMeal,repeatMeal } from './write-api.mjs';
 import { localDateKey } from './read-model.mjs';
 import {
-  buildCopilotContext,buildLocalCopilotReply,sanitizeCopilotResponse,validateCopilotProposal,DietCopilotP8
+  buildCopilotContext,buildLocalCopilotReply,sanitizeCopilotResponse,validateCopilotProposal,DietCopilotP32
 } from './engine/copilot-context.mjs';
 import { buildActionPreview, confirmationLabel } from './p32-copilot-actions.mjs';
 
@@ -329,7 +329,7 @@ window.addEventListener('diet-v2-data-updated',()=>{
 });
 
 window.DietV2Copilot=Object.freeze({
-  version:DietCopilotP8.version,
+  version:DietCopilotP32.version,
   actionContract:'P32',
   open,
   close,
