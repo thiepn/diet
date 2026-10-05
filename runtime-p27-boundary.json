@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "phase": "P27",
+  "title": "Production Runtime Consolidation & Legacy Retirement",
+  "state": "runtime_boundary_enforced",
+  "activeProduction": {
+    "entrypoint": "index.html",
+    "sourceTree": "v2/",
+    "serviceWorker": "sw.js",
+    "directWritesSupported": true,
+    "copilot": "v2/copilot.js"
+  },
+  "rollback": {
+    "entrypoint": "legacy-v1.html",
+    "compiledRuntime": "legacy-v1-app.js",
+    "sourceTree": "src/",
+    "role": "rollback_only",
+    "featureDevelopmentAllowed": false,
+    "productionEntrypointMayLoadSourceTree": false
+  },
+  "invariants": [
+    "root index.html loads v2 runtime only",
+    "root index.html does not load src or legacy-v1 runtime",
+    "src is rollback-only source",
+    "new product features go to v2",
+    "legacy rollback remains available"
+  ],
+  "nextPhase": {
+    "phase": "P28",
+    "title": "Frictionless Food Capture"
+  }
+}

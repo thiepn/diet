@@ -1,5 +1,7 @@
 import fs from 'node:fs';
 
+// Historical V6.8 builder retained solely to reproduce the certified V1 rollback bundle.
+// Active Diet Copilot development lives in v2/ and must not consume this source tree.
 const release='1.0.3';
 const writeProduction=process.argv.includes('--write');
 const jsSources=[

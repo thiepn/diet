@@ -58,7 +58,7 @@ The `v2/` runtime is the authoritative product architecture.
 
 - `src/`
 
-The historical `src/` dashboard remains in the repository temporarily but is not loaded by the production entrypoint. P27 will retire or archive it cleanly.
+The historical `src/` dashboard is retained only as source for the certified V1 rollback bundle. It is not loaded by the production entrypoint and receives no new product features.
 
 ## Production foundation
 
@@ -82,10 +82,11 @@ This foundation is considered mature. Infrastructure work is now **product-drive
 
 P26 re-established the product-first roadmap after removing the P26–P43 governance detour.
 
+P27 has now enforced the active-runtime/rollback boundary.
+
 Next phases:
 
-1. **P27 — Production Runtime Consolidation & Legacy Retirement**
-2. **P28 — Frictionless Food Capture**
+1. **P28 — Frictionless Food Capture**
 3. **P29 — Food Memory & Reuse Intelligence**
 4. **P30 — Onboarding, Goals & Phase Setup**
 5. **P31 — Adaptive Strategy & Weekly Review**
