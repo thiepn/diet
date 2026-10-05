@@ -192,7 +192,7 @@
     "copilotStrategyActionsRevalidate": true,
     "copilotRemoteExecutesWrites": false,
     "rawCoreAssetBudgetBytes": 750000,
-    "rawCoreAssetObservedBytes": 729415
+    "rawCoreAssetObservedBytes": 729428
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0",
