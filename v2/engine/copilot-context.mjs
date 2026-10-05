@@ -1,5 +1,5 @@
-const VERSION='1.0.0-p8';
-const ACTIONS=Object.freeze(['log_saved_food','log_saved_meal','repeat_meal','navigate_food','navigate_strategy']);
+const VERSION='2.0.0-p32';
+const ACTIONS=Object.freeze(['log_saved_food','log_saved_meal','repeat_meal','navigate_food','navigate_strategy','strategy_keep','strategy_apply','edit_goal']);
 const MEAL_TYPES=Object.freeze(['Breakfast','Lunch','Dinner','Snack','Other']);
 const BASIS=Object.freeze({
   'today.calories':{label:'Logged today',path:['today','calories'],unit:'kcal',digits:0},
@@ -31,7 +31,16 @@ function normalize(v){return text(v,240).toLowerCase();}
 function round(v,d=0){if(!finite(v))return null;const p=10**d;return Math.round(Number(v)*p)/p;}
 function pct(v){return finite(v)?Math.round(Number(v)*100):null;}
 function signed(v,d=0,suffix=''){if(!finite(v))return '—';const n=round(v,d);return (n>0?'+':'')+n+suffix;}
-function candidateBase(item,type){
+function explicitMultiplier(question){
+  const q=normalize(question);
+  const x=q.match(/\b(\d+(?:\.\d+)?)\s*[x×]\b/);
+  if(x)return clamp(Number(x[1]),0.1,10);
+  if(/\bhalf\b/.test(q))return 0.5;
+  if(/\bdouble\b|\btwice\b/.test(q))return 2;
+  if(/\bone and a half\b|\b1\.5\s*(?:servings?|portions?)\b/.test(q))return 1.5;
+  return null;
+}
+function candidateBase(item,type,extra={}){
   return {
     type,
     id:text(item?.id,80),
@@ -42,7 +51,8 @@ function candidateBase(item,type){
     fat:round(item?.fat,1),
     mealType:text(item?.mealType??item?.type,20)||null,
     favorite:Boolean(item?.favorite),
-    useCount:Math.max(0,Math.round(num(item?.useCount,0)||0))
+    useCount:Math.max(0,Math.round(num(item?.useCount,0)||0)),
+    usualMultiplier:finite(extra?.usualMultiplier)?round(extra.usualMultiplier,2):1
   };
 }
 function compactInsight(x){
@@ -120,7 +130,11 @@ export function buildCopilotContext(model={}){
   const today=model.today??{};
   const strategy=model.strategy??{};
   const intel=model.progress?.intelligence??strategy.personalIntelligence??{};
-  const savedFoods=(model.food?.savedFoods??[]).slice(0,12).map(x=>candidateBase(x,'saved_food')).filter(x=>x.id&&x.name);
+  const memory=model.food?.memory?.foodsById??{};
+  const savedFoods=(model.food?.savedFoods??[]).slice(0,12).map(x=>candidateBase(x,'saved_food',{
+    usualMultiplier:memory?.[String(x.id)]?.usualPortion?.eligible
+      ?memory[String(x.id)].usualPortion.multiplier:1
+  })).filter(x=>x.id&&x.name);
   const savedMeals=(model.food?.savedMeals??[]).slice(0,10).map(x=>candidateBase(x,'saved_meal')).filter(x=>x.id&&x.name);
   const recentMeals=(model.food?.recentMeals??[]).slice(0,8).map(x=>({
     ...candidateBase(x,'recent_meal'),
@@ -158,7 +172,13 @@ export function buildCopilotContext(model={}){
       decision:text(strategy.decision,40),
       recommendedTarget:round(strategy.recommendedTarget,0),
       targetDelta:round(strategy.targetDelta,0),
-      reason:text(strategy.reason,500)
+      reason:text(strategy.reason,500),
+      engineVersion:text(strategy.engineVersion,60),
+      reviewStatus:text(strategy.weeklyReview?.status,40),
+      reviewDue:Boolean(strategy.weeklyReview?.cadence?.due),
+      reviewCadence:text(strategy.weeklyReview?.cadence?.label,80),
+      missingEvidence:(strategy.weeklyReview?.missingEvidence??[]).slice(0,6).map(x=>text(x,140)),
+      actionable:Boolean(strategy.weeklyReview?.recommendation?.actionable)
     },
     intelligence:{
       version:text(intel.version,40),
@@ -178,8 +198,10 @@ export function buildCopilotContext(model={}){
       logOnlyKnownSavedItems:true,
       repeatKnownRecentMeal:true,
       unknownFoodMustOpenFoodFlow:true,
-      strategyWrites:false,
-      directModelWrites:false
+      strategyReviewDecision:true,
+      goalSetupNavigation:true,
+      directModelWrites:false,
+      allWritesRequireConfirmation:true
     }
   };
 }
@@ -188,11 +210,52 @@ export function validateCopilotProposal(action,context){
   if(!action||typeof action!=='object')return null;
   const type=text(action.type,40);
   if(!ACTIONS.includes(type))return null;
+
   if(type==='navigate_food'){
-    return {type,query:text(action.query,160),label:text(action.label,120)||'Open Food'};
+    return {type,query:text(action.query,160),label:text(action.label,120)||'Open Food',requiresConfirmation:false,write:false};
   }
   if(type==='navigate_strategy'){
-    return {type,label:text(action.label,120)||'Open Strategy'};
+    return {type,label:text(action.label,120)||'Open Strategy',requiresConfirmation:false,write:false};
+  }
+  if(type==='edit_goal'){
+    return {type,label:text(action.label,120)||'Edit goal',requiresConfirmation:false,write:false};
+  }
+
+  if(type==='strategy_keep'||type==='strategy_apply'){
+    const s=context?.strategy??{};
+    if(!finite(s.currentTarget))return null;
+    if(type==='strategy_apply'&&(!s.actionable||!finite(s.recommendedTarget)||Math.abs(Number(s.recommendedTarget)-Number(s.currentTarget))<=1))return null;
+    const currentGuard={
+      asOfDate:text(context?.asOfDate,10),
+      engineVersion:text(s.engineVersion,60),
+      decision:text(s.decision,40),
+      currentTarget:round(s.currentTarget,0),
+      recommendedTarget:round(s.recommendedTarget,0)
+    };
+    if(action.guard){
+      for(const key of ['asOfDate','engineVersion','decision']){
+        if(text(action.guard?.[key],80)!==text(currentGuard[key],80))return null;
+      }
+      for(const key of ['currentTarget','recommendedTarget']){
+        const expected=action.guard?.[key],actual=currentGuard[key];
+        if((expected==null)!=(actual==null))return null;
+        if(expected!=null&&Math.abs(Number(expected)-Number(actual))>1)return null;
+      }
+    }
+    return {
+      type,
+      effectiveDate:action.effectiveDate==='tomorrow'?'tomorrow':'today',
+      label:text(action.label,120)||(type==='strategy_apply'?'Apply '+Math.round(Number(s.recommendedTarget))+' kcal':'Keep current target'),
+      guard:currentGuard,
+      requiresConfirmation:true,
+      write:true,
+      strategy:{
+        currentTarget:round(s.currentTarget,0),
+        recommendedTarget:round(s.recommendedTarget,0),
+        decision:text(s.decision,40),
+        reason:text(s.reason,300)
+      }
+    };
   }
 
   const candidates=candidateMap(context);
@@ -201,14 +264,22 @@ export function validateCopilotProposal(action,context){
   if(!item)return null;
   const expectedType=type==='log_saved_food'?'saved_food':type==='log_saved_meal'?'saved_meal':'recent_meal';
   if(item.type!==expectedType)return null;
-  const multiplier=clamp(num(action.multiplier,1)??1,0.1,10);
+  if(action.guard){
+    if(text(action.guard?.id,80)!==String(item.id))return null;
+    if(finite(action.guard?.calories)&&finite(item.calories)&&Math.abs(Number(action.guard.calories)-Number(item.calories))>1)return null;
+    if(finite(action.guard?.protein)&&finite(item.protein)&&Math.abs(Number(action.guard.protein)-Number(item.protein))>.2)return null;
+  }
+  const multiplier=clamp(num(action.multiplier,item.usualMultiplier??1)??1,0.1,10);
   const mt=MEAL_TYPES.includes(action.mealType)?action.mealType:(item.mealType&&MEAL_TYPES.includes(item.mealType)?item.mealType:defaultMealType());
   return {
     type,id,
     multiplier:round(multiplier,2),
     mealType:mt,
     label:text(action.label,120)||('Log '+item.name),
-    item:{id:item.id,name:item.name,calories:item.calories,protein:item.protein,type:item.type}
+    item:{id:item.id,name:item.name,calories:item.calories,protein:item.protein,type:item.type},
+    guard:{id:item.id,calories:item.calories,protein:item.protein},
+    requiresConfirmation:true,
+    write:true
   };
 }
 
@@ -252,6 +323,36 @@ export function buildLocalCopilotReply(question,context){
         ...(protein!=null?[{key:'today.proteinRemaining'}]:[])
       ],
       caution:null,action:null,source:'local'
+    };
+  }
+
+  if(/\b(change|edit|update|set)\b.*\b(goal|goal weight|pace)\b|\bnew goal\b/.test(q)){
+    return {
+      answer:'Goal changes belong in the explicit goal-phase setup so the new phase boundary and targets stay reviewable.',
+      basis:finite(s.currentTarget)?[{key:'strategy.currentTarget'}]:[],
+      caution:'Opening goal setup does not change anything until you review and save the form.',
+      action:{type:'edit_goal',label:'Edit goal'},
+      source:'local'
+    };
+  }
+
+  if(/\b(keep|stay with|do not change|don.t change)\b.*\b(target|calories|plan)\b/.test(q)&&finite(s.currentTarget)){
+    return {
+      answer:'I can record this weekly review as Keep current. Your calorie target will remain '+Math.round(s.currentTarget)+' kcal.',
+      basis:[{key:'strategy.currentTarget'},{key:'strategy.confidenceLevel'}],
+      caution:'This records the review decision but does not change your calorie target.',
+      action:{type:'strategy_keep',label:'Keep '+Math.round(s.currentTarget)+' kcal'},
+      source:'local'
+    };
+  }
+
+  if(/\b(apply|accept|use|switch to)\b.*\b(recommend|target|calories|plan)\b/.test(q)&&s.actionable&&finite(s.recommendedTarget)){
+    return {
+      answer:'The deterministic strategy review currently supports applying '+Math.round(s.recommendedTarget)+' kcal instead of '+Math.round(s.currentTarget)+' kcal.',
+      basis:[{key:'strategy.currentTarget'},{key:'strategy.recommendedTarget'},{key:'strategy.confidenceLevel'}],
+      caution:'The change is not applied until you confirm the exact preview.',
+      action:{type:'strategy_apply',effectiveDate:'today',label:'Apply '+Math.round(s.recommendedTarget)+' kcal'},
+      source:'local'
     };
   }
 
@@ -344,6 +445,8 @@ export function buildLocalCopilotReply(question,context){
     if(matches.length&&matches[0].score>0.9&&!ambiguous){
       const item=matches[0].item;
       const actionType=item.type==='saved_meal'?'log_saved_meal':'log_saved_food';
+      const explicit=explicitMultiplier(question);
+      const multiplier=explicit??Number(item.usualMultiplier??1);
       return {
         answer:'I found a known saved item that may match: '+item.name+'. I can only log it after you confirm the exact saved item.',
         basis:[
@@ -351,7 +454,7 @@ export function buildLocalCopilotReply(question,context){
           ...(finite(item.protein)?[{key:'candidate:'+item.id+':protein',label:'Saved protein'}]:[])
         ],
         caution:'No nutrition values were estimated; this uses existing saved data.',
-        action:{type:actionType,id:item.id,multiplier:1,mealType:item.mealType||defaultMealType(),label:'Log '+item.name},
+        action:{type:actionType,id:item.id,multiplier,mealType:item.mealType||defaultMealType(),label:'Log '+(multiplier!==1?multiplier+'× ':'')+item.name},
         source:'local'
       };
     }
