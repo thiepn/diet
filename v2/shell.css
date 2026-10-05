@@ -686,3 +686,38 @@
 
   }
 }
+
+
+@layer components{
+  /* P28 — high-frequency food capture */
+  .dc-quick-actions--food{grid-template-columns:repeat(6,1fr)}
+  .dc-quick-actions--food button:disabled{opacity:.48;cursor:not-allowed}
+  .dc-log-option{grid-template-columns:minmax(0,1fr) auto auto}
+  .dc-log-option.is-keyboard-selected{margin-inline:-4px;padding-inline:4px;border-radius:10px;background:var(--accent-soft)}
+  .dc-log-portion{min-width:48px;min-height:36px;margin-right:6px;padding:0 8px;border:1px solid var(--line);border-radius:11px;background:var(--surface);color:var(--text-soft);font-size:.66rem;font-weight:850;cursor:pointer;white-space:nowrap}
+  .dc-log-portion:hover{border-color:color-mix(in srgb,var(--accent) 30%,var(--line));background:var(--accent-soft);color:var(--accent-strong)}
+  .dc-portion-summary{display:grid;gap:4px;margin-top:16px;padding:13px;border:1px solid var(--line);border-radius:13px;background:var(--surface-muted)}
+  .dc-portion-summary strong{font-size:.9rem}
+  .dc-portion-summary span{color:var(--text-faint);font-size:.72rem}
+  .dc-portion-presets{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}
+  .dc-portion-presets button{min-height:42px;border:1px solid var(--line);border-radius:11px;background:var(--surface);color:var(--text-soft);font-size:.78rem;font-weight:850;cursor:pointer}
+  .dc-portion-presets button:hover,.dc-portion-presets button.is-selected{border-color:color-mix(in srgb,var(--accent) 35%,var(--line));background:var(--accent-soft);color:var(--accent-strong)}
+  .dc-portion-fields{grid-template-columns:.7fr 1.3fr;margin-top:12px}
+  .dc-portion-preview{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding:11px 12px;border-radius:11px;background:var(--accent-soft)}
+  .dc-portion-preview span{color:var(--text-soft);font-size:.7rem;font-weight:750}
+  .dc-portion-preview strong{color:var(--accent-strong);font-size:.82rem}
+}
+
+@layer utilities{
+  @media (max-width:760px){
+    .dc-log-option{grid-template-columns:minmax(0,1fr) auto auto}
+    .dc-log-portion{min-width:44px;padding-inline:7px;font-size:.62rem}
+    .dc-portion-dialog{width:100vw;max-height:none;margin:auto 0 0}
+    .dc-portion-dialog .dc-modal-card{width:100vw;border-radius:22px 22px 0 0;border-left:0;border-right:0;border-bottom:0;padding:16px}
+    .dc-portion-fields{grid-template-columns:1fr 1fr}
+  }
+  @media (max-width:420px){
+    .dc-log-option{grid-template-columns:minmax(0,1fr) 42px 38px}
+    .dc-log-portion{min-width:40px;width:40px;padding:0;margin-right:4px;font-size:.58rem}
+  }
+}
