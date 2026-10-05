@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "phase": "P31",
+  "title": "Adaptive Strategy & Weekly Review",
+  "state": "implemented",
+  "productionRuntime": "v2/",
+  "databaseMigration": false,
+  "workflow": [
+    "evidence",
+    "confidence",
+    "recommendation",
+    "explanation",
+    "missing_evidence",
+    "keep_or_apply"
+  ],
+  "cadenceDays": 7,
+  "evidenceThresholds": {
+    "expenditureWeightSpanDays": 14,
+    "expenditureWeighIns": 4,
+    "lowConfidenceEffectiveIntakeDays": 4,
+    "mediumConfidenceEffectiveIntakeDays": 8,
+    "mediumConfidenceScore": 0.62
+  },
+  "decisionPolicy": {
+    "autonomousTargetChanges": false,
+    "stageSnapshotBeforeResolution": true,
+    "keepDirect": true,
+    "applyDirectWhenActionable": true,
+    "staleSnapshotRefreshesBeforeResolution": true,
+    "revertPreservesHistory": true
+  },
+  "canonicalRpcs": [
+    "diet_app_stage_strategy_review",
+    "diet_app_resolve_strategy_review",
+    "diet_app_revert_strategy_review"
+  ],
+  "nextPhase": {
+    "phase": "P32",
+    "title": "Copilot Actionability"
+  }
+}
