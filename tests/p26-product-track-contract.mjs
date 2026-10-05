@@ -30,6 +30,15 @@ assert.ok(audit.includes('does **not** own certification of every migration'));
 assert.ok(readme.includes('## Product'));
 assert.ok(readme.includes('## Development direction'));
 assert.ok(readme.includes('v2/'));
-assert.doesNotMatch(readme,/P4[0-3]/);
+for(const path of [
+  '.github/workflows/p40-generation5-activation.yml',
+  '.github/workflows/p41-generation5-epoch-watch.yml',
+  '.github/workflows/p42-generation6-refreeze.yml',
+  '.github/workflows/p43-generation6-final-activation.yml',
+  'platform-p40-generation5-activation-plan.json',
+  'platform-p41-generation5-epoch-watch.json',
+  'platform-p42-generation6-refreeze-plan.json',
+  'platform-p43-final-revalidation.json'
+]) assert.equal(fs.existsSync(path),false,`sidetrack artifact still present: ${path}`);
 
 console.log('P26 product-track contract passed.');
