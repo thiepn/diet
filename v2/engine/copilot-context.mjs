@@ -487,4 +487,5 @@ export function buildLocalCopilotReply(question,context){
   return null;
 }
 
-export const DietCopilotP8=Object.freeze({version:VERSION,actions:ACTIONS,mealTypes:MEAL_TYPES,basisKeys:Object.keys(BASIS)});
+export const DietCopilotP32=Object.freeze({version:VERSION,actions:ACTIONS,mealTypes:MEAL_TYPES,basisKeys:Object.keys(BASIS)});
+export const DietCopilotP8=DietCopilotP32;
