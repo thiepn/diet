@@ -31,7 +31,7 @@ for(const token of [
   'studyos_p7_master_map_and_packet',
   'hub_h18_notes_capture',
   'Generation 6',
-  'historical P40 activation evidence',
+  'P40 activation itself remains valid historical evidence',
   'cannot be certified'
 ]) assert.ok(doc.includes(token),'P41 doc missing '+token);
 
