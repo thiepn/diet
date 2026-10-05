@@ -111,6 +111,9 @@ jobs:
       - name: P30 onboarding and goal-phase contract
         run: node tests/p30-onboarding-contract.mjs
 
+      - name: P31 adaptive weekly review contract
+        run: node tests/p31-weekly-review-contract.mjs
+
       - name: Build actual GitHub Pages artifact
         uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1
         with:
