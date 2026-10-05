@@ -54,10 +54,18 @@ jobs:
             state="$(python - <<'PY'
           import json
           from pathlib import Path
+          p42=Path("platform-p42-generation6-refreeze-plan.json")
+          if p42.exists():
+              phase=json.loads(p42.read_text())
+              if phase.get("generation")==6 and phase.get("state")=="refreeze_pending":
+                  print("generation6_refreeze_pending")
+                  raise SystemExit
           print(json.loads(Path("platform-p25-burn-in-plan.json").read_text())["state"])
           PY
             )"
-            if [[ "$state" == "refreeze_pending" ]]; then
+            if [[ "$state" == "generation6_refreeze_pending" ]]; then
+              reason="generation6_refreeze_pending"
+            elif [[ "$state" == "refreeze_pending" ]]; then
               reason="hourly_refreeze_pending"
             else
               run_backup=false
