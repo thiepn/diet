@@ -119,13 +119,19 @@ async function functionErrorCode(error){
   return null;
 }
 async function invokeRemoteCopilot(client,body){
-  if(DietServerRuntime.copilot.active!=='vercel'){
-    return client.functions.invoke('diet-copilot-ai',{body});
-  }
+  const legacy=()=>client.functions.invoke('diet-copilot-ai',{body});
+  if(DietServerRuntime.copilot.active!=='vercel')return legacy();
+
+  const fallback=async(error)=>{
+    if(DietServerRuntime.copilot.fallback==='supabase-edge')return legacy();
+    return {data:null,error};
+  };
+
   const sessionResult=await client.auth.getSession();
-  if(sessionResult.error)return {data:null,error:sessionResult.error};
+  if(sessionResult.error)return fallback(sessionResult.error);
   const token=sessionResult.data?.session?.access_token;
-  if(!token)return {data:null,error:new Error('No signed-in session is available for remote Copilot.')};
+  if(!token)return fallback(new Error('No signed-in session is available for remote Copilot.'));
+
   let response;
   try{
     response=await fetch(DietServerRuntime.copilot.vercelEndpoint,{
@@ -137,14 +143,15 @@ async function invokeRemoteCopilot(client,body){
       body:JSON.stringify(body)
     });
   }catch(error){
-    return {data:null,error};
+    return fallback(error);
   }
+
   let data=null;
   try{data=await response.clone().json();}catch{}
   if(!response.ok){
     const error=new Error(data?.error||('Remote Copilot returned HTTP '+response.status));
     error.context=response;
-    return {data:null,error};
+    return fallback(error);
   }
   return {data,error:null};
 }
