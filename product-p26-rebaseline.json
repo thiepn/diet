@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "phase": "P26",
+  "title": "Product Reality Audit, Core User Journey & Development Rebaseline",
+  "state": "product_track_active",
+  "recoveredFromGovernanceDetour": true,
+  "revertedPhaseRange": [
+    "P26",
+    "P43"
+  ],
+  "preservedInfrastructureRange": [
+    "P1",
+    "P25"
+  ],
+  "productionRuntime": {
+    "entrypoint": "index.html",
+    "activeTree": "v2/",
+    "legacyTree": "src/",
+    "legacyTreeLoadedByProduction": false
+  },
+  "productNorthStar": "Make accurate everyday nutrition decisions with less logging friction and clearer evidence.",
+  "coreLoop": [
+    "capture",
+    "understand",
+    "remember",
+    "track",
+    "interpret",
+    "decide",
+    "explain",
+    "act"
+  ],
+  "infrastructurePolicy": {
+    "mode": "product_driven_maintenance_only",
+    "wholeSharedSupabaseEpochCertification": false,
+    "unrelatedAppMigrationRestartsDietRelease": false,
+    "dietContractRegressionStillBlocksRelease": true
+  },
+  "priorities": [
+    {
+      "level": "P0",
+      "id": "runtime_consolidation",
+      "nextPhase": "P27"
+    },
+    {
+      "level": "P0",
+      "id": "food_capture_friction",
+      "nextPhase": "P28"
+    },
+    {
+      "level": "P0",
+      "id": "onboarding",
+      "nextPhase": "P30"
+    },
+    {
+      "level": "P1",
+      "id": "food_memory",
+      "nextPhase": "P29"
+    },
+    {
+      "level": "P1",
+      "id": "adaptive_weekly_review",
+      "nextPhase": "P31"
+    },
+    {
+      "level": "P1",
+      "id": "copilot_actionability",
+      "nextPhase": "P32"
+    },
+    {
+      "level": "P1",
+      "id": "progress_visualization",
+      "nextPhase": "P33"
+    },
+    {
+      "level": "P2",
+      "id": "mobile_pwa_quality",
+      "nextPhase": "P34"
+    },
+    {
+      "level": "P2",
+      "id": "visual_polish",
+      "nextPhase": "P35"
+    }
+  ],
+  "roadmap": [
+    [
+      "P27",
+      "Production Runtime Consolidation & Legacy Retirement"
+    ],
+    [
+      "P28",
+      "Frictionless Food Capture"
+    ],
+    [
+      "P29",
+      "Food Memory & Reuse Intelligence"
+    ],
+    [
+      "P30",
+      "Onboarding, Goals & Phase Setup"
+    ],
+    [
+      "P31",
+      "Adaptive Strategy & Weekly Review"
+    ],
+    [
+      "P32",
+      "Copilot Actionability"
+    ],
+    [
+      "P33",
+      "Progress, Trends & Visual Analytics"
+    ],
+    [
+      "P34",
+      "Mobile/PWA Interaction Excellence"
+    ],
+    [
+      "P35",
+      "Visual Design, Motion & Delight"
+    ],
+    [
+      "P36",
+      "THIEPN Account & Ecosystem Fit"
+    ],
+    [
+      "P37",
+      "Real-World Usage Hardening"
+    ],
+    [
+      "P38",
+      "Product Release Candidate"
+    ]
+  ]
+}
