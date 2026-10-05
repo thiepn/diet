@@ -351,7 +351,7 @@ export function buildLocalCopilotReply(question,context){
       answer:'The deterministic strategy review currently supports applying '+Math.round(s.recommendedTarget)+' kcal instead of '+Math.round(s.currentTarget)+' kcal.',
       basis:[{key:'strategy.currentTarget'},{key:'strategy.recommendedTarget'},{key:'strategy.confidenceLevel'}],
       caution:'The change is not applied until you confirm the exact preview.',
-      action:{type:'strategy_apply',effectiveDate:'today',label:'Apply '+Math.round(s.recommendedTarget)+' kcal'},
+      action:{type:'strategy_apply',effectiveDate:/\btomorrow\b/.test(q)?'tomorrow':'today',label:'Apply '+Math.round(s.recommendedTarget)+' kcal'},
       source:'local'
     };
   }
@@ -427,6 +427,25 @@ export function buildLocalCopilotReply(question,context){
       caution:'I will not estimate an unknown food into your canonical nutrition data.',
       action:{type:'navigate_food',query:text(question,160),label:'Find the food'},source:'local'
     };
+  }
+
+  const repeatIntent=/\b(repeat|same as|again)\b/.test(q);
+  if(repeatIntent){
+    const matches=findByWords(context.candidates?.recentMeals??[],q);
+    const ambiguous=matches.length>1&&matches[1].score>=matches[0].score-0.15;
+    if(matches.length&&matches[0].score>0.9&&!ambiguous){
+      const item=matches[0].item;
+      return {
+        answer:'I found the recent meal '+item.name+'. I can repeat that exact logged meal after you confirm.',
+        basis:[
+          ...(finite(item.calories)?[{key:'candidate:'+item.id+':calories',label:'Meal calories'}]:[]),
+          ...(finite(item.protein)?[{key:'candidate:'+item.id+':protein',label:'Meal protein'}]:[])
+        ],
+        caution:'This repeats the exact recent meal; it does not modify its items.',
+        action:{type:'repeat_meal',id:item.id,multiplier:1,mealType:item.mealType||defaultMealType(),label:'Repeat '+item.name},
+        source:'local'
+      };
+    }
   }
 
   const logIntent=/\b(log|add|record|ate|had)\b/.test(q);
