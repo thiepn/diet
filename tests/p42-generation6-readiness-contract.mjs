@@ -13,9 +13,9 @@ assert.equal(plan.phase,'P42');
 assert.equal(plan.state,'refreeze_pending');
 assert.equal(plan.generation,6);
 assert.equal(plan.predecessor.state,'invalidated_epoch_changed');
-assert.equal(plan.candidateRevision,2);
-assert.equal(plan.candidateEpoch.migrationHead,'20261005134753_library_account_deletion_authority');
-assert.equal(plan.candidateEpoch.semanticSchemaSha256,'c91f0cf78cc6db7399081fd3fd0595ef84f0c0b4517d11a4767c3f2464bac174');
+assert.equal(plan.candidateRevision,3);
+assert.equal(plan.candidateEpoch.migrationHead,'20261005142947_studyos_p11_calendar_autopilot_foundation');
+assert.equal(plan.candidateEpoch.semanticSchemaSha256,'48825c23f56020022a058504e069d4c7f8d6a096331560b6999ec501df4f5fcf');
 assert.equal(plan.candidateEpoch.edgeFunctionCount,12);
 assert.equal(plan.candidateEpoch.gomokuRoomVersion,50);
 assert.equal(plan.candidateEpoch.cronJobs,14);
@@ -52,8 +52,8 @@ assert.doesNotMatch(workflow,/supabase\s+db\s+/);
 
 for(const token of [
   'Generation 6',
-  'library_account_deletion_authority',
-  '15:25:28Z',
+  'studyos_p11_calendar_autopilot_foundation',
+  '15:29:47Z',
   '37324434181',
   'stale',
   '60-minute',
