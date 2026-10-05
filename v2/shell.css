@@ -748,3 +748,54 @@
     .dc-memory-card-actions .dc-secondary-action{width:auto}
   }
 }
+
+
+@layer components{
+  /* P30 — first-run plan setup */
+  .dc-onboarding-banner{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:14px;padding:15px 16px;border:1px solid color-mix(in srgb,var(--accent) 28%,var(--line));border-radius:16px;background:linear-gradient(135deg,var(--accent-soft),var(--surface))}
+  .dc-onboarding-banner[hidden]{display:none!important}
+  .dc-onboarding-banner>div{display:grid;gap:3px;min-width:0}
+  .dc-onboarding-banner strong{font-size:.9rem}
+  .dc-onboarding-banner span{color:var(--text-soft);font-size:.75rem;line-height:1.4}
+  .dc-onboarding-dialog{width:min(94vw,680px)}
+  .dc-onboarding-card{overflow:hidden}
+  .dc-onboarding-progress{display:grid;grid-template-columns:30px 1fr 30px 1fr 30px;align-items:center;gap:8px;margin:18px 0 22px}
+  .dc-onboarding-progress span{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);background:var(--surface-muted);color:var(--text-faint);font-size:.72rem;font-weight:850}
+  .dc-onboarding-progress span.is-active,.dc-onboarding-progress span.is-complete{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-strong)}
+  .dc-onboarding-progress i{height:2px;background:var(--line);border-radius:999px}
+  .dc-onboarding-step{min-height:250px}
+  .dc-onboarding-step[hidden]{display:none!important}
+  .dc-onboarding-kicker{color:var(--accent);font-size:.7rem;font-weight:850;text-transform:uppercase;letter-spacing:.07em}
+  .dc-onboarding-step h3{margin-top:5px;font-size:1.25rem;letter-spacing:-.03em}
+  .dc-onboarding-step>p:not(.dc-onboarding-kicker){margin-top:8px;max-width:590px;color:var(--text-soft);font-size:.82rem;line-height:1.55}
+  .dc-onboarding-main-field{max-width:280px;margin-top:24px}
+  .dc-input-unit{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;border:1px solid var(--line);border-radius:11px;background:var(--surface);overflow:hidden}
+  .dc-input-unit:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent-soft) 70%,transparent)}
+  .dc-input-unit input{border:0!important;box-shadow:none!important;border-radius:0!important;background:transparent!important}
+  .dc-input-unit b{padding:0 11px;color:var(--text-faint);font-size:.68rem}
+  .dc-goal-choice{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:20px}
+  .dc-goal-choice button{min-height:52px;border:1px solid var(--line);border-radius:13px;background:var(--surface);color:var(--text-soft);font-size:.82rem;font-weight:850;cursor:pointer}
+  .dc-goal-choice button:hover,.dc-goal-choice button.is-selected{border-color:color-mix(in srgb,var(--accent) 35%,var(--line));background:var(--accent-soft);color:var(--accent-strong)}
+  .dc-onboarding-goal-fields{grid-template-columns:1fr 1fr;margin-top:14px}
+  .dc-onboarding-target-fields{grid-template-columns:repeat(3,1fr);margin-top:20px}
+  .dc-onboarding-learns{display:grid;gap:4px;margin-top:18px;padding:13px;border:1px solid var(--line);border-radius:13px;background:var(--surface-muted)}
+  .dc-onboarding-learns strong{font-size:.76rem}
+  .dc-onboarding-learns span{color:var(--text-soft);font-size:.7rem;line-height:1.5}
+  .dc-onboarding-status{margin-top:14px;padding:10px 12px;border-radius:11px;background:var(--accent-soft);color:var(--accent-strong);font-size:.73rem;font-weight:750}
+  .dc-onboarding-status[data-kind="error"]{background:color-mix(in srgb,#b33 10%,var(--surface));color:#8a2d2d}
+  .dc-onboarding-actions{justify-content:space-between}
+  .dc-onboarding-actions>div{display:flex;gap:8px}
+  .dc-onboarding-actions>.dc-text-action{border:0;background:transparent;cursor:pointer}
+}
+
+@layer utilities{
+  @media (max-width:760px){
+    .dc-onboarding-banner{align-items:flex-start;flex-direction:column}
+    .dc-onboarding-banner .dc-primary-action{width:100%}
+    .dc-onboarding-dialog{width:100vw;max-height:none;margin:auto 0 0}
+    .dc-onboarding-card{width:100vw;border-radius:22px 22px 0 0;border-left:0;border-right:0;border-bottom:0;padding:16px}
+    .dc-onboarding-step{min-height:290px}
+    .dc-onboarding-target-fields,.dc-onboarding-goal-fields{grid-template-columns:1fr}
+    .dc-onboarding-actions{align-items:center}
+  }
+}
