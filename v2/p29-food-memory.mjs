@@ -194,3 +194,24 @@ export function findDuplicateSavedFood(savedFoods=[],candidate={},currentId=null
   });
   return exact?{food:exact,reason:'same_food'}:null;
 }
+
+
+export function duplicateReuseMultiplier(existing={},candidate={}){
+  const ratios=[];
+  const pairs=[
+    [existing.calories,candidate.calories],
+    [existing.protein,candidate.protein],
+    [existing.carbs,candidate.carbs],
+    [existing.fat,candidate.fat]
+  ];
+  for(const [base,next] of pairs){
+    if(!finite(base)||!finite(next)||Number(base)<=0||Number(next)<0)continue;
+    ratios.push(Number(next)/Number(base));
+  }
+  if(!ratios.length)return null;
+  const med=median(ratios);
+  if(!Number.isFinite(med)||med<.1||med>10)return null;
+  const tolerance=Math.max(.08,med*.12);
+  if(ratios.some(r=>Math.abs(r-med)>tolerance))return null;
+  return Math.round(clamp(med,.1,10)*100)/100;
+}
