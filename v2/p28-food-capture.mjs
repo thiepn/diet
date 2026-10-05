@@ -28,7 +28,7 @@ export function rankFoodCaptureMatches(model,query,{mealType='Other',limit=10}={
     const name=normalizeFoodQuery(item.name);
     const sameMeal=String(item.mealType??'')===mealType;
     const score=(name===q?250:0)+(name.startsWith(q)?140:0)+(name.includes(q)?82:0)+(item.favorite?24:0)+
-      Math.min(Number(item.useCount)||0,35)+recencyBonus(item.lastUsedAt)+(sameMeal?12:0);
+      Math.min(Number(item.useCount)||0,35)+recencyBonus(item.lastUsedAt)+(sameMeal?36:0);
     return {type:'meal',item,score};
   }).filter(x=>x.score>0);
   return [...foods,...meals].sort((a,b)=>b.score-a.score || String(a.item.name).localeCompare(String(b.item.name))).slice(0,limit);
