@@ -23,9 +23,9 @@ assert plan["state"]=="refreeze_pending"
 assert plan["generation"]==6
 assert plan["predecessor"]["generation"]==5
 assert plan["predecessor"]["state"]=="invalidated_epoch_changed"
-assert plan["candidateEpoch"]["migrationHead"]=="20261005134753_library_account_deletion_authority"
+assert plan["candidateEpoch"]["migrationHead"]=="20261005134753_library_account_deletion_authority"\nassert plan["candidateRevision"]==2\nassert plan["candidateEpoch"]["semanticSchemaSha256"]=="c91f0cf78cc6db7399081fd3fd0595ef84f0c0b4517d11a4767c3f2464bac174"
 assert plan["quietWindow"]["satisfied"] is False
-assert plan["backupGate"]["latestSuccessfulBackupFreshForCandidate"] is False
+assert plan["backupGate"]["latestSuccessfulRunId"]==37324434181\nassert plan["backupGate"]["latestSuccessfulBackupFreshForCandidate"] is False
 assert plan["activationReadiness"]["eligibleToActivate"] is False
 
 with tempfile.TemporaryDirectory() as td:
