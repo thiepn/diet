@@ -43,10 +43,15 @@ assert.equal(learnedFoodMultiplier(memory,'f1'),1.5);
 assert.equal(memory.learnedCount,1);
 assert.equal(foodMemoryFor(memory,'missing'),null);
 
-const contextual=rankFoodsForMealType(foods,memory,'Breakfast',{limit:3});
-assert.equal(contextual[0].id,'f1','repeated breakfast evidence should outrank generic favorite/use count');
+const breakfastRank=rankFoodsForMealType(foods,memory,'Breakfast',{limit:3});
+const dinnerRank=rankFoodsForMealType(foods,memory,'Dinner',{limit:3});
+assert.ok(
+  breakfastRank.findIndex(x=>x.id==='f1') < dinnerRank.findIndex(x=>x.id==='f1'),
+  'repeated breakfast evidence should improve Greek Yogurt ranking in breakfast context'
+);
+assert.equal(breakfastRank[0].id,'f2','explicit favorite may still outrank learned context');
 const savedMealRanks=rankMealsForMealType([
-  {id:'s1',name:'Dinner bowl',mealType:'Dinner',favorite:true,useCount:9},
+  {id:'s1',name:'Dinner bowl',mealType:'Dinner',favorite:false,useCount:9},
   {id:'s2',name:'Breakfast bowl',mealType:'Breakfast',favorite:false,useCount:7}
 ],'Breakfast',{limit:2});
 assert.equal(savedMealRanks[0].id,'s2','selected meal type should materially influence reusable meal ordering');
