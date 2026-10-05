@@ -89,16 +89,16 @@ Completed product phases:
 - **P29 — Food Memory & Reuse Intelligence**
 - **P30 — Onboarding, Goals & Phase Setup**
 - **P31 — Adaptive Strategy & Weekly Review**
+- **P32 — Copilot Actionability**
 
 Next phases:
 
-1. **P32 — Copilot Actionability**
-2. **P33 — Progress, Trends & Visual Analytics**
-3. **P34 — Mobile/PWA Interaction Excellence**
-4. **P35 — Visual Design, Motion & Delight**
-5. **P36 — THIEPN Account & Ecosystem Fit**
-6. **P37 — Real-World Usage Hardening**
-7. **P38 — Product Release Candidate**
+1. **P33 — Progress, Trends & Visual Analytics**
+2. **P34 — Mobile/PWA Interaction Excellence**
+3. **P35 — Visual Design, Motion & Delight**
+4. **P36 — THIEPN Account & Ecosystem Fit**
+5. **P37 — Real-World Usage Hardening**
+6. **P38 — Product Release Candidate**
 
 See `docs/P26-PRODUCT-REALITY-AUDIT.md` for the product rebaseline and the phase documents under `docs/` for implemented work.
 
