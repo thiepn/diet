@@ -13,6 +13,7 @@ on:
       - 'docs/P15-*'
       - 'supabase/backend.json'
       - '.well-known/thiepn-app.json'
+      - 'platform-p42-*.json'
       - '.github/workflows/p15-offsite-backup.yml'
   schedule:
     - cron: '17 4 * * *'
