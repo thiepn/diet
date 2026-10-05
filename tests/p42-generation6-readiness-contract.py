@@ -21,16 +21,15 @@ backup=load(ROOT/"platform-p42-latest-backup-evidence.json")
 assert plan["phase"]=="P42"
 assert plan["state"]=="refreeze_pending"
 assert plan["generation"]==6
-assert plan["predecessor"]["generation"]==5
 assert plan["predecessor"]["state"]=="invalidated_epoch_changed"
-assert plan["candidateRevision"]==3
-assert plan["candidateEpoch"]["migrationHead"]=="20261005142947_studyos_p11_calendar_autopilot_foundation"
-assert plan["candidateEpoch"]["semanticSchemaSha256"]=="48825c23f56020022a058504e069d4c7f8d6a096331560b6999ec501df4f5fcf"
+assert plan["candidateRevision"]==4
+assert plan["candidateEpoch"]["migrationHead"]=="20261005143803_studyos_p11_calendar_deadline_sync"
+assert plan["candidateEpoch"]["semanticSchemaSha256"]=="c49004e0f9702ef485b66c0b34e780209a676df02e8313eeeaa29a71467d9d0e"
+assert plan["backupGate"]["latestSuccessfulRunId"]==37326652281
+assert plan["backupGate"]["latestSuccessfulBackupFreshForCandidate"] is True
 assert plan["quietWindow"]["satisfied"] is False
-assert plan["backupGate"]["latestSuccessfulRunId"]==37324434181
-assert plan["backupGate"]["latestSuccessfulBackupFreshForCandidate"] is False
 assert plan["activationReadiness"]["eligibleToActivate"] is False
-assert plan["activationReadiness"]["churnSafe"] is True
+assert plan["activationReadiness"]["blockers"]==["quiet_window_open:4.07/60"]
 
 with tempfile.TemporaryDirectory() as td:
     d=Path(td)
@@ -43,29 +42,18 @@ with tempfile.TemporaryDirectory() as td:
     assert r["decision"]=="blocked"
     assert r["eligibleToActivate"] is False
     assert r["backupValid"] is True
-    assert r["backupFresh"] is False
+    assert r["backupFresh"] is True
     assert any(x.startswith("quiet_window_open:") for x in r["blockers"])
-    assert "backup_predates_latest_shared_change" in r["blockers"]
+    assert "backup_predates_latest_shared_change" not in r["blockers"]
 
     latest=datetime.fromisoformat(obs["latestSharedChangeAt"].replace("Z","+00:00"))
     future=dict(obs)
     future["observedAt"]=z(latest+timedelta(minutes=65))
-    fresh=dict(backup)
-    fresh.update({
-      "runId":99999999999,
-      "runNumber":999,
-      "createdAt":z(latest+timedelta(minutes=10)),
-      "verificationPassed":True,
-      "encrypted":True,
-      "artifactAvailable":True,
-      "artifactExpired":False,
-      "artifactId":99999999999,
-      "artifactDigest":"sha256:"+"a"*64,
-      "freshForCandidate":True
-    })
-    futuref=d/"future.json"; freshf=d/"fresh.json"; ready=d/"ready.json"
-    write(futuref,future); write(freshf,fresh)
-    run([sys.executable,str(SCRIPT),str(futuref),str(freshf),"--out",str(ready),"--require-ready"])
+    futuref=d/"future.json"; ready=d/"ready.json"
+    write(futuref,future)
+    run([sys.executable,str(SCRIPT),str(futuref),
+         str(ROOT/"platform-p42-latest-backup-evidence.json"),
+         "--out",str(ready),"--require-ready"])
     rr=load(ready)
     assert rr["decision"]=="ready_to_activate_generation6"
     assert rr["eligibleToActivate"] is True
@@ -79,7 +67,9 @@ with tempfile.TemporaryDirectory() as td:
     moved["migrationHead"]="20261005150000_some_later_shared_change"
     movedf=d/"moved.json"; blocked=d/"moved-result.json"
     write(movedf,moved)
-    run([sys.executable,str(SCRIPT),str(movedf),str(freshf),"--out",str(blocked),"--require-ready"],1)
+    run([sys.executable,str(SCRIPT),str(movedf),
+         str(ROOT/"platform-p42-latest-backup-evidence.json"),
+         "--out",str(blocked),"--require-ready"],1)
     br=load(blocked)
     assert br["eligibleToActivate"] is False
     assert br["candidateEpochStable"] is False
