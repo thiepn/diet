@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "phase": "P43",
+  "title": "Generation-6 Quiet-Window Completion, Final Epoch Revalidation & Activation Commit",
+  "state": "blocked_quiet_window",
+  "generation": 6,
+  "candidateRevision": 4,
+  "observedAt": "2026-10-05T15:25:19.198Z",
+  "sourceP42": "platform-p42-generation6-refreeze-plan.json",
+  "exactCandidateMatch": true,
+  "liveEpoch": {
+    "migrationVersion": "20261005143803",
+    "migrationName": "studyos_p11_calendar_deadline_sync",
+    "migrationHead": "20261005143803_studyos_p11_calendar_deadline_sync",
+    "semanticSchemaSha256": "c49004e0f9702ef485b66c0b34e780209a676df02e8313eeeaa29a71467d9d0e",
+    "edgeFunctionCount": 12,
+    "edgeFunctionsAllActive": true,
+    "gomokuRoomVersion": 50,
+    "gomokuRoomSha256": "a537d0702fdb53861124849e03fb7141a8036a4ee5c692fa9bf4769c47981695",
+    "cronJobs": 14,
+    "activeCronJobs": 14,
+    "cronFailures24h": 0,
+    "blockingReplicationSlots": 0
+  },
+  "controls": {
+    "projectStatus": "ACTIVE_HEALTHY",
+    "p18Integrity": "clean",
+    "p20SchemaDrift": false,
+    "p21Readiness": "pass",
+    "p22Maintenance": "pass",
+    "securityAdvisorsReviewed": true,
+    "performanceAdvisorsReviewed": true
+  },
+  "quietWindow": {
+    "latestSharedChangeAt": "2026-10-05T14:38:03Z",
+    "minimumMinutes": 60,
+    "observedMinutes": 47.27,
+    "satisfied": false,
+    "earliestActivationAt": "2026-10-05T15:38:03Z"
+  },
+  "backup": {
+    "workflow": "P15 Encrypted Offsite Backup",
+    "runId": 37327405248,
+    "runNumber": 37,
+    "conclusion": "success",
+    "createdAt": "2026-10-05T14:46:19Z",
+    "artifactCreatedAt": "2026-10-05T14:48:37Z",
+    "artifactId": 11352393674,
+    "artifactDigest": "sha256:f67e98ee8834a47812fb54a202f223c0ed2e927957ff083b57fe501c120c00bf",
+    "freshForCandidate": true,
+    "evidenceRef": "github-actions:P15:37327405248:artifact:11352393674:sha256:f67e98ee8834a47812fb54a202f223c0ed2e927957ff083b57fe501c120c00bf"
+  },
+  "activation": {
+    "decision": "blocked",
+    "eligibleToActivate": false,
+    "generation6Activated": false,
+    "burnInStarted": false,
+    "blockers": [
+      "quiet_window_open:47.27/60"
+    ]
+  },
+  "safety": {
+    "productionMutationPerformed": false,
+    "repositoryActivationMutationPerformed": false,
+    "evidenceBackdated": false,
+    "quietWindowBypassed": false
+  }
+}
