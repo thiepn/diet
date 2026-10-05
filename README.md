@@ -1,80 +1,111 @@
 # Diet Copilot
 
-**Web 2.0.3 · P24 validated · P25 post-upgrade burn-in active**
+Diet Copilot is a personal nutrition and weight-management app focused on fast logging, adaptive planning, trustworthy trends, and clear explanations.
 
-Diet Copilot is live at **https://thiepn.dev/diet/**.
+Live app: **https://thiepn.dev/diet/**
 
-## Operations
+## Product
 
-The managed Supabase **Upgrade project** operation completed successfully.
+The production application is the root `index.html` with the `v2/` runtime.
 
-- Supabase database build: **17.6.1.127 → 17.6.1.164**
-- release channel: **ga → preview**
-- PostgreSQL server: **17.6** (`170006`)
-- database restart: **2026-10-01 07:54:44 UTC**
-- P24 post-upgrade validation: **pass**
-- semantic shared-schema SHA: `c6a7b8788a3798e3fe119007e55f7d1b5796ece574a27dd10abeb600179a9918`
-- fingerprint format: **platform-p23-shared-schema-v2**
-- P18 integrity: **clean**
-- P20 schema drift: **false**
-- P21 readiness: **pass**
-- P22 maintenance: **pass**
-- cron: **8/8 active**
-- blocking replication slots: **0**
-- application relation/function surface counts: **match the pre-upgrade baseline**
+Core capabilities include:
 
-The v2 shared fingerprint normalizes RLS policy roles by stable role names rather than PostgreSQL internal role OIDs, preventing false drift after hosted instance reconstruction.
+- direct food logging;
+- frequent and saved foods;
+- saved meals and recipes;
+- recent-meal repeat;
+- quick add and meal editing;
+- online food lookup;
+- weight tracking and trend estimation;
+- adaptive expenditure estimation;
+- calorie and protein planning;
+- training-aware nutrition;
+- personal pattern intelligence;
+- weekly strategy decisions;
+- an in-app Diet Copilot;
+- account sync, offline cache and PWA support.
 
-## PostgreSQL 17.11 compatibility baseline
+Diet Copilot is designed around a simple loop:
 
-PostgreSQL **17.11** remains a separately tracked compatibility/security baseline. The hosted Supabase operation upgraded the managed project build but the database still reports PostgreSQL 17.6, so the repository does not claim a 17.11 server version.
+**log → understand → learn → track → interpret → decide → explain → act**
 
-## P25 burn-in
+## Intelligence model
 
-P25 is active.
+Nutrition calculations are deterministic.
 
-- start: **2026-10-01 12:14:50 UTC**
-- earliest completion: **2026-10-02 12:14:50 UTC**
-- minimum duration: **24 hours**
-- minimum public samples: **12**, spanning the window
-- hourly workflow: `.github/workflows/p25-post-upgrade-burnin.yml`
+The adaptive engine is responsible for calculations such as:
 
-Completion also requires the first encrypted P15 backup after activation, healthy Auth/Realtime/PostgREST/Storage/Edge behavior, clean P18/P20/P21/P22 checks, healthy cron, cross-app smoke coverage, advisor review, and no sustained latency regression.
+- trend weight;
+- intake reliability;
+- expenditure estimates;
+- confidence;
+- target recommendations;
+- training-day distribution;
+- personal patterns.
 
-## Shared platform
+The language model is used to explain those results and help prepare user-confirmed actions. It is not allowed to silently invent nutrition values or replace deterministic calculations.
 
-Registered THIEPN apps:
+## Architecture
 
-- Notes
-- Diet Copilot
-- WORDSTRIKE
-- Word to the Nations
-- TMS60
-- Gomoku
+### Active runtime
 
-Additional shared services include THIEPN Account, Canvas, Leaderboard, and Micro Arcade. Edge Functions are inventoried separately because they are outside PostgreSQL's catalog fingerprint.
+- `index.html`
+- `v2/`
 
-## Production hardening stack
+The `v2/` runtime is the authoritative product architecture.
 
-- **P13:** telemetry and degraded-mode reliability
-- **P14:** authorization/RLS
-- **P15:** verified recovery snapshots and encrypted off-site backup
-- **P16:** read/performance architecture
-- **P17:** privacy/export/lifecycle
-- **P18:** integrity constraints and auditing
-- **P19:** concurrency/idempotency
-- **P20:** schema drift and release governance
-- **P21:** failure injection and incident readiness
-- **P22:** maintenance and supply-chain hardening
-- **P23:** shared-platform upgrade readiness and compatibility checks
-- **P24:** managed hosted-upgrade execution and post-upgrade validation — **complete**
-- **P25:** post-upgrade burn-in and production certification — **active**
+### Legacy runtime
 
-## Release
+- `src/`
 
-- Web/PWA: **2.0.3**
-- Operations: **P25.0**
-- P24 validation: **pass**
-- P25 state: **burn_in_active**
+The historical `src/` dashboard remains in the repository temporarily but is not loaded by the production entrypoint. P27 will retire or archive it cleanly.
 
-See [P25 burn-in](docs/P25-POST-UPGRADE-BURN-IN.md), [P24 execution record](docs/P24-UPGRADE-EXECUTION.md), and [QA.md](QA.md).
+## Production foundation
+
+The existing P1–P25 hardening remains in place where it supports the product:
+
+- authentication and session persistence;
+- owner isolation and RLS;
+- canonical writes;
+- encrypted off-site backups;
+- recovery snapshots;
+- integrity checks;
+- idempotency and multi-device safety;
+- privacy/export/account lifecycle;
+- schema drift detection;
+- monitoring and maintenance;
+- hosted database upgrade validation.
+
+This foundation is considered mature. Infrastructure work is now **product-driven maintenance**, not the primary development track.
+
+## Development direction
+
+P26 re-established the product-first roadmap after removing the P26–P43 governance detour.
+
+Next phases:
+
+1. **P27 — Production Runtime Consolidation & Legacy Retirement**
+2. **P28 — Frictionless Food Capture**
+3. **P29 — Food Memory & Reuse Intelligence**
+4. **P30 — Onboarding, Goals & Phase Setup**
+5. **P31 — Adaptive Strategy & Weekly Review**
+6. **P32 — Copilot Actionability**
+7. **P33 — Progress, Trends & Visual Analytics**
+8. **P34 — Mobile/PWA Interaction Excellence**
+9. **P35 — Visual Design, Motion & Delight**
+10. **P36 — THIEPN Account & Ecosystem Fit**
+11. **P37 — Real-World Usage Hardening**
+12. **P38 — Product Release Candidate**
+
+See `docs/P26-PRODUCT-REALITY-AUDIT.md` for the current product audit and authoritative roadmap.
+
+## Scope boundary
+
+Diet Copilot should validate:
+
+- Diet-owned data and RPCs;
+- Diet-owned Edge Functions;
+- Diet UI/runtime;
+- shared account contracts that Diet directly consumes.
+
+Unrelated migrations from other apps in the shared Supabase project do **not** restart Diet Copilot's release lifecycle unless they change a consumed contract or produce a verified Diet regression.
