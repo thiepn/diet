@@ -2,6 +2,7 @@ import { mapLegacyDietData } from './engine/legacy-data-adapter.mjs';
 import { runAdaptiveNutritionEngine } from './engine/adaptive-nutrition.mjs';
 import { buildTrainingNutritionPlan } from './engine/training-nutrition.mjs';
 import { buildPersonalIntelligence } from './engine/personal-intelligence.mjs';
+import { onboardingStatus } from './p30-onboarding.mjs';
 import { buildFoodMemory, buildRecurringMealMemory } from './p29-food-memory.mjs';
 
 function finite(value){
@@ -304,6 +305,11 @@ export function buildDietV2ReadModel(raw={},options={}){
     windowDays:28
   });
   const currentEstimate=p1.estimate.current??null;
+  const onboarding=onboardingStatus({
+    profile:normalized.profile,
+    phase:normalized.phase,
+    latestWeight
+  });
   const openReview=normalized.normalizedRecommendations.find(r=>r.status==='pending'||r.status==='advisory')??null;
   const lastResolvedReview=normalized.normalizedRecommendations.find(r=>r.resolvedAt)??null;
 
@@ -331,6 +337,7 @@ export function buildDietV2ReadModel(raw={},options={}){
 
   return {
     asOfDate,
+    onboarding,
     today:{
       calories:round(todayCalories,0),
       calorieTarget:round(effectiveTodayTarget,0),

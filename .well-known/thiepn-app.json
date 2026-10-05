@@ -67,7 +67,7 @@
     "mutationRequestRetentionDays": 35,
     "payloadBoundIdempotency": true,
     "ownerMutationSerialization": true,
-    "publicWriteWrapperCount": 18,
+    "publicWriteWrapperCount": 19,
     "privateWriteCoreCount": 18,
     "staleContentAutoMerge": false,
     "concurrencyStatusServiceOnly": true,

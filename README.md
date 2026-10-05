@@ -80,25 +80,27 @@ This foundation is considered mature. Infrastructure work is now **product-drive
 
 ## Development direction
 
-P26 re-established the product-first roadmap after removing the P26–P43 governance detour.
+P26 re-established the product-first roadmap after removing the governance detour.
 
-P27 established the runtime boundary, P28 implemented frictionless food capture, and P29 added deterministic food memory and reuse intelligence.
+Completed product phases:
+
+- **P27 — Production Runtime Consolidation & Legacy Retirement**
+- **P28 — Frictionless Food Capture**
+- **P29 — Food Memory & Reuse Intelligence**
+- **P30 — Onboarding, Goals & Phase Setup**
 
 Next phases:
 
-1. **P29 — Food Memory & Reuse Intelligence**
-3. **P29 — Food Memory & Reuse Intelligence**
-4. **P30 — Onboarding, Goals & Phase Setup**
-5. **P31 — Adaptive Strategy & Weekly Review**
-6. **P32 — Copilot Actionability**
-7. **P33 — Progress, Trends & Visual Analytics**
-8. **P34 — Mobile/PWA Interaction Excellence**
-9. **P35 — Visual Design, Motion & Delight**
-10. **P36 — THIEPN Account & Ecosystem Fit**
-11. **P37 — Real-World Usage Hardening**
-12. **P38 — Product Release Candidate**
+1. **P31 — Adaptive Strategy & Weekly Review**
+2. **P32 — Copilot Actionability**
+3. **P33 — Progress, Trends & Visual Analytics**
+4. **P34 — Mobile/PWA Interaction Excellence**
+5. **P35 — Visual Design, Motion & Delight**
+6. **P36 — THIEPN Account & Ecosystem Fit**
+7. **P37 — Real-World Usage Hardening**
+8. **P38 — Product Release Candidate**
 
-See `docs/P26-PRODUCT-REALITY-AUDIT.md` for the current product audit and authoritative roadmap.
+See `docs/P26-PRODUCT-REALITY-AUDIT.md` for the product rebaseline and the phase documents under `docs/` for implemented work.
 
 ## Scope boundary
 

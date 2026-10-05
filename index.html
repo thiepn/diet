@@ -103,6 +103,15 @@
             </a>
           </div>
 
+          <aside class="dc-onboarding-banner" id="onboardingBanner" hidden>
+            <div>
+              <p class="dc-eyebrow">Set up your plan</p>
+              <strong>Give Diet Copilot a starting point.</strong>
+              <span id="onboardingBannerDetail">Add your weight and goal so targets have real context.</span>
+            </div>
+            <button class="dc-primary-action" id="onboardingOpen" type="button">Finish setup</button>
+          </aside>
+
           <div class="dc-metric-grid" aria-label="Daily summary placeholders">
             <article class="dc-metric-card dc-metric-card--primary">
               <div class="dc-card-heading"><span>Calories</span><span class="dc-status-chip">Live record</span></div>
@@ -335,7 +344,7 @@
 
           <div class="dc-two-column dc-two-column--strategy">
             <article class="dc-panel">
-              <div class="dc-panel-head"><div><p class="dc-eyebrow">Current goal</p><h3>Goal setup</h3></div></div>
+              <div class="dc-panel-head"><div><p class="dc-eyebrow">Current goal</p><h3>Goal setup</h3></div><button class="dc-text-action" id="onboardingEditPlan" type="button">Edit plan</button></div>
               <div class="dc-settings-list">
                 <div><span>Mode</span><strong id="strategyGoalMode">—</strong></div>
                 <div><span>Goal weight</span><strong id="strategyGoalWeight">—</strong></div>
@@ -689,6 +698,73 @@
   </dialog>
 
 
+  <dialog class="dc-modal dc-onboarding-dialog" id="onboardingDialog" aria-labelledby="onboardingHeading">
+    <form class="dc-modal-card dc-onboarding-card" id="onboardingForm">
+      <div class="dc-panel-head">
+        <div><p class="dc-eyebrow">First setup</p><h2 id="onboardingHeading">Build your starting plan</h2></div>
+        <button class="dc-icon-button" id="onboardingClose" type="button" aria-label="Close setup">×</button>
+      </div>
+
+      <div class="dc-onboarding-progress" aria-label="Setup progress">
+        <span data-onboarding-dot="1" class="is-active">1</span><i></i>
+        <span data-onboarding-dot="2">2</span><i></i>
+        <span data-onboarding-dot="3">3</span>
+      </div>
+
+      <section class="dc-onboarding-step" data-onboarding-step="1">
+        <p class="dc-onboarding-kicker">Starting point</p>
+        <h3>What do you weigh now?</h3>
+        <p>One weigh-in is enough to start. Trend weight and expenditure become more trustworthy as more data arrives.</p>
+        <label class="dc-field dc-onboarding-main-field">
+          <span>Current weight</span>
+          <div class="dc-input-unit"><input id="onboardingWeight" type="number" min="25" max="400" step="0.1" inputmode="decimal" required><b>kg</b></div>
+        </label>
+      </section>
+
+      <section class="dc-onboarding-step" data-onboarding-step="2" hidden>
+        <p class="dc-onboarding-kicker">Goal</p>
+        <h3>What should the first phase do?</h3>
+        <p>Choose the direction. The pace stays editable and the adaptive engine will not silently change it later.</p>
+        <div class="dc-goal-choice" role="group" aria-label="Goal mode">
+          <button type="button" data-onboarding-goal="lose">Lose</button>
+          <button type="button" data-onboarding-goal="maintain">Maintain</button>
+          <button type="button" data-onboarding-goal="gain">Gain</button>
+        </div>
+        <div class="dc-form-grid dc-onboarding-goal-fields">
+          <label class="dc-field"><span>Goal weight</span><div class="dc-input-unit"><input id="onboardingGoalWeight" type="number" min="25" max="400" step="0.1" inputmode="decimal"><b>kg</b></div></label>
+          <label class="dc-field"><span>Weekly pace</span><div class="dc-input-unit"><input id="onboardingRate" type="number" min="-2" max="2" step="0.05" inputmode="decimal"><b>kg/wk</b></div></label>
+        </div>
+        <p class="dc-source-note" id="onboardingGoalHint"></p>
+      </section>
+
+      <section class="dc-onboarding-step" data-onboarding-step="3" hidden>
+        <p class="dc-onboarding-kicker">Starting targets</p>
+        <h3>Start sensible, then learn from evidence.</h3>
+        <p>The defaults are a rough starting estimate, not a measured expenditure. You can edit them now. Diet Copilot will build confidence from reliable food logs and weigh-ins before recommending changes.</p>
+        <div class="dc-form-grid dc-onboarding-target-fields">
+          <label class="dc-field"><span>Calories</span><div class="dc-input-unit"><input id="onboardingCalories" type="number" min="1200" max="6000" step="25" inputmode="numeric" required><b>kcal</b></div></label>
+          <label class="dc-field"><span>Protein</span><div class="dc-input-unit"><input id="onboardingProtein" type="number" min="20" max="500" step="5" inputmode="numeric" required><b>g</b></div></label>
+          <label class="dc-field"><span>Fiber</span><div class="dc-input-unit"><input id="onboardingFiber" type="number" min="0" max="100" step="1" inputmode="numeric" required><b>g</b></div></label>
+        </div>
+        <div class="dc-onboarding-learns">
+          <strong>What Diet Copilot learns next</strong>
+          <span>Trend weight · reliable intake · expenditure · usual food portions · recurring meals · whether your target should stay or change.</span>
+        </div>
+      </section>
+
+      <div class="dc-onboarding-status" id="onboardingStatus" hidden role="status" aria-live="polite"></div>
+
+      <div class="dc-modal-actions dc-onboarding-actions">
+        <button class="dc-text-action" id="onboardingLater" type="button">Do this later</button>
+        <div>
+          <button class="dc-secondary-action" id="onboardingBack" type="button" hidden>Back</button>
+          <button class="dc-primary-action" id="onboardingNext" type="button">Continue</button>
+          <button class="dc-primary-action" id="onboardingSave" type="submit" hidden>Start plan</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
   <dialog class="dc-modal" id="mealEditorDialog" aria-labelledby="mealEditorHeading">
     <form class="dc-modal-card dc-modal-card--wide" id="mealEditorForm" method="dialog">
       <div class="dc-panel-head">
@@ -853,6 +929,7 @@
   <script type="module" src="./v2/training-actions.js"></script>
   <script type="module" src="./v2/copilot.js"></script>
   <script type="module" src="./v2/settings.js"></script>
+  <script type="module" src="./v2/onboarding.js"></script>
   <script type="module" src="./v2/pwa.js"></script>
 </body>
 </html>

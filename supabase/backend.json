@@ -286,7 +286,7 @@
     "migration_versions": [
       "20260929214524"
     ],
-    "public_write_wrappers": 18,
+    "public_write_wrappers": 19,
     "private_write_cores": 18,
     "request_identity": "user_id_plus_request_id",
     "request_binding": "operation_plus_sha256_canonical_jsonb_payload",

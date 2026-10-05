@@ -31,14 +31,14 @@ assert.equal(app.health?.mutationRequestLedger,true);
 assert.equal(app.health?.mutationRequestRetentionDays,35);
 assert.equal(app.health?.payloadBoundIdempotency,true);
 assert.equal(app.health?.ownerMutationSerialization,true);
-assert.equal(app.health?.publicWriteWrapperCount,18);
+assert.equal(app.health?.publicWriteWrapperCount,19);
 assert.equal(app.health?.privateWriteCoreCount,18);
 assert.equal(app.health?.staleContentAutoMerge,false);
 assert.equal(app.health?.concurrencyStatusServiceOnly,true);
 
 assert.equal(backend.concurrency_policy?.release,'P19');
 assert.deepEqual(backend.concurrency_policy?.migration_versions,['20260929214524']);
-assert.equal(backend.concurrency_policy?.public_write_wrappers,18);
+assert.equal(backend.concurrency_policy?.public_write_wrappers,19);
 assert.equal(backend.concurrency_policy?.private_write_cores,18);
 assert.equal(backend.concurrency_policy?.request_identity,'user_id_plus_request_id');
 assert.equal(backend.concurrency_policy?.request_binding,'operation_plus_sha256_canonical_jsonb_payload');
@@ -104,4 +104,6 @@ assert.match(sw,/diet-copilot-prod-v2-p17-1/);
 assert.match(aliasSw,/diet-copilot-v2-alias-p17-1/);
 assert.match(pwa,/version:'2\.0\.3-p17'/);
 
+assert.match(writeApi,/completeOnboarding:'diet_app_complete_onboarding'/);
+assert.match(writeApi,/p_request_id:rid/);
 console.log('Diet Copilot P19 concurrency/idempotency contract passed.');
