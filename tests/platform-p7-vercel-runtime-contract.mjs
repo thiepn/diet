@@ -6,6 +6,9 @@ const health=fs.readFileSync("api/health.js","utf8");
 const runtime=fs.readFileSync("v2/server-runtime.mjs","utf8");
 const client=fs.readFileSync("v2/copilot.js","utf8");
 const manifest=JSON.parse(fs.readFileSync("platform-p7-runtime-certification.json","utf8"));
+const vercel=JSON.parse(fs.readFileSync("vercel.json","utf8"));
+const apiPackage=JSON.parse(fs.readFileSync("api/package.json","utf8"));
+const vercelIgnore=fs.readFileSync(".vercelignore","utf8");
 
 assert.match(api,/SUPABASE_PUBLISHABLE_KEY/);
 assert.match(api,/\/auth\/v1\/user/);
@@ -43,5 +46,10 @@ assert.equal(manifest.deployment.automaticDeployments,false);
 assert.equal(manifest.deployment.productionDomainCutover,false);
 assert.equal(manifest.deployment.deploymentCertified,false);
 assert.equal(manifest.safety.serverMayWriteDietData,false);
+assert.deepEqual(vercel.regions,["dub1"]);
+assert.equal(vercel.functions["api/copilot.js"].maxDuration,30);
+assert.equal(apiPackage.type,"module");
+assert.match(vercelIgnore,/!api/);
+assert.match(vercelIgnore,/!vercel\.json/);
 
 console.log("Platform P7 product-owned Vercel runtime contract passed (prepared, not yet activated).");
