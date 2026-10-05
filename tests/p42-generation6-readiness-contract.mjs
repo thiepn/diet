@@ -42,7 +42,8 @@ assert.equal(backup.freshForCandidate,false);
 assert.equal(p41.nextGeneration.generation,6);
 assert.equal(p41.nextGeneration.required,true);
 
-assert.ok(backupWorkflow.includes("- 'platform-p42-*.json'"));\nassert.ok(backupWorkflow.includes('platform-p42-generation6-refreeze-plan.json'));
+assert.ok(backupWorkflow.includes("- 'platform-p42-*.json'"));
+assert.ok(backupWorkflow.includes('platform-p42-generation6-refreeze-plan.json'));
 assert.ok(backupWorkflow.includes('generation6_refreeze_pending'));
 assert.ok(workflow.includes('p42-evaluate-generation6-readiness.py'));
 assert.ok(workflow.includes('tests/p42-generation6-readiness-contract.py'));
