@@ -23,11 +23,14 @@ assert plan["state"]=="refreeze_pending"
 assert plan["generation"]==6
 assert plan["predecessor"]["generation"]==5
 assert plan["predecessor"]["state"]=="invalidated_epoch_changed"
-assert plan["candidateEpoch"]["migrationHead"]=="20261005134753_library_account_deletion_authority"
-assert plan["candidateRevision"]==2\nassert plan["candidateEpoch"]["semanticSchemaSha256"]=="c91f0cf78cc6db7399081fd3fd0595ef84f0c0b4517d11a4767c3f2464bac174"
+assert plan["candidateRevision"]==3
+assert plan["candidateEpoch"]["migrationHead"]=="20261005142947_studyos_p11_calendar_autopilot_foundation"
+assert plan["candidateEpoch"]["semanticSchemaSha256"]=="48825c23f56020022a058504e069d4c7f8d6a096331560b6999ec501df4f5fcf"
 assert plan["quietWindow"]["satisfied"] is False
-assert plan["backupGate"]["latestSuccessfulRunId"]==37324434181\nassert plan["backupGate"]["latestSuccessfulBackupFreshForCandidate"] is False
+assert plan["backupGate"]["latestSuccessfulRunId"]==37324434181
+assert plan["backupGate"]["latestSuccessfulBackupFreshForCandidate"] is False
 assert plan["activationReadiness"]["eligibleToActivate"] is False
+assert plan["activationReadiness"]["churnSafe"] is True
 
 with tempfile.TemporaryDirectory() as td:
     d=Path(td)
@@ -44,7 +47,6 @@ with tempfile.TemporaryDirectory() as td:
     assert any(x.startswith("quiet_window_open:") for x in r["blockers"])
     assert "backup_predates_latest_shared_change" in r["blockers"]
 
-    # Same epoch becomes ready only after 60 minutes and with a fresh valid backup.
     latest=datetime.fromisoformat(obs["latestSharedChangeAt"].replace("Z","+00:00"))
     future=dict(obs)
     future["observedAt"]=z(latest+timedelta(minutes=65))
@@ -71,7 +73,6 @@ with tempfile.TemporaryDirectory() as td:
     assert rr["quietMinutesObserved"]==65.0
     assert rr["blockers"]==[]
 
-    # A changed epoch must fail closed even with a fresh backup and enough elapsed time.
     moved=dict(future)
     moved["migrationVersion"]="20261005150000"
     moved["migrationName"]="some_later_shared_change"
