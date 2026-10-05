@@ -206,6 +206,9 @@ export default {
     if(!c.allowed)return reply(request,{error:"origin_not_allowed"},403);
     if(request.method!=="POST")return reply(request,{error:"method_not_allowed"},405);
 
+    const declaredLength=Number(request.headers.get("content-length")||0);
+    if(Number.isFinite(declaredLength)&&declaredLength>MAX_BODY_BYTES)return reply(request,{error:"payload_too_large"},413);
+
     const auth=await validateSupabaseUser(request);
     if(!auth.ok)return reply(request,{error:auth.error},auth.status);
 
