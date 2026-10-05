@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "phase": "P41",
+  "observedAt": "2026-10-05T13:34:41.824Z",
+  "projectRef": "hycegznamzjhwinegaai",
+  "projectStatus": "ACTIVE_HEALTHY",
+  "postgresManagedBuild": "17.6.1.164",
+  "postgresReleaseChannel": "preview",
+  "migrationVersion": "20261005133228",
+  "migrationName": "hub_h18_notes_capture",
+  "migrationHead": "20261005133228_hub_h18_notes_capture",
+  "semanticSchemaSha256": "1eae1abf885890d48336ee5c4e29e2d4054987cfc7dea6053f694b3480548ca1",
+  "edgeFunctionCount": 12,
+  "edgeFunctionsAllActive": true,
+  "gomokuRoomVersion": 50,
+  "gomokuRoomSha256": "a537d0702fdb53861124849e03fb7141a8036a4ee5c692fa9bf4769c47981695",
+  "cronJobs": 14,
+  "activeCronJobs": 14,
+  "blockingPersistentReplicationSlots": 0,
+  "firstKnownMigrationAfterGeneration5Activation": {
+    "version": "20261004185802",
+    "name": "studyos_p7_master_map_and_packet",
+    "head": "20261004185802_studyos_p7_master_map_and_packet"
+  },
+  "frozenEpochMatch": false,
+  "productionMutationPerformed": false
+}
