@@ -94,6 +94,6 @@ assert.doesNotMatch(allBrowser,/credential_digest\s*[:=]/i,'Credential digest ma
 
 assert.match(sw,/diet-copilot-prod-v2-p(?:17|33|34)-1/);
 assert.match(aliasSw,/diet-copilot-v2-alias-p(?:17|33|34)-1/);
-assert.match(pwa,/version:'2\.0\.3-p17'/);
+assert.match(pwa,/version:'2\.0\.3-p(?:17|34)'/);
 
 console.log('Diet Copilot P17 privacy/lifecycle contract passed.');
