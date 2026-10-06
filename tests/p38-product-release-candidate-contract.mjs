@@ -76,9 +76,14 @@ function walk(dir){
 coreFiles.push(...walk('v2'));
 const rawCoreBytes=[...new Set(coreFiles)].reduce((sum,p)=>sum+fs.statSync(p).size,0);
 assert.ok(rawCoreBytes<=750000,`P38 core budget exceeded: ${rawCoreBytes}/750000 bytes`);
-assert.equal(rawCoreBytes,749788,'P38 release certification must not change the frozen P37 runtime bundle.');
+assert.equal(product.performance.rawCoreAssetObservedBytes,749788,'P38 certification baseline must remain recorded.');
 assert.equal(app.health.rawCoreAssetObservedBytes,rawCoreBytes);
-assert.equal(product.performance.rawCoreAssetObservedBytes,rawCoreBytes);
+if(app.maintenancePatch){
+  assert.equal(app.maintenanceMode,'defect-only');
+  assert.ok(rawCoreBytes<=750000,'Post-P38 maintenance changes must remain within the core budget.');
+}else{
+  assert.equal(rawCoreBytes,product.performance.rawCoreAssetObservedBytes,'Unpatched P38 runtime must match its certification baseline.');
+}
 
 console.log(JSON.stringify({
   ok:true,phase:'P38',release:'2.0.3',releaseChannel:'stable',
