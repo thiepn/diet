@@ -1,3 +1,5 @@
+> **Superseded after P38:** The user preferred the earlier P34 visual system. P35 remains documented as historical work, but its visual runtime and styling are no longer active in production. The current UI restores the P34 visual base while preserving later product functionality.
+
 # P35 — Visual Design, Motion & Delight
 
 P35 makes Diet Copilot feel intentional and responsive without changing the product's visual identity or turning nutrition outcomes into game rewards.
