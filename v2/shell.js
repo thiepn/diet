@@ -15,9 +15,9 @@ const toast=document.querySelector('[data-toast]');
 let toastTimer=null;
 
 const inputSelector='input,textarea,select,[contenteditable="true"]';
-const mobileQuery=matchMedia?.('(max-width:760px)');
+const mobileQuery=globalThis.matchMedia?.('(max-width:760px)');
 function syncVisualViewport(){
-  const height=Math.round(visualViewport?.height??innerHeight);
+  const height=Math.round(globalThis.visualViewport?.height??innerHeight);
   document.documentElement.style.setProperty('--dc-visual-height',height+'px');
 }
 function syncInputState(){
@@ -90,8 +90,8 @@ function setTodayLabel(){
 
 window.addEventListener('hashchange',()=>setCurrentRoute(cleanRoute(),{focus:true}));
 window.addEventListener('resize',()=>{syncVisualViewport();syncInputState();},{passive:true});
-visualViewport?.addEventListener('resize',syncVisualViewport,{passive:true});
-visualViewport?.addEventListener('scroll',syncVisualViewport,{passive:true});
+globalThis.visualViewport?.addEventListener('resize',syncVisualViewport,{passive:true});
+globalThis.visualViewport?.addEventListener('scroll',syncVisualViewport,{passive:true});
 document.addEventListener('focusin',syncInputState);
 document.addEventListener('focusout',()=>setTimeout(syncInputState,0));
 
