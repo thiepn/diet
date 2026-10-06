@@ -115,6 +115,6 @@ assert.doesNotMatch(migration,/delete\s+from\s+public\.(?:profiles|daily_logs|me
 
 assert.match(sw,/diet-copilot-prod-v2-p(?:17|33|34)-1/);
 assert.match(aliasSw,/diet-copilot-v2-alias-p(?:17|33|34)-1/);
-assert.match(pwa,/version:'2\.0\.3-p17'/);
+assert.match(pwa,/version:'2\.0\.3-p(?:17|34)'/);
 
 console.log('Diet Copilot P20 schema-drift/release-governance contract passed.');
