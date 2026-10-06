@@ -29,13 +29,13 @@ assert.match(health,/VERCEL_REGION/);
 
 assert.match(runtime,/active:"supabase-edge"/);
 assert.match(runtime,/https:\/\/thiepn-diet\.vercel\.app\/api\/copilot/);
-assert.match(runtime,/cutoverRequiresCertification:true/);
+assert.match(runtime,/fallback:"supabase-edge"/);
 assert.match(client,/DietServerRuntime/);
 assert.match(client,/invokeRemoteCopilot/);
 assert.match(client,/client\.auth\.getSession\(\)/);
 assert.match(client,/Authorization':'Bearer /);
 assert.match(client,/client\.functions\.invoke\('diet-copilot-ai'/);
-assert.match(client,/copilot\.fallback==='supabase-edge'/);
+assert.match(client,/return edge\(\)/);
 
 assert.equal(manifest.phase,"P7");
 assert.equal(manifest.workload.owner,"diet");
