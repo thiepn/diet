@@ -21,7 +21,7 @@ assert.match(api,/ALLOWED_ACTIONS/);
 assert.match(api,/cleanReply/);
 assert.match(api,/runtime:"vercel"/);
 assert.match(api,/generateText/);
-assert.match(api,/openai\\/gpt-5\\.6-luna/);
+assert.match(api,/openai\/gpt-5\.6-luna/);
 assert.doesNotMatch(api,/VERCEL_OIDC_TOKEN/);
 
 assert.match(health,/ready:supabaseConfigured&&providerConfigured/);
