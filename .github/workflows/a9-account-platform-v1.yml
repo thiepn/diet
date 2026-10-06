@@ -20,7 +20,7 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 22
-      - name: Verify Diet 2.0.3 on Account Platform v1
+      - name: Verify Diet P36 on Account Platform v1
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
@@ -30,5 +30,6 @@ jobs:
           if(release.platformCommit!=='169e083f268e895cd44d8a5fe706ba5d4532bfa2')throw new Error('Unexpected platform release commit.');
           for(const key of ['accountContract','sdkContract','integrationMode'])if(release[key]!==app[key])throw new Error('Release contract mismatch: '+key);
           if(release.consumerRelease!=='2.0.3'||release.consumerRelease!==app.webRelease)throw new Error('Diet Web 2.0.3 consumer release mismatch.');
-          console.log('Diet Platform v1 / Diet Web 2.0.3 metadata passed.');
+          if(release.consumerIntegrationPhase!=='P36'||release.accountUiPattern!=='A8'||app.accountConsumerUiPhase!=='P36')throw new Error('Diet P36 Account consumer integration mismatch.');
+          console.log('Diet Platform v1 / Diet P36 metadata passed.');
           NODE
