@@ -9,7 +9,7 @@ function burst(anchor){if(reduce()||!anchor)return;const box=anchor.getBoundingC
 metricIds.forEach(id=>observeValue(document.getElementById(id)));
 animateCharts();
 const foodStatus=document.getElementById('foodWriteStatus');let foodText='';
-if(foodStatus)new MutationObserver(()=>{const text=foodStatus.textContent.trim();if(!foodStatus.hidden&&foodStatus.dataset.kind==='ok'&&text&&text!==foodText){foodText=text;restart(foodStatus,'dc-success-pop');burst(foodStatus)}}).observe(foodStatus,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','data-kind']});
+if(foodStatus)new MutationObserver(()=>{const text=foodStatus.textContent.trim();if(foodStatus.hidden){foodText='';return}if(foodStatus.dataset.kind==='ok'&&text&&text!==foodText){foodText=text;restart(foodStatus,'dc-success-pop');burst(foodStatus)}}).observe(foodStatus,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','data-kind']});
 new MutationObserver(records=>{for(const record of records)for(const node of record.addedNodes)if(node.nodeType===1)animateCharts(node)}).observe(document.body,{childList:true,subtree:true});
 document.addEventListener('pointerdown',event=>{const el=event.target.closest('.dc-primary-action,.dc-secondary-action,.dc-more-card,.dc-quick-actions button,.dc-log-add,.dc-log-repeat,.dc-nav-item,.dc-segmented button');if(el)ripple(event,el)},{passive:true});
 window.DietV2Delight=Object.freeze({version:'1.0.0-p35',burst,reducedMotion:reduce});
