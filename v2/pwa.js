@@ -6,7 +6,7 @@ const state={
 };
 
 const $=id=>document.getElementById(id);
-const standalone=()=>matchMedia?.('(display-mode: standalone)')?.matches||navigator.standalone===true;
+const standalone=()=>globalThis.matchMedia?.('(display-mode: standalone)')?.matches||navigator.standalone===true;
 const ios=()=>/iPad|iPhone|iPod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const canRegister=()=>('serviceWorker'in navigator)&&['https:','http:'].includes(location.protocol);
 const toast=message=>window.DietV2Shell?.showToast?.(message);
