@@ -92,8 +92,8 @@ assert.match(alias,/id="clearDeviceDataButton"/);
 assert.doesNotMatch(allBrowser,/\.rpc\(['"]delete_thiepn_account['"]/,'Central account deletion must not be callable from Diet browser code.');
 assert.doesNotMatch(allBrowser,/credential_digest\s*[:=]/i,'Credential digest material must not be introduced into browser code.');
 
-assert.match(sw,/diet-copilot-prod-v2-p(?:17|33|34|35|36)-1/);
-assert.match(aliasSw,/diet-copilot-v2-alias-p(?:17|33|34|35|36)-1/);
+assert.match(sw,/diet-copilot-prod-v2-p(?:17|33|34|35|36|37)-1/);
+assert.match(aliasSw,/diet-copilot-v2-alias-p(?:17|33|34|35|36|37)-1/);
 assert.match(pwa,/version:'2\.0\.3-p(?:17|34)'/);
 
 console.log('Diet Copilot P17 privacy/lifecycle contract passed.');

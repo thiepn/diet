@@ -42,8 +42,8 @@ for(const token of [
   "version:'2.0.3-p34'"
 ]) assert.ok(pwa.includes(token),`missing PWA behavior: ${token}`);
 
-assert.match(sw,/diet-copilot-prod-v2-p(?:34|35|36)-1/);
-assert.match(aliasSw,/diet-copilot-v2-alias-p(?:34|35|36)-1/);
+assert.match(sw,/diet-copilot-prod-v2-p(?:34|35|36|37)-1/);
+assert.match(aliasSw,/diet-copilot-v2-alias-p(?:34|35|36|37)-1/);
 assert.doesNotMatch(sw,/pathname\.startsWith\(scopePath\+'v2\/'\)\)return/,'root service worker must not bypass production v2 assets');
 assert.ok(sw.includes("'./v2/shell.css'"));
 assert.ok(sw.includes("'./v2/pwa.js'"));

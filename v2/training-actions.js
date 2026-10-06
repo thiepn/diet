@@ -19,7 +19,7 @@ return Number(value).toLocaleString(undefined,{maximumFractionDigits:digits});
 function cap(value=''){return String(value).replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase());}
 function liveReady(){
 const s=getDietV2State();
-return s.signedIn&&s.source==='cloud'&&navigator.onLine!==false;
+return s.signedIn&&s.source==='cloud'&&navigator.onLine!==false&&!s.writeBlocked;
 }
 function toast(message){
 const el=document.querySelector('[data-toast]');

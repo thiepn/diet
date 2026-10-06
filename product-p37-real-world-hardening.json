@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "phase": "P37",
+  "title": "Real-World Usage Hardening",
+  "state": "implemented",
+  "hardening": {
+    "crossOwnerStaleStatePrevented": true,
+    "sameOwnerMemoryFallback": "read-only",
+    "uncertainWriteGuardPersistsAcrossReload": true,
+    "uncertainWriteGuardStorage": "sessionStorage-metadata-only",
+    "deterministicPgrstRetry": false,
+    "globalWriteLock": true,
+    "backgroundRefreshCoalesced": true,
+    "midnightRolloverAware": true,
+    "unsavedInputUnloadGuard": true,
+    "pwaUpdateRespectsUnsavedInput": true
+  },
+  "databaseMigration": false,
+  "nutritionLogicChanged": false,
+  "backgroundWrites": false,
+  "performance": {
+    "rawCoreAssetBudgetBytes": 750000,
+    "rawCoreAssetObservedBytes": 749788,
+    "budgetRaised": false
+  },
+  "nextPhase": {
+    "phase": "P38",
+    "title": "Product Release Candidate"
+  }
+}

@@ -129,6 +129,9 @@ jobs:
       - name: P36 THIEPN account and ecosystem contract
         run: node tests/p36-account-ecosystem-contract.mjs
 
+      - name: P37 real-world usage hardening contract
+        run: node tests/p37-real-world-hardening-contract.mjs
+
       - name: Build actual GitHub Pages artifact
         uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1
         with:
@@ -139,9 +142,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for f in index.html manifest.webmanifest sw.js legacy-v1.html legacy-v1-app.js v2/index.html v2/data.js v2/auth-storage.mjs v2/write-api.mjs v2/telemetry.mjs v2/settings.js v2/shell.css v2/p33-progress-analytics.mjs v2/p35-delight.js vendor/supabase-2.116.0.js .well-known/thiepn-app.json; do
+          for f in index.html manifest.webmanifest sw.js legacy-v1.html legacy-v1-app.js v2/index.html v2/data.js v2/auth-storage.mjs v2/write-api.mjs v2/telemetry.mjs v2/settings.js v2/shell.css v2/p33-progress-analytics.mjs v2/p35-delight.js v2/p37-hardening.js vendor/supabase-2.116.0.js .well-known/thiepn-app.json; do
             test -f "_site/$f"
           done
           grep -q 'dc-version-badge">2.0<' _site/index.html
           ! grep -q '2.0 RC' _site/index.html
-          grep -q 'diet-copilot-prod-v2-p36-1' _site/sw.js
+          grep -q 'diet-copilot-prod-v2-p37-1' _site/sw.js

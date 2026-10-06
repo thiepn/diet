@@ -129,7 +129,7 @@ function renderData(){
 const state=getDietV2State();
 const info=getDietV2OfflineCacheInfo();
 if($('dataAccountState'))$('dataAccountState').textContent=state.signedIn?'Signed in':'Signed out';
-if($('dataCloudState'))$('dataCloudState').textContent=state.source==='cloud'?'Live owner-scoped sync':state.source==='cache'?'Offline owner cache':'No private data loaded';
+if($('dataCloudState'))$('dataCloudState').textContent=state.source==='cloud'?'Live owner-scoped sync':state.source==='cache'?'Offline owner cache':state.source==='memory'?'Last in-memory snapshot · read-only':'No private data loaded';
 if($('dataCacheState'))$('dataCacheState').textContent=info.present?(info.savedAt?'Saved '+new Date(info.savedAt).toLocaleString():'Available'):'No offline cache';
 if($('dataCopilotState'))$('dataCopilotState').textContent='Session-only · not stored in Diet database';
 if($('exportJsonButton'))$('exportJsonButton').disabled=!fullExportReady();
@@ -153,13 +153,16 @@ const sync=$('integrationSyncHealth');
 if(connect)connect.hidden=!plugin||Boolean($('v2HealthConnectConnect')?.hidden);
 if(sync)sync.hidden=!plugin||Boolean($('v2HealthConnectSync')?.hidden);
 const state=getDietV2State();
-if($('integrationSyncSource'))$('integrationSyncSource').textContent=state.source==='cloud'?'Supabase live sync':state.source==='cache'?'Offline cache':'Not connected';
+if($('integrationSyncSource'))$('integrationSyncSource').textContent=state.source==='cloud'?'Supabase live sync':state.source==='cache'?'Offline cache':state.source==='memory'?'Last owner snapshot · read-only':'Not connected';
 }
 function renderAccountSummary(){
 const state=getDietV2State();
-if($('moreAccountSummary'))$('moreAccountSummary').textContent=state.signedIn
-?(state.source==='cloud'?'Signed in · synced':'Signed in · '+state.source)
-:'Sign in and sync status';
+if(!$('moreAccountSummary'))return;
+$('moreAccountSummary').textContent=state.status==='error'
+?'Account temporarily unavailable'
+:state.signedIn
+?(state.source==='cloud'?'Signed in · synced':state.source==='memory'?'Signed in · stale snapshot':state.source==='cache'?'Signed in · cached':'Signed in')
+:'Not signed in · Google';
 }
 function healthTime(value){
 if(!value)return '—';
@@ -167,7 +170,8 @@ try{return new Date(value).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit
 }
 function healthOverall(data,pwa,guard,telemetry){
 if(navigator.onLine===false)return 'Offline';
-if(guard?.blocked)return 'Refresh required';
+if(guard?.kind==='uncertain')return 'Refresh required';
+if(guard?.kind==='in_flight')return 'Saving';
 if(data.status==='error')return 'Data error';
 if(pwa?.error)return 'PWA issue';
 if((telemetry.counts?.runtime_error??0)>0)return 'Review diagnostics';
@@ -186,7 +190,7 @@ if($('healthDataState'))$('healthDataState').textContent=data.status+' · '+data
 if($('healthNetwork'))$('healthNetwork').textContent=navigator.onLine===false?'Offline':'Online';
 if($('healthRealtime'))$('healthRealtime').textContent=data.realtimeStatus||'idle';
 if($('healthPwa'))$('healthPwa').textContent=pwa.error?'Error':pwa.ready?'Ready':pwa.supported?'Starting':'Unsupported';
-if($('healthWriteGuard'))$('healthWriteGuard').textContent=guard?.blocked?'Blocked pending refresh':'Clear';
+if($('healthWriteGuard'))$('healthWriteGuard').textContent=guard?.kind==='uncertain'?'Blocked pending refresh':guard?.kind==='in_flight'?'Write in progress':'Clear';
 if($('healthTelemetryStore'))$('healthTelemetryStore').textContent=telemetry.storage==='local'
 ?telemetry.eventCount+' local event'+(telemetry.eventCount===1?'':'s')
 :'Memory only · '+telemetry.eventCount+' event'+(telemetry.eventCount===1?'':'s');

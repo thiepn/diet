@@ -1,5 +1,26 @@
 import { recordTelemetry, startTelemetrySpan, telemetryErrorCode } from './telemetry.mjs';
-let uncertainWrite=null;
+const WRITE_GUARD_KEY='diet-copilot-write-guard-v1';
+const WRITE_GUARD_MAX_AGE_MS=24*60*60*1000;
+function loadUncertainWrite(){
+try{
+const raw=globalThis.sessionStorage?.getItem?.(WRITE_GUARD_KEY);
+if(!raw)return null;
+const value=JSON.parse(raw),at=Date.parse(value?.at??'');
+if(!value?.rpc||!value?.requestId||!Number.isFinite(at)||Date.now()-at>WRITE_GUARD_MAX_AGE_MS){
+globalThis.sessionStorage?.removeItem?.(WRITE_GUARD_KEY);return null;
+}
+return {rpc:String(value.rpc),requestId:String(value.requestId),at:new Date(at).toISOString(),code:String(value.code||'unknown')};
+}catch{return null;}
+}
+function saveUncertainWrite(value){
+try{
+if(value)globalThis.sessionStorage?.setItem?.(WRITE_GUARD_KEY,JSON.stringify(value));
+else globalThis.sessionStorage?.removeItem?.(WRITE_GUARD_KEY);
+}catch{}
+}
+function notifyWriteGuard(){try{globalThis.dispatchEvent?.(new CustomEvent('diet-v2-reliability-updated'));}catch{}}
+let uncertainWrite=loadUncertainWrite();
+let activeWrite=null;
 const RPC=Object.freeze({
 manual:'diet_app_log_meal',
 savedFood:'diet_app_log_saved_food',
@@ -32,7 +53,7 @@ return text||'Other';
 function isTransient(error){
 const status=Number(error?.status);
 const code=String(error?.code??'');
-return status>=500 || status===429 || code.startsWith('PGRST') || ['TypeError','AbortError','TimeoutError'].includes(error?.name);
+return status>=500||status===429||/^PGRST00[0-3]$/.test(code)||['40001','40P01','55P03'].includes(code)||['TypeError','AbortError','TimeoutError'].includes(error?.name);
 }
 function reconciliationError(){
 const error=new Error('A previous write could not be confirmed. Refresh Diet Copilot before writing again.');
@@ -41,12 +62,9 @@ error.uncertainWrite=uncertainWrite;
 return error;
 }
 function markUncertain(name,args,error){
-uncertainWrite={
-rpc:name,
-requestId:args?.p_request_id??null,
-at:new Date().toISOString(),
-reason:String(error?.message??error??'unknown')
-};
+uncertainWrite={rpc:name,requestId:args?.p_request_id??null,at:new Date().toISOString(),code:telemetryErrorCode(error)};
+saveUncertainWrite(uncertainWrite);
+notifyWriteGuard();
 const wrapped=new Error('A write may have reached the server but could not be confirmed. Refresh Diet Copilot before writing again.');
 wrapped.code='DIET_WRITE_UNCERTAIN';
 wrapped.uncertainWrite=uncertainWrite;
@@ -58,16 +76,30 @@ if(uncertainWrite){
 recordTelemetry('write_blocked',{operation:name,code:'reconcile_required',writeBlocked:true});
 throw reconciliationError();
 }
+if(activeWrite){
+const error=new Error('Another Diet change is still being saved. Wait for it to finish before trying again.');
+error.code='DIET_WRITE_IN_PROGRESS';
+recordTelemetry('write_blocked',{operation:name,code:'in_progress',writeBlocked:true});
+throw error;
+}
+if(typeof navigator!=='undefined'&&navigator.onLine===false){
+const error=new Error('Connect to the internet before changing Diet data.');
+error.code='DIET_WRITE_OFFLINE';
+throw error;
+}
 if(!client?.rpc){
 recordTelemetry('write_failure',{operation:name,code:'client_unavailable'});
 throw new Error('Diet account connection is unavailable.');
 }
+activeWrite={rpc:name,at:new Date().toISOString()};
+notifyWriteGuard();
 const span=startTelemetrySpan('write',{operation:name});
 const run=async()=>{
 const {data,error}=await client.rpc(name,args);
 if(error)throw error;
 return data;
 };
+try{
 try{
 const data=await run();
 span.end({outcome:'success',retried:false});
@@ -91,6 +123,10 @@ throw markUncertain(name,args,secondError);
 span.end({outcome:'failure',code:telemetryErrorCode(secondError),retried:true});
 throw secondError;
 }
+}
+}finally{
+activeWrite=null;
+notifyWriteGuard();
 }
 }
 export async function logManualMeal(client,{date,mealType,title,items,requestId:existing}){
@@ -326,10 +362,14 @@ p_request_id:rid
 return {data,requestId:rid};
 }
 export function getDietWriteGuardState(){
-return uncertainWrite?{blocked:true,...uncertainWrite}:{blocked:false};
+if(uncertainWrite)return {blocked:true,kind:'uncertain',...uncertainWrite};
+if(activeWrite)return {blocked:true,kind:'in_flight',...activeWrite};
+return {blocked:false,kind:'clear'};
 }
 export function clearUncertainWriteGuard(){
 if(uncertainWrite)recordTelemetry('write_guard',{status:'cleared',writeBlocked:false});
 uncertainWrite=null;
+saveUncertainWrite(null);
+notifyWriteGuard();
 }
 export const DietWriteRPC=RPC;

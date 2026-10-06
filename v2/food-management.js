@@ -17,7 +17,7 @@ let busy=false;
 function $(id){return document.getElementById(id);}
 function esc(value=''){return String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');}
 function fmt(value,digits=1){return value==null||!Number.isFinite(Number(value))?'—':Number(value).toLocaleString(undefined,{maximumFractionDigits:digits});}
-function ready(){const s=getDietV2State();return s.signedIn&&s.source==='cloud'&&navigator.onLine!==false;}
+function ready(){const s=getDietV2State();return s.signedIn&&s.source==='cloud'&&navigator.onLine!==false&&!s.writeBlocked;}
 function selectedMealType(){return document.querySelector('[data-food-meal-type].is-selected')?.dataset.foodMealType||'Other';}
 function toast(message){
   const el=document.querySelector('[data-toast]');
