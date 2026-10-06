@@ -210,7 +210,11 @@ export default {
     if(Number.isFinite(declaredLength)&&declaredLength>MAX_BODY_BYTES)return reply(request,{error:"payload_too_large"},413);
 
     const auth=await validateSupabaseUser(request);
-    if(!auth.ok)return reply(request,{error:auth.error},auth.status);
+    if(!auth.ok){
+      console.warn("diet-copilot-ai auth_failed",auth.error);
+      return reply(request,{error:auth.error},auth.status);
+    }
+    console.info("diet-copilot-ai auth_ok");
 
     const raw=await request.text();
     if(new TextEncoder().encode(raw).byteLength>MAX_BODY_BYTES)return reply(request,{error:"payload_too_large"},413);
@@ -245,7 +249,11 @@ export default {
       const rawProviderReply=extractResponseText(provider);
       const parsed=parseModelJson(rawProviderReply);
       const cleaned=cleanReply(parsed,context);
-      if(!cleaned)return reply(request,{error:"invalid_model_response"},502);
+      if(!cleaned){
+        console.error("diet-copilot-ai invalid_model_response");
+        return reply(request,{error:"invalid_model_response"},502);
+      }
+      console.info("diet-copilot-ai success","openai-direct","gpt-6-luna");
       return reply(request,{ok:true,mode:"remote",runtime:"vercel",provider:"openai-direct",model,reply:cleaned});
     }catch(error){
       console.error("diet-copilot-ai request_failed",error instanceof Error?error.name:"Error");
