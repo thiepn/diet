@@ -123,7 +123,7 @@ jobs:
       - name: P34 mobile and PWA interaction contract
         run: node tests/p34-mobile-pwa-contract.mjs
 
-      - name: P35 visual design, motion and delight contract
+      - name: P35 superseded visual-layer contract
         run: node tests/p35-visual-delight-contract.mjs
 
       - name: P36 THIEPN account and ecosystem contract
@@ -145,7 +145,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for f in index.html manifest.webmanifest sw.js legacy-v1.html legacy-v1-app.js v2/index.html v2/data.js v2/auth-storage.mjs v2/write-api.mjs v2/telemetry.mjs v2/settings.js v2/shell.css v2/p33-progress-analytics.mjs v2/p35-delight.js v2/p37-hardening.js vendor/supabase-2.116.0.js .well-known/thiepn-app.json product-p38-release-candidate.json; do
+          for f in index.html manifest.webmanifest sw.js legacy-v1.html legacy-v1-app.js v2/index.html v2/data.js v2/auth-storage.mjs v2/write-api.mjs v2/telemetry.mjs v2/settings.js v2/shell.css v2/p33-progress-analytics.mjs v2/p37-hardening.js vendor/supabase-2.116.0.js .well-known/thiepn-app.json product-p38-release-candidate.json; do
             test -f "_site/$f"
           done
           grep -q 'dc-version-badge">2.0<' _site/index.html
