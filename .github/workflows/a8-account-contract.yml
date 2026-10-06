@@ -21,7 +21,7 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: 22
-      - name: Validate Diet 2.0.3 / P25 account consumer contract
+      - name: Validate Diet P36 account consumer contract
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
@@ -29,6 +29,7 @@ jobs:
           const data=fs.readFileSync('v2/data.js','utf8');
           const auth=fs.readFileSync('v2/auth-storage.mjs','utf8');
           const html=fs.readFileSync('index.html','utf8');
+          const release=JSON.parse(fs.readFileSync('.well-known/thiepn-account-release.json','utf8'));
           const all=fs.readdirSync('v2',{recursive:true}).filter(p=>/\.(?:js|mjs)$/.test(String(p))).map(p=>fs.readFileSync('v2/'+p,'utf8')).join('\n');
           const expected={schemaVersion:'1.0',app:'diet',displayName:'Diet Copilot',path:'/diet/',accountContract:'1.0',sdkContract:'1.x',integrationMode:'certified-legacy',operationsVersion:'P25.0',sessionAuthority:'thiepn-account'};
           for(const [key,value] of Object.entries(expected))if(app[key]!==value)throw new Error('Diet A8 manifest mismatch: '+key);
@@ -39,5 +40,11 @@ jobs:
           if(!data.includes("flowType:'pkce'")||!data.includes('storage:dietV2AuthStorage'))throw new Error('Diet PKCE/session contract regressed.');
           for(const banned of ['signInWithPassword','resetPasswordForEmail','loginPassword','passwordForm','email-password'])if(all.includes(banned))throw new Error('Legacy password auth returned: '+banned);
           if(!auth.includes("Path=/")||!auth.includes('SameSite=Lax'))throw new Error('Persistent auth storage contract regressed.');
-          console.log('Diet A8 consumer contract passed for Web 2.0.3 / P25.');
+          if(!data.includes("scope:'local'")||!html.includes('Sign out of Diet'))throw new Error('Diet local sign-out semantics must remain explicit.');
+          if(!data.includes('Account temporarily unavailable')||!data.includes('A network or service failure is not treated as sign-out.'))throw new Error('Account unavailable state must remain distinct from sign-out.');
+          if(!html.includes('Manage THIEPN Account')||!html.includes('Return to Hub')||!html.includes('https://account.thiepn.dev/')||!html.includes('href="/home/"'))throw new Error('THIEPN ecosystem handoffs are missing.');
+          if(html.includes('v2AccountProduction')||html.includes('Open legacy v1'))throw new Error('Legacy v1 must not appear in the normal Account UI.');
+          if(app.accountConsumerUiPhase!=='P36'||app.ecosystem?.hubUrl!=='https://thiepn.dev/home/'||app.ecosystem?.accountUrl!=='https://account.thiepn.dev/')throw new Error('P36 ecosystem metadata invalid.');
+          if(release.consumerIntegrationPhase!=='P36'||release.accountUiPattern!=='A8'||release.localSignOutExplicit!==true)throw new Error('P36 Account release metadata invalid.');
+          console.log('Diet A8 consumer contract passed for P36.');
           NODE
