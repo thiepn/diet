@@ -1,5 +1,3 @@
-import {generateText} from "ai";
-
 const MAX_BODY_BYTES=30000;
 const MAX_CONTEXT_BYTES=18000;
 const PROVIDER_TIMEOUT_MS=22000;
@@ -224,45 +222,31 @@ export default {
     const history=safeHistory(body?.history);
     if(!question||!context)return reply(request,{error:"invalid_payload"},400);
 
-    const directKey=process.env.DIET_COPILOT_AI_API_KEY||process.env.OPENAI_API_KEY||"";
-    const endpoint=process.env.DIET_COPILOT_AI_ENDPOINT||"https://api.openai.com/v1/responses";
-    const useDirectProvider=Boolean(directKey);
-    const model=process.env.DIET_COPILOT_AI_MODEL||(useDirectProvider?"gpt-5.6-luna":"openai/gpt-5.6-luna");
+    const directKey=process.env.OPENAI_API_KEY||process.env.DIET_COPILOT_AI_API_KEY||"";
+    const endpoint="https://api.openai.com/v1/responses";
+    const model="gpt-6-luna";
+    if(!directKey)return reply(request,{error:"provider_not_configured"},503);
 
     const input={question,recentConversation:history,TRUSTED_CONTEXT:context};
     const controller=new AbortController();
     const timer=setTimeout(()=>controller.abort(),PROVIDER_TIMEOUT_MS);
     try{
-      let rawProviderReply;
-      let providerMode;
-      if(useDirectProvider){
-        const response=await fetch(endpoint,{
-          method:"POST",
-          signal:controller.signal,
-          headers:{Authorization:"Bearer "+directKey,"Content-Type":"application/json"},
-          body:JSON.stringify({model,instructions:SYSTEM_PROMPT,input:JSON.stringify(input),max_output_tokens:1100})
-        });
-        if(!response.ok){
-          console.error("diet-copilot-ai provider_error",response.status);
-          return reply(request,{error:"provider_unavailable"},502);
-        }
-        const provider=await response.json();
-        rawProviderReply=extractResponseText(provider);
-        providerMode="direct";
-      }else{
-        const provider=await generateText({
-          model,
-          system:SYSTEM_PROMPT,
-          prompt:JSON.stringify(input),
-          maxOutputTokens:1100
-        });
-        rawProviderReply=provider.text;
-        providerMode="vercel-ai-gateway";
+      const response=await fetch(endpoint,{
+        method:"POST",
+        signal:controller.signal,
+        headers:{Authorization:"Bearer "+directKey,"Content-Type":"application/json"},
+        body:JSON.stringify({model,instructions:SYSTEM_PROMPT,input:JSON.stringify(input),max_output_tokens:1100})
+      });
+      if(!response.ok){
+        console.error("diet-copilot-ai provider_error",response.status);
+        return reply(request,{error:"provider_unavailable"},502);
       }
+      const provider=await response.json();
+      const rawProviderReply=extractResponseText(provider);
       const parsed=parseModelJson(rawProviderReply);
       const cleaned=cleanReply(parsed,context);
       if(!cleaned)return reply(request,{error:"invalid_model_response"},502);
-      return reply(request,{ok:true,mode:"remote",runtime:"vercel",provider:providerMode,model,reply:cleaned});
+      return reply(request,{ok:true,mode:"remote",runtime:"vercel",provider:"openai-direct",model,reply:cleaned});
     }catch(error){
       console.error("diet-copilot-ai request_failed",error instanceof Error?error.name:"Error");
       const timedOut=error?.name==="AbortError";

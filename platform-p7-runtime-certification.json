@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "phase": "P7",
   "title": "First Product-Owned Server Workload Migration & Vercel Runtime Certification",
-  "state": "vercel_canary_active_with_supabase_fallback",
+  "state": "vercel_canary_waiting_for_openai_key_and_signed_in_smoke",
   "workload": {
     "owner": "diet",
     "name": "diet-copilot-ai",
@@ -35,8 +35,10 @@
     "validation": "GET /auth/v1/user using publishable key plus user bearer token",
     "serviceRoleRequired": false,
     "databaseAccessFromVercel": false,
-    "provider": "vercel-ai-gateway-managed-oidc",
-    "providerSecretRequired": false
+    "provider": "openai-direct",
+    "providerSecretRequired": true,
+    "providerSecretName": "OPENAI_API_KEY",
+    "model": "gpt-6-luna"
   },
   "safety": {
     "deterministicNutritionRemainsClientEngine": true,
@@ -56,17 +58,20 @@
     "legacySupabaseFunctionRetainedForRollback": true,
     "vercelProjectCreated": true,
     "deploymentCertified": false,
-    "blocker": "One signed-in end-to-end remote explanation must be observed before declaring final P7 certification; failures automatically fall back to the retained Supabase Edge Function.",
+    "blocker": "Configure OPENAI_API_KEY for thiepn-diet production, redeploy, then observe one signed-in GPT-6 Luna response from Vercel before declaring final P7 certification.",
     "liveBoundaryCertified": true,
     "liveHealthReady": true,
     "unauthenticatedRequestRejected": true,
     "corsCertified": true,
     "browserCutover": true,
-    "cutoverMode": "vercel-first-with-supabase-edge-fallback"
+    "cutoverMode": "vercel-first-with-supabase-edge-fallback",
+    "aiGatewayUsed": false,
+    "providerMode": "openai-direct",
+    "model": "gpt-6-luna"
   },
   "exitCriteria": [
     "thiepn-diet exists in the intended Vercel team",
-    "required environment variables are configured without committing secrets",
+    "SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, and OPENAI_API_KEY are configured without committing secrets",
     "health endpoint reports ready=true in dub1",
     "unauthenticated Copilot request returns 401",
     "authenticated remote explanation succeeds and passes client sanitizer",

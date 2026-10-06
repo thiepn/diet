@@ -8,8 +8,6 @@ process.env.SUPABASE_PUBLISHABLE_KEY="sb_publishable_test";
 process.env.DIET_COPILOT_AI_API_KEY="provider-test";
 process.env.DIET_COPILOT_ALLOWED_ORIGINS="https://thiepn.dev";
 delete process.env.OPENAI_API_KEY;
-delete process.env.DIET_COPILOT_AI_ENDPOINT;
-delete process.env.DIET_COPILOT_AI_MODEL;
 
 try{
   const unauthorized=await handler.fetch(new Request("https://runtime.example/api/copilot",{
@@ -36,7 +34,7 @@ try{
     }
     if(String(url)==="https://api.openai.com/v1/responses"){
       const providerBody=JSON.parse(options.body);
-      assert.equal(providerBody.model,"gpt-5.6-luna");
+      assert.equal(providerBody.model,"gpt-6-luna");
       return Response.json({
         output_text:JSON.stringify({
           answer:"You have 500 kcal remaining.",
@@ -67,6 +65,8 @@ try{
   const body=await response.json();
   assert.equal(body.ok,true);
   assert.equal(body.runtime,"vercel");
+  assert.equal(body.provider,"openai-direct");
+  assert.equal(body.model,"gpt-6-luna");
   assert.equal(body.reply.answer,"You have 500 kcal remaining.");
   assert.deepEqual(body.reply.basis,[{key:"today.caloriesRemaining",label:"Remaining"}]);
   assert.equal(calls.length,2);

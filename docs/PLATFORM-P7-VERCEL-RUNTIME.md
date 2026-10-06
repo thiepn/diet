@@ -66,11 +66,12 @@ Required Vercel runtime variables:
 
 - `SUPABASE_URL`
 - `SUPABASE_PUBLISHABLE_KEY`
+- `OPENAI_API_KEY`
 - optional `DIET_COPILOT_ALLOWED_ORIGINS`
 
-By default the server uses Vercel AI SDK + AI Gateway with Vercel-managed OIDC, so no separate provider API key is required. A direct provider remains available as a portability fallback through `DIET_COPILOT_AI_API_KEY` or `OPENAI_API_KEY`, with optional `DIET_COPILOT_AI_ENDPOINT` and `DIET_COPILOT_AI_MODEL`.
+The server calls the OpenAI Responses API directly and is pinned to GPT-6 Luna (`gpt-6-luna`). Vercel AI Gateway is not part of the production path. The required provider credential is `OPENAI_API_KEY`; `DIET_COPILOT_AI_API_KEY` remains accepted only as a compatibility alias while the migration is being completed.
 
-The publishable Supabase key is not privileged. No service-role key, database credential, provider key, or OIDC credential is committed.
+The publishable Supabase key is not privileged. The OpenAI API key exists only as a Vercel runtime secret; no service-role key, database credential, provider key, or OIDC credential is committed.
 
 ## Cutover gate
 
@@ -89,7 +90,7 @@ P7 completes only after all of the following are true:
 
 ## Current certification state
 
-Vercel project `thiepn-diet` now exists in the intended team and is configured for Node 24, `dub1`, a 30-second default function timeout, preview-only Vercel Authentication, and managed OIDC.
+Vercel project `thiepn-diet` now exists in the intended team and is configured for Node 24, `dub1`, a 30-second default function timeout, and preview-only Vercel Authentication. Provider inference is direct OpenAI GPT-6 Luna; Vercel AI Gateway is intentionally not used.
 
 A tracked production candidate reached `READY`, and the GitHub live probe passed:
 
@@ -100,4 +101,4 @@ A tracked production candidate reached `READY`, and the GitHub live probe passed
 - allowed-origin preflight succeeds;
 - disallowed-origin preflight is rejected.
 
-The browser runtime is now in a controlled Vercel-first canary: signed-in remote Copilot questions try `thiepn-diet` first and automatically fall back to the retained Supabase Edge Function on any Vercel/auth/provider failure. The final gate before declaring P7 fully certified is observing one signed-in Vercel response that returns a sanitized remote reply.
+The browser runtime is now in a controlled Vercel-first canary: signed-in remote Copilot questions try `thiepn-diet` first and automatically fall back to the retained Supabase Edge Function on any Vercel/auth/provider failure. The remaining setup gate is adding `OPENAI_API_KEY` to the Vercel production environment and redeploying. The final certification gate is then observing one signed-in GPT-6 Luna response from Vercel that returns a sanitized remote reply.
