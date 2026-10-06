@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "phase": "P7",
   "title": "First Product-Owned Server Workload Migration & Vercel Runtime Certification",
-  "state": "vercel_canary_active_with_supabase_fallback",
+  "state": "vercel_canary_blocked_by_gateway_customer_verification",
   "workload": {
     "owner": "diet",
     "name": "diet-copilot-ai",
@@ -56,13 +56,28 @@
     "legacySupabaseFunctionRetainedForRollback": true,
     "vercelProjectCreated": true,
     "deploymentCertified": false,
-    "blocker": "One signed-in end-to-end remote explanation must be observed before declaring final P7 certification; failures automatically fall back to the retained Supabase Edge Function.",
+    "blocker": "Vercel AI Gateway rejects authenticated model requests with HTTP 403 customer_verification_required until the Vercel team has a valid credit card on file. Browser traffic remains Vercel-first with Supabase Edge fallback.",
     "liveBoundaryCertified": true,
     "liveHealthReady": true,
     "unauthenticatedRequestRejected": true,
     "corsCertified": true,
     "browserCutover": true,
-    "cutoverMode": "vercel-first-with-supabase-edge-fallback"
+    "cutoverMode": "vercel-first-with-supabase-edge-fallback",
+    "signedInSmokeAttempted": true,
+    "signedInSmokePassed": false,
+    "gatewayDiagnostic": {
+      "observedAt": "2026-10-06T22:16:55Z",
+      "result": "blocked",
+      "httpStatus": 403,
+      "errorType": "customer_verification_required",
+      "scope": "team_billing_verification",
+      "modelsChecked": [
+        "openai/gpt-5.6-luna",
+        "openai/gpt-5.6-sol",
+        "google/gemini-3.5-flash-lite"
+      ],
+      "productionChanged": false
+    }
   },
   "exitCriteria": [
     "thiepn-diet exists in the intended Vercel team",
