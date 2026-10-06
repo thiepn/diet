@@ -197,7 +197,15 @@
     "progressRangeAware": true,
     "progressRealDateGeometry": true,
     "progressWeeklyAggregation": true,
-    "progressAiCalculations": false
+    "progressAiCalculations": false,
+    "mobilePwaContract": "P34",
+    "minimumMobileTouchTargetPx": 44,
+    "mobileSafeAreaAware": true,
+    "mobileKeyboardAwareChrome": true,
+    "pwaExplicitInstallSurface": true,
+    "pwaUpdateReadySurface": true,
+    "pwaRootServesProductionV2Offline": true,
+    "pwaIosInstallGuidance": true
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0",
