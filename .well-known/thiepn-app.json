@@ -227,7 +227,15 @@
     "backgroundRefreshCoalesced": true,
     "midnightRolloverAware": true,
     "unsavedInputReloadGuard": true,
-    "staleMemoryFallbackReadOnly": true
+    "staleMemoryFallbackReadOnly": true,
+    "productReleaseCandidateContract": "P38",
+    "candidateRuntimePhase": "P37",
+    "productFeatureFreeze": true,
+    "productTrackComplete": true,
+    "exactPublicDeploymentVerification": true,
+    "threeBrowserProductionCertification": true,
+    "historicalRcAutomationRetired": true,
+    "p21LiveCacheAssertionDynamic": true
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0",
@@ -259,5 +267,9 @@
     "accountUrl": "https://account.thiepn.dev/",
     "accountAppsUrl": "https://account.thiepn.dev/apps",
     "referrerPolicy": "no-referrer"
-  }
+  },
+  "productReleasePhase": "P38",
+  "productReleaseState": "candidate-certified",
+  "featureFreeze": true,
+  "maintenanceMode": "defect-only"
 }

@@ -1,11 +1,14 @@
 """P21 live-browser failure/reconnect certification."""
-import argparse, json
+import argparse, json, re
 from pathlib import Path
 from playwright.sync_api import sync_playwright, expect
 
 PROD="https://thiepn.dev/diet/"
 ALIAS="https://thiepn.dev/diet/v2/"
 LEGACY="https://thiepn.dev/diet/legacy-v1.html"
+SOURCE_SW=Path("sw.js").read_text(encoding="utf-8")
+CACHE_MATCH=re.search(r"const CACHE='([^']+)'",SOURCE_SW)
+EXPECTED_CACHE=CACHE_MATCH.group(1) if CACHE_MATCH else None
 
 parser=argparse.ArgumentParser()
 parser.add_argument("--browser",choices=["chromium","firefox","webkit"],required=True)
@@ -61,7 +64,8 @@ with sync_playwright() as p:
         scope=mp.evaluate("async()=> (await navigator.serviceWorker.ready).scope")
         check("service worker owns Diet scope",scope.endswith("/diet/"),scope)
         keys=mp.evaluate("async()=>await caches.keys()")
-        check("current production cache installed",any("diet-copilot-prod-v2-p17-1" in key for key in keys),keys)
+        check("current production cache declared",bool(EXPECTED_CACHE),EXPECTED_CACHE)
+        check("current production cache installed",EXPECTED_CACHE in keys,keys)
         mobile.set_offline(True)
         mp.reload(wait_until="domcontentloaded")
         check("offline cached shell loads",mp.locator(".dc-version-badge").inner_text().strip()=="2.0")
