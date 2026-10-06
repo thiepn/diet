@@ -1,0 +1,87 @@
+name: P38 Product Release Candidate
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'manifest.webmanifest'
+      - 'sw.js'
+      - 'v2/**'
+      - 'vendor/**'
+      - '.well-known/**'
+      - 'legacy-v1.html'
+      - 'legacy-v1-app.js'
+      - 'diet-app.js'
+      - 'diet.css'
+      - 'icon.svg'
+      - 'icon-192.png'
+      - 'icon-512.png'
+      - 'tests/p38-*'
+      - '.github/workflows/p38-release-candidate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: p38-release-candidate
+  cancel-in-progress: true
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+      - name: P38 candidate contract
+        run: node tests/p38-product-release-candidate-contract.mjs
+
+  deployed-assets:
+    needs: static
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Wait for exact public deployment
+        run: python tests/p38-deployed-production.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: p38-deployed-production
+          path: p38-deployed-production.json
+          retention-days: 30
+
+  browser:
+    needs: deployed-assets
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Install pinned browser tooling
+        run: |
+          python -m pip install --disable-pip-version-check playwright==1.57.0
+          python -m playwright install --with-deps ${{ matrix.browser }}
+      - name: Certify public production
+        run: python tests/p38-live-candidate.py --browser ${{ matrix.browser }} --out p38-live-${{ matrix.browser }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: p38-live-${{ matrix.browser }}
+          path: p38-live-${{ matrix.browser }}/
+          retention-days: 30
