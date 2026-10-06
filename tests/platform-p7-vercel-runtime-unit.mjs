@@ -7,6 +7,9 @@ process.env.SUPABASE_URL="https://example.supabase.co";
 process.env.SUPABASE_PUBLISHABLE_KEY="sb_publishable_test";
 process.env.DIET_COPILOT_AI_API_KEY="provider-test";
 process.env.DIET_COPILOT_ALLOWED_ORIGINS="https://thiepn.dev";
+delete process.env.OPENAI_API_KEY;
+delete process.env.DIET_COPILOT_AI_ENDPOINT;
+delete process.env.DIET_COPILOT_AI_MODEL;
 
 try{
   const unauthorized=await handler.fetch(new Request("https://runtime.example/api/copilot",{
