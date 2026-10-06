@@ -120,6 +120,9 @@ jobs:
       - name: P33 progress, trends and visual analytics contract
         run: node tests/p33-progress-analytics-contract.mjs
 
+      - name: P34 mobile and PWA interaction contract
+        run: node tests/p34-mobile-pwa-contract.mjs
+
       - name: Build actual GitHub Pages artifact
         uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1
         with:
@@ -135,4 +138,4 @@ jobs:
           done
           grep -q 'dc-version-badge">2.0<' _site/index.html
           ! grep -q '2.0 RC' _site/index.html
-          grep -q 'diet-copilot-prod-v2-p33-1' _site/sw.js
+          grep -q 'diet-copilot-prod-v2-p34-1' _site/sw.js
