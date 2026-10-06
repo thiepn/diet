@@ -1,9 +1,8 @@
-import {generateText} from "ai";
-
 const MAX_BODY_BYTES=30000;
 const MAX_CONTEXT_BYTES=18000;
 const PROVIDER_TIMEOUT_MS=22000;
 const AUTH_TIMEOUT_MS=6000;
+const AI_GATEWAY_ENDPOINT="https://ai-gateway.vercel.sh/v1/chat/completions";
 
 const ALLOWED_ACTIONS=new Set(["log_saved_food","log_saved_meal","repeat_meal","navigate_food","navigate_strategy"]);
 const MEAL_TYPES=new Set(["Breakfast","Lunch","Dinner","Snack","Other"]);
@@ -212,7 +211,11 @@ export default {
     if(Number.isFinite(declaredLength)&&declaredLength>MAX_BODY_BYTES)return reply(request,{error:"payload_too_large"},413);
 
     const auth=await validateSupabaseUser(request);
-    if(!auth.ok)return reply(request,{error:auth.error},auth.status);
+    if(!auth.ok){
+      console.warn("diet-copilot-ai auth_failed",auth.error);
+      return reply(request,{error:auth.error},auth.status);
+    }
+    console.info("diet-copilot-ai auth_ok");
 
     const raw=await request.text();
     if(new TextEncoder().encode(raw).byteLength>MAX_BODY_BYTES)return reply(request,{error:"payload_too_large"},413);
@@ -225,9 +228,14 @@ export default {
     if(!question||!context)return reply(request,{error:"invalid_payload"},400);
 
     const directKey=process.env.DIET_COPILOT_AI_API_KEY||process.env.OPENAI_API_KEY||"";
+    const oidcToken=process.env.VERCEL_OIDC_TOKEN||"";
     const endpoint=process.env.DIET_COPILOT_AI_ENDPOINT||"https://api.openai.com/v1/responses";
     const useDirectProvider=Boolean(directKey);
     const model=process.env.DIET_COPILOT_AI_MODEL||(useDirectProvider?"gpt-5.6-luna":"openai/gpt-5.6-luna");
+    if(!useDirectProvider&&!oidcToken){
+      console.error("diet-copilot-ai gateway_oidc_missing");
+      return reply(request,{error:"provider_not_configured"},503);
+    }
 
     const input={question,recentConversation:history,TRUSTED_CONTEXT:context};
     const controller=new AbortController();
@@ -250,18 +258,35 @@ export default {
         rawProviderReply=extractResponseText(provider);
         providerMode="direct";
       }else{
-        const provider=await generateText({
-          model,
-          system:SYSTEM_PROMPT,
-          prompt:JSON.stringify(input),
-          maxOutputTokens:1100
+        const response=await fetch(AI_GATEWAY_ENDPOINT,{
+          method:"POST",
+          signal:controller.signal,
+          headers:{Authorization:"Bearer "+oidcToken,"Content-Type":"application/json"},
+          body:JSON.stringify({
+            model,
+            messages:[
+              {role:"system",content:SYSTEM_PROMPT},
+              {role:"user",content:JSON.stringify(input)}
+            ],
+            max_tokens:1100,
+            stream:false
+          })
         });
-        rawProviderReply=provider.text;
+        if(!response.ok){
+          console.error("diet-copilot-ai gateway_error",response.status);
+          return reply(request,{error:"provider_unavailable"},502);
+        }
+        const provider=await response.json();
+        rawProviderReply=provider?.choices?.[0]?.message?.content??"";
         providerMode="vercel-ai-gateway";
       }
       const parsed=parseModelJson(rawProviderReply);
       const cleaned=cleanReply(parsed,context);
-      if(!cleaned)return reply(request,{error:"invalid_model_response"},502);
+      if(!cleaned){
+        console.error("diet-copilot-ai invalid_model_response");
+        return reply(request,{error:"invalid_model_response"},502);
+      }
+      console.info("diet-copilot-ai success",providerMode);
       return reply(request,{ok:true,mode:"remote",runtime:"vercel",provider:providerMode,model,reply:cleaned});
     }catch(error){
       console.error("diet-copilot-ai request_failed",error instanceof Error?error.name:"Error");
