@@ -192,7 +192,7 @@
     "copilotStrategyActionsRevalidate": true,
     "copilotRemoteExecutesWrites": false,
     "rawCoreAssetBudgetBytes": 750000,
-    "rawCoreAssetObservedBytes": 748692,
+    "rawCoreAssetObservedBytes": 749381,
     "progressAnalyticsContract": "P33",
     "progressRangeAware": true,
     "progressRealDateGeometry": true,
@@ -247,7 +247,11 @@
     "systemDarkModeNeutral": true,
     "darkGreenShellTokens": false,
     "tabletNavigationGapFixed": true,
-    "visibleAccountControlAcceptance": true
+    "visibleAccountControlAcceptance": true,
+    "v1LightPaletteRestored": true,
+    "explicitLightModeV1Palette": true,
+    "uiCacheGeneration": "ui-v1-1",
+    "staleUiCacheRotation": true
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0",
@@ -285,5 +289,5 @@
   "featureFreeze": true,
   "maintenanceMode": "defect-only",
   "visualSystemPhase": "V1-restored",
-  "maintenancePatch": "post-P38-v1-ui-repair-neutral-dark"
+  "maintenancePatch": "post-P38-v1-light-palette-repair"
 }

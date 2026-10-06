@@ -81,8 +81,8 @@ assert.ok(pwa.includes('DietV2Hardening?.reloadForUpdate'));
 assert.ok(shell.includes("diet-v2-day-rollover"));
 assert.ok(html.includes('./v2/p37-hardening.js'));
 assert.ok(alias.includes('./p37-hardening.js'));
-assert.match(sw,/diet-copilot-prod-v2-p37-1/);
-assert.match(aliasSw,/diet-copilot-v2-alias-p37-1/);
+assert.match(sw,/diet-copilot-prod-v2-(?:p37-1|ui-v1-1)/);
+assert.match(aliasSw,/diet-copilot-v2-alias-(?:p37-1|ui-v1-1)/);
 assert.ok(sw.includes("'./v2/p37-hardening.js'"));
 assert.ok(aliasSw.includes("'./p37-hardening.js'"));
 
