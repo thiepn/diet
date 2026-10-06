@@ -25,6 +25,8 @@ assert.match(api,/model="gpt-6-luna"/);
 assert.doesNotMatch(api,/openai\/gpt-6-luna/);
 assert.doesNotMatch(api,/vercel-ai-gateway/);
 assert.doesNotMatch(api,/VERCEL_OIDC_TOKEN/);
+assert.match(api,/diet-copilot-ai success/);
+assert.doesNotMatch(api,/console\.(?:info|warn|error)\([^\n]*(?:question|userId|Authorization)/);
 
 assert.match(health,/ready:supabaseConfigured&&providerConfigured/);
 assert.match(health,/VERCEL_REGION/);
