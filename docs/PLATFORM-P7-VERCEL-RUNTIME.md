@@ -100,4 +100,8 @@ A tracked production candidate reached `READY`, and the GitHub live probe passed
 - allowed-origin preflight succeeds;
 - disallowed-origin preflight is rejected.
 
-The browser runtime is now in a controlled Vercel-first canary: signed-in remote Copilot questions try `thiepn-diet` first and automatically fall back to the retained Supabase Edge Function on any Vercel/auth/provider failure. The final gate before declaring P7 fully certified is observing one signed-in Vercel response that returns a sanitized remote reply.
+The browser runtime is now in a controlled Vercel-first canary: signed-in remote Copilot questions try `thiepn-diet` first and automatically fall back to the retained Supabase Edge Function on any Vercel/auth/provider failure.
+
+A real signed-in smoke was attempted on 2026-10-06. It correctly exercised the fallback, so P7 remains uncertified. An isolated Vercel preview then reproduced the provider failure across three unrelated Gateway models (`openai/gpt-5.6-luna`, `openai/gpt-5.6-sol`, and `google/gemini-3.5-flash-lite`). Every request was rejected by AI Gateway with HTTP 403 `customer_verification_required`.
+
+The remaining external blocker is therefore Vercel team billing verification: AI Gateway requires a valid credit card on file before it will service the team's requests. No production alias, Diet persistence boundary, or Supabase role changed during diagnosis. After the team verification requirement is satisfied, rerun one signed-in remote explanation and require a sanitized Vercel response before setting `deploymentCertified: true`.
