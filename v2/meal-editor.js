@@ -17,7 +17,7 @@ function toast(message){
   el.textContent=message;el.classList.add('is-visible');
   clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('is-visible'),2600);
 }
-function ready(){const s=getDietV2State();return s.signedIn&&s.source==='cloud'&&navigator.onLine!==false;}
+function ready(){const s=getDietV2State();return s.signedIn&&s.source==='cloud'&&navigator.onLine!==false&&!s.writeBlocked;}
 function findMeal(id){
   const m=getDietV2Model();
   const rows=[...(m?.food?.todayMeals??[]),...(m?.food?.recentMeals??[])];
