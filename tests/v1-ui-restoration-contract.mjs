@@ -47,7 +47,7 @@ for(const token of [
   '--protein:#3977F6','--weight:#8A5CF6','--success:#28B875',
   '.dc-sidebar{position:fixed','.dc-topbar{display:none}',
   '.dc-metric-card--primary{background:var(--surface-coral,#FFF1EC)',
-  'background:#EDF3FF','background:#F2EDFF','background:#EAF9F1',
+  'background:var(--surface-blue)','background:var(--surface-violet)','background:var(--surface-green)',
   '.dc-bottom-nav{display:grid;background:rgba(255,255,255,.96)',
   '.dc-v1-account{width:100%',
   '.dc-metric-card--primary .dc-metric-empty strong{font-size:60px}'
