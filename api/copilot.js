@@ -227,7 +227,7 @@ export default {
     const directKey=process.env.DIET_COPILOT_AI_API_KEY||process.env.OPENAI_API_KEY||"";
     const endpoint=process.env.DIET_COPILOT_AI_ENDPOINT||"https://api.openai.com/v1/responses";
     const useDirectProvider=Boolean(directKey);
-    const model=process.env.DIET_COPILOT_AI_MODEL||(useDirectProvider?"gpt-5.6-luna":"openai/gpt-5.6-luna");
+    const model=process.env.DIET_COPILOT_AI_MODEL||(useDirectProvider?"gpt-6-luna":"openai/gpt-6-luna");
 
     const input={question,recentConversation:history,TRUSTED_CONTEXT:context};
     const controller=new AbortController();
