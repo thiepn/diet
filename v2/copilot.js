@@ -124,7 +124,7 @@ if(DietServerRuntime.active!=='vercel')return e();
 try{
 const t=(await client.auth.getSession()).data?.session?.access_token;
 if(!t)return e();
-const r=await fetch(DietServerRuntime.endpoint,{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body)});
+const r=await fetch(DietServerRuntime.url,{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body)});
 return r.ok?{data:await r.json()}:e();
 }catch{return e();}
 }
