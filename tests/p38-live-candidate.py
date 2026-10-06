@@ -51,7 +51,7 @@ with sync_playwright() as p:
         expect(page.locator(f'[data-view="{route}"]')).to_be_visible()
         check("route "+route+" renders",page.locator(f'[data-view="{route}"]').count()==1)
 
-    page.locator('[data-shell-action="account"]:visible').click()
+    page.locator(".dc-v1-account:visible").click()
     expect(page.locator("#v2AccountDialog")).to_be_visible()
     check("Google sign-in CTA","Continue with Google" in page.locator("#v2AccountSignIn").inner_text())
     check("THIEPN Account handoff",page.locator('#v2AccountDialog a[href="https://account.thiepn.dev/"]').count()==1)
