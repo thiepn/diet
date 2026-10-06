@@ -95,10 +95,16 @@ Completed product phases:
 - **P35 — Visual Design, Motion & Delight**
 - **P36 — THIEPN Account & Ecosystem Fit**
 - **P37 — Real-World Usage Hardening**
+- **P38 — Product Release Candidate**
 
-Next phases:
+Product track status:
 
-1. **P38 — Product Release Candidate**
+- **2.0.3 stable production**
+- **P38 candidate-certified**
+- **P37 runtime frozen**
+- **defect-only maintenance** by default
+
+There are no automatic follow-on product phases after P38. New feature work requires an explicit new product requirement.
 
 See `docs/P26-PRODUCT-REALITY-AUDIT.md` for the product rebaseline and the phase documents under `docs/` for implemented work.
 
