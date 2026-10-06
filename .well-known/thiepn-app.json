@@ -192,7 +192,7 @@
     "copilotStrategyActionsRevalidate": true,
     "copilotRemoteExecutesWrites": false,
     "rawCoreAssetBudgetBytes": 750000,
-    "rawCoreAssetObservedBytes": 749788,
+    "rawCoreAssetObservedBytes": 742052,
     "progressAnalyticsContract": "P33",
     "progressRangeAware": true,
     "progressRealDateGeometry": true,
@@ -206,12 +206,12 @@
     "pwaUpdateReadySurface": true,
     "pwaRootServesProductionV2Offline": true,
     "pwaIosInstallGuidance": true,
-    "visualDelightContract": "P35",
+    "visualDelightContract": "P35-superseded",
     "visualIdentityPreserved": true,
     "motionReducedPreferenceRespected": true,
-    "chartMotionEnabled": true,
-    "valueTransitionEnabled": true,
-    "actionFeedbackEnabled": true,
+    "chartMotionEnabled": false,
+    "valueTransitionEnabled": false,
+    "actionFeedbackEnabled": false,
     "sensitiveOutcomeGamification": false,
     "accountUnavailableDistinctFromSignedOut": true,
     "accountLocalSignOutExplicit": true,
@@ -235,7 +235,10 @@
     "exactPublicDeploymentVerification": true,
     "threeBrowserProductionCertification": true,
     "historicalRcAutomationRetired": true,
-    "p21LiveCacheAssertionDynamic": true
+    "p21LiveCacheAssertionDynamic": true,
+    "visualSystem": "P34-restored",
+    "p35DelightRuntimeActive": false,
+    "userRequestedVisualRestoration": true
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0",
@@ -271,5 +274,7 @@
   "productReleasePhase": "P38",
   "productReleaseState": "candidate-certified",
   "featureFreeze": true,
-  "maintenanceMode": "defect-only"
+  "maintenanceMode": "defect-only",
+  "visualSystemPhase": "P34-restored",
+  "maintenancePatch": "post-P38-visual-restoration"
 }
