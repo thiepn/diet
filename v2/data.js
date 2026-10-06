@@ -31,7 +31,12 @@ progressDays:90,
 channel:null,
 realtimeTimer:null,
 realtimeStatus:'idle',
-readTransport:'none'
+readTransport:'none',
+loadedOwnerId:null,
+backgroundRefreshTimer:null,
+backgroundRefreshPromise:null,
+backgroundRefreshQueued:false,
+localDay:localDateKey()
 };
 function text(id,value){
 const el=document.getElementById(id);
@@ -253,8 +258,7 @@ clearUncertainWriteGuard();
 render();
 return {cacheCleared,authCleared};
 }
-function clearPrivateState(){
-state.requestEpoch++;
+function dropLoadedOwnerState(){
 if(state.realtimeTimer)clearTimeout(state.realtimeTimer);
 state.realtimeTimer=null;
 if(state.channel&&state.client){
@@ -267,6 +271,14 @@ state.model=null;
 state.raw=null;
 state.fetchedAt=null;
 state.source='none';
+state.loadedOwnerId=null;
+}
+function clearPrivateState(){
+state.requestEpoch++;
+if(state.backgroundRefreshTimer)clearTimeout(state.backgroundRefreshTimer);
+state.backgroundRefreshTimer=null;
+state.backgroundRefreshQueued=false;
+dropLoadedOwnerState();
 }
 function setState(status,error=null){
 const previous=state.status;
@@ -347,6 +359,34 @@ return true;
 function currentSessionOwner(session){
 return typeof session?.user?.id==='string'&&session.user.id?session.user.id:null;
 }
+function queueBackgroundRefresh(reason,{delay=120}={}){
+if(!state.user||navigator.onLine===false)return;
+if(state.backgroundRefreshPromise){
+state.backgroundRefreshQueued=true;
+return;
+}
+if(state.backgroundRefreshTimer)clearTimeout(state.backgroundRefreshTimer);
+state.backgroundRefreshTimer=setTimeout(()=>{
+state.backgroundRefreshTimer=null;
+recordTelemetry('background_refresh',{phase:reason,status:state.status,source:state.source});
+state.backgroundRefreshPromise=refresh({silent:true}).catch(()=>{}).finally(()=>{
+state.backgroundRefreshPromise=null;
+if(state.backgroundRefreshQueued){
+state.backgroundRefreshQueued=false;
+queueBackgroundRefresh('coalesced',{delay:80});
+}
+});
+},Math.max(0,delay));
+}
+function checkDayRollover(){
+const next=localDateKey();
+if(next===state.localDay)return false;
+state.localDay=next;
+recordTelemetry('day_rollover',{status:state.status,source:state.source});
+try{window.dispatchEvent(new CustomEvent('diet-v2-day-rollover',{detail:{date:next}}));}catch{}
+if(state.user)queueBackgroundRefresh('day_rollover',{delay:0});
+return true;
+}
 async function subscribeRealtime(){
 if(!state.client||!state.user||navigator.onLine===false)return;
 if(state.channel){
@@ -359,7 +399,7 @@ let channel=state.client.channel(`diet-v2-read-${state.user.id}`);
 const tables=['profiles','daily_logs','meals','meal_items','weight_entries','goal_phases','saved_foods','saved_meals','target_recommendations','activity_daily','training_distribution_settings','training_days'];
 const onOwnedChange=()=>{
 clearTimeout(state.realtimeTimer);
-state.realtimeTimer=setTimeout(()=>refresh({silent:true}).catch(()=>{}),450);
+state.realtimeTimer=setTimeout(()=>queueBackgroundRefresh('realtime',{delay:0}),450);
 };
 for(const table of tables){
 for(const event of ['INSERT','UPDATE']){
@@ -479,6 +519,11 @@ setState('signed_out');
 render();
 return;
 }
+if(state.loadedOwnerId&&state.loadedOwnerId!==ownerId){
+dropLoadedOwnerState();
+setState('loading');
+render();
+}
 const cached=readCache(ownerId);
 if(navigator.onLine===false){
 if(epoch!==state.requestEpoch)return;
@@ -488,8 +533,14 @@ state.raw=cached.raw;
 state.model=buildDietV2ReadModel(cached.raw,{asOfDate:localDateKey()});
 state.fetchedAt=cached.savedAt??null;
 state.source='cache';
+state.loadedOwnerId=ownerId;
+setState('offline');
+}else if(state.loadedOwnerId===ownerId&&state.model){
+state.source='memory';
 setState('offline');
 }else{
+dropLoadedOwnerState();
+state.user=session.user;
 setState('offline_empty');
 }
 render();
@@ -523,6 +574,7 @@ if(epoch!==state.requestEpoch)return;
 state.user=verified.data.user;
 state.raw=raw;
 state.model=buildDietV2ReadModel(raw,{asOfDate:localDateKey()});
+state.loadedOwnerId=ownerId;
 state.fetchedAt=new Date().toISOString();
 state.source='cloud';
 saveCache(ownerId,raw);
@@ -536,10 +588,16 @@ state.user=session.user;
 if(cached){
 state.raw=cached.raw;
 state.model=buildDietV2ReadModel(cached.raw,{asOfDate:localDateKey()});
+state.loadedOwnerId=ownerId;
 state.fetchedAt=cached.savedAt??null;
 state.source='cache';
 setState('stale',error?.message||error);
+}else if(state.loadedOwnerId===ownerId&&state.model){
+state.source='memory';
+setState('stale',error?.message||error);
 }else{
+dropLoadedOwnerState();
+state.user=session.user;
 setState('error',error?.message||error);
 }
 render();
@@ -865,7 +923,7 @@ text('accountStateTitle',title);
 text('accountStateEmail',detail);
 text('accountPlatformNote',note);
 text('accountSessionScope',sessionScope);
-text('accountStateSource',state.source==='cloud'?'Live owner-scoped data':state.source==='cache'?'Owner-scoped cache':'No private data loaded');
+text('accountStateSource',state.source==='cloud'?'Live owner-scoped data':state.source==='cache'?'Owner-scoped cache':state.source==='memory'?'Last in-memory owner snapshot':'No private data loaded');
 text('accountStateSync',state.fetchedAt?new Date(state.fetchedAt).toLocaleString():'Never');
 text('moreAccountSummary',authBusy?'Checking THIEPN account…':unavailable?'Account temporarily unavailable':signedIn?'Signed in · THIEPN Account':'Not signed in · Google');
 const signIn=document.getElementById('v2AccountSignIn');
@@ -976,9 +1034,10 @@ const fetched=state.fetchedAt?Date.parse(state.fetchedAt):0;
 return !Number.isFinite(fetched)||Date.now()-fetched>60_000;
 }
 function refreshAfterResume(){
+checkDayRollover();
 if(!shouldRefreshAfterResume())return;
 recordTelemetry('resume_refresh',{status:state.status,source:state.source});
-refresh({silent:true}).catch(()=>{});
+queueBackgroundRefresh('resume',{delay:80});
 }
 async function init(){
 renderStatus();
@@ -993,7 +1052,7 @@ if(callback.code||callback.error)stripOAuthCallback(callback.url);
 setState('error',error);
 render();
 }
-window.addEventListener('online',()=>refresh({silent:true}).catch(()=>{}));
+window.addEventListener('online',()=>queueBackgroundRefresh('online',{delay:80}));
 window.addEventListener('offline',()=>{
 if(state.model)setState('offline');
 else setState('offline_empty');
@@ -1001,6 +1060,8 @@ render();
 });
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshAfterResume();});
 window.addEventListener('pageshow',event=>{if(event.persisted)refreshAfterResume();});
+window.addEventListener('focus',checkDayRollover);
+setInterval(()=>{if(document.visibilityState==='visible')checkDayRollover();},60_000);
 }
 document.querySelectorAll('[data-progress-range]').forEach(button=>{
 button.addEventListener('click',()=>{
@@ -1065,7 +1126,9 @@ signedIn:Boolean(state.user),
 fetchedAt:state.fetchedAt,
 realtimeStatus:state.realtimeStatus,
 readTransport:state.readTransport,
-writeBlocked:Boolean(guard?.blocked)
+writeBlocked:Boolean(guard?.blocked),
+writeGuardKind:guard?.kind??'clear',
+ownerMatched:!state.model||Boolean(state.user?.id&&state.loadedOwnerId===state.user.id)
 };
 }
 window.DietV2Data=Object.freeze({
@@ -1085,7 +1148,9 @@ progressDays:state.progressDays,
 realtime:Boolean(state.channel),
 realtimeStatus:state.realtimeStatus,
 readTransport:state.readTransport,
-writeBlocked:Boolean(getDietWriteGuardState()?.blocked)
+writeBlocked:Boolean(getDietWriteGuardState()?.blocked),
+writeGuardKind:getDietWriteGuardState()?.kind??'clear',
+ownerMatched:!state.model||Boolean(state.user?.id&&state.loadedOwnerId===state.user.id)
 })
 });
 init();
