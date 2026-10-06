@@ -31,7 +31,7 @@ assert.ok(manifest.includes('"background_color": "#F7F8FA"'));
 assert.ok(manifest.includes('"theme_color": "#F7F8FA"'));
 assert.ok(aliasManifest.includes('"background_color":"#F7F8FA"'));
 assert.ok(aliasManifest.includes('"theme_color":"#F7F8FA"'));
-assert.ok(settings.includes("effectiveDark?'#151519':'#F7F8FA'"));
+assert.ok(settings.includes("effectiveDark?'#0F0F11':'#F7F8FA'"));
 
 for(const token of [
   '--bg:#F7F8FA','--surface:#FFF','--surface-muted:#F2F3F6',
@@ -47,6 +47,12 @@ for(const token of [
 
 assert.ok(css.lastIndexOf('--accent:#FF6B55')>css.lastIndexOf('--accent:#2d6a49'),'V1 coral tokens must override historical V2 green tokens.');
 assert.ok(css.lastIndexOf('--bg:#F7F8FA')>css.lastIndexOf('--bg:#f5f7f5'),'V1 neutral canvas must be final.');
+assert.ok(css.includes(':root[data-theme="dark"]{--bg:#0F0F11;--surface:#171719;--surface-muted:#202024'),'Explicit dark mode must be neutral charcoal.');
+assert.ok(css.includes('@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F0F11'),'System dark mode must use the neutral palette.');
+assert.ok(css.includes('.dc-bottom-nav{display:grid;background:rgba(255,255,255,.96)'),'Tablet/mobile V1 navigation must remain visible.');
+for(const forbidden of ['#111512','#171d18','#1d241f','#1a201b','#2a342c','#39453b','#7bbb91','#a0d2af','#203b2b','#19251d','rgba(42,52,44,.75)']){
+  assert.ok(!css.includes(forbidden),`obsolete green dark-mode token remains: ${forbidden}`);
+}
 
 const coreFiles=['index.html','v2/index.html','v2/shell.css','vendor/supabase-2.116.0.js'];
 function walk(dir){
