@@ -12,8 +12,8 @@ const app=JSON.parse(read('.well-known/thiepn-app.json'));
 
 assert.equal(app.health?.visualDelightContract,'P35-superseded');
 assert.equal(app.health?.p35DelightRuntimeActive,false);
-assert.equal(app.health?.visualSystem,'P34-restored');
-assert.equal(app.visualSystemPhase,'P34-restored');
+assert.equal(app.health?.visualSystem,'V1-restored-on-V2-runtime');
+assert.equal(app.visualSystemPhase,'V1-restored');
 
 assert.doesNotMatch(html,/p35-delight\.js/);
 assert.doesNotMatch(alias,/p35-delight\.js/);
@@ -44,4 +44,4 @@ const rawCoreBytes=[...new Set(coreFiles)].reduce((sum,p)=>sum+fs.statSync(p).si
 assert.ok(rawCoreBytes<=750000,`restored visual core budget exceeded: ${rawCoreBytes}/750000 bytes`);
 assert.equal(app.health.rawCoreAssetObservedBytes,rawCoreBytes);
 
-console.log(JSON.stringify({ok:true,phase:'P35-superseded',visualSystem:'P34-restored',rawCoreBytes}));
+console.log(JSON.stringify({ok:true,phase:'P35-superseded',visualSystem:'V1-restored-on-V2-runtime',rawCoreBytes}));
