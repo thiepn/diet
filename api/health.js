@@ -1,7 +1,7 @@
 export default {
   async fetch(){
     const supabaseConfigured=Boolean(process.env.SUPABASE_URL&&process.env.SUPABASE_PUBLISHABLE_KEY);
-    const providerConfigured=Boolean(process.env.DIET_COPILOT_AI_API_KEY||process.env.OPENAI_API_KEY);
+    const providerConfigured=Boolean(process.env.DIET_COPILOT_AI_API_KEY||process.env.OPENAI_API_KEY||process.env.VERCEL);
     return Response.json({
       ok:true,
       service:"diet-copilot",
