@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "phase": "P7",
   "title": "First Product-Owned Server Workload Migration & Vercel Runtime Certification",
-  "state": "vercel_provisioned_boundary_certified_cutover_pending",
+  "state": "vercel_canary_active_with_supabase_fallback",
   "workload": {
     "owner": "diet",
     "name": "diet-copilot-ai",
@@ -10,14 +10,14 @@
       "provider": "supabase-edge-functions",
       "slug": "diet-copilot-ai",
       "version": 4,
-      "role": "active_until_cutover"
+      "role": "rollback_fallback"
     },
     "targetRuntime": {
       "provider": "vercel",
       "project": "thiepn-diet",
       "region": "dub1",
       "endpoint": "https://thiepn-diet.vercel.app/api/copilot",
-      "role": "product_owned_server_runtime"
+      "role": "active_canary_product_owned_server_runtime"
     },
     "source": "api/copilot.js",
     "healthSource": "api/health.js"
@@ -56,11 +56,13 @@
     "legacySupabaseFunctionRetainedForRollback": true,
     "vercelProjectCreated": true,
     "deploymentCertified": false,
-    "blocker": "Final signed-in end-to-end remote explanation smoke test is still required before activating Vercel in the browser runtime.",
+    "blocker": "One signed-in end-to-end remote explanation must be observed before declaring final P7 certification; failures automatically fall back to the retained Supabase Edge Function.",
     "liveBoundaryCertified": true,
     "liveHealthReady": true,
     "unauthenticatedRequestRejected": true,
-    "corsCertified": true
+    "corsCertified": true,
+    "browserCutover": true,
+    "cutoverMode": "vercel-first-with-supabase-edge-fallback"
   },
   "exitCriteria": [
     "thiepn-diet exists in the intended Vercel team",
