@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "phase": "P35",
+  "title": "Visual Design, Motion & Delight",
+  "state": "implemented",
+  "databaseMigration": false,
+  "writes": false,
+  "visualIdentityChanged": false,
+  "motion": {
+    "valueTransitions": true,
+    "chartLineDraw": true,
+    "chartBarStagger": true,
+    "actionRipple": true,
+    "dialogEntrance": true,
+    "mobileSheetEntrance": true,
+    "successActionBurst": true,
+    "loadingSheen": true,
+    "errorNudge": true
+  },
+  "accessibility": {
+    "respectsPrefersReducedMotion": true,
+    "respectsInAppReducedMotion": true
+  },
+  "sensitiveOutcomeGamification": {
+    "calories": false,
+    "bodyWeight": false,
+    "goalMovement": false
+  },
+  "performance": {
+    "rawCoreAssetBudgetBytes": 750000,
+    "rawCoreAssetObservedBytes": 747917,
+    "budgetRaised": false
+  },
+  "nextPhase": {
+    "phase": "P36",
+    "title": "THIEPN Account & Ecosystem Fit"
+  }
+}

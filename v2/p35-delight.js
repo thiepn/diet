@@ -1,0 +1,15 @@
+const root=document.documentElement,reduce=()=>root.dataset.motion==='reduce'||globalThis.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+const metricIds=['todayCaloriesValue','todayProteinValue','todayTrendWeightValue','todayExpenditureValue','progressTrendChange','progressObservedPace','progressAdherence','progressExpenditureNow','progressEvidenceCoverage'];
+const seen=new WeakMap();
+function restart(el,cls){if(reduce()||!el)return;el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls)}
+function observeValue(el){if(!el)return;seen.set(el,el.textContent);new MutationObserver(()=>{const next=el.textContent;if(next!==seen.get(el)){seen.set(el,next);if(next&&next!=='—')restart(el,'dc-value-pop')}}).observe(el,{childList:true,subtree:true,characterData:true})}
+function animateCharts(scope=document){scope.querySelectorAll?.('.dc-live-chart .dc-chart-line').forEach(el=>{if(!el.dataset.p35){el.dataset.p35='1';restart(el,'dc-chart-draw')}});scope.querySelectorAll?.('.dc-bar-chart .dc-bar-day').forEach((el,i)=>{if(!el.dataset.p35){el.dataset.p35='1';el.style.setProperty('--dc-stagger',Math.min(i,20));restart(el,'dc-bar-rise')}})}
+function ripple(event,el){if(reduce()||!el||el.disabled)return;const box=el.getBoundingClientRect(),size=Math.max(box.width,box.height)*1.5,node=document.createElement('span');node.className='dc-ripple';node.style.width=node.style.height=size+'px';node.style.left=(event.clientX-box.left-size/2)+'px';node.style.top=(event.clientY-box.top-size/2)+'px';el.append(node);node.addEventListener('animationend',()=>node.remove(),{once:true})}
+function burst(anchor){if(reduce()||!anchor)return;const box=anchor.getBoundingClientRect(),node=document.createElement('span');node.className='dc-success-burst';node.style.left=(box.left+Math.min(box.width-26,52))+'px';node.style.top=(box.top+box.height/2)+'px';for(let i=0;i<6;i++)node.append(document.createElement('i'));document.body.append(node);node.addEventListener('animationend',()=>node.remove(),{once:true})}
+metricIds.forEach(id=>observeValue(document.getElementById(id)));
+animateCharts();
+const foodStatus=document.getElementById('foodWriteStatus');let foodText='';
+if(foodStatus)new MutationObserver(()=>{const text=foodStatus.textContent.trim();if(foodStatus.hidden){foodText='';return}if(foodStatus.dataset.kind==='ok'&&text&&text!==foodText){foodText=text;restart(foodStatus,'dc-success-pop');burst(foodStatus)}}).observe(foodStatus,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','data-kind']});
+new MutationObserver(records=>{for(const record of records)for(const node of record.addedNodes)if(node.nodeType===1)animateCharts(node)}).observe(document.body,{childList:true,subtree:true});
+document.addEventListener('pointerdown',event=>{const el=event.target.closest('.dc-primary-action,.dc-secondary-action,.dc-more-card,.dc-quick-actions button,.dc-log-add,.dc-log-repeat,.dc-nav-item,.dc-segmented button');if(el)ripple(event,el)},{passive:true});
+window.DietV2Delight=Object.freeze({version:'1.0.0-p35',burst,reducedMotion:reduce});
