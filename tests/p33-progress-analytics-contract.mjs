@@ -7,17 +7,27 @@ import {
 assert.equal(DietProgressP33.version,'1.0.0-p33');
 assert.equal(progressRangeStart('2026-10-06',28),'2026-09-09');
 
-const trend=Array.from({length:15},(_,i)=>({
-  date:`2026-09-${String(22+i).padStart(2,'0')}`,
-  value:80.8-(0.8/14)*i
-})).map(row=>row.date>'2026-09-30'?({...row,date:`2026-10-${String(Number(row.date.slice(-2))-30).padStart(2,'0')}`}):row);
+const trendDates=[
+  '2026-09-22','2026-09-23','2026-09-24','2026-09-25','2026-09-26',
+  '2026-09-27','2026-09-28','2026-09-29','2026-09-30','2026-10-01',
+  '2026-10-02','2026-10-03','2026-10-04','2026-10-05','2026-10-06'
+];
+const trend=trendDates.map((date,i)=>({
+  date,
+  value:80.8-(0.8/(trendDates.length-1))*i
+}));
 
-const intake=Array.from({length:14},(_,i)=>({
-  date:i<9?`2026-09-${String(27+i).padStart(2,'0')}`:`2026-10-${String(i-8).padStart(2,'0')}`,
+const intakeDates=[
+  '2026-09-23','2026-09-24','2026-09-25','2026-09-26','2026-09-27',
+  '2026-09-28','2026-09-29','2026-09-30','2026-10-01','2026-10-02',
+  '2026-10-03','2026-10-04','2026-10-05','2026-10-06'
+];
+const intake=intakeDates.map((date,i)=>({
+  date,
   calories:i%5===0?2450:2150,
   target:2200,
   protein:145
-})).filter(row=>!row.date.includes('09-3'));
+}));
 
 const analytics=buildProgressAnalytics({
   asOfDate:'2026-10-06',
