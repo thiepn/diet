@@ -284,13 +284,51 @@
             <button type="button" aria-pressed="false" data-progress-range="365">1Y</button>
           </div>
 
+          <div class="dc-progress-summary" id="progressRangeSummary" aria-label="Selected range summary">
+            <article class="dc-progress-stat">
+              <span>Trend change</span>
+              <strong id="progressTrendChange">—</strong>
+              <small id="progressTrendChangeDetail">Selected range</small>
+            </article>
+            <article class="dc-progress-stat">
+              <span>Observed pace</span>
+              <strong id="progressObservedPace">—</strong>
+              <small id="progressObservedPaceDetail">Building trend</small>
+            </article>
+            <article class="dc-progress-stat">
+              <span>Target adherence</span>
+              <strong id="progressAdherence">—</strong>
+              <small id="progressAdherenceDetail">Days within target band</small>
+            </article>
+            <article class="dc-progress-stat">
+              <span>Expenditure now</span>
+              <strong id="progressExpenditureNow">—</strong>
+              <small id="progressExpenditureDetail">Adaptive estimate</small>
+            </article>
+            <article class="dc-progress-stat">
+              <span>Evidence</span>
+              <strong id="progressEvidenceCoverage">—</strong>
+              <small id="progressEvidenceDetail">Selected-range coverage</small>
+            </article>
+          </div>
+
+          <article class="dc-panel dc-progress-digest-panel">
+            <div class="dc-panel-head">
+              <div><p class="dc-eyebrow">Range interpretation</p><h3>What this period says</h3></div>
+              <span class="dc-status-chip" id="progressPaceChip">Building</span>
+            </div>
+            <div class="dc-progress-digest" id="progressDigest">
+              <div class="dc-food-empty">Progress interpretation appears when enough history is available.</div>
+            </div>
+          </article>
+
           <div class="dc-chart-grid">
             <article class="dc-panel dc-chart-card">
-              <div class="dc-panel-head"><div><p class="dc-eyebrow">Weight</p><h3>Trend weight</h3></div><span class="dc-status-chip">P1 ready</span></div>
+              <div class="dc-panel-head"><div><p class="dc-eyebrow">Weight</p><h3>Trend weight</h3></div><span class="dc-status-chip">Trend + scale</span></div>
               <div class="dc-live-chart-shell" id="progressWeightChart" aria-label="Trend weight chart"><div class="dc-chart-loading">Connecting weight history…</div></div>
             </article>
             <article class="dc-panel dc-chart-card">
-              <div class="dc-panel-head"><div><p class="dc-eyebrow">Energy</p><h3>Expenditure</h3></div><span class="dc-status-chip">P1 ready</span></div>
+              <div class="dc-panel-head"><div><p class="dc-eyebrow">Energy</p><h3>Expenditure</h3></div><span class="dc-status-chip">Adaptive</span></div>
               <div class="dc-live-chart-shell" id="progressExpenditureChart" aria-label="Expenditure chart"><div class="dc-chart-loading">Building adaptive expenditure…</div></div>
             </article>
             <article class="dc-panel dc-chart-card">
@@ -302,6 +340,17 @@
               <div id="progressGoalTrajectory"><div class="dc-empty-state dc-empty-state--compact"><div><strong>Waiting for strategy data</strong><p>Projection will remain explicitly approximate.</p></div></div></div>
             </article>
           </div>
+
+          <article class="dc-panel dc-progress-weekly-panel">
+            <div class="dc-panel-head">
+              <div><p class="dc-eyebrow">Consistency</p><h3>Recent weekly signal</h3></div>
+              <span class="dc-panel-meta">Up to 8 weeks</span>
+            </div>
+            <p class="dc-panel-copy">Weekly averages keep longer ranges readable while preserving the difference between logged intake and target.</p>
+            <div class="dc-progress-weeks" id="progressWeeklySignals">
+              <div class="dc-food-empty">Weekly signal appears after logged nutrition history is available.</div>
+            </div>
+          </article>
 
           <article class="dc-panel dc-intelligence-panel">
             <div class="dc-panel-head">

@@ -60,8 +60,8 @@ assert.match(data,/for\(const event of \['INSERT','UPDATE'\]\)/);
 assert.doesNotMatch(data,/channel\.on\('postgres_changes',\{event:'\*'/);
 assert.match(data,/version:'2\.0\.(?:1-p16|3-p17)'/);
 
-assert.match(sw,/diet-copilot-prod-v2-p(?:16|17)-1/);
-assert.match(aliasSw,/diet-copilot-v2-alias-p(?:16|17)-1/);
+assert.match(sw,/diet-copilot-prod-v2-p(?:16|17|33)-1/);
+assert.match(aliasSw,/diet-copilot-v2-alias-p(?:16|17|33)-1/);
 assert.match(pwa,/version:'2\.0\.(?:2-p16|3-p17)'/);
 
 const budgetFiles=[
