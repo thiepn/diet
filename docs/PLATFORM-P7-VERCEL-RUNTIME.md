@@ -68,7 +68,7 @@ Required Vercel runtime variables:
 - `SUPABASE_PUBLISHABLE_KEY`
 - optional `DIET_COPILOT_ALLOWED_ORIGINS`
 
-By default the server uses Vercel AI SDK + AI Gateway with Vercel-managed OIDC, so no separate provider API key is required. A direct provider remains available as a portability fallback through `DIET_COPILOT_AI_API_KEY` or `OPENAI_API_KEY`, with optional `DIET_COPILOT_AI_ENDPOINT` and `DIET_COPILOT_AI_MODEL`.
+By default the server uses Vercel AI SDK + AI Gateway with Vercel-managed OIDC and is pinned to GPT-6 Luna (`openai/gpt-6-luna`), so no separate provider API key is required. A direct provider remains available as a portability fallback through `DIET_COPILOT_AI_API_KEY` or `OPENAI_API_KEY`, with optional `DIET_COPILOT_AI_ENDPOINT` and `DIET_COPILOT_AI_MODEL`.
 
 The publishable Supabase key is not privileged. No service-role key, database credential, provider key, or OIDC credential is committed.
 
