@@ -100,4 +100,4 @@ A tracked production candidate reached `READY`, and the GitHub live probe passed
 - allowed-origin preflight succeeds;
 - disallowed-origin preflight is rejected.
 
-The browser runtime remains on `supabase-edge`. The final gate before activation is one signed-in end-to-end Copilot request through Vercel that returns a sanitized remote reply. The Supabase Edge Function remains the configured fallback and rollback path.
+The browser runtime is now in a controlled Vercel-first canary: signed-in remote Copilot questions try `thiepn-diet` first and automatically fall back to the retained Supabase Edge Function on any Vercel/auth/provider failure. The final gate before declaring P7 fully certified is observing one signed-in Vercel response that returns a sanitized remote reply.
