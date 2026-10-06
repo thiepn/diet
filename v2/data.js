@@ -1054,8 +1054,10 @@ render();
 }
 window.addEventListener('online',()=>queueBackgroundRefresh('online',{delay:80}));
 window.addEventListener('offline',()=>{
-if(state.model)setState('offline');
-else setState('offline_empty');
+if(state.model){
+if(state.source==='cloud')state.source='memory';
+setState('offline');
+}else setState('offline_empty');
 render();
 });
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshAfterResume();});
