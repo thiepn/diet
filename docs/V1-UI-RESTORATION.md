@@ -66,3 +66,22 @@ Observed raw core: **749,039 bytes**.
 ## Maintenance intent
 
 Future visual work should treat V1 as the reference source. Changes should not replace it with a generic green dashboard, generic SaaS cards, or decorative motion without an explicit design decision.
+
+## Repair note — neutral dark mode
+
+The first V1-on-V2 rollout exposed two defects that are now part of the restoration contract:
+
+- the 761–959 px tablet range could hide the desktop sidebar before the bottom navigation was explicitly restored;
+- System dark mode could still inherit an obsolete green V2 `prefers-color-scheme` palette.
+
+The repaired shell keeps navigation available at every supported width and uses neutral black/charcoal/gray surfaces in dark mode.
+
+Dark-mode rule:
+
+- canvas: near-black;
+- primary surfaces/cards: charcoal/dark gray;
+- secondary surfaces/buttons: a slightly lighter or darker neutral gray;
+- product accent: coral;
+- semantic blue/violet/green may remain only where they communicate protein, weight/progress, or success.
+
+Green is not a general dark-mode background or chrome color.
