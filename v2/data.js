@@ -1,5 +1,6 @@
 import { DIET_V2_AUTH_STORAGE_KEY, dietV2AuthStorage, clearDietV2AuthArtifacts } from './auth-storage.mjs';
 import { buildDietV2ReadModel, localDateKey } from './read-model.mjs';
+import { buildProgressAnalytics } from './p33-progress-analytics.mjs';
 import { isDefinitiveAuthFailure } from './engine/release-guards.mjs';
 import { clearUncertainWriteGuard, getDietWriteGuardState } from './write-api.mjs';
 import { recordTelemetry, startTelemetrySpan, telemetryErrorCode } from './telemetry.mjs';
@@ -652,13 +653,38 @@ function seriesBounds(series){
   const pad=(max-min)*.12;
   return {min:min-pad,max:max+pad};
 }
-function linePath(series,width,height,pad,bounds){
-  if(series.length<2||!bounds)return '';
+function chartDateMs(date){
+  const ms=Date.parse(`${date}T12:00:00Z`);
+  return Number.isFinite(ms)?ms:null;
+}
+function dateExtent(series){
+  const values=series.map(p=>chartDateMs(p.date)).filter(Number.isFinite);
+  if(!values.length)return null;
+  let min=Math.min(...values),max=Math.max(...values);
+  if(min===max){min-=43200000;max+=43200000}
+  return {min,max};
+}
+function linePath(series,width,height,pad,bounds,extent){
+  if(series.length<2||!bounds||!extent)return '';
   return series.map((p,i)=>{
-    const x=pad+i*((width-pad*2)/Math.max(1,series.length-1));
+    const ms=chartDateMs(p.date);
+    const x=ms==null
+      ?pad+i*((width-pad*2)/Math.max(1,series.length-1))
+      :pad+((ms-extent.min)/(extent.max-extent.min))*(width-pad*2);
     const y=height-pad-((Number(p.value)-bounds.min)/(bounds.max-bounds.min))*(height-pad*2);
     return `${i?'L':'M'} ${x.toFixed(1)} ${y.toFixed(1)}`;
   }).join(' ');
+}
+function pointMarkup(series,width,height,pad,bounds,extent){
+  if(!bounds||!extent)return '';
+  const step=Math.max(1,Math.ceil(series.length/48));
+  return series.filter((_,index)=>index%step===0||index===series.length-1).map(p=>{
+    const ms=chartDateMs(p.date);
+    if(ms==null)return '';
+    const x=pad+((ms-extent.min)/(extent.max-extent.min))*(width-pad*2);
+    const y=height-pad-((Number(p.value)-bounds.min)/(bounds.max-bounds.min))*(height-pad*2);
+    return `<circle class="dc-chart-point" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.7"><title>${escapeHtml(p.date)} · ${fmt(p.value,2)}</title></circle>`;
+  }).join('');
 }
 function renderLineChart(id,primary,secondary=[],unit=''){
   const el=document.getElementById(id);
@@ -668,33 +694,43 @@ function renderLineChart(id,primary,secondary=[],unit=''){
     return;
   }
   const width=720,height=180,pad=22;
-  const bounds=seriesBounds([...primary,...secondary]);
-  const p1=linePath(primary,width,height,pad,bounds);
-  const p2=secondary.length>=2?linePath(secondary,width,height,pad,bounds):'';
+  const all=[...primary,...secondary];
+  const bounds=seriesBounds(all);
+  const extent=dateExtent(all);
+  const p1=linePath(primary,width,height,pad,bounds,extent);
+  const p2=secondary.length>=2?linePath(secondary,width,height,pad,bounds,extent):'';
+  const points=secondary.length?pointMarkup(secondary,width,height,pad,bounds,extent):'';
   const last=primary.at(-1);
-  el.innerHTML=`<svg class="dc-live-chart" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="Data trend">
+  el.innerHTML=`<svg class="dc-live-chart" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="Time-scaled data trend">
     <line class="dc-chart-gridline" x1="${pad}" x2="${width-pad}" y1="${pad}" y2="${pad}"></line>
     <line class="dc-chart-gridline" x1="${pad}" x2="${width-pad}" y1="${height-pad}" y2="${height-pad}"></line>
     ${p2?`<path class="dc-chart-line dc-chart-line--secondary" d="${p2}"></path>`:''}
+    ${points}
     <path class="dc-chart-line" d="${p1}"></path>
   </svg><div class="dc-chart-foot"><span>${escapeHtml(primary[0].date)}</span><strong>${fmt(last.value,unit==='kg'?2:0)} ${escapeHtml(unit)}</strong><span>${escapeHtml(last.date)}</span></div>`;
 }
 function renderIntakeChart(id,series){
   const el=document.getElementById(id);
   if(!el)return;
-  const rows=series.slice(-21);
+  const rows=series.slice(-56);
   if(!rows.length){
     el.innerHTML=emptyMarkup('No intake history','Logged nutrition will appear here after the first synced day.');
     return;
   }
-  const max=Math.max(1,...rows.flatMap(r=>[Number(r.calories)||0,Number(r.target)||0]));
-  el.innerHTML=`<div class="dc-bar-chart" role="img" aria-label="Daily calorie intake compared with target">
+  const values=rows.flatMap(r=>[Number(r.calories),Number(r.target)]).filter(Number.isFinite);
+  const max=Math.max(1,...values);
+  const weekly=rows.some(r=>r.kind==='week');
+  el.innerHTML=`<div class="dc-bar-chart" role="img" aria-label="${weekly?'Weekly average':'Daily'} calorie intake compared with target">
     ${rows.map(r=>{
-      const intake=Math.max(2,(Number(r.calories)||0)/max*100);
-      const target=Math.max(2,(Number(r.target)||0)/max*100);
-      return `<span class="dc-bar-day" title="${escapeHtml(r.date)} · ${fmt(r.calories)} kcal / ${fmt(r.target)} target"><i style="height:${target}%"></i><b style="height:${intake}%"></b></span>`;
+      const calories=Number(r.calories)||0;
+      const target=Number(r.target)||0;
+      const intake=Math.max(2,calories/max*100);
+      const targetHeight=target>0?Math.max(2,target/max*100):0;
+      const label=r.kind==='week'?`Week of ${r.date}`:`${r.date}`;
+      const logged=r.kind==='week'&&r.loggedDays?` · ${r.loggedDays} logged days`:'';
+      return `<span class="dc-bar-day" title="${escapeHtml(label)} · ${fmt(calories)} kcal${target>0?` / ${fmt(target)} target`:''}${logged}"><i style="height:${targetHeight}%"></i><b style="height:${intake}%"></b></span>`;
     }).join('')}
-  </div><div class="dc-chart-legend"><span><i class="dc-legend-intake"></i>Intake</span><span><i class="dc-legend-target"></i>Target</span></div>`;
+  </div><div class="dc-chart-legend"><span><i class="dc-legend-intake"></i>${weekly?'Weekly average':'Intake'}</span><span><i class="dc-legend-target"></i>Target</span></div>`;
 }
 
 function signedValue(value,digits=0,suffix=''){
@@ -713,26 +749,86 @@ function insightMarkup(insight){
   </article>`;
 }
 
-function rangeStartDate(days,asOfDate){
-  const d=new Date(`${asOfDate}T12:00:00`);
-  d.setDate(d.getDate()-Math.max(0,Number(days)-1));
-  return localDateKey(d);
+function renderProgressSummary(analytics){
+  const w=analytics.weight,n=analytics.nutrition,e=analytics.expenditure,r=analytics.range,g=analytics.goal;
+  text('progressTrendChange',w.change==null?'—':signedValue(w.change,2,' kg'));
+  text('progressTrendChangeDetail',w.first==null||w.current==null?'Not enough trend history':`${fmt(w.first,2)} → ${fmt(w.current,2)} kg`);
+  text('progressObservedPace',w.weeklyRate==null?'—':signedValue(w.weeklyRate,2,' kg/wk'));
+  text('progressObservedPaceDetail',w.targetRate==null?w.pace.detail:`Target ${signedValue(w.targetRate,2,' kg/wk')} · ${w.pace.label}`);
+  text('progressAdherence',n.adherenceRate==null?'—':`${fmt(n.adherenceRate*100)}%`);
+  text('progressAdherenceDetail',n.targetDays?`${n.adherenceDays}/${n.targetDays} target days within ±${n.bandPercent}%`:'No target-aligned days');
+  text('progressExpenditureNow',e.current==null?'—':`${fmt(e.current)} kcal`);
+  text('progressExpenditureDetail',e.change==null?'Adaptive estimate':`${signedValue(e.change,0,' kcal')} across range`);
+  text('progressEvidenceCoverage',r.evidenceLabel);
+  text('progressEvidenceDetail',`${r.intakeDays}/${r.days} intake days · ${r.weighIns} weigh-in${r.weighIns===1?'':'s'}`);
+  text('progressPaceChip',w.pace.label);
+  const paceChip=document.getElementById('progressPaceChip');
+  if(paceChip)paceChip.dataset.state=w.pace.state;
+
+  const nutritionHeadline=n.averageCalories==null?'No intake average yet':`${fmt(n.averageCalories)} kcal/day`;
+  const nutritionDetail=n.averageVariance==null
+    ?'Log nutrition against a target to compare intake.'
+    :`${signedValue(n.averageVariance,0,' kcal/day')} versus the selected-range target average.`;
+  const goalHeadline=g.goalWeight==null?'No goal weight':`${fmt(g.distanceKg,2)} kg from goal`;
+  const goalDetail=g.movementTowardGoalKg==null
+    ?'Goal movement needs trend history inside this range.'
+    :g.movementTowardGoalKg>=0
+      ?`${fmt(g.movementTowardGoalKg,2)} kg closer to the goal within this range.`
+      :`${fmt(Math.abs(g.movementTowardGoalKg),2)} kg farther from the goal within this range.`;
+
+  html('progressDigest',`
+    <div><span>Weight signal</span><strong>${escapeHtml(w.pace.label)}</strong><p>${escapeHtml(w.pace.detail)}</p></div>
+    <div><span>Nutrition signal</span><strong>${escapeHtml(nutritionHeadline)}</strong><p>${escapeHtml(nutritionDetail)}</p></div>
+    <div><span>Goal signal</span><strong>${escapeHtml(goalHeadline)}</strong><p>${escapeHtml(goalDetail)}</p></div>
+  `);
+
+  html('progressWeeklySignals',analytics.weeks?.length
+    ?analytics.weeks.slice().reverse().map(week=>{
+      const adherence=week.adherenceRate==null?'—':`${fmt(week.adherenceRate*100)}%`;
+      const variance=week.averageVariance==null?'—':signedValue(week.averageVariance,0,' kcal');
+      return `<div class="dc-progress-week">
+        <div><strong>${escapeHtml(prettyDate(week.startDate))}</strong><span>${week.loggedDays} logged day${week.loggedDays===1?'':'s'}</span></div>
+        <div><span>Average</span><strong>${week.averageCalories==null?'—':fmt(week.averageCalories)+' kcal'}</strong></div>
+        <div><span>vs target</span><strong>${escapeHtml(variance)}</strong></div>
+        <div><span>In band</span><strong>${escapeHtml(adherence)}</strong></div>
+      </div>`;
+    }).join('')
+    :emptyMarkup('No weekly signal yet','Log nutrition on multiple days to build weekly comparisons.'));
 }
-function filterRange(series,days,asOfDate){
-  const start=rangeStartDate(days,asOfDate);
-  return series.filter(p=>String(p.date)>=start&&String(p.date)<=asOfDate);
-}
-function renderProgress(model){
-  const days=state.progressDays;
-  renderLineChart('progressWeightChart',filterRange(model.progress.trendWeights,days,model.asOfDate),filterRange(model.progress.rawWeights,days,model.asOfDate),'kg');
-  renderLineChart('progressExpenditureChart',filterRange(model.progress.expenditure,days,model.asOfDate),[],'kcal');
-  renderIntakeChart('progressIntakeChart',filterRange(model.progress.intake,days,model.asOfDate));
+
+function renderGoalTrajectory(model,analytics){
   const projection=model.progress.goalProjection;
-  if(projection){
+  const goal=analytics.goal;
+  if(goal.goalWeight!=null&&goal.currentWeight!=null){
+    const projectionLine=projection
+      ?`Projected around <strong>${escapeHtml(prettyDate(projection.projectedDate))}</strong> at the selected pace · ${fmt(projection.weeks,1)} weeks.`
+      :'No compatible projection is available yet.';
+    html('progressGoalTrajectory',`<div class="dc-trajectory dc-trajectory--p33">
+      <div class="dc-trajectory-main"><span>Current trend</span><strong>${fmt(goal.currentWeight,2)} kg</strong></div>
+      <div class="dc-trajectory-main"><span>Goal</span><strong>${fmt(goal.goalWeight,2)} kg</strong></div>
+      <div class="dc-trajectory-main"><span>Remaining</span><strong>${fmt(goal.distanceKg,2)} kg</strong></div>
+      <p>${projectionLine}</p>
+      <small>${escapeHtml(analytics.weight.pace.label)} · Projection is directional, not a guarantee.</small>
+    </div>`);
+  }else if(projection){
     html('progressGoalTrajectory',`<div class="dc-trajectory"><strong>Projected around ${escapeHtml(prettyDate(projection.projectedDate))}</strong><span>${fmt(projection.weeks,1)} weeks at the selected pace</span><small>Projection, not a guarantee.</small></div>`);
   }else{
     html('progressGoalTrajectory',emptyMarkup('No goal projection yet','A compatible goal and target rate are required.'));
   }
+}
+
+function renderProgress(model){
+  const analytics=buildProgressAnalytics({
+    progress:model.progress,
+    strategy:model.strategy,
+    asOfDate:model.asOfDate,
+    days:state.progressDays
+  });
+  renderProgressSummary(analytics);
+  renderLineChart('progressWeightChart',analytics.chart.trend,analytics.chart.rawWeights,'kg');
+  renderLineChart('progressExpenditureChart',analytics.chart.expenditure,[],'kcal');
+  renderIntakeChart('progressIntakeChart',analytics.chart.intakeBars);
+  renderGoalTrajectory(model,analytics);
 
   const intel=model.progress.intelligence;
   if(intel){
@@ -795,6 +891,19 @@ function renderEmptyPrivateState(){
   text('todayExpenditureValue','—');
   text('todayExpenditureUnit','kcal/day');
   text('todayExpenditureHint','—');
+  text('progressTrendChange','—');
+  text('progressTrendChangeDetail','Selected range');
+  text('progressObservedPace','—');
+  text('progressObservedPaceDetail','Building trend');
+  text('progressAdherence','—');
+  text('progressAdherenceDetail','Days within target band');
+  text('progressExpenditureNow','—');
+  text('progressExpenditureDetail','Adaptive estimate');
+  text('progressEvidenceCoverage','—');
+  text('progressEvidenceDetail','Selected-range coverage');
+  text('progressPaceChip','Building');
+  html('progressDigest',emptyMarkup('No progress interpretation','Sign in and sync history to build range analytics.'));
+  html('progressWeeklySignals',emptyMarkup('No weekly signal','Sign in and sync nutrition history.'));
   html('todayMeals',emptyMarkup(state.status==='signed_out'?'Sign in to view meals':'No meal data available','Private meal history is hidden until an owner-matched account or cache is available.'));
   html('foodTimeline',emptyMarkup(state.status==='signed_out'?'Sign in to view food history':'No food data available','P2.5 never displays another owner\'s cached record.'));
   text('foodTodaySummary','No private data');
