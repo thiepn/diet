@@ -20,7 +20,7 @@
   "backgroundWrites": false,
   "performance": {
     "rawCoreAssetBudgetBytes": 750000,
-    "rawCoreAssetObservedBytes": 749406,
+    "rawCoreAssetObservedBytes": 749458,
     "budgetRaised": false
   },
   "nextPhase": {
