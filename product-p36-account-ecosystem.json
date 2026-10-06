@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "phase": "P36",
+  "title": "THIEPN Account & Ecosystem Fit",
+  "state": "implemented",
+  "account": {
+    "authority": "thiepn-account",
+    "contract": "1.0",
+    "sdkCompatibility": "1.x",
+    "integrationMode": "certified-legacy",
+    "authEntryPoints": [
+      "google"
+    ],
+    "localSignOutExplicit": true,
+    "unavailableDistinctFromSignedOut": true,
+    "rawBackendErrorsHidden": true,
+    "sdkMigration": false
+  },
+  "ecosystem": {
+    "hubUrl": "https://thiepn.dev/home/",
+    "accountUrl": "https://account.thiepn.dev/",
+    "accountAppsUrl": "https://account.thiepn.dev/apps",
+    "hubReturnSurface": true,
+    "accountManagementLink": true,
+    "referrerPolicy": "no-referrer",
+    "legacyV1NormalEntry": false
+  },
+  "databaseMigration": false,
+  "writes": false,
+  "performance": {
+    "rawCoreAssetBudgetBytes": 750000,
+    "rawCoreAssetObservedBytes": 742238,
+    "budgetRaised": false
+  },
+  "nextPhase": {
+    "phase": "P37",
+    "title": "Real-World Usage Hardening"
+  }
+}

@@ -93,12 +93,12 @@ Completed product phases:
 - **P33 — Progress, Trends & Visual Analytics**
 - **P34 — Mobile/PWA Interaction Excellence**
 - **P35 — Visual Design, Motion & Delight**
+- **P36 — THIEPN Account & Ecosystem Fit**
 
 Next phases:
 
-1. **P36 — THIEPN Account & Ecosystem Fit**
-2. **P37 — Real-World Usage Hardening**
-3. **P38 — Product Release Candidate**
+1. **P37 — Real-World Usage Hardening**
+2. **P38 — Product Release Candidate**
 
 See `docs/P26-PRODUCT-REALITY-AUDIT.md` for the product rebaseline and the phase documents under `docs/` for implemented work.
 

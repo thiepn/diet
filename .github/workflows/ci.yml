@@ -126,6 +126,9 @@ jobs:
       - name: P35 visual design, motion and delight contract
         run: node tests/p35-visual-delight-contract.mjs
 
+      - name: P36 THIEPN account and ecosystem contract
+        run: node tests/p36-account-ecosystem-contract.mjs
+
       - name: Build actual GitHub Pages artifact
         uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1
         with:
@@ -141,4 +144,4 @@ jobs:
           done
           grep -q 'dc-version-badge">2.0<' _site/index.html
           ! grep -q '2.0 RC' _site/index.html
-          grep -q 'diet-copilot-prod-v2-p35-1' _site/sw.js
+          grep -q 'diet-copilot-prod-v2-p36-1' _site/sw.js

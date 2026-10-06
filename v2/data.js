@@ -548,6 +548,11 @@ render();
 span.end({status:state.status,source:state.source,realtime:state.realtimeStatus});
 }
 }
+function publicStateDetail(status){
+if(status==='stale')return 'Live refresh failed; showing the last safe owner-scoped snapshot.';
+if(status==='error')return 'THIEPN Account or Diet cloud is temporarily unavailable. Retry shortly.';
+return null;
+}
 function renderStatus(){
 const banner=document.getElementById('dataStatus');
 const label=document.getElementById('dataStatusLabel');
@@ -559,10 +564,10 @@ authenticating:['Signing in','Completing your THIEPN Account sign-in…'],
 loading:['Refreshing','Loading your owner-scoped nutrition history…'],
 ready:['Live',state.fetchedAt?`Updated ${new Date(state.fetchedAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`:'Connected'],
 offline:['Offline cache',state.fetchedAt?`Last synced ${new Date(state.fetchedAt).toLocaleString()}`:'Showing cached data'],
-stale:['Cached',state.error||'Live refresh failed; showing the last safe snapshot.'],
-signed_out:['Sign in required','Diet Copilot 2.0 only reads data for the signed-in THIEPN account.'],
+stale:['Cached',publicStateDetail('stale')],
+signed_out:['Sign in required','Diet Copilot only reads private data for the signed-in THIEPN account.'],
 offline_empty:['Offline','No owner-scoped cache is available on this device yet.'],
-error:['Data unavailable',state.error||'The nutrition record could not be loaded.']
+error:['Data unavailable',publicStateDetail('error')]
 };
 const [title,sub]=map[state.status]??map.initializing;
 label.textContent=title;
@@ -827,18 +832,52 @@ if(chip)chip.textContent=confidenceLabel(s.confidenceLevel);
 function renderAccount(){
 const signedIn=Boolean(state.user);
 const authBusy=state.status==='authenticating'||state.status==='initializing';
+const unavailable=state.status==='error';
+const email=state.user?.email??'THIEPN Account';
 const button=document.querySelector('[data-account-button]');
-if(button)button.classList.toggle('is-signed-in',signedIn);
-text('accountStateTitle',signedIn?'Signed in':authBusy?'Checking account…':'Not signed in');
-text('accountStateEmail',signedIn?(state.user?.email??'THIEPN Account'):'Continue with Google to load your private Diet data.');
+if(button){
+button.classList.toggle('is-signed-in',signedIn);
+button.setAttribute('aria-label',unavailable?'Open account · temporarily unavailable':signedIn?'Open account · signed in':'Open account · signed out');
+}
+let title,detail,note,sessionScope;
+if(authBusy){
+title='Checking account…';
+detail='Checking the saved Diet session with THIEPN Account.';
+note='THIEPN Account is the identity and security authority for Diet Copilot.';
+sessionScope='Checking…';
+}else if(unavailable){
+title='Account temporarily unavailable';
+detail=signedIn?`${email} · live verification unavailable`:'Diet Copilot could not verify THIEPN Account right now.';
+note='Local and cached Diet state is preserved. A network or service failure is not treated as sign-out.';
+sessionScope=signedIn?'Stored Diet session · verification unavailable':'Verification unavailable';
+}else if(signedIn){
+title='Signed in';
+detail=email;
+note='THIEPN Account owns identity and security; Diet Copilot owns your nutrition data.';
+sessionScope='This Diet app · local sign-out';
+}else{
+title='Not signed in';
+detail='Continue with Google to load your private Diet data.';
+note='THIEPN Account is the identity authority. Signing in here creates the Diet app session for this browser.';
+sessionScope='No Diet session';
+}
+text('accountStateTitle',title);
+text('accountStateEmail',detail);
+text('accountPlatformNote',note);
+text('accountSessionScope',sessionScope);
 text('accountStateSource',state.source==='cloud'?'Live owner-scoped data':state.source==='cache'?'Owner-scoped cache':'No private data loaded');
 text('accountStateSync',state.fetchedAt?new Date(state.fetchedAt).toLocaleString():'Never');
+text('moreAccountSummary',authBusy?'Checking THIEPN account…':unavailable?'Account temporarily unavailable':signedIn?'Signed in · THIEPN Account':'Not signed in · Google');
 const signIn=document.getElementById('v2AccountSignIn');
 const signOut=document.getElementById('v2AccountSignOut');
 const refreshButton=document.getElementById('v2AccountRefresh');
-if(signIn){signIn.hidden=signedIn;signIn.disabled=authBusy;}
+if(signIn){signIn.hidden=signedIn||unavailable;signIn.disabled=authBusy||unavailable;}
 if(signOut){signOut.hidden=!signedIn;signOut.disabled=authBusy;}
-if(refreshButton){refreshButton.hidden=!signedIn;refreshButton.disabled=authBusy;}
+if(refreshButton){
+refreshButton.hidden=!signedIn&&!unavailable;
+refreshButton.disabled=authBusy;
+refreshButton.textContent=unavailable?'Retry account check':'Refresh data';
+}
 }
 function renderEmptyPrivateState(){
 text('todayCaloriesValue','—');
@@ -984,14 +1023,15 @@ button.disabled=true;
 button.textContent='Redirecting…';
 try{await signInWithGoogle();}
 catch(error){
-setState('error',error?.message||error);
+const message=String(error?.message??error??'');
+if(/cancelled/i.test(message))setState('signed_out');
+else setState('error',message);
 render();
 button.disabled=false;
 button.textContent='Continue with Google';
 }
 });
 document.getElementById('v2AccountSignOut')?.addEventListener('click',()=>signOutDietV2());
-document.getElementById('v2AccountProduction')?.addEventListener('click',()=>{location.href='/diet/legacy-v1.html';});
 export function getDietV2Client(){return ensureClient();}
 export function getDietV2Model(){return state.model;}
 export function getDietV2RawData(){
