@@ -74,6 +74,7 @@ assert.ok(hardening.includes("version:'1.0.0-p37'"));
 assert.ok(hardening.includes("beforeunload"));
 assert.ok(hardening.includes("hasUnsavedInput"));
 assert.ok(hardening.includes("reloadForUpdate"));
+assert.ok(hardening.includes("writeGuardKind"));
 assert.ok(hardening.includes("foodQuickAddForm"));
 assert.ok(hardening.includes("mealEditorForm"));
 assert.ok(pwa.includes('DietV2Hardening?.reloadForUpdate'));
