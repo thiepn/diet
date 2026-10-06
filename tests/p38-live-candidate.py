@@ -37,6 +37,8 @@ with sync_playwright() as p:
     check("no prerelease marker","2.0 RC" not in page.content())
     check("production label","Production." in page.locator(".dc-sidebar-foot").inner_text())
     check("five primary routes",page.locator(".dc-bottom-nav [data-route]").count()==5)
+    check("desktop V1 sidebar visible",page.locator(".dc-sidebar").is_visible())
+    check("desktop topbar hidden",not page.locator(".dc-topbar").is_visible())
     check("no unfinished coming controls",page.locator("[data-coming]").count()==0)
     check("P37 hardening loaded",page.evaluate("() => window.DietV2Hardening?.version")=="1.0.0-p37")
     snapshot=page.evaluate("() => window.DietV2Data?.snapshot?.() ?? null")
@@ -49,7 +51,7 @@ with sync_playwright() as p:
         expect(page.locator(f'[data-view="{route}"]')).to_be_visible()
         check("route "+route+" renders",page.locator(f'[data-view="{route}"]').count()==1)
 
-    page.locator("[data-account-button]").click()
+    page.locator('[data-shell-action="account"]:visible').click()
     expect(page.locator("#v2AccountDialog")).to_be_visible()
     check("Google sign-in CTA","Continue with Google" in page.locator("#v2AccountSignIn").inner_text())
     check("THIEPN Account handoff",page.locator('#v2AccountDialog a[href="https://account.thiepn.dev/"]').count()==1)
@@ -104,6 +106,28 @@ with sync_playwright() as p:
         check("reconnected stable shell loads",mp.locator(".dc-version-badge").inner_text().strip()=="2.0")
 
     mobile.close()
+
+    tablet=browser.new_context(viewport={"width":820,"height":1180})
+    tp=tablet.new_page()
+    tp.goto(PROD+"?p38=tablet-"+args.browser+"#today",wait_until="networkidle")
+    check("tablet navigation remains available",tp.locator(".dc-bottom-nav").is_visible())
+    tablet_width=tp.evaluate("() => ({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth})")
+    check("no tablet page overflow",tablet_width["scroll"]<=tablet_width["client"]+2,tablet_width)
+    tablet.close()
+
+    dark=browser.new_context(viewport={"width":390,"height":844},color_scheme="dark")
+    dp=dark.new_page()
+    dp.goto(PROD+"?p38=dark-"+args.browser+"#today",wait_until="networkidle")
+    dark_colors=dp.evaluate("""() => ({
+      body:getComputedStyle(document.body).backgroundColor,
+      panel:getComputedStyle(document.querySelector('.dc-panel')).backgroundColor,
+      primary:getComputedStyle(document.querySelector('.dc-primary-action')).backgroundColor
+    })""")
+    check("dark canvas is neutral charcoal",dark_colors["body"] in ["rgb(15, 15, 17)","rgb(16, 16, 18)"],dark_colors)
+    check("dark panels are neutral gray",dark_colors["panel"]=="rgb(23, 23, 25)",dark_colors)
+    check("dark primary action keeps coral accent",dark_colors["primary"]=="rgb(255, 123, 102)",dark_colors)
+    dark.close()
+
     check("no page runtime errors",not evidence["pageErrors"],evidence["pageErrors"])
     browser.close()
 
