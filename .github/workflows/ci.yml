@@ -153,4 +153,4 @@ jobs:
           done
           grep -q 'dc-version-badge">2.0<' _site/index.html
           ! grep -q '2.0 RC' _site/index.html
-          grep -q 'diet-copilot-prod-v2-p37-1' _site/sw.js
+          grep -q 'diet-copilot-prod-v2-ui-v1-1' _site/sw.js
