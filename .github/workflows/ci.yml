@@ -126,6 +126,9 @@ jobs:
       - name: P35 superseded visual-layer contract
         run: node tests/p35-visual-delight-contract.mjs
 
+      - name: V1 UI restoration contract
+        run: node tests/v1-ui-restoration-contract.mjs
+
       - name: P36 THIEPN account and ecosystem contract
         run: node tests/p36-account-ecosystem-contract.mjs
 

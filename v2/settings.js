@@ -33,7 +33,7 @@ else delete root.dataset.motion;
 const systemDark=globalThis.matchMedia?.('(prefers-color-scheme: dark)')?.matches??false;
 const effectiveDark=prefs.theme==='dark'||(prefs.theme==='system'&&systemDark);
 const themeMeta=document.querySelector('meta[name="theme-color"]');
-if(themeMeta)themeMeta.setAttribute('content',effectiveDark?'#111512':'#f5f7f5');
+if(themeMeta)themeMeta.setAttribute('content',effectiveDark?'#151519':'#F7F8FA');
 document.querySelectorAll('[data-theme-choice]').forEach(x=>{
 const selected=x.dataset.themeChoice===prefs.theme;
 x.classList.toggle('is-selected',selected);x.setAttribute('aria-pressed',selected?'true':'false');

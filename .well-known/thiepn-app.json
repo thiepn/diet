@@ -192,7 +192,7 @@
     "copilotStrategyActionsRevalidate": true,
     "copilotRemoteExecutesWrites": false,
     "rawCoreAssetBudgetBytes": 750000,
-    "rawCoreAssetObservedBytes": 742052,
+    "rawCoreAssetObservedBytes": 749039,
     "progressAnalyticsContract": "P33",
     "progressRangeAware": true,
     "progressRealDateGeometry": true,
@@ -236,9 +236,12 @@
     "threeBrowserProductionCertification": true,
     "historicalRcAutomationRetired": true,
     "p21LiveCacheAssertionDynamic": true,
-    "visualSystem": "P34-restored",
+    "visualSystem": "V1-restored-on-V2-runtime",
     "p35DelightRuntimeActive": false,
-    "userRequestedVisualRestoration": true
+    "userRequestedVisualRestoration": true,
+    "v1VisualLanguageActive": true,
+    "v2GreenVisualShellActive": false,
+    "v1UiRestorationContract": "V1-UI"
   },
   "sourceLayout": "v2",
   "accountPlatformRelease": "1.0.0",
@@ -275,6 +278,6 @@
   "productReleaseState": "candidate-certified",
   "featureFreeze": true,
   "maintenanceMode": "defect-only",
-  "visualSystemPhase": "P34-restored",
-  "maintenancePatch": "post-P38-visual-restoration"
+  "visualSystemPhase": "V1-restored",
+  "maintenancePatch": "post-P38-v1-ui-restoration"
 }
