@@ -29,7 +29,7 @@ return 'Snack';
 }
 function writeReady(){
 const s=getDietV2State();
-return s.signedIn && s.source==='cloud' && navigator.onLine!==false;
+return s.signedIn&&s.source==='cloud'&&navigator.onLine!==false&&!s.writeBlocked;
 }
 function showStatus(message,{error=false,undo=false}={}){
 const box=$('foodWriteStatus');
