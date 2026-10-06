@@ -14,6 +14,19 @@ const main=document.getElementById('mainContent');
 const toast=document.querySelector('[data-toast]');
 let toastTimer=null;
 
+const inputSelector='input,textarea,select,[contenteditable="true"]';
+const mobileQuery=matchMedia?.('(max-width:760px)');
+function syncVisualViewport(){
+  const height=Math.round(visualViewport?.height??innerHeight);
+  document.documentElement.style.setProperty('--dc-visual-height',height+'px');
+}
+function syncInputState(){
+  const active=document.activeElement;
+  const inputActive=Boolean(mobileQuery?.matches&&active?.matches?.(inputSelector));
+  if(inputActive)document.documentElement.dataset.inputActive='true';
+  else delete document.documentElement.dataset.inputActive;
+}
+
 function cleanRoute(hash=location.hash){
   const route=String(hash||'').replace(/^#/,'').trim().toLowerCase();
   return ROUTES[route]?route:'today';
@@ -76,6 +89,11 @@ function setTodayLabel(){
 }
 
 window.addEventListener('hashchange',()=>setCurrentRoute(cleanRoute(),{focus:true}));
+window.addEventListener('resize',()=>{syncVisualViewport();syncInputState();},{passive:true});
+visualViewport?.addEventListener('resize',syncVisualViewport,{passive:true});
+visualViewport?.addEventListener('scroll',syncVisualViewport,{passive:true});
+document.addEventListener('focusin',syncInputState);
+document.addEventListener('focusout',()=>setTimeout(syncInputState,0));
 
 document.addEventListener('click',event=>{
   const coming=event.target.closest('[data-coming]');
@@ -104,11 +122,13 @@ document.addEventListener('keydown',event=>{
   }
 });
 
+syncVisualViewport();
+syncInputState();
 setTodayLabel();
 navigateFromLocation();
 
 window.DietV2Shell=Object.freeze({
-  version:'2.0.0-p2-shell',
+  version:'2.0.0-p34-shell',
   routes:Object.keys(ROUTES),
   currentRoute:()=>cleanRoute(),
   navigate(route){
