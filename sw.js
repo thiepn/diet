@@ -1,4 +1,4 @@
-const CACHE='diet-copilot-prod-v2-p33-1';
+const CACHE='diet-copilot-prod-v2-p34-1';
 const CORE=[
   './','./index.html','./manifest.webmanifest',
   './v2/shell.css','./v2/shell.js','./v2/pwa.js','./v2/data.js','./v2/auth-storage.mjs','./v2/telemetry.mjs',
@@ -27,7 +27,6 @@ self.addEventListener('fetch',event=>{
   if(request.method!=='GET'||url.origin!==self.location.origin)return;
   if(['/native-auth-start.html','/native-auth-callback.html','/web-auth-callback.html'].some(path=>url.pathname.endsWith(path))||['code','sb_flow_id','error','error_code','error_description'].some(key=>url.searchParams.has(key)))return;
   const scopePath=new URL('./',self.registration.scope).pathname;
-  if(url.pathname.startsWith(scopePath+'v2/'))return;
   if(request.mode==='navigate'){
     if(url.pathname.endsWith('/legacy-v1.html')){event.respondWith(networkFirst(request,new URL('./legacy-v1.html',self.registration.scope)));return;}
     if(!url.pathname.startsWith(scopePath))return;
