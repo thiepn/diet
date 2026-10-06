@@ -1,6 +1,7 @@
 import { getDietV2Client,getDietV2Model,getDietV2State,refresh } from './data.js';
 import { logSavedFood,logSavedMeal,repeatMeal } from './write-api.mjs';
 import { localDateKey } from './read-model.mjs';
+import { DietServerRuntime } from './server-runtime.mjs';
 import {
 buildCopilotContext,buildLocalCopilotReply,sanitizeCopilotResponse,validateCopilotProposal,DietCopilotP32
 } from './engine/copilot-context.mjs';
@@ -117,6 +118,16 @@ return payload?.error??null;
 }catch{}
 return null;
 }
+async function invokeRemoteCopilot(client,body){
+const e=()=>client.functions.invoke('diet-copilot-ai',{body});
+if(DietServerRuntime.active!=='vercel')return e();
+try{
+const t=(await client.auth.getSession()).data?.session?.access_token;
+if(!t)return e();
+const r=await fetch(DietServerRuntime.url,{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body)});
+return r.ok?{data:await r.json()}:e();
+}catch{return e();}
+}
 function fallbackReply(question,ctx,code){
 const local=buildLocalCopilotReply(question,ctx);
 if(local)return sanitizeCopilotResponse(local,ctx);
@@ -161,9 +172,7 @@ if(send){send.disabled=true;send.textContent='Thinking…';}
 setMode('Thinking…','busy');
 try{
 const client=getDietV2Client();
-const {data,error}=await client.functions.invoke('diet-copilot-ai',{
-body:{question,context:ctx,history:previous}
-});
+const {data,error}=await invokeRemoteCopilot(client,{question,context:ctx,history:previous});
 if(error){
 const code=await functionErrorCode(error);
 const safe=fallbackReply(question,ctx,code);

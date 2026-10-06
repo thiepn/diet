@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "phase": "P7",
+  "title": "First Product-Owned Server Workload Migration & Vercel Runtime Certification",
+  "state": "vercel_canary_active_with_supabase_fallback",
+  "workload": {
+    "owner": "diet",
+    "name": "diet-copilot-ai",
+    "currentRuntime": {
+      "provider": "supabase-edge-functions",
+      "slug": "diet-copilot-ai",
+      "version": 4,
+      "role": "rollback_fallback"
+    },
+    "targetRuntime": {
+      "provider": "vercel",
+      "project": "thiepn-diet",
+      "region": "dub1",
+      "endpoint": "https://thiepn-diet.vercel.app/api/copilot",
+      "role": "active_canary_product_owned_server_runtime"
+    },
+    "source": "api/copilot.js",
+    "healthSource": "api/health.js"
+  },
+  "boundaries": {
+    "github": "source_ci_release_authority",
+    "vercel": "diet_server_compute_only",
+    "supabase": "auth_data_rls_realtime_authority",
+    "core": "shared_contracts_only",
+    "frontend": "github_pages_unchanged",
+    "productionOrigin": "https://thiepn.dev/diet/"
+  },
+  "auth": {
+    "authority": "supabase-auth",
+    "validation": "GET /auth/v1/user using publishable key plus user bearer token",
+    "serviceRoleRequired": false,
+    "databaseAccessFromVercel": false,
+    "provider": "vercel-ai-gateway-managed-oidc",
+    "providerSecretRequired": false
+  },
+  "safety": {
+    "deterministicNutritionRemainsClientEngine": true,
+    "serverMayWriteDietData": false,
+    "userConfirmationRemainsRequiredForWrites": true,
+    "trustedContextMaxBytes": 18000,
+    "requestMaxBytes": 30000,
+    "providerTimeoutMs": 22000,
+    "allowedOrigins": [
+      "https://thiepn.dev"
+    ]
+  },
+  "deployment": {
+    "gitIntegration": false,
+    "automaticDeployments": false,
+    "productionDomainCutover": false,
+    "legacySupabaseFunctionRetainedForRollback": true,
+    "vercelProjectCreated": true,
+    "deploymentCertified": false,
+    "blocker": "One signed-in end-to-end remote explanation must be observed before declaring final P7 certification; failures automatically fall back to the retained Supabase Edge Function.",
+    "liveBoundaryCertified": true,
+    "liveHealthReady": true,
+    "unauthenticatedRequestRejected": true,
+    "corsCertified": true,
+    "browserCutover": true,
+    "cutoverMode": "vercel-first-with-supabase-edge-fallback"
+  },
+  "exitCriteria": [
+    "thiepn-diet exists in the intended Vercel team",
+    "required environment variables are configured without committing secrets",
+    "health endpoint reports ready=true in dub1",
+    "unauthenticated Copilot request returns 401",
+    "authenticated remote explanation succeeds and passes client sanitizer",
+    "v2 server-runtime active flips from supabase-edge to vercel",
+    "GitHub Pages production origin remains unchanged",
+    "Supabase Edge Function remains rollback-only until post-cutover confidence"
+  ],
+  "nextPhase": {
+    "phase": "P8",
+    "title": "Hub Product Registry v2"
+  }
+}

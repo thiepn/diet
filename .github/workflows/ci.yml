@@ -26,6 +26,8 @@ jobs:
           set -euo pipefail
           node --check sw.js
           node --check legacy-v1-app.js
+          node --check api/copilot.js
+          node --check api/health.js
           while IFS= read -r -d '' file; do
             tmp="$(mktemp --suffix=.mjs)"
             cp "$file" "$tmp"
@@ -137,6 +139,14 @@ jobs:
 
       - name: P38 product release candidate contract
         run: node tests/p38-product-release-candidate-contract.mjs
+
+      - name: Install P7 API runtime dependencies
+        run: npm install --prefix api --ignore-scripts --no-audit --no-fund
+
+      - name: Platform P7 product-owned Vercel runtime contract
+        run: |
+          node tests/platform-p7-vercel-runtime-contract.mjs
+          node tests/platform-p7-vercel-runtime-unit.mjs
 
       - name: Build actual GitHub Pages artifact
         uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1
