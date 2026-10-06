@@ -13,8 +13,8 @@ const aliasSw=read('v2/sw.js');
 
 assert.ok(html.includes('./v2/p35-delight.js'));
 assert.ok(alias.includes('./p35-delight.js'));
-assert.match(sw,/diet-copilot-prod-v2-p(?:35|36)-1/);
-assert.match(aliasSw,/diet-copilot-v2-alias-p(?:35|36)-1/);
+assert.match(sw,/diet-copilot-prod-v2-p(?:35|36|37)-1/);
+assert.match(aliasSw,/diet-copilot-v2-alias-p(?:35|36|37)-1/);
 assert.ok(sw.includes("'./v2/p35-delight.js'"));
 assert.ok(aliasSw.includes("'./p35-delight.js'"));
 
