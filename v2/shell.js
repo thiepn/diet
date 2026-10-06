@@ -77,6 +77,7 @@ el.textContent='Today';
 }
 }
 window.addEventListener('hashchange',()=>setCurrentRoute(cleanRoute(),{focus:true}));
+window.addEventListener('diet-v2-day-rollover',setTodayLabel);
 window.addEventListener('resize',()=>{syncVisualViewport();syncInputState();},{passive:true});
 globalThis.visualViewport?.addEventListener('resize',syncVisualViewport,{passive:true});
 globalThis.visualViewport?.addEventListener('scroll',syncVisualViewport,{passive:true});
