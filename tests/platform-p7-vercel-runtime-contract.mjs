@@ -20,6 +20,9 @@ assert.match(api,/origin_not_allowed/);
 assert.match(api,/ALLOWED_ACTIONS/);
 assert.match(api,/cleanReply/);
 assert.match(api,/runtime:"vercel"/);
+assert.match(api,/generateText/);
+assert.match(api,/openai\\/gpt-5\\.6-luna/);
+assert.doesNotMatch(api,/VERCEL_OIDC_TOKEN/);
 
 assert.match(health,/ready:supabaseConfigured&&providerConfigured/);
 assert.match(health,/VERCEL_REGION/);
@@ -45,10 +48,12 @@ assert.equal(manifest.deployment.gitIntegration,false);
 assert.equal(manifest.deployment.automaticDeployments,false);
 assert.equal(manifest.deployment.productionDomainCutover,false);
 assert.equal(manifest.deployment.deploymentCertified,false);
+assert.equal(manifest.deployment.liveBoundaryCertified,true);
 assert.equal(manifest.safety.serverMayWriteDietData,false);
 assert.deepEqual(vercel.regions,["dub1"]);
 assert.equal(vercel.functions["api/copilot.js"].maxDuration,30);
 assert.equal(apiPackage.type,"module");
+assert.equal(apiPackage.dependencies.ai,"7.0.123");
 assert.match(vercelIgnore,/!api/);
 assert.match(vercelIgnore,/!vercel\.json/);
 
