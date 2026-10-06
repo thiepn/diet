@@ -102,7 +102,7 @@ assert.doesNotMatch(browser,/diet_p19_concurrency_status/,'P19 global status end
 
 assert.match(sw,/diet-copilot-prod-v2-p(?:17|33|34)-1/);
 assert.match(aliasSw,/diet-copilot-v2-alias-p(?:17|33|34)-1/);
-assert.match(pwa,/version:'2\.0\.3-p17'/);
+assert.match(pwa,/version:'2\.0\.3-p(?:17|34)'/);
 
 assert.match(writeApi,/completeOnboarding:'diet_app_complete_onboarding'/);
 assert.match(writeApi,/p_request_id:rid/);
