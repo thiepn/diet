@@ -101,7 +101,7 @@ This prevents a second screen from starting another mutation while the first is 
 
 The existing raw core ceiling remains **750,000 bytes**.
 
-Observed P37 raw core size: **749,458 bytes**.
+Observed P37 raw core size: **749,788 bytes**.
 
 The budget is not increased.
 
