@@ -36,7 +36,7 @@ try{
     }
     if(String(url)==="https://api.openai.com/v1/responses"){
       const providerBody=JSON.parse(options.body);
-      assert.equal(providerBody.model,"gpt-5.6-luna");
+      assert.equal(providerBody.model,"gpt-6-luna");
       return Response.json({
         output_text:JSON.stringify({
           answer:"You have 500 kcal remaining.",
