@@ -3,7 +3,7 @@ name: Platform P7 live Vercel probe
 on:
   push:
     branches:
-      - platform-p7-vercel-runtime-current
+      - main
   workflow_dispatch:
 
 permissions:
