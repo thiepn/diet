@@ -91,14 +91,14 @@ Completed product phases:
 - **P31 — Adaptive Strategy & Weekly Review**
 - **P32 — Copilot Actionability**
 - **P33 — Progress, Trends & Visual Analytics**
+- **P34 — Mobile/PWA Interaction Excellence**
 
 Next phases:
 
-1. **P34 — Mobile/PWA Interaction Excellence**
-2. **P35 — Visual Design, Motion & Delight**
-3. **P36 — THIEPN Account & Ecosystem Fit**
-4. **P37 — Real-World Usage Hardening**
-5. **P38 — Product Release Candidate**
+1. **P35 — Visual Design, Motion & Delight**
+2. **P36 — THIEPN Account & Ecosystem Fit**
+3. **P37 — Real-World Usage Hardening**
+4. **P38 — Product Release Candidate**
 
 See `docs/P26-PRODUCT-REALITY-AUDIT.md` for the product rebaseline and the phase documents under `docs/` for implemented work.
 

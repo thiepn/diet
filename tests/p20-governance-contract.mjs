@@ -113,8 +113,8 @@ assert.doesNotMatch(browser,/diet_p20_release_status/,'P20 release status must n
 assert.doesNotMatch(migration,/update\s+public\.(?:profiles|daily_logs|meals|meal_items|weight_entries|goal_phases|saved_foods|saved_food_portions|saved_meals|saved_meal_items|target_recommendations|activity_daily|training_distribution_settings|training_days|ai_actions|change_log|weekly_reviews|diet_native_devices)/i,'P20 must not rewrite Diet user data.');
 assert.doesNotMatch(migration,/delete\s+from\s+public\.(?:profiles|daily_logs|meals|meal_items|weight_entries|goal_phases|saved_foods|saved_food_portions|saved_meals|saved_meal_items|target_recommendations|activity_daily|training_distribution_settings|training_days|ai_actions|change_log|weekly_reviews|diet_native_devices)/i,'P20 must not delete Diet user data.');
 
-assert.match(sw,/diet-copilot-prod-v2-p(?:17|33)-1/);
-assert.match(aliasSw,/diet-copilot-v2-alias-p(?:17|33)-1/);
-assert.match(pwa,/version:'2\.0\.3-p17'/);
+assert.match(sw,/diet-copilot-prod-v2-p(?:17|33|34)-1/);
+assert.match(aliasSw,/diet-copilot-v2-alias-p(?:17|33|34)-1/);
+assert.match(pwa,/version:'2\.0\.3-p(?:17|34)'/);
 
 console.log('Diet Copilot P20 schema-drift/release-governance contract passed.');

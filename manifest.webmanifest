@@ -44,6 +44,21 @@
       "name": "Progress",
       "short_name": "Progress",
       "url": "./#progress"
+    },
+    {
+      "name": "Strategy",
+      "short_name": "Strategy",
+      "url": "./#strategy"
     }
-  ]
+  ],
+  "lang": "en",
+  "categories": [
+    "health",
+    "fitness",
+    "lifestyle"
+  ],
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "prefer_related_applications": false
 }

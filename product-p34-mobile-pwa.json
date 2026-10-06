@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "phase": "P34",
+  "title": "Mobile/PWA Interaction Excellence",
+  "state": "implemented",
+  "productionRuntime": "v2/",
+  "databaseMigration": false,
+  "writes": false,
+  "mobile": {
+    "minimumTouchTargetPx": 44,
+    "iosInputZoomPrevention": true,
+    "safeAreaAware": true,
+    "bottomSheetDialogs": true,
+    "narrowPhoneFallbackPx": 380,
+    "keyboardAwareChrome": true,
+    "visualViewportAware": true
+  },
+  "pwa": {
+    "explicitInstallSurface": true,
+    "iosInstallGuidance": true,
+    "updateReadySurface": true,
+    "standaloneDetection": true,
+    "offlineCoreServedByRootWorker": true,
+    "rootV2FetchBypassRemoved": true,
+    "launchHandler": "navigate-existing"
+  },
+  "performance": {
+    "rawCoreAssetBudgetBytes": 750000,
+    "budgetRaised": false
+  },
+  "nextPhase": {
+    "phase": "P35",
+    "title": "Visual Design, Motion & Delight"
+  }
+}
