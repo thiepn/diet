@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "phase": "P7",
   "title": "First Product-Owned Server Workload Migration & Vercel Runtime Certification",
-  "state": "implementation_ready_vercel_scope_blocked",
+  "state": "vercel_provisioned_boundary_certified_cutover_pending",
   "workload": {
     "owner": "diet",
     "name": "diet-copilot-ai",
@@ -34,7 +34,9 @@
     "authority": "supabase-auth",
     "validation": "GET /auth/v1/user using publishable key plus user bearer token",
     "serviceRoleRequired": false,
-    "databaseAccessFromVercel": false
+    "databaseAccessFromVercel": false,
+    "provider": "vercel-ai-gateway-managed-oidc",
+    "providerSecretRequired": false
   },
   "safety": {
     "deterministicNutritionRemainsClientEngine": true,
@@ -52,9 +54,13 @@
     "automaticDeployments": false,
     "productionDomainCutover": false,
     "legacySupabaseFunctionRetainedForRollback": true,
-    "vercelProjectCreated": false,
+    "vercelProjectCreated": true,
     "deploymentCertified": false,
-    "blocker": "Vercel connector returned 403 for scope thiepn-project; re-authentication is required before project provisioning."
+    "blocker": "Final signed-in end-to-end remote explanation smoke test is still required before activating Vercel in the browser runtime.",
+    "liveBoundaryCertified": true,
+    "liveHealthReady": true,
+    "unauthenticatedRequestRejected": true,
+    "corsCertified": true
   },
   "exitCriteria": [
     "thiepn-diet exists in the intended Vercel team",
