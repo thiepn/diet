@@ -192,7 +192,7 @@
     "copilotStrategyActionsRevalidate": true,
     "copilotRemoteExecutesWrites": false,
     "rawCoreAssetBudgetBytes": 750000,
-    "rawCoreAssetObservedBytes": 749381,
+    "rawCoreAssetObservedBytes": 749987,
     "progressAnalyticsContract": "P33",
     "progressRangeAware": true,
     "progressRealDateGeometry": true,
