@@ -58,7 +58,7 @@ with sync_playwright() as p:
     page.locator("#closeV2AccountDialog").click()
 
     page.goto(PROD+"#food",wait_until="networkidle")
-    page.locator("#foodQuickAddToggle").click()
+    page.locator("#foodShortcutQuick").click()
     draft=page.locator('#foodQuickAddForm [name="name"]')
     draft.fill("P38 unsaved draft")
     check("unsaved edit detected",page.evaluate("() => window.DietV2Hardening?.hasUnsavedInput?.()") is True)
