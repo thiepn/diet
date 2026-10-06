@@ -66,12 +66,11 @@ Required Vercel runtime variables:
 
 - `SUPABASE_URL`
 - `SUPABASE_PUBLISHABLE_KEY`
-- `DIET_COPILOT_AI_API_KEY` (or `OPENAI_API_KEY`)
-- optional `DIET_COPILOT_AI_ENDPOINT`
-- optional `DIET_COPILOT_AI_MODEL`
 - optional `DIET_COPILOT_ALLOWED_ORIGINS`
 
-The publishable Supabase key is not privileged, but it is still configured as environment data so the runtime remains portable. Provider credentials are never committed.
+By default the server uses Vercel AI SDK + AI Gateway with Vercel-managed OIDC, so no separate provider API key is required. A direct provider remains available as a portability fallback through `DIET_COPILOT_AI_API_KEY` or `OPENAI_API_KEY`, with optional `DIET_COPILOT_AI_ENDPOINT` and `DIET_COPILOT_AI_MODEL`.
+
+The publishable Supabase key is not privileged. No service-role key, database credential, provider key, or OIDC credential is committed.
 
 ## Cutover gate
 
@@ -88,8 +87,17 @@ P7 completes only after all of the following are true:
 7. The old Supabase Edge Function is retained temporarily as rollback-only.
 8. GitHub Pages production remains unchanged.
 
-## Current blocker
+## Current certification state
 
-The connected Vercel account can read the existing `thiepn-hub` project, but project creation returned HTTP 403 because the connector is not currently authorized for scope `thiepn-project`.
+Vercel project `thiepn-diet` now exists in the intended team and is configured for Node 24, `dub1`, a 30-second default function timeout, preview-only Vercel Authentication, and managed OIDC.
 
-The source migration can therefore be prepared and reviewed now, but the runtime must not be marked certified or activated until that Vercel scope is re-authorized.
+A tracked production candidate reached `READY`, and the GitHub live probe passed:
+
+- health reports `ready: true`;
+- runtime reports `vercel`;
+- region reports `dub1`;
+- unauthenticated Copilot requests return 401;
+- allowed-origin preflight succeeds;
+- disallowed-origin preflight is rejected.
+
+The browser runtime remains on `supabase-edge`. The final gate before activation is one signed-in end-to-end Copilot request through Vercel that returns a sanitized remote reply. The Supabase Edge Function remains the configured fallback and rollback path.
