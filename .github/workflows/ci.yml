@@ -33,7 +33,7 @@ jobs:
             rm -f "$tmp"
           done < <(find v2 -type f \( -name '*.js' -o -name '*.mjs' \) -print0)
           for f in tests/p13-telemetry.mjs tests/p14-security-contract.mjs tests/p15-resilience-contract.mjs tests/p16-performance-contract.mjs tests/p17-privacy-lifecycle-contract.mjs tests/p18-integrity-contract.mjs tests/p19-concurrency-contract.mjs tests/p20-governance-contract.mjs tests/p21-incident-contract.mjs tests/p22-maintenance-contract.mjs tests/p23-platform-contract.mjs tests/p24-execution-contract.mjs tests/p25-burnin-contract.mjs; do node --check "$f"; done
-          python -m py_compile tests/p13-synthetic-monitor.py tests/p14-public-security-probe.py tests/p16-public-read-probe.py tests/p17-public-export-probe.py tests/p18-public-integrity-probe.py tests/p19-public-concurrency-probe.py tests/p20-public-release-status-probe.py tests/p21-public-failure-matrix.py tests/p21-live-failure.py scripts/p15-verify-offsite.py scripts/p22-verify-supply-chain.py scripts/p22-upstream-watch.py tests/p23-shared-platform-public.py tests/p24-preupgrade-public.py tests/p25-public-burnin.py
+          python -m py_compile tests/p13-synthetic-monitor.py tests/p14-public-security-probe.py tests/p16-public-read-probe.py tests/p17-public-export-probe.py tests/p18-public-integrity-probe.py tests/p19-public-concurrency-probe.py tests/p20-public-release-status-probe.py tests/p21-public-failure-matrix.py tests/p21-live-failure.py scripts/p15-verify-offsite.py scripts/p22-verify-supply-chain.py scripts/p22-upstream-watch.py tests/p23-shared-platform-public.py tests/p24-preupgrade-public.py tests/p25-public-burnin.py tests/p38-deployed-production.py tests/p38-live-candidate.py
 
       - name: P22 immutable supply-chain contract
         run: python scripts/p22-verify-supply-chain.py
@@ -132,6 +132,9 @@ jobs:
       - name: P37 real-world usage hardening contract
         run: node tests/p37-real-world-hardening-contract.mjs
 
+      - name: P38 product release candidate contract
+        run: node tests/p38-product-release-candidate-contract.mjs
+
       - name: Build actual GitHub Pages artifact
         uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1
         with:
@@ -142,7 +145,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for f in index.html manifest.webmanifest sw.js legacy-v1.html legacy-v1-app.js v2/index.html v2/data.js v2/auth-storage.mjs v2/write-api.mjs v2/telemetry.mjs v2/settings.js v2/shell.css v2/p33-progress-analytics.mjs v2/p35-delight.js v2/p37-hardening.js vendor/supabase-2.116.0.js .well-known/thiepn-app.json; do
+          for f in index.html manifest.webmanifest sw.js legacy-v1.html legacy-v1-app.js v2/index.html v2/data.js v2/auth-storage.mjs v2/write-api.mjs v2/telemetry.mjs v2/settings.js v2/shell.css v2/p33-progress-analytics.mjs v2/p35-delight.js v2/p37-hardening.js vendor/supabase-2.116.0.js .well-known/thiepn-app.json product-p38-release-candidate.json docs/P38-PRODUCT-RELEASE-CANDIDATE.md; do
             test -f "_site/$f"
           done
           grep -q 'dc-version-badge">2.0<' _site/index.html
