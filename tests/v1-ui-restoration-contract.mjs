@@ -44,7 +44,7 @@ for(const token of [
   '.dc-sidebar{position:fixed','.dc-topbar{display:none}',
   '.dc-metric-card--primary{background:var(--surface-coral,#FFF1EC)',
   'background:#EDF3FF','background:#F2EDFF','background:#EAF9F1',
-  '.dc-bottom-nav{background:rgba(255,255,255,.96)',
+  '.dc-bottom-nav{display:grid;background:rgba(255,255,255,.96)',
   '.dc-v1-account{width:100%',
   '.dc-metric-card--primary .dc-metric-empty strong{font-size:60px}'
 ]) assert.ok(css.includes(token),`missing V1 visual token: ${token}`);
