@@ -100,8 +100,8 @@ assert.doesNotMatch(browser,/diet_p19_begin_mutation/,'P19 private request-claim
 assert.doesNotMatch(browser,/diet_p19_complete_mutation/,'P19 private completion helper must not appear in browser code.');
 assert.doesNotMatch(browser,/diet_p19_concurrency_status/,'P19 global status endpoint must not be called by browser code.');
 
-assert.match(sw,/diet-copilot-prod-v2-p(?:17|33)-1/);
-assert.match(aliasSw,/diet-copilot-v2-alias-p(?:17|33)-1/);
+assert.match(sw,/diet-copilot-prod-v2-p(?:17|33|34)-1/);
+assert.match(aliasSw,/diet-copilot-v2-alias-p(?:17|33|34)-1/);
 assert.match(pwa,/version:'2\.0\.3-p17'/);
 
 assert.match(writeApi,/completeOnboarding:'diet_app_complete_onboarding'/);
