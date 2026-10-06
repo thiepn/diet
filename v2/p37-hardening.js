@@ -39,6 +39,8 @@ form.closest('dialog')?.addEventListener('close',()=>clear(form));
 window.addEventListener('beforeunload',event=>{if(activeDirty()){event.preventDefault();event.returnValue='';}});
 window.addEventListener('diet-v2-day-rollover',()=>{for(const form of forms())if(!dirty.has(form))baseline.set(form,snapshot(form));});
 function reloadForUpdate(){
+const guard=window.DietV2Data?.snapshot?.().writeGuardKind;
+if(guard==='in_flight'||guard==='uncertain'){window.DietV2Shell?.showToast?.(guard==='in_flight'?'Wait for the current save to finish before reloading.':'Refresh to reconcile the last save before reloading.');return false;}
 if(activeDirty()){
 window.DietV2Shell?.showToast?.('Finish or discard your current edits before reloading the update.');
 return false;
