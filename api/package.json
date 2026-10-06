@@ -1,7 +1,4 @@
 {
   "private": true,
-  "type": "module",
-  "dependencies": {
-    "ai": "7.0.123"
-  }
+  "type": "module"
 }
