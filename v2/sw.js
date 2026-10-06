@@ -1,4 +1,4 @@
-const CACHE='diet-copilot-v2-alias-p33-1';
+const CACHE='diet-copilot-v2-alias-p34-1';
 const CORE=[
   './','./index.html','./manifest.webmanifest','./shell.css','./shell.js','./pwa.js',
   './data.js','./auth-storage.mjs','./telemetry.mjs','./read-model.mjs','./write-api.mjs','./p33-progress-analytics.mjs',
