@@ -85,3 +85,22 @@ Dark-mode rule:
 - semantic blue/violet/green may remain only where they communicate protein, weight/progress, or success.
 
 Green is not a general dark-mode background or chrome color.
+
+## Repair note — V1 light palette
+
+A later audit found that the V1 color tokens were present, but an older explicit Light-mode V2 rule had higher selector specificity. Selecting **Light** could therefore wash the interface back toward white/old V2 surfaces.
+
+The repaired light palette is now authoritative:
+
+- canvas: `#F7F8FA`;
+- primary surface: white;
+- calorie/coral surface: `#FFF1EC`;
+- protein/blue surface: `#EDF3FF`;
+- weight/violet surface: `#F2EDFF`;
+- success/green surface: `#EAF9F1`;
+- warning/amber surface: `#FFF6E5`;
+- primary accent/action: `#FF6B55`.
+
+White remains a base card surface where V1 used white, but summary and semantic cards must retain their colored V1 hierarchy.
+
+The service-worker cache generation was also rotated to `ui-v1-1` so installed/PWA sessions cannot stay pinned to an older stylesheet after the visual repair.
