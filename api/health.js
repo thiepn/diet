@@ -1,0 +1,18 @@
+export default {
+  async fetch(){
+    const supabaseConfigured=Boolean(process.env.SUPABASE_URL&&process.env.SUPABASE_PUBLISHABLE_KEY);
+    const providerConfigured=Boolean(process.env.DIET_COPILOT_AI_API_KEY||process.env.OPENAI_API_KEY||process.env.VERCEL);
+    return Response.json({
+      ok:true,
+      service:"diet-copilot",
+      workload:"copilot-ai",
+      phase:"platform-p7",
+      runtime:"vercel",
+      region:process.env.VERCEL_REGION||null,
+      ready:supabaseConfigured&&providerConfigured,
+      configuration:{supabase:supabaseConfigured,provider:providerConfigured}
+    },{
+      headers:{"Cache-Control":"no-store"}
+    });
+  }
+};
