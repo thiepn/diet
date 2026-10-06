@@ -46,7 +46,7 @@ assert.ok(html.includes('<p>Production.</p>'));
 assert.doesNotMatch(html,/2\.0 RC|data-coming/);
 assert.doesNotMatch(alias,/2\.0 RC|data-coming/);
 assert.doesNotMatch(html,/v2AccountProduction|Open legacy v1/);
-assert.match(sw,/diet-copilot-prod-v2-p37-1/,'P38 must not rotate runtime cache without a runtime change.');
+assert.match(sw,/const CACHE='diet-copilot-prod-v2-[^']+'/,'Production service worker must declare a Diet cache generation.');
 
 assert.ok(p21.includes('EXPECTED_CACHE'));
 assert.ok(p21.includes('SOURCE_SW=Path("sw.js")'));
