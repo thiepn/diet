@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "phase": "P7",
   "title": "First Product-Owned Server Workload Migration & Vercel Runtime Certification",
-  "state": "vercel_canary_waiting_for_openai_key_and_signed_in_smoke",
+  "state": "vercel_canary_ready_for_final_signed_in_smoke",
   "workload": {
     "owner": "diet",
     "name": "diet-copilot-ai",
@@ -58,7 +58,7 @@
     "legacySupabaseFunctionRetainedForRollback": true,
     "vercelProjectCreated": true,
     "deploymentCertified": false,
-    "blocker": "Configure OPENAI_API_KEY for thiepn-diet production, redeploy, then observe one signed-in GPT-6 Luna response from Vercel before declaring final P7 certification.",
+    "blocker": "Observe one signed-in GPT-6 Luna response from the production Vercel runtime before declaring final P7 certification.",
     "liveBoundaryCertified": true,
     "liveHealthReady": true,
     "unauthenticatedRequestRejected": true,
@@ -67,7 +67,19 @@
     "cutoverMode": "vercel-first-with-supabase-edge-fallback",
     "aiGatewayUsed": false,
     "providerMode": "openai-direct",
-    "model": "gpt-6-luna"
+    "model": "gpt-6-luna",
+    "openaiKeyConfigured": true,
+    "directProviderProbePassed": true,
+    "directProviderProbe": {
+      "deploymentId": "dpl_FaDxmjanB9zEhYdsyKQuBtXhuDoY",
+      "model": "gpt-6-luna",
+      "provider": "openai-direct",
+      "httpStatus": 200,
+      "outputObserved": true
+    },
+    "productionDeploymentId": "dpl_G4Z1guKqk3duAfhC7iXuzF54Bw81",
+    "productionCommit": "33de2065e3dc11e99e2bc3d498dbf541e44b12a1",
+    "productionHealthReady": true
   },
   "exitCriteria": [
     "thiepn-diet exists in the intended Vercel team",
