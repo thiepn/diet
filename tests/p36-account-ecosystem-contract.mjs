@@ -54,8 +54,8 @@ assert.doesNotMatch(data,/error:\['Data unavailable',state\.error/);
 assert.doesNotMatch(data,/v2AccountProduction/);
 assert.doesNotMatch(data,/account-platform\/sdk\/v1\/index\.js/,'Certified-legacy Diet must not pretend to migrate to SDK in P36.');
 
-assert.match(sw,/diet-copilot-prod-v2-p(?:36|37)-1/);
-assert.match(aliasSw,/diet-copilot-v2-alias-p(?:36|37)-1/);
+assert.match(sw,/diet-copilot-prod-v2-(?:p(?:36|37)-1|ui-v1-1)/);
+assert.match(aliasSw,/diet-copilot-v2-alias-(?:p(?:36|37)-1|ui-v1-1)/);
 
 const coreFiles=['index.html','v2/index.html','v2/shell.css','vendor/supabase-2.116.0.js'];
 function walk(dir){
