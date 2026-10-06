@@ -119,37 +119,14 @@ return payload?.error??null;
 return null;
 }
 async function invokeRemoteCopilot(client,body){
-const legacy=()=>client.functions.invoke('diet-copilot-ai',{body});
-if(DietServerRuntime.copilot.active!=='vercel')return legacy();
-const fallback=async(error)=>{
-if(DietServerRuntime.copilot.fallback==='supabase-edge')return legacy();
-return {data:null,error};
-};
-const sessionResult=await client.auth.getSession();
-if(sessionResult.error)return fallback(sessionResult.error);
-const token=sessionResult.data?.session?.access_token;
-if(!token)return fallback(new Error('No signed-in session is available for remote Copilot.'));
-let response;
+const edge=()=>client.functions.invoke('diet-copilot-ai',{body});
+if(DietServerRuntime.active!=='vercel')return edge();
 try{
-response=await fetch(DietServerRuntime.copilot.vercelEndpoint,{
-method:'POST',
-headers:{
-'Authorization':'Bearer '+token,
-'Content-Type':'application/json'
-},
-body:JSON.stringify(body)
-});
-}catch(error){
-return fallback(error);
-}
-let data=null;
-try{data=await response.clone().json();}catch{}
-if(!response.ok){
-const error=new Error(data?.error||('Remote Copilot returned HTTP '+response.status));
-error.context=response;
-return fallback(error);
-}
-return {data,error:null};
+const s=await client.auth.getSession(),token=s.data?.session?.access_token;
+if(s.error||!token)return edge();
+const r=await fetch(DietServerRuntime.endpoint,{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(body)});
+return r.ok?{data:await r.json(),error:null}:edge();
+}catch{return edge();}
 }
 function fallbackReply(question,ctx,code){
 const local=buildLocalCopilotReply(question,ctx);
