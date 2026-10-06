@@ -27,7 +27,7 @@ assert.doesNotMatch(api,/VERCEL_OIDC_TOKEN/);
 assert.match(health,/ready:supabaseConfigured&&providerConfigured/);
 assert.match(health,/VERCEL_REGION/);
 
-assert.match(runtime,/active:"supabase-edge"/);
+assert.match(runtime,/active:"vercel"/);
 assert.match(runtime,/https:\/\/thiepn-diet\.vercel\.app\/api\/copilot/);
 
 assert.match(client,/DietServerRuntime/);
@@ -49,6 +49,8 @@ assert.equal(manifest.deployment.automaticDeployments,false);
 assert.equal(manifest.deployment.productionDomainCutover,false);
 assert.equal(manifest.deployment.deploymentCertified,false);
 assert.equal(manifest.deployment.liveBoundaryCertified,true);
+assert.equal(manifest.deployment.browserCutover,true);
+assert.equal(manifest.deployment.cutoverMode,"vercel-first-with-supabase-edge-fallback");
 assert.equal(manifest.safety.serverMayWriteDietData,false);
 assert.deepEqual(vercel.regions,["dub1"]);
 assert.equal(vercel.functions["api/copilot.js"].maxDuration,30);
@@ -57,4 +59,4 @@ assert.equal(apiPackage.dependencies.ai,"7.0.123");
 assert.match(vercelIgnore,/!api/);
 assert.match(vercelIgnore,/!vercel\.json/);
 
-console.log("Platform P7 product-owned Vercel runtime contract passed (prepared, not yet activated).");
+console.log("Platform P7 product-owned Vercel runtime contract passed (Vercel-first canary with Edge fallback).");
