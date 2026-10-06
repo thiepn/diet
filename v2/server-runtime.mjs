@@ -1,1 +1,1 @@
-export const DietServerRuntime={active:"supabase-edge",url:"https://thiepn-diet.vercel.app/api/copilot"};
+export const DietServerRuntime={active:"vercel",url:"https://thiepn-diet.vercel.app/api/copilot"};
