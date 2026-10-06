@@ -1,6 +1,7 @@
 import { getDietV2Client,getDietV2Model,getDietV2State,refresh } from './data.js';
 import { logSavedFood,logSavedMeal,repeatMeal } from './write-api.mjs';
 import { localDateKey } from './read-model.mjs';
+import { DietServerRuntime } from './server-runtime.mjs';
 import {
 buildCopilotContext,buildLocalCopilotReply,sanitizeCopilotResponse,validateCopilotProposal,DietCopilotP32
 } from './engine/copilot-context.mjs';
@@ -117,6 +118,39 @@ return payload?.error??null;
 }catch{}
 return null;
 }
+async function invokeRemoteCopilot(client,body){
+const legacy=()=>client.functions.invoke('diet-copilot-ai',{body});
+if(DietServerRuntime.copilot.active!=='vercel')return legacy();
+const fallback=async(error)=>{
+if(DietServerRuntime.copilot.fallback==='supabase-edge')return legacy();
+return {data:null,error};
+};
+const sessionResult=await client.auth.getSession();
+if(sessionResult.error)return fallback(sessionResult.error);
+const token=sessionResult.data?.session?.access_token;
+if(!token)return fallback(new Error('No signed-in session is available for remote Copilot.'));
+let response;
+try{
+response=await fetch(DietServerRuntime.copilot.vercelEndpoint,{
+method:'POST',
+headers:{
+'Authorization':'Bearer '+token,
+'Content-Type':'application/json'
+},
+body:JSON.stringify(body)
+});
+}catch(error){
+return fallback(error);
+}
+let data=null;
+try{data=await response.clone().json();}catch{}
+if(!response.ok){
+const error=new Error(data?.error||('Remote Copilot returned HTTP '+response.status));
+error.context=response;
+return fallback(error);
+}
+return {data,error:null};
+}
 function fallbackReply(question,ctx,code){
 const local=buildLocalCopilotReply(question,ctx);
 if(local)return sanitizeCopilotResponse(local,ctx);
@@ -161,9 +195,7 @@ if(send){send.disabled=true;send.textContent='Thinking…';}
 setMode('Thinking…','busy');
 try{
 const client=getDietV2Client();
-const {data,error}=await client.functions.invoke('diet-copilot-ai',{
-body:{question,context:ctx,history:previous}
-});
+const {data,error}=await invokeRemoteCopilot(client,{question,context:ctx,history:previous});
 if(error){
 const code=await functionErrorCode(error);
 const safe=fallbackReply(question,ctx,code);
