@@ -110,6 +110,9 @@ jobs:
       - name: P29 food memory and reuse intelligence contract
         run: node tests/p29-food-memory-contract.mjs
 
+      - name: Install P7 API runtime dependencies
+        run: npm install --prefix api --ignore-scripts --no-audit --no-fund
+
       - name: Platform P7 product-owned Vercel runtime contract
         run: |
           node tests/platform-p7-vercel-runtime-contract.mjs
