@@ -33,7 +33,7 @@ assert.match(runtime,/https:\/\/thiepn-diet\.vercel\.app\/api\/copilot/);
 assert.match(client,/DietServerRuntime/);
 assert.match(client,/invokeRemoteCopilot/);
 assert.match(client,/client\.auth\.getSession\(\)/);
-assert.match(client,/Authorization':'Bearer /);
+assert.match(client,/Authorization:'Bearer '\+t/);
 assert.match(client,/client\.functions\.invoke\('diet-copilot-ai'/);
 assert.match(client,/return e\(\)/);
 
