@@ -222,9 +222,15 @@ export default {
     const history=safeHistory(body?.history);
     if(!question||!context)return reply(request,{error:"invalid_payload"},400);
 
-    const apiKey=process.env.DIET_COPILOT_AI_API_KEY||process.env.OPENAI_API_KEY;
-    const endpoint=process.env.DIET_COPILOT_AI_ENDPOINT||"https://api.openai.com/v1/responses";
-    const model=process.env.DIET_COPILOT_AI_MODEL||"gpt-6-luna";
+    const directKey=process.env.DIET_COPILOT_AI_API_KEY||process.env.OPENAI_API_KEY||"";
+    const gatewayKey=process.env.AI_GATEWAY_API_KEY||process.env.VERCEL_OIDC_TOKEN||"";
+    const explicitEndpoint=process.env.DIET_COPILOT_AI_ENDPOINT||"";
+    const endpoint=explicitEndpoint||(directKey
+      ?"https://api.openai.com/v1/responses"
+      :"https://ai-gateway.vercel.sh/v1/responses");
+    const apiKey=directKey||gatewayKey;
+    const gatewayMode=endpoint.includes("ai-gateway.vercel.sh");
+    const model=process.env.DIET_COPILOT_AI_MODEL||(gatewayMode?"openai/gpt-5.6-luna":"gpt-5.6-luna");
     if(!apiKey)return reply(request,{error:"ai_not_configured"},503);
 
     const input={question,recentConversation:history,TRUSTED_CONTEXT:context};
@@ -245,7 +251,7 @@ export default {
       const parsed=parseModelJson(extractResponseText(provider));
       const cleaned=cleanReply(parsed,context);
       if(!cleaned)return reply(request,{error:"invalid_model_response"},502);
-      return reply(request,{ok:true,mode:"remote",runtime:"vercel",model,reply:cleaned});
+      return reply(request,{ok:true,mode:"remote",runtime:"vercel",provider:gatewayMode?"vercel-ai-gateway":"direct",model,reply:cleaned});
     }catch(error){
       console.error("diet-copilot-ai request_failed",error instanceof Error?error.name:"Error");
       const timedOut=error?.name==="AbortError";
