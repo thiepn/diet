@@ -704,9 +704,9 @@ function renderLineChart(id,primary,secondary=[],unit=''){
   el.innerHTML=`<svg class="dc-live-chart" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="Time-scaled data trend">
     <line class="dc-chart-gridline" x1="${pad}" x2="${width-pad}" y1="${pad}" y2="${pad}"></line>
     <line class="dc-chart-gridline" x1="${pad}" x2="${width-pad}" y1="${height-pad}" y2="${height-pad}"></line>
-    ${p2?`<path class="dc-chart-line dc-chart-line--secondary" d="${p2}"></path>`:''}
+    ${p2?`<path class="dc-chart-line dc-chart-line--secondary" pathLength="1" d="${p2}"></path>`:''}
     ${points}
-    <path class="dc-chart-line" d="${p1}"></path>
+    <path class="dc-chart-line" pathLength="1" d="${p1}"></path>
   </svg><div class="dc-chart-foot"><span>${escapeHtml(primary[0].date)}</span><strong>${fmt(last.value,unit==='kg'?2:0)} ${escapeHtml(unit)}</strong><span>${escapeHtml(last.date)}</span></div>`;
 }
 function renderIntakeChart(id,series){
