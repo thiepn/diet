@@ -1,0 +1,49 @@
+name: Platform P7 live Vercel probe
+
+on:
+  push:
+    branches:
+      - platform-p7-vercel-copilot-runtime
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify live health
+        shell: bash
+        run: |
+          set -euo pipefail
+          health="$(curl --fail --silent --show-error https://thiepn-diet.vercel.app/api/health)"
+          node -e '
+            const x=JSON.parse(process.argv[1]);
+            if(!x.ok) throw new Error("health ok=false");
+            if(!x.ready) throw new Error("health ready=false");
+            if(x.runtime!=="vercel") throw new Error("wrong runtime");
+            if(x.region!=="dub1") throw new Error("wrong region: "+x.region);
+            if(!x.configuration?.supabase) throw new Error("Supabase not configured");
+            if(!x.configuration?.provider) throw new Error("AI provider not configured");
+          ' "$health"
+
+      - name: Verify authentication boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --output /tmp/p7-unauth.json --write-out '%{http_code}'             -X POST https://thiepn-diet.vercel.app/api/copilot             -H 'content-type: application/json'             -H 'origin: https://thiepn.dev'             --data '{"question":"status","context":{},"history":[]}')"
+          test "$code" = "401"
+          node -e 'const x=require("/tmp/p7-unauth.json"); if(x.error!=="unauthorized") process.exit(1)'
+
+      - name: Verify CORS boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          headers="$(mktemp)"
+          code="$(curl --silent --show-error --output /dev/null --dump-header "$headers" --write-out '%{http_code}'             -X OPTIONS https://thiepn-diet.vercel.app/api/copilot             -H 'origin: https://thiepn.dev')"
+          test "$code" = "204"
+          grep -qi '^access-control-allow-origin: https://thiepn.dev' "$headers"
+
+          denied="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}'             -X OPTIONS https://thiepn-diet.vercel.app/api/copilot             -H 'origin: https://evil.example')"
+          test "$denied" = "403"
