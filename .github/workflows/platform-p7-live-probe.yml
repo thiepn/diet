@@ -13,6 +13,42 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+
+      - name: Verify client performance guards
+        run: |
+          node tests/p16-performance-contract.mjs
+          node tests/p34-mobile-pwa-contract.mjs
+          node tests/p35-visual-delight-contract.mjs
+
+      - name: Verify P7 source contracts
+        run: |
+          npm install --prefix api --ignore-scripts --no-audit --no-fund
+          node tests/platform-p7-vercel-runtime-contract.mjs
+          node tests/platform-p7-vercel-runtime-unit.mjs
+
+      - name: Build Pages candidate
+        uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1
+        with:
+          source: ./
+          destination: ./_site
+
+      - name: Verify Pages candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f _site/index.html
+          test -f _site/v2/copilot.js
+          test -f _site/v2/server-runtime.mjs
+          grep -q 'active:"vercel"' _site/v2/server-runtime.mjs
+          grep -q 'thiepn-diet.vercel.app/api/copilot' _site/v2/server-runtime.mjs
+
       - name: Verify live health
         shell: bash
         run: |
