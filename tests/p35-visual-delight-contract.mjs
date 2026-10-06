@@ -41,7 +41,7 @@ function walk(dir){
 }
 coreFiles.push(...walk('v2'));
 const rawCoreBytes=[...new Set(coreFiles)].reduce((sum,p)=>sum+fs.statSync(p).size,0);
-assert.ok(rawCoreBytes<=750000,`restored visual core budget exceeded: ${rawCoreBytes}/750000 bytes`);
+assert.ok(rawCoreBytes<=750000,`V1-restored visual core budget exceeded: ${rawCoreBytes}/750000 bytes`);
 assert.equal(app.health.rawCoreAssetObservedBytes,rawCoreBytes);
 
 console.log(JSON.stringify({ok:true,phase:'P35-superseded',visualSystem:'V1-restored-on-V2-runtime',rawCoreBytes}));
