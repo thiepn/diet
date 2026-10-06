@@ -17,6 +17,10 @@ assert.equal(app.health?.v1VisualLanguageActive,true);
 assert.equal(app.health?.v2GreenVisualShellActive,false);
 assert.equal(app.health?.p35DelightRuntimeActive,false);
 assert.equal(app.health?.v1UiRestorationContract,'V1-UI');
+assert.equal(app.health?.v1UiRepairContract,'V1-UI-REPAIR');
+assert.equal(app.health?.neutralDarkMode,true);
+assert.equal(app.health?.systemDarkModeNeutral,true);
+assert.equal(app.health?.darkGreenShellTokens,false);
 
 for(const markup of [html,alias]){
   assert.ok(markup.includes('Nutrition dashboard'));
@@ -49,7 +53,7 @@ assert.ok(css.lastIndexOf('--accent:#FF6B55')>css.lastIndexOf('--accent:#2d6a49'
 assert.ok(css.lastIndexOf('--bg:#F7F8FA')>css.lastIndexOf('--bg:#f5f7f5'),'V1 neutral canvas must be final.');
 assert.ok(css.includes(':root[data-theme="dark"]{--bg:#0F0F11;--surface:#171719;--surface-muted:#202024'),'Explicit dark mode must be neutral charcoal.');
 assert.ok(css.includes('@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F0F11'),'System dark mode must use the neutral palette.');
-assert.ok(css.includes('.dc-bottom-nav{display:grid;background:rgba(255,255,255,.96)'),'Tablet/mobile V1 navigation must remain visible.');
+assert.ok(css.includes('@media(max-width:760px){.dc-shell{display:block}.dc-sidebar{display:none}'),'Sidebar/mobile breakpoint must align with the existing bottom-navigation breakpoint.');
 for(const forbidden of ['#111512','#171d18','#1d241f','#1a201b','#2a342c','#39453b','#7bbb91','#a0d2af','#203b2b','#19251d','rgba(42,52,44,.75)']){
   assert.ok(!css.includes(forbidden),`obsolete green dark-mode token remains: ${forbidden}`);
 }
