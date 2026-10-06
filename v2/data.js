@@ -930,7 +930,7 @@ const signIn=document.getElementById('v2AccountSignIn');
 const signOut=document.getElementById('v2AccountSignOut');
 const refreshButton=document.getElementById('v2AccountRefresh');
 if(signIn){signIn.hidden=signedIn||unavailable;signIn.disabled=authBusy||unavailable;}
-if(signOut){signOut.hidden=!signedIn;signOut.disabled=authBusy;}
+if(signOut){signOut.hidden=!signedIn;signOut.disabled=authBusy||getDietWriteGuardState()?.kind==='in_flight';}
 if(refreshButton){
 refreshButton.hidden=!signedIn&&!unavailable;
 refreshButton.disabled=authBusy;
