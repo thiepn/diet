@@ -1,0 +1,77 @@
+name: Platform P7 Vercel runtime candidate
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-and-certify:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+
+      - name: Require deployment credentials
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$VERCEL_TOKEN"
+          test -n "$VERCEL_ORG_ID"
+          test -n "$VERCEL_PROJECT_ID"
+
+      - name: Install pinned Vercel CLI
+        run: npm install --global vercel@59.23.1
+
+      - name: Pull production runtime configuration
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+
+      - name: Build production candidate
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+
+      - name: Deploy production candidate without domain assignment
+        id: deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="$(vercel deploy --prebuilt --prod --skip-domain --token="$VERCEL_TOKEN")"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Certify health and authentication boundary
+        env:
+          URL: ${{ steps.deploy.outputs.url }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          health="$(curl --fail --silent --show-error "$URL/api/health")"
+          node -e 'const x=JSON.parse(process.argv[1]); if(!x.ok||!x.ready||x.runtime!=="vercel"||x.region!=="dub1") process.exit(1)' "$health"
+          code="$(curl --silent --output /tmp/p7-unauth.json --write-out '%{http_code}' \
+            -X POST "$URL/api/copilot" \
+            -H 'content-type: application/json' \
+            --data '{"question":"status","context":{},"history":[]}')"
+          test "$code" = "401"
+          node -e 'const x=require("/tmp/p7-unauth.json"); if(x.error!=="unauthorized") process.exit(1)'
+
+      - name: Promote certified project alias
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          URL: ${{ steps.deploy.outputs.url }}
+        run: vercel promote "$URL" --token="$VERCEL_TOKEN"
