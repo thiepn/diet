@@ -128,6 +128,31 @@ with sync_playwright() as p:
     check("dark primary action keeps coral accent",dark_colors["primary"]=="rgb(255, 123, 102)",dark_colors)
     dark.close()
 
+    light=browser.new_context(viewport={"width":390,"height":844},color_scheme="dark")
+    light.add_init_script("""localStorage.setItem('diet-copilot-v2-ui-preferences-v1',JSON.stringify({theme:'light',density:'comfortable',motion:'system'}));""")
+    lp=light.new_page()
+    lp.goto(PROD+"?p38=light-"+args.browser+"#today",wait_until="networkidle")
+    light_colors=lp.evaluate("""() => {
+      const cards=[...document.querySelectorAll('.dc-metric-grid>.dc-metric-card')];
+      return {
+        theme:document.documentElement.dataset.theme,
+        body:getComputedStyle(document.body).backgroundColor,
+        primary:getComputedStyle(cards[0]).backgroundColor,
+        protein:getComputedStyle(cards[1]).backgroundColor,
+        weight:getComputedStyle(cards[2]).backgroundColor,
+        success:getComputedStyle(cards[3]).backgroundColor,
+        action:getComputedStyle(document.querySelector('.dc-primary-action')).backgroundColor
+      };
+    }""")
+    check("explicit Light preference active",light_colors["theme"]=="light",light_colors)
+    check("light canvas keeps V1 neutral gray",light_colors["body"]=="rgb(247, 248, 250)",light_colors)
+    check("light calorie card keeps coral tint",light_colors["primary"]=="rgb(255, 241, 236)",light_colors)
+    check("light protein card keeps blue tint",light_colors["protein"]=="rgb(237, 243, 255)",light_colors)
+    check("light weight card keeps violet tint",light_colors["weight"]=="rgb(242, 237, 255)",light_colors)
+    check("light success card keeps green tint",light_colors["success"]=="rgb(234, 249, 241)",light_colors)
+    check("light primary action keeps coral",light_colors["action"]=="rgb(255, 107, 85)",light_colors)
+    light.close()
+
     check("no page runtime errors",not evidence["pageErrors"],evidence["pageErrors"])
     browser.close()
 
