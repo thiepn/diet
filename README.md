@@ -103,6 +103,8 @@ Product track status:
 - **P38 candidate-certified**
 - **P37 runtime frozen**
 - **defect-only maintenance** by default
+- **P34 visual system restored after P38 by explicit user preference**
+- P35 motion/delight layer is retained as historical documentation but is no longer active
 
 There are no automatic follow-on product phases after P38. New feature work requires an explicit new product requirement.
 

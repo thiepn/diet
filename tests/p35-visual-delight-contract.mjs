@@ -6,34 +6,30 @@ const read=p=>fs.readFileSync(p,'utf8');
 const html=read('index.html');
 const alias=read('v2/index.html');
 const css=read('v2/shell.css');
-const delight=read('v2/p35-delight.js');
-const data=read('v2/data.js');
 const sw=read('sw.js');
 const aliasSw=read('v2/sw.js');
+const app=JSON.parse(read('.well-known/thiepn-app.json'));
 
-assert.ok(html.includes('./v2/p35-delight.js'));
-assert.ok(alias.includes('./p35-delight.js'));
-assert.match(sw,/diet-copilot-prod-v2-p(?:35|36|37)-1/);
-assert.match(aliasSw,/diet-copilot-v2-alias-p(?:35|36|37)-1/);
-assert.ok(sw.includes("'./v2/p35-delight.js'"));
-assert.ok(aliasSw.includes("'./p35-delight.js'"));
+assert.equal(app.health?.visualDelightContract,'P35-superseded');
+assert.equal(app.health?.p35DelightRuntimeActive,false);
+assert.equal(app.health?.visualSystem,'P34-restored');
+assert.equal(app.visualSystemPhase,'P34-restored');
+
+assert.doesNotMatch(html,/p35-delight\.js/);
+assert.doesNotMatch(alias,/p35-delight\.js/);
+assert.doesNotMatch(sw,/p35-delight\.js/);
+assert.doesNotMatch(aliasSw,/p35-delight\.js/);
+assert.equal(fs.existsSync('v2/p35-delight.js'),false);
 
 for(const token of [
   '--motion-fast','--motion-base','--motion-slow','--ease-pop','--shadow-lift',
   'dc-action-shine','dc-chip-pulse','dc-progress-sheen','dc-chart-draw',
   'dc-bar-rise','dc-value-pop','dc-success-pop','dc-error-nudge',
-  'dc-dialog-in','dc-sheet-in','dc-ripple','dc-success-burst',
-  'data-motion="reduce"','prefers-reduced-motion:reduce'
-]) assert.ok(css.includes(token),`missing P35 visual token: ${token}`);
+  'dc-dialog-in','dc-sheet-in','dc-ripple','dc-success-burst'
+]) assert.ok(!css.includes(token),`superseded P35 token still active: ${token}`);
 
-for(const token of [
-  "version:'1.0.0-p35'","todayCaloriesValue","progressTrendChange",
-  "foodWriteStatus","dc-success-pop","dc-success-burst",
-  "prefers-reduced-motion: reduce","dc-ripple"
-]) assert.ok(delight.includes(token),`missing P35 runtime behavior: ${token}`);
-
-assert.match(data,/pathLength="1"/);
-assert.doesNotMatch(delight,/calorie.*celebrat|weight.*celebrat|goal.*confetti/i,'P35 delight must not gamify calories, weight, or goal outcomes.');
+assert.ok(css.includes('.dc-account-platform-note'));
+assert.ok(css.includes('.dc-account-ecosystem'));
 
 const coreFiles=['index.html','v2/index.html','v2/shell.css','vendor/supabase-2.116.0.js'];
 function walk(dir){
@@ -45,6 +41,7 @@ function walk(dir){
 }
 coreFiles.push(...walk('v2'));
 const rawCoreBytes=[...new Set(coreFiles)].reduce((sum,p)=>sum+fs.statSync(p).size,0);
-assert.ok(rawCoreBytes<=750000,`P35 core budget exceeded: ${rawCoreBytes}/750000 bytes`);
+assert.ok(rawCoreBytes<=750000,`restored visual core budget exceeded: ${rawCoreBytes}/750000 bytes`);
+assert.equal(app.health.rawCoreAssetObservedBytes,rawCoreBytes);
 
-console.log(JSON.stringify({ok:true,phase:'P35',rawCoreBytes,motionRespect:true,actionDelight:true}));
+console.log(JSON.stringify({ok:true,phase:'P35-superseded',visualSystem:'P34-restored',rawCoreBytes}));
