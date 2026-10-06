@@ -582,7 +582,8 @@
             <button class="dc-more-card" type="button" data-open-food-library><span class="dc-more-icon" aria-hidden="true">◎</span><span><strong>Foods & meals</strong><small>Custom foods, favorites and saved meals</small></span><span aria-hidden="true">›</span></button>
             <button class="dc-more-card" id="moreIntegrationsButton" type="button"><span class="dc-more-icon" aria-hidden="true">⇄</span><span><strong>Integrations</strong><small id="moreIntegrationsSummary">Health Connect and activity context</small></span><span aria-hidden="true">›</span></button>
             <button class="dc-more-card" id="moreBodyButton" type="button"><span class="dc-more-icon" aria-hidden="true">⌁</span><span><strong>Body & weight</strong><small id="moreBodySummary">Weight history, trend and goal</small></span><span aria-hidden="true">›</span></button>
-            <button class="dc-more-card" type="button" data-shell-action="account"><span class="dc-more-icon" aria-hidden="true">◉</span><span><strong>Account</strong><small id="moreAccountSummary">THIEPN account and sync status</small></span><span aria-hidden="true">›</span></button>
+            <button class="dc-more-card" type="button" data-shell-action="account"><span class="dc-more-icon" aria-hidden="true">◉</span><span><strong>Account</strong><small id="moreAccountSummary">Checking THIEPN account…</small></span><span aria-hidden="true">›</span></button>
+            <a class="dc-more-card" href="/home/" referrerpolicy="no-referrer"><span class="dc-more-icon" aria-hidden="true">⌂</span><span><strong>THIEPN Hub</strong><small>Home, apps, search and cross-app workflows</small></span><span aria-hidden="true">›</span></a>
             <button class="dc-more-card" id="moreAppearanceButton" type="button"><span class="dc-more-icon" aria-hidden="true">◐</span><span><strong>Appearance</strong><small id="moreAppearanceSummary">System · Comfortable</small></span><span aria-hidden="true">›</span></button>
             <button class="dc-more-card" id="moreDataButton" type="button"><span class="dc-more-icon" aria-hidden="true">↓</span><span><strong>Data & export</strong><small id="moreDataSummary">Export + privacy controls</small></span><span aria-hidden="true">›</span></button>
             <button class="dc-more-card" id="moreHealthButton" type="button"><span class="dc-more-icon" aria-hidden="true">◇</span><span><strong>System health</strong><small id="moreHealthSummary">Checking · local diagnostics</small></span><span aria-hidden="true">›</span></button>
@@ -762,16 +763,21 @@
         </button>
       </div>
       <p class="dc-account-email" id="accountStateEmail">Checking saved session…</p>
+      <p class="dc-account-platform-note" id="accountPlatformNote">THIEPN Account owns identity and security; Diet Copilot owns your nutrition data.</p>
       <div class="dc-settings-list">
+        <div><span>Session authority</span><strong>THIEPN Account</strong></div>
+        <div><span>Diet session</span><strong id="accountSessionScope">Checking…</strong></div>
         <div><span>Data source</span><strong id="accountStateSource">—</strong></div>
         <div><span>Last sync</span><strong id="accountStateSync">—</strong></div>
-        <div><span>Access</span><strong>Owner-scoped reads + approved actions</strong></div>
+      </div>
+      <div class="dc-account-ecosystem" aria-label="THIEPN ecosystem">
+        <a href="https://account.thiepn.dev/" referrerpolicy="no-referrer"><strong>Manage THIEPN Account</strong><span>Profile, security, connected apps, data and privacy</span></a>
+        <a href="/home/" referrerpolicy="no-referrer"><strong>Return to Hub</strong><span>Home, apps, search and cross-app workflows</span></a>
       </div>
       <div class="dc-dialog-actions">
         <button class="dc-primary-action" id="v2AccountSignIn" type="button">Continue with Google</button>
         <button class="dc-secondary-action" id="v2AccountRefresh" type="button" hidden>Refresh data</button>
-        <button class="dc-secondary-action" id="v2AccountSignOut" type="button" hidden>Sign out</button>
-        <button class="dc-secondary-action" id="v2AccountProduction" type="button">Open legacy v1</button>
+        <button class="dc-secondary-action" id="v2AccountSignOut" type="button" hidden>Sign out of Diet</button>
       </div>
     </div>
   </dialog>
