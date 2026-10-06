@@ -110,7 +110,7 @@ with sync_playwright() as p:
     tablet=browser.new_context(viewport={"width":820,"height":1180})
     tp=tablet.new_page()
     tp.goto(PROD+"?p38=tablet-"+args.browser+"#today",wait_until="networkidle")
-    check("tablet navigation remains available",tp.locator(".dc-bottom-nav").is_visible())
+    check("tablet navigation remains available",tp.locator(".dc-sidebar").is_visible())
     tablet_width=tp.evaluate("() => ({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth})")
     check("no tablet page overflow",tablet_width["scroll"]<=tablet_width["client"]+2,tablet_width)
     tablet.close()
