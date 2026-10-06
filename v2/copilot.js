@@ -119,14 +119,14 @@ return payload?.error??null;
 return null;
 }
 async function invokeRemoteCopilot(client,body){
-const edge=()=>client.functions.invoke('diet-copilot-ai',{body});
-if(DietServerRuntime.active!=='vercel')return edge();
+const e=()=>client.functions.invoke('diet-copilot-ai',{body});
+if(DietServerRuntime.active!=='vercel')return e();
 try{
-const s=await client.auth.getSession(),token=s.data?.session?.access_token;
-if(s.error||!token)return edge();
-const r=await fetch(DietServerRuntime.endpoint,{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify(body)});
-return r.ok?{data:await r.json(),error:null}:edge();
-}catch{return edge();}
+const t=(await client.auth.getSession()).data?.session?.access_token;
+if(!t)return e();
+const r=await fetch(DietServerRuntime.endpoint,{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body)});
+return r.ok?{data:await r.json()}:e();
+}catch{return e();}
 }
 function fallbackReply(question,ctx,code){
 const local=buildLocalCopilotReply(question,ctx);
