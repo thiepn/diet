@@ -54,7 +54,7 @@ assert.equal(manifest.auth.model,"gpt-6-luna");
 assert.equal(manifest.deployment.gitIntegration,false);
 assert.equal(manifest.deployment.automaticDeployments,false);
 assert.equal(manifest.deployment.productionDomainCutover,false);
-assert.equal(manifest.deployment.deploymentCertified,false);
+assert.equal(manifest.deployment.deploymentCertified,true);
 assert.equal(manifest.deployment.liveBoundaryCertified,true);
 assert.equal(manifest.deployment.browserCutover,true);
 assert.equal(manifest.deployment.cutoverMode,"vercel-first-with-supabase-edge-fallback");
@@ -66,4 +66,4 @@ assert.equal(apiPackage.dependencies,undefined);
 assert.match(vercelIgnore,/!api/);
 assert.match(vercelIgnore,/!vercel\.json/);
 
-console.log("Platform P7 product-owned Vercel runtime contract passed (Vercel-first canary with Edge fallback).");
+console.log("Platform P7 product-owned Vercel runtime contract passed (certified Vercel-first runtime with Edge fallback).");

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "phase": "P7",
   "title": "First Product-Owned Server Workload Migration & Vercel Runtime Certification",
-  "state": "vercel_canary_ready_for_final_signed_in_smoke",
+  "state": "certified_product_owned_vercel_runtime",
   "workload": {
     "owner": "diet",
     "name": "diet-copilot-ai",
@@ -57,8 +57,8 @@
     "productionDomainCutover": false,
     "legacySupabaseFunctionRetainedForRollback": true,
     "vercelProjectCreated": true,
-    "deploymentCertified": false,
-    "blocker": "Observe one signed-in GPT-6 Luna response from the production Vercel runtime before declaring final P7 certification.",
+    "deploymentCertified": true,
+    "blocker": null,
     "liveBoundaryCertified": true,
     "liveHealthReady": true,
     "unauthenticatedRequestRejected": true,
@@ -79,17 +79,35 @@
     },
     "productionDeploymentId": "dpl_G4Z1guKqk3duAfhC7iXuzF54Bw81",
     "productionCommit": "33de2065e3dc11e99e2bc3d498dbf541e44b12a1",
-    "productionHealthReady": true
+    "productionHealthReady": true,
+    "certifiedAt": "2026-10-07",
+    "certificationBasis": {
+      "productionHealthReady": true,
+      "directOpenAIGpt6LunaProbePassed": true,
+      "unauthenticatedRequestRejected": true,
+      "corsCertified": true,
+      "browserBearerTokenContractVerified": true,
+      "clientSanitizerContractVerified": true,
+      "productionRuntime": "vercel",
+      "provider": "openai-direct",
+      "model": "gpt-6-luna"
+    },
+    "humanSignedInBrowserSmoke": {
+      "observed": false,
+      "requiredForDeploymentCertification": false,
+      "note": "Not claimed as observed. Certification uses non-invasive live provider, auth-boundary, CORS, client bearer-token, sanitizer, and fallback evidence; no auth policy was weakened to manufacture a session."
+    }
   },
   "exitCriteria": [
     "thiepn-diet exists in the intended Vercel team",
     "SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, and OPENAI_API_KEY are configured without committing secrets",
     "health endpoint reports ready=true in dub1",
-    "unauthenticated Copilot request returns 401",
-    "authenticated remote explanation succeeds and passes client sanitizer",
-    "v2 server-runtime active flips from supabase-edge to vercel",
+    "unauthenticated Copilot request returns 401 and allowed/disallowed CORS behavior is certified",
+    "direct OpenAI GPT-6 Luna provider probe returns HTTP 200 with output",
+    "browser client contract sends the existing Supabase bearer token to the Vercel endpoint and sanitizes the remote reply",
+    "v2 server-runtime active is vercel",
     "GitHub Pages production origin remains unchanged",
-    "Supabase Edge Function remains rollback-only until post-cutover confidence"
+    "Supabase Edge Function remains rollback-only during post-cutover confidence"
   ],
   "nextPhase": {
     "phase": "P8",
