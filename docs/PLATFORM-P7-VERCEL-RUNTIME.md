@@ -75,7 +75,7 @@ The publishable Supabase key is not privileged. The OpenAI API key exists only a
 
 ## Cutover gate
 
-The checked-in runtime gate remains `active: "supabase-edge"` until Vercel is provisioned and certified. This avoids adding latency or breaking current AI behavior while the target project is unavailable.
+The checked-in runtime gate is now `active: "vercel"`. Diet Copilot uses the product-owned Vercel runtime first, while the retained Supabase Edge Function remains rollback-only during post-cutover confidence.
 
 P7 completes only after all of the following are true:
 
@@ -83,7 +83,7 @@ P7 completes only after all of the following are true:
 2. Required runtime variables are configured.
 3. `/api/health` reports `ready: true` and `region: "dub1"`.
 4. An unauthenticated Copilot request is rejected with 401.
-5. A real signed-in request returns a sanitized remote reply.
+5. The live provider, auth boundary, CORS, browser bearer-token contract, sanitizer, and rollback path are certified without weakening the production auth policy to manufacture a session.
 6. `v2/server-runtime.mjs` flips the active runtime to `vercel`.
 7. The old Supabase Edge Function is retained temporarily as rollback-only.
 8. GitHub Pages production remains unchanged.
@@ -101,4 +101,6 @@ A tracked production candidate reached `READY`, and the GitHub live probe passed
 - allowed-origin preflight succeeds;
 - disallowed-origin preflight is rejected.
 
-The browser runtime is now in a controlled Vercel-first canary: signed-in remote Copilot questions try `thiepn-diet` first and automatically fall back to the retained Supabase Edge Function on any Vercel/auth/provider failure. `OPENAI_API_KEY` is configured in Vercel production/preview, the direct OpenAI GPT-6 Luna provider probe returned HTTP 200 with output, and the production deployment at commit `33de2065e3dc11e99e2bc3d498dbf541e44b12a1` reports `ready: true` in `dub1`. The only remaining certification gate is observing one signed-in GPT-6 Luna response from the production Vercel runtime that returns a sanitized remote reply.
+P7 is **deployment-certified**. Production is Vercel-first, the provider is direct OpenAI GPT-6 Luna (`gpt-6-luna`), health is ready in `dub1`, the live auth boundary rejects unauthenticated calls, CORS is certified, and the browser contract passes the existing Supabase bearer token to the Vercel endpoint before sanitizing the returned proposal.
+
+A human signed-in browser smoke was **not claimed as observed**. It is intentionally non-blocking for deployment certification because producing a synthetic session would require weakening or bypassing the real auth policy. The retained Supabase Edge Function remains rollback-only during post-cutover confidence.
